@@ -51,7 +51,7 @@ public class MacroChannelDef extends ChannelDef {
 	 * @see MacroChannelDef#addMacro(Macro)
 	 */
 	public MacroChannelDef(int offset) {
-		this.offset = offset;
+		super(offset, 0, 255);
 	}
 	
 }

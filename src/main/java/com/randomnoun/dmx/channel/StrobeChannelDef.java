@@ -1,12 +1,12 @@
 package com.randomnoun.dmx.channel;
 
-/** Strobe channel def. Different settings on this channel will cause the
+/** Strobe channel definition. Different settings on this channel will cause the
  * fixture to go to black and return to it's current setting at a
  * predetermined rate.
  *  
  * <p>This class currently assumes a linear change in strobe speed
- * by DMX value. It will not understand DMX values that are outside
- * the values specified by this class.  
+ * by DMX value. The StrobeChannelMuxer currently turns off strobe for
+ * values outside those specified by this class.  
  *  
  * @author knoxg
  */
@@ -26,11 +26,11 @@ public class StrobeChannelDef extends ChannelDef {
 	
 	/** The DMX value which will give the fastest strobe speed */
 	int maximumStrobeValue;
-	
+
 	public StrobeChannelDef(int offset, int disableStrobeValue, int minimumStrobeHertz,
 		int minimumStrobeValue, int maximumStrobeHertz, int maximumStrobeValue) 
 	{
-		this.offset = offset;
+		super(offset, minimumStrobeValue, maximumStrobeValue);
 		this.disableStrobeValue = disableStrobeValue;
 		this.minimumStrobeHertz = minimumStrobeHertz;
 		this.minimumStrobeValue = minimumStrobeValue;

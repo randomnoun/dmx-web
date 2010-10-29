@@ -13,8 +13,22 @@ public abstract class ChannelDef {
 	
 	/** 0-based offset from fixture initial DMX channel number */
 	protected int offset;
+	
+	/** The lowest dmx value that will be taken as input to this channelDef (normally 0) */
+	protected int lowDmxValue;
+	
+	/** The highest dmx value that will be taken as input to this channelDef (normally 255) */
+	protected int highDmxValue;
+	
 	public int getOffset() { return offset; }
+	public int getLowDmxValue() { return lowDmxValue; }
+	public int getHighDmxValue() { return highDmxValue; } 
 	
 	//public int numChannels() { return numChannels; }
+	protected ChannelDef(int offset, int lowDmxValue, int highDmxValue) {
+		this.offset = offset;
+		this.lowDmxValue = lowDmxValue;
+		this.highDmxValue = highDmxValue;
+	}
 	
 }

@@ -17,7 +17,7 @@ public class SpeedChannelDef extends ChannelDef {
 	public double speedUpFactorWhenFast;
 	
 	public SpeedChannelDef(int offset, int slowValue, int fastValue, double speedUpFactorWhenSlow, double speedUpFactorWhenFast) {
-		this.offset = offset;
+		super(offset, 0, 255);
 		this.slowValue = slowValue;
 		this.fastValue = fastValue;
 		this.speedUpFactorWhenSlow = speedUpFactorWhenSlow;
