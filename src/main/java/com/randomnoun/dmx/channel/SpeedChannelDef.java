@@ -4,8 +4,8 @@ package com.randomnoun.dmx.channel;
  * in conjunction with another channel to be useful.
  * 
  * <p>When the value of this channel==slowValue
- * time will progress at the normal rate; as the
- * channel increases to fastValue, time will be multipled up to speedUpFactor.
+ * time will progress at the the speedUpFactorWhenSlow * normal rate; as the
+ * channel increases to fastValue, time will be multipled up to speedUpFactorWhenFast * normal rate.
  * 
  * @see MacroChannelDef
  */
@@ -13,17 +13,20 @@ public class SpeedChannelDef extends ChannelDef {
 
 	public int slowValue;
 	public int fastValue;
-	public double speedUpFactor;
+	public double speedUpFactorWhenSlow;
+	public double speedUpFactorWhenFast;
 	
-	public SpeedChannelDef(int offset, int slowValue, int fastValue, double speedUpFactor) {
+	public SpeedChannelDef(int offset, int slowValue, int fastValue, double speedUpFactorWhenSlow, double speedUpFactorWhenFast) {
 		this.offset = offset;
 		this.slowValue = slowValue;
 		this.fastValue = fastValue;
-		this.speedUpFactor = speedUpFactor;
+		this.speedUpFactorWhenSlow = speedUpFactorWhenSlow;
+		this.speedUpFactorWhenFast = speedUpFactorWhenFast;
 	}
 	
 	public int getSlowValue() { return slowValue; }
 	public int getFastValue() { return fastValue; }
-	public double getSpeedUpFactor() { return speedUpFactor; }
+	public double getSpeedUpFactorWhenSlow() { return speedUpFactorWhenSlow; }
+	public double getSpeedUpFactorWhenFast() { return speedUpFactorWhenFast; }
 	
 }

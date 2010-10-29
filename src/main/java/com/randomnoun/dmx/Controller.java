@@ -21,13 +21,13 @@ public class Controller {
 	}
 
 	public void blackOut() {
-		// TODO Auto-generated method stub
-		
+		for (int i=0; i<Universe.MAX_CHANNELS; i++){
+			universe.setDmxChannelValue(i, 0);
+		}
 	}
 
-	public void setDmxChannel(int i, int j) {
-		// TODO Auto-generated method stub
-		
+	public void setDmxChannelValue(int dmxChannelNumer, int value) {
+		universe.setDmxChannelValue(dmxChannelNumer, value);
 	}
 	
 	

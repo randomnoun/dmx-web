@@ -2,6 +2,8 @@ package com.randomnoun.dmx.channelMuxer.timed;
 
 import java.awt.Color;
 
+import org.apache.log4j.Logger;
+
 import com.randomnoun.dmx.Fixture;
 import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.channel.ChannelDef;
@@ -12,13 +14,17 @@ import com.randomnoun.dmx.timeSource.TimeSource;
 /** This muxer transitions between a set of colours over time, with either
  * sharp or gradual transitions between colours. 
  *  
+ * <p>When this muxer performs a fade transition, it is just doing a linear
+ * fade between 2 RGB values, rather than anything in, say, the HSB space.
+ *  
  * @author knoxg
  */
 public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer {
 
+	Logger logger = Logger.getLogger(StrobeChannelMuxer.class);
+	
 	private long cycleTime;
 	private ColorGradientDef[] colorGradientDefs;
-	
 	public static enum ColorGradientTransition { SHARP, FADE }
 	
 	public static class ColorGradientDef {
@@ -34,6 +40,12 @@ public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer
 			this.color = color;
 			this.duration = duration;
 			this.transitionToNextColor = transitionToNextColor;
+		}
+		
+		public String toString() {
+			return "startTime=" + startTime + ", color=[r=" + color.getRed() + ",g=" + 
+				color.getGreen() + ",b=" + color.getBlue() + "], duration=" + duration + 
+				", transitionToNextColor=" + transitionToNextColor.toString();
 		}
 	}
 	
@@ -68,12 +80,12 @@ public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer
 	
 	
 	public FixtureOutput getOutput() {
-		long now = getCycleOffset();
+		long cycleOffset = getCycleOffset();
 		
 		int cgdIndex = -1;
 		for (int i=0; i<colorGradientDefs.length; i++) {
 			ColorGradientDef cgd = colorGradientDefs[i];
-			if (now>=cgd.startTime && now<=cgd.startTime + cgd.duration) {
+			if (cycleOffset>=cgd.startTime && cycleOffset<=cgd.startTime + cgd.duration) {
 				cgdIndex = i; break;
 			}
 		}
@@ -89,13 +101,17 @@ public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer
 		}
 		
 		final ColorGradientDef nextCgd = colorGradientDefs[cgdIndex==colorGradientDefs.length-1 ? 0 : cgdIndex+1];
-		final long timeInTransition = now - currentCgd.startTime;
+		final long timeInTransition = cycleOffset - currentCgd.startTime;
+		final double fade = ((float) timeInTransition / (float) currentCgd.duration); 
+		
+		logger.debug("mux time=" + timeSource.getTime() + ", cycleOffset=" + cycleOffset + ", currentCgd=[" + currentCgd + "], nextCgd=[" + nextCgd + "], timeInTransition=" + timeInTransition + ", fade=" + fade);
+		
 		return new FixtureOutput() {
 			public Color getColor() {
 				return new Color(
-					currentCgd.color.getRed() + (nextCgd.color.getRed()-currentCgd.color.getRed()) * timeInTransition / currentCgd.duration,
-					currentCgd.color.getGreen() + (nextCgd.color.getGreen()-currentCgd.color.getGreen()) * timeInTransition / currentCgd.duration,
-					currentCgd.color.getBlue() + (nextCgd.color.getBlue()-currentCgd.color.getBlue()) * timeInTransition / currentCgd.duration);
+					(int) (currentCgd.color.getRed() + (nextCgd.color.getRed()-currentCgd.color.getRed()) * fade),
+					(int) (currentCgd.color.getGreen() + (nextCgd.color.getGreen()-currentCgd.color.getGreen()) * fade),
+					(int) (currentCgd.color.getBlue() + (nextCgd.color.getBlue()-currentCgd.color.getBlue()) * fade));
 			}
 			public long getTime() { return timeSource.getTime(); }
 		};

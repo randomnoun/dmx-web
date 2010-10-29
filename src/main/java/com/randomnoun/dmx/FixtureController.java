@@ -44,12 +44,12 @@ public abstract class FixtureController {
 		{
 			throw new UnsupportedOperationException("Default setColor implementation requires red, green and blue dimmers for this fixture");
 		}
-		fixture.setDmxChannel(redDimmerChannelDef.getOffset(), color.getRed());
-		fixture.setDmxChannel(greenDimmerChannelDef.getOffset(), color.getGreen());
-		fixture.setDmxChannel(blueDimmerChannelDef.getOffset(), color.getBlue());
+		fixture.setDmxChannelValue(redDimmerChannelDef.getOffset(), color.getRed());
+		fixture.setDmxChannelValue(greenDimmerChannelDef.getOffset(), color.getGreen());
+		fixture.setDmxChannelValue(blueDimmerChannelDef.getOffset(), color.getBlue());
 		
 		if (masterDimmerChannelDef!=null) {
-			fixture.setDmxChannel(masterDimmerChannelDef.getOffset(), 255);
+			fixture.setDmxChannelValue(masterDimmerChannelDef.getOffset(), 255);
 		}
 	}
 	
@@ -62,10 +62,30 @@ public abstract class FixtureController {
 		if (strobeChannelDef==null) {
 			throw new UnsupportedOperationException("Default strobe implementation requires strobe channel for this fixture");
 		}
-		fixture.setDmxChannel(strobeChannelDef.getOffset(), strobeChannelDef.getMaximumStrobeValue());
+		fixture.setDmxChannelValue(strobeChannelDef.getOffset(), strobeChannelDef.getMaximumStrobeValue());
 	}
 	
+	/** Sets the master dimmer value of this fixture to the specified value
+	 * 
+	 * @param value
+	 */
+	public void setMasterDimmer(int value) {
+		FixtureDef fixtureDef = fixture.getFixtureDef();
+		DimmerChannelDef masterDimmerChannelDef = (DimmerChannelDef) fixtureDef.getChannelDefByClass(MasterDimmerChannelDef.class);		
+		// 
+		if (masterDimmerChannelDef==null) {
+			throw new UnsupportedOperationException("Default setMasterDimmer implementation requires a master dimmer channel for this fixture");
+		}
+		fixture.setDmxChannelValue(masterDimmerChannelDef.getOffset(), value);
+	}
+	
+	/** Sets all channels for this fixture to 0 */
 	public void blackOut() {
-		this.setColor(Color.BLACK);
+		// which is different to setting the color to black
+		// this.setColor(Color.BLACK);
+		
+		for (int i=0; i<fixture.getFixtureDef().getNumDmxChannels(); i++){
+			fixture.setDmxChannelValue(i, 0);
+		}
 	}
 }

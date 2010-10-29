@@ -50,7 +50,7 @@ public class X0177FixtureDef extends FixtureDef {
 			// we know this is on channel 5 for this fixture
 			MacroChannelDef mcd = (MacroChannelDef) fixture.getFixtureDef().getChannelDefByOffset(5);
 			Macro m = mcd.getMacros().get(index);
-			fixture.setDmxChannel(5, (m.getLowValue() + m.getHighValue()) / 2);
+			fixture.setDmxChannelValue(5, (m.getLowValue() + m.getHighValue()) / 2);
 		}
 	}
 
@@ -60,7 +60,7 @@ public class X0177FixtureDef extends FixtureDef {
 		this.model = "X0177";
 		this.maxWattage = 20;
 		
-		this.dmxChannels=7;
+		this.numDmxChannels=7;
 		
 		this.addChannelDef(new MasterDimmerChannelDef(0));
 		this.addChannelDef(new RedDimmerChannelDef(1));
@@ -73,7 +73,7 @@ public class X0177FixtureDef extends FixtureDef {
 		mcd.addMacro(new Macro("RGB color change, flash each color to black 3 times", 160, 191));
 		mcd.addMacro(new Macro("rainbow color change, no transition", 192, 255));
 		this.addChannelDef(mcd);
-		this.addChannelDef(new SpeedChannelDef(6, 0, 255, 3.0));
+		this.addChannelDef(new SpeedChannelDef(6, 0, 255, 1.0, 3.0));
 	}
 	
 	
@@ -98,19 +98,19 @@ public class X0177FixtureDef extends FixtureDef {
 		
 		// (I'm assuming here we don't strobe the output from macros, 
 		// but that we are able to fade them)
-		ChannelMuxer macro1Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
+		ChannelMuxer macro0Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
 			new TimedColorGradientChannelMuxer.ColorGradientDef(0, Color.BLUE, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.FADE),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(1000, Color.GREEN, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.FADE),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(2000, Color.CYAN, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.FADE),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(3000, Color.RED, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.FADE),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(4000, Color.MAGENTA, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.FADE),
 		});
-		ChannelMuxer macro2Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
+		ChannelMuxer macro1Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
 			new TimedColorGradientChannelMuxer.ColorGradientDef(0, Color.RED, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(1000, Color.BLUE, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(2000, Color.GREEN, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
 		});
-		ChannelMuxer macro3Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
+		ChannelMuxer macro2Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
 			new TimedColorGradientChannelMuxer.ColorGradientDef(0, Color.RED, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(1000, Color.RED, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
@@ -130,7 +130,7 @@ public class X0177FixtureDef extends FixtureDef {
 			new TimedColorGradientChannelMuxer.ColorGradientDef(8000, Color.BLUE, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(8500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
 		});
-		ChannelMuxer macro4Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
+		ChannelMuxer macro3Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
 			new TimedColorGradientChannelMuxer.ColorGradientDef(0, Color.BLUE, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(1000, Color.GREEN, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
 			new TimedColorGradientChannelMuxer.ColorGradientDef(2000, Color.CYAN, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
@@ -138,7 +138,7 @@ public class X0177FixtureDef extends FixtureDef {
 			new TimedColorGradientChannelMuxer.ColorGradientDef(4000, Color.MAGENTA, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
 		});
 		MacroChannelMuxer macroMuxer = new MacroChannelMuxer(strobeMuxer, 
-			new ChannelMuxer[] { macro1Muxer, macro2Muxer, macro3Muxer, macro4Muxer });
+			new ChannelMuxer[] { macro0Muxer, macro1Muxer, macro2Muxer, macro3Muxer });
 		
 		return new MasterDimmerChannelMuxer(macroMuxer);
 	}

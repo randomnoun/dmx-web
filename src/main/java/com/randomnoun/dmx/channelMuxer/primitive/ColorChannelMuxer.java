@@ -2,6 +2,8 @@ package com.randomnoun.dmx.channelMuxer.primitive;
 
 import java.awt.Color;
 
+import org.apache.log4j.Logger;
+
 import com.randomnoun.dmx.Fixture;
 import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.channel.ChannelDef;
@@ -11,13 +13,15 @@ import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 /** This muxer requires a red green and blue channel */
 public class ColorChannelMuxer extends ChannelMuxer {
 
+	Logger logger = Logger.getLogger(ColorChannelMuxer.class);
+	
 	int redOffset;
 	int greenOffset;
 	int blueOffset;
 	
 	public ColorChannelMuxer(Fixture fixture) {
 		super(fixture);
-		
+		redOffset = -1; greenOffset = -1; blueOffset = -1;
 		for (ChannelDef cd : getFixtureDef().getChannelDefs()) {
 			if (cd instanceof DimmerChannelDef) {
 				DimmerChannelDef dcd = (DimmerChannelDef) cd;
@@ -26,12 +30,16 @@ public class ColorChannelMuxer extends ChannelMuxer {
 				if (dcd.dimmerType==DimmerChannelDef.DimmerType.BLUE) { blueOffset = dcd.getOffset(); }
 			}
 		}
+		if (redOffset==-1) { logger.warn("ColorChannelMuxer on fixture with no red channel"); }
+		if (greenOffset==-1) { logger.warn("ColorChannelMuxer on fixture with no green channel"); }
+		if (blueOffset==-1) { logger.warn("ColorChannelMuxer on fixture with no blue channel"); }
 	}
 	
 	public FixtureOutput getOutput() {
-		final int redValue = fixture.getChannelValue(redOffset);
-		final int greenValue = fixture.getChannelValue(greenOffset);
-		final int blueValue = fixture.getChannelValue(blueOffset);
+		final int redValue = redOffset == -1 ? 0 : fixture.getDmxChannelValue(redOffset);
+		final int greenValue = greenOffset == -1 ? 0 : fixture.getDmxChannelValue(greenOffset);
+		final int blueValue = blueOffset == -1 ? 0 : fixture.getDmxChannelValue(blueOffset);
+		logger.debug("redValue=" + redValue + ", greenValue=" + greenValue + ", blueValue=" + blueValue);
 		return new FixtureOutput() {
 			public Color getColor() {
 				return new Color(redValue, greenValue, blueValue);

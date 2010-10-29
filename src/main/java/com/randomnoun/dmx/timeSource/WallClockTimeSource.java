@@ -8,18 +8,15 @@ import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 
-/** A timesource that returns the time of the current universe
+/** A timesource that returns the current time
  */ 
-public class UniverseTimeSource implements TimeSource {
+public class WallClockTimeSource implements TimeSource {
 
-	Universe universe;
-	
-	public UniverseTimeSource(Universe universe) {
-		this.universe = universe;
+	public WallClockTimeSource() {
 	}
 	
 	public long getTime() {
-		return universe.getTime();
+		return System.currentTimeMillis();
 	}
 	
 }

@@ -17,7 +17,7 @@ public abstract class FixtureDef {
 	public String model;
 	public int maxWattage;
 	
-	public long dmxChannels;
+	protected int numDmxChannels;
 	public ChannelMuxer muxer;
 	
 	public List<ChannelDef> channelDefs = new ArrayList<ChannelDef>();
@@ -61,6 +61,8 @@ public abstract class FixtureDef {
 		throw new IllegalArgumentException("Offset " + offset + " not a valid offset for this fixture definition");
 	}
 
+	public int getNumDmxChannels() { return numDmxChannels; }
+	
 	
 	// to be implemented by subclasses of this class
 	public abstract ChannelMuxer getChannelMuxer(Fixture fixture);

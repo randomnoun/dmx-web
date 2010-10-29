@@ -2,11 +2,14 @@ package com.randomnoun.dmx.channelMuxer;
 
 import java.awt.Color;
 
+import org.apache.log4j.Logger;
+
 import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
 import com.randomnoun.dmx.channelMuxer.timed.CyclingTimeBasedChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.timed.StrobeChannelMuxer;
 import com.randomnoun.dmx.channel.StrobeChannelDef;
 
 /** A muxer which takes a single macro channel and, if enabled, 
@@ -18,6 +21,7 @@ public class MacroChannelMuxer extends ChannelMuxer {
 	ChannelMuxer inputMuxer;
 	ChannelMuxer[] outputMuxers;
 	MacroChannelDef channelDef;
+	Logger logger = Logger.getLogger(MacroChannelMuxer.class);
 	
 	public MacroChannelMuxer(ChannelMuxer inputMuxer, ChannelMuxer[] outputMuxers) {
 		super(inputMuxer.getFixture());
@@ -34,8 +38,8 @@ public class MacroChannelMuxer extends ChannelMuxer {
 				this.channelDef = (MacroChannelDef) cd;
 			}
 		}
-		if (this.channelDef!=null) { 
-			throw new IllegalStateException("Cannot apply a macro muxer to a fixture without a macro channel definition");
+		if (this.channelDef==null) { 
+			throw new IllegalStateException("Cannot apply a macro muxer to a fixture without a macroChannel definition");
 		}
 	}
 
@@ -45,7 +49,7 @@ public class MacroChannelMuxer extends ChannelMuxer {
 	 * @return
 	 */
 	private int getCurrentMacroIndex() {
-		int macroValue = fixture.getChannelValue(channelDef.getOffset());
+		int macroValue = fixture.getDmxChannelValue(channelDef.getOffset());
 		for (int i=0; i<channelDef.macros.size(); i++) {
 			Macro m = channelDef.macros.get(i);
 			if (macroValue >= m.getLowValue() && macroValue <= m.getHighValue()) {
@@ -84,6 +88,7 @@ public class MacroChannelMuxer extends ChannelMuxer {
 	
 	@Override
 	public FixtureOutput getOutput() {
+		logger.debug("mux input " + inputMuxer.getOutput() + ", currentMacroIndex=" + getCurrentMacroIndex());
 		return getCurrentChannelMuxer().getOutput();
 	}
 }

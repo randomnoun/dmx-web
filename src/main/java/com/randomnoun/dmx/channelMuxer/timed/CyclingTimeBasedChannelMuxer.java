@@ -13,12 +13,18 @@ public abstract class CyclingTimeBasedChannelMuxer extends TimeBasedChannelMuxer
 		super(fixture, timeSource);
 	}
 
-	/** Returns the cycle length of this muxer, in milliseconds */
+	/** Returns the cycle length of this muxer, in milliseconds. If the muxer
+	 * is not currently cycling, will return zero. */
 	public abstract long getCycleTime();
 
-	/** Returns the offset into the current cycle, in milliseconds */
+	/** Returns the offset into the current cycle, in milliseconds. If the muxer
+	 * is not currently cycling, will return zero.
+	 *  
+	 */
 	public long getCycleOffset() {
-		return timeSource.getTime() % getCycleTime(); 
+		long getCycleTime = getCycleTime();
+		if (getCycleTime==0) { return 0; }
+		return timeSource.getTime() % getCycleTime; 
 	}
 	
 }
