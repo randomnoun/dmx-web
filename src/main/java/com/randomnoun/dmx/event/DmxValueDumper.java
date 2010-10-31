@@ -27,7 +27,7 @@ public class DmxValueDumper implements DmxUpdateListener {
 		public void run() {
 			startTime = System.currentTimeMillis();
 			while (!done) {
-				String output = "";
+				String output = "DMX values:     ";
 				for (int i=0; i<Universe.MAX_CHANNELS; i++) {
 					if (dvd.dmxState[i]!=0) {
 						output += "[" + i + ":" + dvd.dmxState[i] + "] ";

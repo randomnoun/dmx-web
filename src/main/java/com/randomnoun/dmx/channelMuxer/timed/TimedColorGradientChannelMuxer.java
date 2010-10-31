@@ -21,7 +21,7 @@ import com.randomnoun.dmx.timeSource.TimeSource;
  */
 public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer {
 
-	Logger logger = Logger.getLogger(StrobeChannelMuxer.class);
+	Logger logger = Logger.getLogger(TimedColorGradientChannelMuxer.class);
 	
 	private long cycleTime;
 	private ColorGradientDef[] colorGradientDefs;

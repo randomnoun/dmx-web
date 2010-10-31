@@ -39,7 +39,7 @@ public class MuxValueDumper implements DmxUpdateListener {
 		public void run() {
 			startTime = System.currentTimeMillis();
 			while (!done) {
-				String output = "";
+				String output = "Fixture output: ";
 				for (String s : mvd.fixtures.keySet()) {
 					Fixture f = mvd.fixtures.get(s);
 					ChannelMuxer mux = f.getChannelMuxer();
