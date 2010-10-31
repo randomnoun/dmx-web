@@ -8,8 +8,6 @@ import com.randomnoun.dmx.FixtureDef;
 import com.randomnoun.dmx.channel.MacroChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
 import com.randomnoun.dmx.channel.dimmer.BlueDimmerChannelDef;
-import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
-import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef.DimmerType;
 import com.randomnoun.dmx.channel.dimmer.GreenDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.MasterDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.RedDimmerChannelDef;
