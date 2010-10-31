@@ -23,6 +23,25 @@
     	<groupId>log4j</groupId>
     	<artifactId>log4j</artifactId>
     </dependency>
+        <!--  this needs to be a provided dependancy, otherwise there's problems
+          the DLL being loaded by it and expired classloaders in tomcat
+      -->
+    <dependency>
+        <groupId>net.sf.jacob-project</groupId>
+        <artifactId>jacob</artifactId>
+        <version>1.14.3</version>
+        <type>jar</type>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>net.sf.jacob-project</groupId>
+        <artifactId>jacob</artifactId>
+        <version>1.14.3</version>
+        <type>dll</type>
+        <classifier>x86</classifier>
+        <scope>compile</scope>
+    </dependency>
+    
   </dependencies>
   <build>
     <finalName>dmx-web</finalName>
