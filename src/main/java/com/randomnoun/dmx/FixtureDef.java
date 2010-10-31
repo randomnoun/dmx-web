@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.randomnoun.dmx.channel.ChannelDef;
-import com.randomnoun.dmx.channel.StrobeChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
+import com.randomnoun.dmx.lightSource.LightSourceDef;
 
 /** A lighting fixture definition.
  * 
@@ -15,8 +15,35 @@ public abstract class FixtureDef {
 
 	public String vendor;
 	public String model;
+	
+	/** Length of fixture, in mm */
+	public long length;
+	
+	/** Width of fixture, in mm */
+	public long width;
+	
+	/** Height of fixture, in mm */
+	public long height;
+	
+	/** Weight of fixture, in mm */
+	public long weight;
+	
+	/** Range of pan, in degrees */
+	public int panRange;
+	
+	/** Range of tilt, in degrees */
+	public int tiltRange;
+	
+	/** Maximum ambient temperator, in degrees */
+	public int maxAmbientTemperature;
+	
+	/** Maximum wattage, in watts */
 	public int maxWattage;
 	
+	/** Light source definition */
+	public LightSourceDef lightSourceDef;
+
+
 	protected int numDmxChannels;
 	public ChannelMuxer muxer;
 	
