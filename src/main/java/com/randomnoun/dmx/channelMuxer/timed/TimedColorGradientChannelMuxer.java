@@ -97,6 +97,8 @@ public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer
 			return new FixtureOutput() {
 				public Color getColor() { return currentCgd.color; }
 				public long getTime() { return timeSource.getTime(); }
+				public Double getPan() { return null; }
+				public Double getTilt() { return null; }
 			};
 		}
 		
@@ -114,6 +116,8 @@ public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer
 					(int) (currentCgd.color.getBlue() + (nextCgd.color.getBlue()-currentCgd.color.getBlue()) * fade));
 			}
 			public long getTime() { return timeSource.getTime(); }
+			public Double getPan() { return null; }
+			public Double getTilt() { return null; }
 		};
 	}
 

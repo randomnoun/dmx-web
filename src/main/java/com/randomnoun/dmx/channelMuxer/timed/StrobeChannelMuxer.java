@@ -74,6 +74,8 @@ public class StrobeChannelMuxer extends CyclingTimeBasedChannelMuxer {
 				}
 			}
 			public long getTime() { return input.getTime(); }
+			public Double getPan() { return input.getPan(); }
+			public Double getTilt() { return input.getTilt(); }
 		};
 	}
 }
