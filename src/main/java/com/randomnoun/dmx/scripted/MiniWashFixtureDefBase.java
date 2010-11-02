@@ -20,11 +20,11 @@ public abstract class MiniWashFixtureDefBase extends FixtureDef {
 		this.maxAmbientTemperature = 40;
 		this.maxWattage = 68;
 		this.lightSourceDef = new HexagonLedGridDef(3,
-		  "  R G B " +
-		  " R G B R " +
-		  "B G x R B" +
-		  " G R B G" +
-		  "  R B G ");
+		  "  B R G " +
+		  " R B G R " +
+		  "G G x B B" +
+		  " R B G R" +
+		  "  B R G ");
 	}
 
 }

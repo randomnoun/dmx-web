@@ -66,15 +66,17 @@ public class MiniWashFixtureDef12 extends FixtureDef {
 		//this.addChannelDef(new AngularTiltSpeedChannelDef(2, 0, 255, 0, 20));  // 0->255 == still->20 degrees/sec
 		//this.addChannelDef(new AngularTiltSpeedChannelDef(3, 0, 255, 0, 5));  // 0->255 == still->5 degrees/sec
 
-		// I'm assuming now these are now major/minor pan values, and 
-		// that the major pan position breaks the pan arc into even segments, and 
-		// that the minor pan position breaks the major pan position into even segments, and
-		// that the target pan value is the addition of these two values
+		// These are major/minor pan values,  
+		// - the major pan position breaks the pan arc into even segments, and 
+		// - the minor pan position breaks the major pan position into even segments, and
+		//     that the target pan value is the addition of these two values
+		// major pan/tilt position (255) is highest rotation
+		//   i.e. minor position has no effect when major is set to 255 
 		double majorPanStep = this.panRange / 256; double minorPanStep = majorPanStep / 256;
 		double majorTiltStep = this.tiltRange / 256; double minorTiltStep = majorTiltStep / 256;
-		this.addChannelDef(new PanPositionChannelDef(0, 0, this.panRange - majorPanStep));  // 0->255 == 0 to 540degrees
+		this.addChannelDef(new PanPositionChannelDef(0, 0, this.panRange /*- majorPanStep*/));  // 0->255 == 0 to 540degrees
 		this.addChannelDef(new PanPositionChannelDef(1, 0, majorPanStep));     // 0->255 == 0->540/255 degrees
-		this.addChannelDef(new TiltPositionChannelDef(2, 0, this.tiltRange - majorTiltStep));  // 0->255 == 0 to 180degrees
+		this.addChannelDef(new TiltPositionChannelDef(2, 0, this.tiltRange /*- majorTiltStep*/));  // 0->255 == 0 to 180degrees
 		this.addChannelDef(new TiltPositionChannelDef(3, 0, majorTiltStep));  // 0->255 == 0->180/255 degrees
 		
 		// channel 4 is some kind of vector speed. not entirely sure how this muxes
