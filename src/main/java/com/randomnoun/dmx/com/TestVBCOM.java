@@ -141,6 +141,14 @@ public class TestVBCOM {
 				
 			}
 			
+			for (int i=4; i<=4; i++) {
+				String errorString = usbDMXPro.getErrorString(i);
+				System.out.println("Error " + i + ": " + errorString);
+				// if (errorString.equals("SENDING DMX")) { enabledDevice = i; }
+				enabledDevice = 4;
+			}
+
+			
 		} finally {
 			if (usbDMXPro != null) {
 				System.out.println("Closing COM object");
