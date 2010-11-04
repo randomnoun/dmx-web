@@ -19,21 +19,6 @@
 
     <action-mappings>
         
-    	<action path="/misc/debug" type="com.randomnoun.stocktake.action.misc.DebugAction"
-    		      className="com.randomnoun.common.webapp.struts.PermissionMapping" 
-    	>
-    	  <forward name="success" path="/misc/debug.jsp" />
-    	</action>
-
-        <!-- Note this action is not a PermissionMapping to allow non-authenticated users to use it -->
-        <action path="/selectUser"
-          type="com.randomnoun.stocktake.action.main.SelectUserAction"
-        >
-          <forward name="success" path="/selectUser.jsp"/>
-          <forward name="login" path="/index.jsp"/>
-          <forward name="logout" path="/index.jsp"/>
-        </action>
-
         <!-- Note this action is not a PermissionMapping to allow non-authenticated users to use it -->
 	    <action path="/index" 
 	      type="com.randomnoun.common.webapp.struts.NoAction"
@@ -80,8 +65,8 @@
 
     <!-- =============================================== Plug Ins Configuration -->
     <plug-in className="com.randomnoun.common.webapp.struts.AppConfigPlugin" >
-      <set-property property="appLogPrefix" value="stocktake-web" />
-      <set-property property="appConfigClass" value="com.randomnoun.stocktake.config.AppConfig" />
+      <set-property property="appLogPrefix" value="dmx-web" />
+      <set-property property="appConfigClass" value="com.randomnoun.dmx.config.AppConfig" />
     </plug-in>
 
   <!-- =================================================== Validator plugin -->
