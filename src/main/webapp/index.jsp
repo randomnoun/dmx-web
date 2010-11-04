@@ -73,7 +73,7 @@
 </table>
 
 <h3>Manual controller:</h3>
-<form action="dmxTest" method="POST" >
+<form action="dmxTest" method="post" >
 <table id="controller" cellspacing=0 cellpadding=0>
 <% 
     List dmx = (List) request.getAttribute("dmx");
