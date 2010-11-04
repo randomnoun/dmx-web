@@ -31,6 +31,7 @@ import com.jacob.com.SafeArray;
 import com.jacob.com.Variant;
 import com.jacobgen.dmx._USBDMXProCom;
 import com.randomnoun.common.Struct;
+import com.randomnoun.common.Text;
 import com.randomnoun.common.db.DatabaseTO;
 import com.randomnoun.common.db.DatabaseTO.TableColumnTO;
 import com.randomnoun.common.db.DatabaseTO.TableTO;
@@ -83,8 +84,11 @@ public class DmxServlet extends HttpServlet {
     	usbDMXPro.init(4);
     	request.setAttribute("init4", usbDMXPro.getErrorString(4));
     	byte[] universe = new byte[512];
-    	for (int i=0; i<512; i++) {
-    		universe[i] = (byte) new Long((String) dmxValues.get(i)).longValue();
+    	for (int i=0; i<255; i++) {
+    		String value = (String) dmxValues.get(i);
+    		if (!Text.isBlank(value)) {
+    			universe[i] = (byte) new Long(value).longValue();
+    		}
     	}
     	SafeArray safeArray = new SafeArray(Variant.VariantByte, 512);
 		safeArray.fromByteArray(universe);

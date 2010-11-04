@@ -51,6 +51,8 @@
 #controller { font-size: 8pt; font-family: Arial;}
 #controller TD { font-size: 8pt; font-family: Arial;}
 #controller INPUT { font-size: 8pt; }
+#config { font-size: 8pt; font-family: Arial;}
+#config TD { font-size: 8pt; font-family: Arial;}
 .label { width: 25px; height: 16px; text-align: right; background-color: lightblue; padding-top: 3px; margin-left: 3px; margin-bottom: 1px;}
 </style>
 
@@ -60,16 +62,18 @@
 <body>
 <h2>DMX Web</h2>
 <h3>Configuration:</h3>
-<table>
+<table id="config">
+<col width="100px">
+<col />
 <tr><td>DMX DLL version</td><td><%= request.getAttribute("dllVersion") %></td></tr>
 <tr><td>DMX DLL loaded</td><td>OK</td></tr>
 <tr><td>port check</td><td><%= request.getAttribute("search4") %></td></tr>
 <tr><td>device check</td><td><%= request.getAttribute("init4") %></td></tr>
-<tr><td>send</td><td><%= request.getAttribute("sent4") %></td></tr>
+<tr><td valign="top">send</td><td><%= request.getAttribute("sent4") %></td></tr>
 </table>
 
 <h3>Manual controller:</h3>
-<form action="/dmxTest">
+<form action="dmxTest" method="POST" >
 <table id="controller" cellspacing=0 cellpadding=0>
 <% 
     List dmx = (List) request.getAttribute("dmx");
