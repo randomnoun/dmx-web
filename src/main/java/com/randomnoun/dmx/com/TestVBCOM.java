@@ -124,7 +124,7 @@ public class TestVBCOM {
 				
 				try { Thread.sleep(1000); } catch (InterruptedException e) { }
 				System.out.println("Setting DMX channel 20 to 255");
-				universe[21] = (byte) 255;
+				universe[20] = (byte) 255;
 				safeArray.fromByteArray(universe);
 				usbDMXPro.setDMXValues(enabledDevice, safeArray);
 				usbDMXPro.send(enabledDevice);
@@ -132,7 +132,7 @@ public class TestVBCOM {
 				
 				try { Thread.sleep(1000); } catch (InterruptedException e) { }
 				System.out.println("Setting DMX channel 20 to 0");
-				universe[21] = (byte) 0;
+				universe[20] = (byte) 0;
 				safeArray.fromByteArray(universe);
 				usbDMXPro.setDMXValues(enabledDevice, safeArray);
 				usbDMXPro.send(enabledDevice);
