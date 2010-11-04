@@ -3,5 +3,16 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-  <display-name>Archetype Created Web Application</display-name>
+  <display-name>DMX Web Application</display-name>
+
+  <servlet>
+    <servlet-name>versionServlet</servlet-name>
+    <servlet-class>com.randomnoun.common.servlet.VersionServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>versionServlet</servlet-name>
+    <url-pattern>/version</url-pattern>
+  </servlet-mapping>
+  
 </web-app>
