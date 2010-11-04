@@ -72,13 +72,14 @@
 <form action="/dmxTest">
 <table id="controller" cellspacing=0 cellpadding=0>
 <% 
+    List dmx = (List) request.getAttribute("dmx");
     for (int i=0; i<16; i++) {
 %>
     <tr>
 <% 
         for (int j=0; j<16; j++) {
 %>
-        <td><div class="label"><%= i*16+j %></div></td><td><input name="dmx[<%= i*16+j %>]" value="" size="2"/></td>
+        <td><div class="label"><%= i*16+j %></div></td><td><input name="dmx[<%= i*16+j %>]" value="<%= dmx==null ? "" : dmx.get(i*16+j).toString() %>" size="2"/></td>
 <%
         }
 %>

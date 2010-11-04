@@ -93,6 +93,7 @@ public class DmxServlet extends HttpServlet {
 		request.setAttribute("sent4", usbDMXPro.getErrorString(4));
 		usbDMXPro.close(4);
 
+		request.setAttribute("dmx", dmxValues);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
 		dispatcher.forward(request, response);
     }
