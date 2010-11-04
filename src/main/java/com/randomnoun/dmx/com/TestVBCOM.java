@@ -79,6 +79,7 @@ public class TestVBCOM {
 			}
 		}
 	}
+	
 
 	public void testUSBDMXProCom() {
 		ActiveXComponent axc;
