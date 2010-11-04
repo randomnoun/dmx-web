@@ -89,6 +89,13 @@ public class TestVBCOM {
 		usbDMXPro = new _USBDMXProCom(axc);
 		
 		try {
+			usbDMXPro.searchPorts();
+			for (int i=4; i<=4; i++) {
+				String errorString = usbDMXPro.getErrorString(i);
+				System.out.println("Error " + i + ": " + errorString);
+				// if (errorString.equals("SENDING DMX")) { enabledDevice = i; }
+			}
+			
 			usbDMXPro.init(4);
 			// usbDMXPro.init_All(); // automatically find devices and start threads for them
 			
