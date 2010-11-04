@@ -61,12 +61,15 @@
 <h2>DMX Web</h2>
 <h3>Configuration:</h3>
 <table>
-<tr><td>DMX DLL version</td><td>something</td></tr>
+<tr><td>DMX DLL version</td><td><%= request.getAttribute("dllVersion") %></td></tr>
 <tr><td>DMX DLL loaded</td><td>OK</td></tr>
-<tr><td>Device settings</td><td>something</td></tr>
+<tr><td>port check</td><td><%= request.getAttribute("search4") %></td></tr>
+<tr><td>device check</td><td><%= request.getAttribute("init4") %></td></tr>
+<tr><td>send</td><td><%= request.getAttribute("sent4") %></td></tr>
 </table>
 
 <h3>Manual controller:</h3>
+<form action="/dmxTest">
 <table id="controller" cellspacing=0 cellpadding=0>
 <% 
     for (int i=0; i<16; i++) {
@@ -75,7 +78,7 @@
 <% 
         for (int j=0; j<16; j++) {
 %>
-        <td><div class="label"><%= i*16+j %></div></td><td><input name="dmx.<%= i*16+j %>" value="" size="2"/></td>
+        <td><div class="label"><%= i*16+j %></div></td><td><input name="dmx[<%= i*16+j %>]" value="" size="2"/></td>
 <%
         }
 %>
@@ -87,6 +90,6 @@
         <td colspan="32"><input type="submit" value="Update..."/></td>
     </tr>
 </table>
-
+</form>
 </body>
 </html>
