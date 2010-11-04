@@ -61,8 +61,8 @@ public class TestVBCOM {
 				
 				try { Thread.sleep(1000); } catch (InterruptedException e) { }
 				System.out.println("Setting DMX channel 11 and 12 to 0");
-				universe[11] = (byte) 255;
-				universe[12] = (byte) 255;
+				universe[11] = (byte) 0;
+				universe[12] = (byte) 0;
 				safeArray.fromByteArray(universe);
 				openDmxCom.setDMXValues(enabledDevice, safeArray);
 				
@@ -90,7 +90,7 @@ public class TestVBCOM {
 		
 		try {
 			usbDMXPro.searchPorts();
-			for (int i=4; i<=4; i++) {
+			for (int i=1; i<=16; i++) {
 				String errorString = usbDMXPro.getErrorString(i);
 				System.out.println("Error " + i + ": " + errorString);
 				// if (errorString.equals("SENDING DMX")) { enabledDevice = i; }
@@ -125,17 +125,15 @@ public class TestVBCOM {
 				usbDMXPro.send(enabledDevice);
 				
 				try { Thread.sleep(1000); } catch (InterruptedException e) { }
-				System.out.println("Setting DMX channel 11 and 12 to 255");
-				universe[11] = (byte) 255;
-				universe[12] = (byte) 255;
+				System.out.println("Setting DMX channel 21 to 255");
+				universe[21] = (byte) 255;
 				safeArray.fromByteArray(universe);
 				usbDMXPro.setDMXValues(enabledDevice, safeArray);
 				usbDMXPro.send(enabledDevice);
 				
 				try { Thread.sleep(1000); } catch (InterruptedException e) { }
-				System.out.println("Setting DMX channel 11 and 12 to 0");
-				universe[11] = (byte) 255;
-				universe[12] = (byte) 255;
+				System.out.println("Setting DMX channel 21 to 0");
+				universe[21] = (byte) 0;
 				safeArray.fromByteArray(universe);
 				usbDMXPro.setDMXValues(enabledDevice, safeArray);
 				usbDMXPro.send(enabledDevice);
