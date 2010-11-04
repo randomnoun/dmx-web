@@ -22,7 +22,7 @@ public class TestVBCOM {
 		ActiveXComponent axc;
 		_OpenDMXCom openDmxCom;
 
-		axc = new ActiveXComponent("OpenDMX.OpenDMXCom");
+		axc = new ActiveXComponent("Randomnoun.DMX.OpenDMXCom");
 		openDmxCom = new _OpenDMXCom(axc);
 		
 		try {
@@ -85,7 +85,7 @@ public class TestVBCOM {
 		ActiveXComponent axc;
 		_USBDMXProCom usbDMXPro;
 
-		axc = new ActiveXComponent("OpenDMX.USBDMXPro");
+		axc = new ActiveXComponent("Randomnoun.DMX.USBDMXProCom");
 		usbDMXPro = new _USBDMXProCom(axc);
 		
 		try {
