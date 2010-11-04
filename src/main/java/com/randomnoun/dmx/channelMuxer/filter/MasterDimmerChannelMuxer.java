@@ -43,12 +43,12 @@ public class MasterDimmerChannelMuxer extends ChannelMuxer {
 		}
 	}
 
-	public MasterDimmerChannelMuxer(ChannelMuxer inputMuxer, ChannelDef channelDef) {
+	public MasterDimmerChannelMuxer(ChannelMuxer inputMuxer, int offset, int dmxLowValue, int dmxHighValue) {
 		super(inputMuxer.getFixture());
 		this.inputMuxer = inputMuxer;
-		masterOffset = channelDef.getOffset();
-		dmxLowValue = channelDef.getLowDmxValue();
-		dmxHighValue = channelDef.getHighDmxValue();
+		masterOffset = offset;
+		this.dmxLowValue = dmxLowValue;
+		this.dmxHighValue = dmxHighValue;
 	}
 	
 	

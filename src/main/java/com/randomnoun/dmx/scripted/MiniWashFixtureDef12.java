@@ -5,9 +5,12 @@ import java.awt.Color;
 import com.randomnoun.dmx.Fixture;
 import com.randomnoun.dmx.FixtureController;
 import com.randomnoun.dmx.FixtureDef;
+import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.channel.MacroChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
 import com.randomnoun.dmx.channel.dimmer.BlueDimmerChannelDef;
+import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
+import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef.DimmerType;
 import com.randomnoun.dmx.channel.dimmer.GreenDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.MasterDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.RedDimmerChannelDef;
@@ -19,8 +22,13 @@ import com.randomnoun.dmx.channel.SpeedChannelDef;
 import com.randomnoun.dmx.channel.StrobeChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.MacroChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.MaskChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.filter.MasterDimmerChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.filter.NullChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.primitive.ColorChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.primitive.FixedColorChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.primitive.PanPositionChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.primitive.TiltPositionChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.timed.StrobeChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.timed.TimedColorGradientChannelMuxer;
 import com.randomnoun.dmx.timeSource.DistortedTimeSource;
@@ -32,10 +40,10 @@ import com.randomnoun.dmx.timeSource.UniverseTimeSource;
  * 
  * @author knoxg
  */
-public class MiniWashFixtureDef12 extends FixtureDef {
+public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 
 
-	/** The X0177FixtureController can have it's color and strobe controlled
+	/** The MiniWashFixtureController can have it's color and strobe controlled
 	 * by the default FixtureController. 
 	 * 
 	 * <p>It adds additional methods for macros, but these could be generalised
@@ -150,10 +158,7 @@ public class MiniWashFixtureDef12 extends FixtureDef {
 	@Override
 	public ChannelMuxer getChannelMuxer(Fixture fixture) {
 		TimeSource universeTimeSource = new UniverseTimeSource(fixture.getUniverse());
-		TimeSource distortedTimeSource = new DistortedTimeSource(fixture, universeTimeSource);
-		
-		// keep in mind this is a complete guess
-		//   . pan/tilt channels 0+1/2+3 could be both angular speeds
+		//TimeSource distortedTimeSource = new DistortedTimeSource(fixture, universeTimeSource);
 		
 		// output is determined by
 		//   color: color DMX values, 
@@ -166,53 +171,27 @@ public class MiniWashFixtureDef12 extends FixtureDef {
 		// and then the whole fixture can be dimmed or strobed by the DimmerStrobe DMX
 		
 		ChannelMuxer colorMuxer = new ColorChannelMuxer(fixture);
+		ChannelMuxer panMuxer = new PanPositionChannelMuxer(fixture);
+		ChannelMuxer tiltMuxer = new TiltPositionChannelMuxer(fixture);
+
+		ChannelMuxer blackMuxer = new FixedColorChannelMuxer(fixture, Color.BLACK);
+		ChannelMuxer dimmerMuxer = new MasterDimmerChannelMuxer(colorMuxer, 4, 134, 8);
+		
+		// guessing .5second -> .1second strobe speed
+		StrobeChannelDef scd = new StrobeChannelDef(4, 0, 2, 135, 10, 239);
 		StrobeChannelMuxer strobeMuxer = new StrobeChannelMuxer(colorMuxer, universeTimeSource);
+		ChannelMuxer openMuxer = new NullChannelMuxer(colorMuxer);
+		MacroChannelMuxer dimmerStrobeMuxer = new MacroChannelMuxer(colorMuxer,
+			new ChannelMuxer[] { blackMuxer, dimmerMuxer, strobeMuxer, openMuxer });
 		
-		// (I'm assuming here we don't strobe the output from macros, 
-		// but that we are able to fade them)
-		ChannelMuxer macro0Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
-			new TimedColorGradientChannelMuxer.ColorGradientDef(0, Color.BLUE, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.FADE),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(1000, Color.GREEN, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.FADE),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(2000, Color.CYAN, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.FADE),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(3000, Color.RED, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.FADE),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(4000, Color.MAGENTA, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.FADE),
-		});
-		ChannelMuxer macro1Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
-			new TimedColorGradientChannelMuxer.ColorGradientDef(0, Color.RED, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(1000, Color.BLUE, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(2000, Color.GREEN, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-		});
-		ChannelMuxer macro2Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
-			new TimedColorGradientChannelMuxer.ColorGradientDef(0, Color.RED, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(1000, Color.RED, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(1500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(2000, Color.RED, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(2500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(3000, Color.GREEN, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(3500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(4000, Color.GREEN, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(4500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(5000, Color.GREEN, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(5500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(6000, Color.BLUE, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(6500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(7000, Color.BLUE, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(7500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(8000, Color.BLUE, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(8500, Color.BLACK, 500, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-		});
-		ChannelMuxer macro3Muxer = new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, new TimedColorGradientChannelMuxer.ColorGradientDef[] {
-			new TimedColorGradientChannelMuxer.ColorGradientDef(0, Color.BLUE, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(1000, Color.GREEN, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(2000, Color.CYAN, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(3000, Color.RED, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-			new TimedColorGradientChannelMuxer.ColorGradientDef(4000, Color.MAGENTA, 1000, TimedColorGradientChannelMuxer.ColorGradientTransition.SHARP),
-		});
-		MacroChannelMuxer macroMuxer = new MacroChannelMuxer(strobeMuxer, 
-			new ChannelMuxer[] { macro0Muxer, macro1Muxer, macro2Muxer, macro3Muxer });
+		// TODO: color/position macro muxers
+
+		ChannelMuxer maskMuxer = new MaskChannelMuxer(
+			new int[] { FixtureOutput.MASK_COLOR, FixtureOutput.MASK_PAN, FixtureOutput.MASK_TILT },
+			new ChannelMuxer[] { dimmerStrobeMuxer, panMuxer, tiltMuxer });
+
 		
-		return new MasterDimmerChannelMuxer(macroMuxer);
+		return dimmerStrobeMuxer;
 	}
 	
 	public FixtureController getFixtureController(Fixture fixture) {

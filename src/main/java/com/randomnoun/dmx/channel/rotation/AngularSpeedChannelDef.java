@@ -11,8 +11,8 @@ import com.randomnoun.dmx.channel.ChannelDef;
  * 
  * <p>Outside of this range, the fixture is considered not moving.
  * 
- * Note to self: somehow this value is combined with a 'fine' channel to 
- * produce something. So who knows what that's going to be.
+ * <p>Turns out this channel definition isn't used, so it's therefore
+ * probably broken
  * 
  */
 public abstract class AngularSpeedChannelDef extends ChannelDef {
