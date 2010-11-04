@@ -10,6 +10,8 @@ import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.GreenDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.MasterDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.RedDimmerChannelDef;
+import com.randomnoun.dmx.channel.rotation.PanPositionChannelDef;
+import com.randomnoun.dmx.channel.rotation.TiltPositionChannelDef;
 
 /** An object which can be used to control a fixture using
  * relatively simple commands
@@ -52,6 +54,54 @@ public abstract class FixtureController {
 			fixture.setDmxChannelValue(masterDimmerChannelDef.getOffset(), 255);
 		}
 	}
+
+	/** Sets the pan position of this fixture.
+	 * 
+	 * By default, this sets the major pan position to the 
+	 * closest setting to the desired angle. 
+	 * 
+	 * @param pan The pan position, in degrees.
+	 */
+	public void panTo(double panPosition) {
+		FixtureDef fixtureDef = fixture.getFixtureDef();
+		PanPositionChannelDef ppcd = (PanPositionChannelDef) fixtureDef.getChannelDefByClass(PanPositionChannelDef.class);
+		
+		if (ppcd==null) {
+			throw new UnsupportedOperationException("Default setPan implementation requires pan position channel definition for this fixture");
+		}
+		if (panPosition < ppcd.getMinAngle()) { throw new IllegalArgumentException("panPosition must be equal or greater than " + ppcd.getMinAngle()); }
+		if (panPosition > ppcd.getMaxAngle()) { throw new IllegalArgumentException("panPosition must be equal or less than " + ppcd.getMaxAngle()); }
+		fixture.setDmxChannelValue(ppcd.getOffset(),
+			ppcd.getLowDmxValue() + 
+			(int) ((panPosition - ppcd.getMinAngle()) /
+			(ppcd.getMaxAngle() - ppcd.getMinAngle()) *
+			(ppcd.getHighDmxValue() - ppcd.getLowDmxValue())));
+	}
+
+	
+	/** Sets the pan position of this fixture.
+	 * 
+	 * By default, this sets the major pan position to the 
+	 * closest setting to the desired angle. 
+	 * 
+	 * @param pan The pan position, in degrees.
+	 */
+	public void tiltTo(double tiltPosition) {
+		FixtureDef fixtureDef = fixture.getFixtureDef();
+		TiltPositionChannelDef tpcd = (TiltPositionChannelDef) fixtureDef.getChannelDefByClass(TiltPositionChannelDef.class);
+		
+		if (tpcd==null) {
+			throw new UnsupportedOperationException("Default setPan implementation requires pan position channel definition for this fixture");
+		}
+		if (tiltPosition < tpcd.getMinAngle()) { throw new IllegalArgumentException("tiltPosition must be equal or greater than " + tpcd.getMinAngle()); }
+		if (tiltPosition > tpcd.getMaxAngle()) { throw new IllegalArgumentException("tiltPosition must be equal or less than " + tpcd.getMaxAngle()); }
+		fixture.setDmxChannelValue(tpcd.getOffset(),
+			tpcd.getLowDmxValue() + 
+			(int) ((tiltPosition - tpcd.getMinAngle()) /
+			(tpcd.getMaxAngle() - tpcd.getMinAngle()) *
+			(tpcd.getHighDmxValue() - tpcd.getLowDmxValue())));
+	}
+
 	
 	/** Sets the strobe for this fixture to the fastest setting available.
 	 * If the fixture does not support strobe, an UnsupportedOperationException is thrown. 
@@ -89,15 +139,6 @@ public abstract class FixtureController {
 		for (int i=0; i<fixture.getFixtureDef().getNumDmxChannels(); i++){
 			fixture.setDmxChannelValue(i, 0);
 		}
-	}
-
-	public void panTo(double d) {
-		throw new UnsupportedOperationException("panTo not implemented");
-	}
-
-
-	public void tiltTo(double d) {
-		throw new UnsupportedOperationException("panTo not implemented");
 	}
 
 }
