@@ -109,12 +109,8 @@ public class TestVBCOM {
 			
 			int enabledDevice = -1;
 			
-			for (int i=4; i<=4; i++) {
-				String errorString = usbDMXPro.getErrorString(i);
-				System.out.println("Error " + i + ": " + errorString);
-				// if (errorString.equals("SENDING DMX")) { enabledDevice = i; }
-				enabledDevice = 4;
-			}
+			System.out.println("device 4: " + usbDMXPro.getErrorString(4));
+			enabledDevice = 4;
 			
 			byte[] universe = new byte[512];
 			if (enabledDevice!=-1) { 
@@ -124,6 +120,7 @@ public class TestVBCOM {
 				safeArray.fromByteArray(universe);
 				usbDMXPro.setDMXValues(enabledDevice, safeArray);
 				usbDMXPro.send(enabledDevice);
+				System.out.println("device 4: " + usbDMXPro.getErrorString(4));
 				
 				try { Thread.sleep(1000); } catch (InterruptedException e) { }
 				System.out.println("Setting DMX channel 21 to 255");
@@ -131,6 +128,7 @@ public class TestVBCOM {
 				safeArray.fromByteArray(universe);
 				usbDMXPro.setDMXValues(enabledDevice, safeArray);
 				usbDMXPro.send(enabledDevice);
+				System.out.println("device 4: " + usbDMXPro.getErrorString(4));
 				
 				try { Thread.sleep(1000); } catch (InterruptedException e) { }
 				System.out.println("Setting DMX channel 21 to 0");
@@ -138,6 +136,8 @@ public class TestVBCOM {
 				safeArray.fromByteArray(universe);
 				usbDMXPro.setDMXValues(enabledDevice, safeArray);
 				usbDMXPro.send(enabledDevice);
+				System.out.println("device 4: " + usbDMXPro.getErrorString(4));
+
 				
 			}
 			
