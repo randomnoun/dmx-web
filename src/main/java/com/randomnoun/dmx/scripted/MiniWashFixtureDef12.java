@@ -54,6 +54,13 @@ public class MiniWashFixtureDef12 extends FixtureDef {
 			Macro m = mcd.getMacros().get(index);
 			fixture.setDmxChannelValue(5, (m.getLowValue() + m.getHighValue()) / 2);
 		}
+
+		public void setColorMacro(int i) {
+			throw new UnsupportedOperationException("setColorMacro not implemented");
+		}
+
+		public void setMovementMacro(int i) {
+			throw new UnsupportedOperationException("setMovementMacro not implemented");		}
 	}
 
 	
@@ -79,8 +86,7 @@ public class MiniWashFixtureDef12 extends FixtureDef {
 		this.addChannelDef(new TiltPositionChannelDef(2, 0, this.tiltRange /*- majorTiltStep*/));  // 0->255 == 0 to 180degrees
 		this.addChannelDef(new TiltPositionChannelDef(3, 0, majorTiltStep));  // 0->255 == 0->180/255 degrees
 		
-		// channel 4 is some kind of vector speed. not entirely sure how this muxes
-		// with the values above
+		// channel 4 affects speed at which target pan/tilt position is reached
 		//this.addChannelDef(new VectorSpeedChannelDef(4, 0, 255, 0, 0.5));  // 0->255 == normal->slow
 
 		MacroChannelDef dimmerStrobeChannelDef = new MacroChannelDef(5);

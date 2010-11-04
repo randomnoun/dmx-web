@@ -7,6 +7,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.randomnoun.dmx.event.DmxValueDumper;
 import com.randomnoun.dmx.event.MuxValueDumper;
+import com.randomnoun.dmx.scripted.MiniWashFixtureDef12;
 import com.randomnoun.dmx.scripted.X0177FixtureDef;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
 
@@ -20,7 +21,7 @@ public class TestController {
 		}
 	}
 	
-	public void testController() {
+	public void testX1077Controllers() {
 
 		DmxValueDumper dvd = null;
 		MuxValueDumper mvd = null;
@@ -97,6 +98,72 @@ public class TestController {
 		}
 	}
 	
+	public void testMiniWashControllers() {
+		DmxValueDumper dvd = null;
+		MuxValueDumper mvd = null;
+		
+		try {
+			// types of things
+			FixtureDef miniWashFixtureDef = new MiniWashFixtureDef12();
+			
+			// things
+			Universe universe = new Universe();
+			universe.setTimeSource(new WallClockTimeSource());
+			Fixture leftFixture = new Fixture(miniWashFixtureDef, universe, 21);
+			Fixture rightFixture = new Fixture(miniWashFixtureDef, universe, 41);
+			
+			Controller c = new Controller();
+			c.setUniverse(universe);
+			c.addFixture(leftFixture);
+			c.addFixture(rightFixture);
+			
+			// add DMX value -> stdout listener
+			dvd = new DmxValueDumper();
+			dvd.startThread();
+			universe.addListener(dvd);
+			
+			// add fixture colour value -> stdout listener
+			mvd = new MuxValueDumper();
+			mvd.addFixture("leftFixture", leftFixture);
+			mvd.addFixture("rightFixture", rightFixture);
+			mvd.startThread();
+			universe.addListener(mvd);
+			
+			// set dmx values using the FixtureController
+			FixtureController lfc = leftFixture.getFixtureController();  // left to red and spin
+			FixtureController rfc = rightFixture.getFixtureController();  // right to blue and spin
+			lfc.blackOut(); rfc.blackOut();
+			lfc.setColor(Color.RED); rfc.setColor(Color.BLUE); 
+			lfc.panTo(540.0); rfc.panTo(540.0); 
+			sleep(4);
+			lfc.panTo(0.0); rfc.panTo(0.0);
+			sleep(4);
+			
+			lfc.setColor(Color.GREEN); rfc.setColor(Color.GREEN);
+			lfc.tiltTo(180.0); rfc.tiltTo(180.0);
+			sleep(4);
+			lfc.tiltTo(0.0); rfc.tiltTo(0.0);
+			sleep(4);
+			
+			// set dmx values using controller cast to this fixture type
+			MiniWashFixtureDef12.MiniWashFixtureController lfc2 = 
+				(MiniWashFixtureDef12.MiniWashFixtureController) lfc;
+			lfc2.blackOut();
+			lfc2.setMasterDimmer(255);
+			lfc2.setColorMacro(17);			// start 17th macro on left fixture (color-changemacro1)
+			lfc2.setMovementMacro(4);       // start 4th macro on left fixture (auto program 4)
+			sleep(1);
+			
+			c.blackOut();
+			
+			// now do something with an audio plugin I guess
+		} finally {
+			if (dvd!=null) { dvd.stopThread(); }
+			if (mvd!=null) { mvd.stopThread(); }
+		}
+		
+	}
+	
 	public static void main(String args[]) {
 		
 		Properties props = new Properties();
@@ -104,11 +171,12 @@ public class TestController {
 		props.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
 		props.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
 		props.put("log4j.appender.CONSOLE.layout.ConversionPattern", "[TestController] %d{ABSOLUTE} %-5p %c - %m %n");
-		//props.put("log4j.logger.com.randomnoun.dmx","DEBUG");
+		props.put("log4j.logger.com.randomnoun.dmx","DEBUG");
 		PropertyConfigurator.configure(props);
 		
 		TestController t = new TestController();
-		t.testController();
+		t.testX1077Controllers();
+		t.testMiniWashControllers();
 		
 	}
 	

@@ -79,6 +79,8 @@ public abstract class FixtureController {
 		fixture.setDmxChannelValue(masterDimmerChannelDef.getOffset(), value);
 	}
 	
+	
+	
 	/** Sets all channels for this fixture to 0 */
 	public void blackOut() {
 		// which is different to setting the color to black
@@ -88,4 +90,14 @@ public abstract class FixtureController {
 			fixture.setDmxChannelValue(i, 0);
 		}
 	}
+
+	public void panTo(double d) {
+		throw new UnsupportedOperationException("panTo not implemented");
+	}
+
+
+	public void tiltTo(double d) {
+		throw new UnsupportedOperationException("panTo not implemented");
+	}
+
 }
