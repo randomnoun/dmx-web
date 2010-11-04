@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+          "http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+<struts-config>
+    <form-beans>
+    </form-beans>
+	<global-exceptions>
+      <exception key="some.message.bundle.apparently"
+        type="java.lang.Throwable" 
+        handler="com.randomnoun.common.webapp.struts.ExceptionHandler"
+        path="/misc/errorPage.jsp"
+      />
+    </global-exceptions>
+
+    <global-forwards>
+    </global-forwards>
+
+    <action-mappings>
+        
+    	<action path="/misc/debug" type="com.randomnoun.stocktake.action.misc.DebugAction"
+    		      className="com.randomnoun.common.webapp.struts.PermissionMapping" 
+    	>
+    	  <forward name="success" path="/misc/debug.jsp" />
+    	</action>
+
+        <!-- Note this action is not a PermissionMapping to allow non-authenticated users to use it -->
+        <action path="/selectUser"
+          type="com.randomnoun.stocktake.action.main.SelectUserAction"
+        >
+          <forward name="success" path="/selectUser.jsp"/>
+          <forward name="login" path="/index.jsp"/>
+          <forward name="logout" path="/index.jsp"/>
+        </action>
+
+        <!-- Note this action is not a PermissionMapping to allow non-authenticated users to use it -->
+	    <action path="/index" 
+	      type="com.randomnoun.common.webapp.struts.NoAction"
+	    >
+	  	  <forward name="success" path="/index.jsp"/>
+	    </action>
+
+<!-- 
+        <action path="/stocktakeDateSelection" 
+          type="com.randomnoun.stocktake.action.main.DateSelectionAction"
+          className="com.randomnoun.common.webapp.struts.PermissionMapping" 
+        >
+          <set-property property="permission" value="login.appConfig" />
+          <forward name="success" path="/stocktake-date-selection.jsp"/>
+        </action>
+
+
+	    <action path="/stocktakeEntry" 
+	      type="com.randomnoun.stocktake.action.main.EntryAction"
+	      className="com.randomnoun.common.webapp.struts.PermissionMapping" 
+	    >
+	      <set-property property="permission" value="login.appConfig" />
+          <forward name="success" path="/stocktake-entry.jsp"/>
+          <forward name="json" path="/misc/json.jsp"/>
+	    </action>
+-->
+
+
+    	<action path="/test/testException" type="com.randomnoun.common.webapp.struts.TestExceptionAction">
+    	  <forward name="success" path="/thisForwardNeverRunsSinceTheActionWillAlwaysFireAnException.jsp" />
+    	</action>
+        <action path="/test/testClassLoader" type="com.randomnoun.common.webapp.struts.TestClassLoaderAction">
+          <forward name="success" path="/test/testClassLoader.jsp" />
+        </action>
+
+    </action-mappings>
+
+
+	<controller processorClass="com.randomnoun.common.webapp.struts.CustomRequestProcessor"
+      multipartClass="com.randomnoun.common.webapp.struts.ExtendedMultiPartRequestHandler"  
+    />
+	
+	 
+
+    <!-- =============================================== Plug Ins Configuration -->
+    <plug-in className="com.randomnoun.common.webapp.struts.AppConfigPlugin" >
+      <set-property property="appLogPrefix" value="stocktake-web" />
+      <set-property property="appConfigClass" value="com.randomnoun.stocktake.config.AppConfig" />
+    </plug-in>
+
+  <!-- =================================================== Validator plugin -->
+
+<!--   <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+    <set-property
+        property="pathnames"
+        value="/WEB-INF/validator-rules.xml,/WEB-INF/validation.xml"/>
+  </plug-in> 
+-->
+
+</struts-config>
+
