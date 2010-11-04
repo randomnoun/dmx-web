@@ -2,7 +2,7 @@
  * JacobGen generated file --- do not edit
  *
  * (http://www.sourceforge.net/projects/jacob-project */
-package com.jacobgen.opendmx;
+package com.jacobgen.dmx;
 
 import com.jacob.com.*;
 
@@ -164,8 +164,8 @@ public class _OpenDMXCom extends Dispatch {
 	 * @param n an input-parameter of type int
 	 * @param dmxArray an input-parameter of type SafeArray
 	 */
-	public void set_DMX(int n, SafeArray dmxArray) {
-		Dispatch.call(this, "Set_DMX", new Variant(n), dmxArray);
+	public void setDMXValues(int n, SafeArray dmxArray) {
+		Dispatch.call(this, "SetDMXValues", new Variant(n), dmxArray);
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class _OpenDMXCom extends Dispatch {
 	 * @param dmxArray is an one-element array which sends the input-parameter
 	 *                 to the ActiveX-Component and receives the output-parameter
 	 */
-	public void set_DMX(int[] n, SafeArray[] dmxArray) {
+	public void setDMXValues(int[] n, SafeArray[] dmxArray) {
 		Variant vnt_n = new Variant();
 		if( n == null || n.length == 0 )
 			vnt_n.putNoParam();
@@ -188,7 +188,7 @@ public class _OpenDMXCom extends Dispatch {
 		else
 			vnt_dmxArray.putSafeArrayRef(dmxArray[0]);
 
-		Dispatch.call(this, "Set_DMX", vnt_n, vnt_dmxArray);
+		Dispatch.call(this, "SetDMXValues", vnt_n, vnt_dmxArray);
 
 		if( n != null && n.length > 0 )
 			n[0] = vnt_n.toInt();
@@ -202,8 +202,8 @@ public class _OpenDMXCom extends Dispatch {
 	 * @param channel an input-parameter of type int
 	 * @return the result is of type int
 	 */
-	public int get_DMX(int n, int channel) {
-		return Dispatch.call(this, "Get_DMX", new Variant(n), new Variant(channel)).changeType(Variant.VariantInt).getInt();
+	public int getDMXValue(int n, int channel) {
+		return Dispatch.call(this, "GetDMXValue", new Variant(n), new Variant(channel)).changeType(Variant.VariantInt).getInt();
 	}
 
 	/**
@@ -214,7 +214,7 @@ public class _OpenDMXCom extends Dispatch {
 	 *                to the ActiveX-Component and receives the output-parameter
 	 * @return the result is of type int
 	 */
-	public int get_DMX(int[] n, int[] channel) {
+	public int getDMXValue(int[] n, int[] channel) {
 		Variant vnt_n = new Variant();
 		if( n == null || n.length == 0 )
 			vnt_n.putNoParam();
@@ -227,14 +227,14 @@ public class _OpenDMXCom extends Dispatch {
 		else
 			vnt_channel.putIntRef(channel[0]);
 
-		int result_of_Get_DMX = Dispatch.call(this, "Get_DMX", vnt_n, vnt_channel).changeType(Variant.VariantInt).getInt();
+		int result_of_GetDMXValue = Dispatch.call(this, "GetDMXValue", vnt_n, vnt_channel).changeType(Variant.VariantInt).getInt();
 
 		if( n != null && n.length > 0 )
 			n[0] = vnt_n.toInt();
 		if( channel != null && channel.length > 0 )
 			channel[0] = vnt_channel.toInt();
 
-		return result_of_Get_DMX;
+		return result_of_GetDMXValue;
 	}
 
 	/**
