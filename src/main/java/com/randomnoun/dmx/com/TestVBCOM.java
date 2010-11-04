@@ -89,6 +89,7 @@ public class TestVBCOM {
 		usbDMXPro = new _USBDMXProCom(axc);
 		
 		try {
+			System.out.println("DLL version: " + usbDMXPro.getDllVersion());
 			usbDMXPro.searchPorts();
 			for (int i=1; i<=16; i++) {
 				String errorString = usbDMXPro.getErrorString(i);
@@ -145,7 +146,7 @@ public class TestVBCOM {
 				System.out.println("Closing COM object");
 
 				// openDmxCom.stop_Threads();
-				usbDMXPro.done(4);
+				usbDMXPro.close(4);
 			}
 		}
 	}

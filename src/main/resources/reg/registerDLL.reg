@@ -13,12 +13,12 @@ REGEDIT4
 @="mscoree.dll"
 "ThreadingModel"="Both"
 "Class"="Randomnoun.DMX.OpenDMXCom"
-"Assembly"="OpenDMX, Version=1.0.3960.21861, Culture=neutral, PublicKeyToken=null"
+"Assembly"="OpenDMX, Version=1.0.3960.34413, Culture=neutral, PublicKeyToken=null"
 "RuntimeVersion"="v2.0.50727"
 
-[HKEY_CLASSES_ROOT\CLSID\{173B50C1-2F64-4AA0-9A55-829A72035197}\InprocServer32\1.0.3960.21861]
+[HKEY_CLASSES_ROOT\CLSID\{173B50C1-2F64-4AA0-9A55-829A72035197}\InprocServer32\1.0.3960.34413]
 "Class"="Randomnoun.DMX.OpenDMXCom"
-"Assembly"="OpenDMX, Version=1.0.3960.21861, Culture=neutral, PublicKeyToken=null"
+"Assembly"="OpenDMX, Version=1.0.3960.34413, Culture=neutral, PublicKeyToken=null"
 "RuntimeVersion"="v2.0.50727"
 
 [HKEY_CLASSES_ROOT\CLSID\{173B50C1-2F64-4AA0-9A55-829A72035197}\ProgId]
@@ -39,12 +39,12 @@ REGEDIT4
 @="mscoree.dll"
 "ThreadingModel"="Both"
 "Class"="Randomnoun.DMX.USBDMXProCom"
-"Assembly"="OpenDMX, Version=1.0.3960.21861, Culture=neutral, PublicKeyToken=null"
+"Assembly"="OpenDMX, Version=1.0.3960.34413, Culture=neutral, PublicKeyToken=null"
 "RuntimeVersion"="v2.0.50727"
 
-[HKEY_CLASSES_ROOT\CLSID\{836319EB-8762-419C-B87A-2521D4C8E198}\InprocServer32\1.0.3960.21861]
+[HKEY_CLASSES_ROOT\CLSID\{836319EB-8762-419C-B87A-2521D4C8E198}\InprocServer32\1.0.3960.34413]
 "Class"="Randomnoun.DMX.USBDMXProCom"
-"Assembly"="OpenDMX, Version=1.0.3960.21861, Culture=neutral, PublicKeyToken=null"
+"Assembly"="OpenDMX, Version=1.0.3960.34413, Culture=neutral, PublicKeyToken=null"
 "RuntimeVersion"="v2.0.50727"
 
 [HKEY_CLASSES_ROOT\CLSID\{836319EB-8762-419C-B87A-2521D4C8E198}\ProgId]

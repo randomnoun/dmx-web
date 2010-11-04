@@ -33,60 +33,68 @@ public class _USBDMXProCom extends Dispatch {
 
 	/**
 	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param n an input-parameter of type int
 	 * @return the result is of type String
 	 */
-	public String getErrorString(int n) {
-		return Dispatch.call(this, "getErrorString", new Variant(n)).toString();
+	public String getDllVersion() {
+		return Dispatch.call(this, "getDllVersion").toString();
 	}
 
 	/**
 	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param n an input-parameter of type int
+	 * @param intDeviceNumber an input-parameter of type int
+	 * @return the result is of type String
+	 */
+	public String getErrorString(int intDeviceNumber) {
+		return Dispatch.call(this, "getErrorString", new Variant(intDeviceNumber)).toString();
+	}
+
+	/**
+	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
+	 * @param intDeviceNumber an input-parameter of type int
 	 * @return the result is of type boolean
 	 */
-	public boolean getConnected(int n) {
-		return Dispatch.call(this, "getConnected", new Variant(n)).changeType(Variant.VariantBoolean).getBoolean();
+	public boolean getConnected(int intDeviceNumber) {
+		return Dispatch.call(this, "getConnected", new Variant(intDeviceNumber)).changeType(Variant.VariantBoolean).getBoolean();
 	}
 
 	/**
 	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param intPortNumber an input-parameter of type int
+	 * @param intDeviceNumber an input-parameter of type int
 	 */
-	public void init(int intPortNumber) {
-		Dispatch.call(this, "Init", new Variant(intPortNumber));
+	public void init(int intDeviceNumber) {
+		Dispatch.call(this, "Init", new Variant(intDeviceNumber));
 	}
 
 	/**
 	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param intPortNumber an input-parameter of type int
+	 * @param intDeviceNumber an input-parameter of type int
 	 */
-	public void done(int intPortNumber) {
-		Dispatch.call(this, "Done", new Variant(intPortNumber));
+	public void close(int intDeviceNumber) {
+		Dispatch.call(this, "close", new Variant(intDeviceNumber));
 	}
 
 	/**
 	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param intPortNumber an input-parameter of type int
+	 * @param intDeviceNumber an input-parameter of type int
 	 * @param dmxArray an input-parameter of type SafeArray
 	 */
-	public void setDMXValues(int intPortNumber, SafeArray dmxArray) {
-		Dispatch.call(this, "SetDMXValues", new Variant(intPortNumber), dmxArray);
+	public void setDMXValues(int intDeviceNumber, SafeArray dmxArray) {
+		Dispatch.call(this, "SetDMXValues", new Variant(intDeviceNumber), dmxArray);
 	}
 
 	/**
 	 * Wrapper for calling the ActiveX-Method and receiving the output-parameter(s).
-	 * @param intPortNumber is an one-element array which sends the input-parameter
-	 *                      to the ActiveX-Component and receives the output-parameter
+	 * @param intDeviceNumber is an one-element array which sends the input-parameter
+	 *                        to the ActiveX-Component and receives the output-parameter
 	 * @param dmxArray is an one-element array which sends the input-parameter
 	 *                 to the ActiveX-Component and receives the output-parameter
 	 */
-	public void setDMXValues(int[] intPortNumber, SafeArray[] dmxArray) {
-		Variant vnt_intPortNumber = new Variant();
-		if( intPortNumber == null || intPortNumber.length == 0 )
-			vnt_intPortNumber.putNoParam();
+	public void setDMXValues(int[] intDeviceNumber, SafeArray[] dmxArray) {
+		Variant vnt_intDeviceNumber = new Variant();
+		if( intDeviceNumber == null || intDeviceNumber.length == 0 )
+			vnt_intDeviceNumber.putNoParam();
 		else
-			vnt_intPortNumber.putIntRef(intPortNumber[0]);
+			vnt_intDeviceNumber.putIntRef(intDeviceNumber[0]);
 
 		Variant vnt_dmxArray = new Variant();
 		if( dmxArray == null || dmxArray.length == 0 )
@@ -94,38 +102,38 @@ public class _USBDMXProCom extends Dispatch {
 		else
 			vnt_dmxArray.putSafeArrayRef(dmxArray[0]);
 
-		Dispatch.call(this, "SetDMXValues", vnt_intPortNumber, vnt_dmxArray);
+		Dispatch.call(this, "SetDMXValues", vnt_intDeviceNumber, vnt_dmxArray);
 
-		if( intPortNumber != null && intPortNumber.length > 0 )
-			intPortNumber[0] = vnt_intPortNumber.toInt();
+		if( intDeviceNumber != null && intDeviceNumber.length > 0 )
+			intDeviceNumber[0] = vnt_intDeviceNumber.toInt();
 		if( dmxArray != null && dmxArray.length > 0 )
 			dmxArray[0] = vnt_dmxArray.toSafeArray();
 	}
 
 	/**
 	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param n an input-parameter of type int
+	 * @param intDeviceNumber an input-parameter of type int
 	 * @param channel an input-parameter of type int
 	 * @return the result is of type int
 	 */
-	public int getDMXValue(int n, int channel) {
-		return Dispatch.call(this, "GetDMXValue", new Variant(n), new Variant(channel)).changeType(Variant.VariantInt).getInt();
+	public int getDMXValue(int intDeviceNumber, int channel) {
+		return Dispatch.call(this, "GetDMXValue", new Variant(intDeviceNumber), new Variant(channel)).changeType(Variant.VariantInt).getInt();
 	}
 
 	/**
 	 * Wrapper for calling the ActiveX-Method and receiving the output-parameter(s).
-	 * @param n is an one-element array which sends the input-parameter
-	 *          to the ActiveX-Component and receives the output-parameter
+	 * @param intDeviceNumber is an one-element array which sends the input-parameter
+	 *                        to the ActiveX-Component and receives the output-parameter
 	 * @param channel is an one-element array which sends the input-parameter
 	 *                to the ActiveX-Component and receives the output-parameter
 	 * @return the result is of type int
 	 */
-	public int getDMXValue(int[] n, int[] channel) {
-		Variant vnt_n = new Variant();
-		if( n == null || n.length == 0 )
-			vnt_n.putNoParam();
+	public int getDMXValue(int[] intDeviceNumber, int[] channel) {
+		Variant vnt_intDeviceNumber = new Variant();
+		if( intDeviceNumber == null || intDeviceNumber.length == 0 )
+			vnt_intDeviceNumber.putNoParam();
 		else
-			vnt_n.putIntRef(n[0]);
+			vnt_intDeviceNumber.putIntRef(intDeviceNumber[0]);
 
 		Variant vnt_channel = new Variant();
 		if( channel == null || channel.length == 0 )
@@ -133,10 +141,10 @@ public class _USBDMXProCom extends Dispatch {
 		else
 			vnt_channel.putIntRef(channel[0]);
 
-		int result_of_GetDMXValue = Dispatch.call(this, "GetDMXValue", vnt_n, vnt_channel).changeType(Variant.VariantInt).getInt();
+		int result_of_GetDMXValue = Dispatch.call(this, "GetDMXValue", vnt_intDeviceNumber, vnt_channel).changeType(Variant.VariantInt).getInt();
 
-		if( n != null && n.length > 0 )
-			n[0] = vnt_n.toInt();
+		if( intDeviceNumber != null && intDeviceNumber.length > 0 )
+			intDeviceNumber[0] = vnt_intDeviceNumber.toInt();
 		if( channel != null && channel.length > 0 )
 			channel[0] = vnt_channel.toInt();
 
@@ -145,19 +153,10 @@ public class _USBDMXProCom extends Dispatch {
 
 	/**
 	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param intPortNumber an input-parameter of type int
+	 * @param intDeviceNumber an input-parameter of type int
 	 */
-	public void send(int intPortNumber) {
-		Dispatch.call(this, "send", new Variant(intPortNumber));
-	}
-
-	/**
-	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param binStr an input-parameter of type String
-	 * @return the result is of type String
-	 */
-	public String hexStr(String binStr) {
-		return Dispatch.call(this, "hexStr", binStr).toString();
+	public void send(int intDeviceNumber) {
+		Dispatch.call(this, "send", new Variant(intDeviceNumber));
 	}
 
 	/**
@@ -165,33 +164,6 @@ public class _USBDMXProCom extends Dispatch {
 	 */
 	public void searchPorts() {
 		Dispatch.call(this, "SearchPorts");
-	}
-
-	/**
-	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param intPortNumber an input-parameter of type int
-	 */
-	public void send_CFG_Request_Packet(int intPortNumber) {
-		Dispatch.call(this, "Send_CFG_Request_Packet", new Variant(intPortNumber));
-	}
-
-	/**
-	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param intPortNumber an input-parameter of type int
-	 */
-	public void send_Serial_Request_Packet(int intPortNumber) {
-		Dispatch.call(this, "Send_Serial_Request_Packet", new Variant(intPortNumber));
-	}
-
-	/**
-	 * Wrapper for calling the ActiveX-Method with input-parameter(s).
-	 * @param intPortNumber an input-parameter of type int
-	 * @param buf an input-parameter of type String
-	 * @return the result is of type long
-	 */
-	public long receivePacket(int intPortNumber, String buf) {
-		Variant v = Dispatch.call(this, "ReceivePacket", new Variant(intPortNumber), buf);
-		return v.getLong();
 	}
 
 }
