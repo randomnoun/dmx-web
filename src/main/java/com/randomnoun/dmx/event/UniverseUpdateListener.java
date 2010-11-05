@@ -5,7 +5,7 @@ package com.randomnoun.dmx.event;
  * 
  * @author knoxg
  */
-public interface DmxUpdateListener {
+public interface UniverseUpdateListener {
 	
 	/** A notification of a DMX update event */
 	public void onEvent(DmxUpdateEvent event);
