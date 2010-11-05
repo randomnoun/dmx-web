@@ -3,8 +3,12 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-  <display-name>DMX Web Application</display-name>
-
+  
+    <display-name>DMX Web Application</display-name>
+    
+  <listener>
+    <listener-class>com.randomnoun.dmx.web.ServletContextListener</listener-class>
+  </listener>
   <servlet>
     <servlet-name>action</servlet-name>
     <servlet-class>com.randomnoun.common.webapp.struts.CustomActionServlet</servlet-class>
