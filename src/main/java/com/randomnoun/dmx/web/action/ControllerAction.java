@@ -97,6 +97,23 @@ public class ControllerAction
     	Map form = new HashMap();
     	Struct.setFromRequest(form, request);
 
+    	String jarVersion = RXTXVersion.getVersion();
+    	String dllVersion = "unknown";
+    	try {
+    		dllVersion = RXTXVersion.nativeGetVersion();
+    	} catch (Error e1) {
+    		try {
+    			dllVersion = RXTXCommDriver.nativeGetVersion();
+    		} catch (Exception e2) {
+    			logger.error("Exception 1 determining version: ", e1);
+    			logger.error("Exception 2 determining version: ", e2);
+    			dllVersion = "Exception determining version: " + e1.getMessage();
+    		}
+    	}
+    	request.setAttribute("rxtx.jarVersion", jarVersion);
+    	request.setAttribute("rxtx.dllVersion", dllVersion);
+
+    	
     	Controller controller = appConfig.getController();
     	String action = request.getParameter("action");
     	String fixtureIdString = request.getParameter("fixtureId");
@@ -111,7 +128,15 @@ public class ControllerAction
     	if (action==null) { action = ""; }
     	
     	if (action.equals("")) {
-    		
+    	} else if (action.equals("setDmxValues")) {
+    		List dmxValues = (List) form.get("dmx");
+    		byte[] dmxData = new byte[512];
+	    	for (int i=0; i<255; i++) {
+	    		String value = (String) dmxValues.get(i);
+	    		if (!Text.isBlank(value)) {
+	    			controller.getUniverse().setDmxChannelValue(i, (int) new Long(value).longValue());
+	    		}
+	    	}
     	} else if (action.equals("blackOut")) {
     		fixtureController.blackOut();
     	} else if (action.equals("setColor")) {
@@ -130,49 +155,8 @@ public class ControllerAction
     	}
     	
     	request.setAttribute("controller", controller);
+    	request.setAttribute("universe", controller.getUniverse());
     	
-    	List dmxValues = (List) form.get("dmx");
-    	String startCode = (String) form.get("startCode");
-    	String jarVersion = RXTXVersion.getVersion();
-    	String dllVersion = "unknown";
-    	try {
-    		dllVersion = RXTXVersion.nativeGetVersion();
-    	} catch (Error e1) {
-    		try {
-    			dllVersion = RXTXCommDriver.nativeGetVersion();
-    		} catch (Exception e2) {
-    			logger.error("Exception 1 determining version: ", e1);
-    			logger.error("Exception 2 determining version: ", e2);
-    			dllVersion = "Exception determining version: " + e1.getMessage();
-    		}
-    	}
-    	request.setAttribute("rxtx.jarVersion", jarVersion);
-    	request.setAttribute("rxtx.dllVersion", dllVersion);
-    	
-    	if (dmxValues!=null) {
-	    	UsbProWidget widget = new UsbProWidget("COM4");
-	    	UsbProWidgetTranslator translator;
-			try {
-				translator = widget.openPort();
-		    	byte startCodeByte = Text.isBlank(startCode) ? 0 : (byte) new Long(startCode).longValue();
-		    	byte[] dmxData = new byte[512];
-		    	for (int i=0; i<255; i++) {
-		    		String value = (String) dmxValues.get(i);
-		    		if (!Text.isBlank(value)) {
-		    			dmxData[i] = (byte) new Long(value).longValue();
-		    		}
-		    	}
-	    		translator.sendOutputOnlySendDMXPacketRequest(startCodeByte, dmxData);
-	    		request.setAttribute("sent4", "OK"); 
-	    	} catch (Exception e) {
-	    		logger.error(e);
-	    		request.setAttribute("sent4", ExceptionUtils.getStackTrace(e));
-	    	} finally {
-	    		widget.close();
-	    	}
-    	}
-		request.setAttribute("dmx", dmxValues);
-		request.setAttribute("startCode", startCode);
 		return mapping.findForward("success");
 		
     }
