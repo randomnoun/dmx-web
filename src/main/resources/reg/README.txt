@@ -10,11 +10,14 @@ Registry script 'C:\Documents and Settings\knoxg\My Documents\Visual Studio Proj
 knoxg@filament /c/Documents and Settings/knoxg/My Documents/Visual Studio Projects/OpenDMX/OpenDMX/obj/Debug
 $
 
-
 although now it's visual studio 2008, so probably better to run this:
+
+cp /c/Documents\ and\ Settings/knoxg/My\ Documents/Visual\ Studio\ 2008/Projects/dmx-dll/DMX/bin/OpenDMX.dll .
+cp /c/Documents\ and\ Settings/knoxg/My\ Documents/Visual\ Studio\ 2008/Projects/dmx-dll/DMX/bin/OpenDMX.tlb .
+ "c:/WINDOWS/Microsoft.NET/Framework/v2.0.50727/regasm.exe" OpenDMX.dll /regfile:registerDLL.reg
 
 C:\java\prog\jacobgen_0.10>"c:/WINDOWS/Microsoft.NET/Framework/v2.0.50727/regasm.exe" "C:\Documents and Settings\knoxg\My Documents\Visual Studio 2008\Projects\OpenDMX2\OpenDMX\bin\OpenDMX.dll" /regfile:regasm.reg
 
 and then to generate the jacob wrapper:
 
-C:\java\prog\jacobgen_0.10>docs\run_jacobgen.bat -package:com.jacobgen.opendmx -destdir:output OpenDMX.tlb
+C:\java\prog\jacobgen_0.10>docs\run_jacobgen.bat -package:com.jacobgen.dmx -destdir:output OpenDMX.tlb
