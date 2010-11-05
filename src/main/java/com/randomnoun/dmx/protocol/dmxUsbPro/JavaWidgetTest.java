@@ -13,22 +13,22 @@ public class JavaWidgetTest {
 		
 		JavaWidget widget = new JavaWidget("COM4");
 		JavaWidgetTranslator translator = widget.openPort();
-		byte[] dmxData = new byte[513]; // includes startcode
+		byte[] dmxData = new byte[512];
 		
 		System.out.println("Setting dmx channels to 0");
 		for (int i=0; i<512; i++) { dmxData[i] = 0; }
-		translator.sendOutputOnlySendDMXPacketRequest(dmxData);
+		translator.sendOutputOnlySendDMXPacketRequest((byte) 0, dmxData);
 		
 		try { Thread.sleep(1000); } catch (InterruptedException ie) { }
 		
 		System.out.println("Setting dmx channel 21 to 255");
-		dmxData[21] = (byte) 255;
-		translator.sendOutputOnlySendDMXPacketRequest(dmxData);
+		dmxData[20] = (byte) 255;
+		translator.sendOutputOnlySendDMXPacketRequest((byte) 0, dmxData);
 		try { Thread.sleep(1000); } catch (InterruptedException ie) { }
 		
 		System.out.println("Setting dmx channel 21 to 0");
-		dmxData[21] = (byte) 0;
-		translator.sendOutputOnlySendDMXPacketRequest(dmxData);
+		dmxData[20] = (byte) 0;
+		translator.sendOutputOnlySendDMXPacketRequest((byte) 0, dmxData);
 		try { Thread.sleep(1000); } catch (InterruptedException ie) { }
 		
 		System.out.println("Finishing up...");
