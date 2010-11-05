@@ -55,12 +55,14 @@
            	<type>jar</type>
            	<scope>provided</scope>
            </dependency>
+           <!-- not required (one hell of an SPI) see http://rxtx.qbang.org/wiki/index.php/Using_RXTX 
            <dependency>
            	<groupId>javax.comm</groupId>
            	<artifactId>comm</artifactId>
            	<version>2.0.3</version>
            	<scope>compile</scope>
            </dependency>
+            -->
            <dependency>
            	<groupId>org.rxtx</groupId>
            	<artifactId>rxtx</artifactId>
