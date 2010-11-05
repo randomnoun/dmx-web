@@ -10,6 +10,8 @@
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
 <% 
    AppConfig appConfig = AppConfig.getAppConfig();
+   List dmx = (List) request.getAttribute("dmx");
+   String startCode = (String) request.getAttribute("startCode");
 %>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
 <head>
@@ -72,9 +74,9 @@
 
 <h3>Manual controller:</h3>
 <form action="dmxTest" method="post" >
+Startcode: <input name="startCode" value="<%= startCode==null ? "" : startCode %>" size="2"/>
 <table id="controller" cellspacing=0 cellpadding=0>
 <% 
-    List dmx = (List) request.getAttribute("dmx");
     for (int i=0; i<16; i++) {
 %>
     <tr>

@@ -83,8 +83,7 @@ public class DmxServlet extends HttpServlet {
     	HttpSession session = request.getSession(true);
     	
     	List dmxValues = (List) form.get("dmx");
-    	
-    	
+    	String startCode = (String) form.get("startCode");
     	String jarVersion = RXTXVersion.getVersion();
     	String dllVersion = "unknown";
     	try {
@@ -106,8 +105,7 @@ public class DmxServlet extends HttpServlet {
 		try {
 			translator = widget.openPort();
 	    	byte[] dmxData = new byte[513];
-	    	dmxData[0] = 0; // start code
-	    	
+	    	dmxData[0] = Text.isBlank(startCode) ? 0 : (byte) new Long(startCode).longValue(); 
 	    	for (int i=0; i<255; i++) {
 	    		String value = (String) dmxValues.get(i);
 	    		if (!Text.isBlank(value)) {
@@ -122,6 +120,7 @@ public class DmxServlet extends HttpServlet {
     	}
 		widget.close();
 		request.setAttribute("dmx", dmxValues);
+		request.setAttribute("startCode", startCode);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
 		dispatcher.forward(request, response);
     }
