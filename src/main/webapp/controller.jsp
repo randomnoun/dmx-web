@@ -3,7 +3,7 @@
   language="java"
   contentType="text/html; charset=ISO-8859-1"
   pageEncoding="ISO-8859-1"
-  errorPage="errorPage.jsp"
+  errorPage="misc/errorPage.jsp"
   import="java.util.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*,com.randomnoun.dmx.*"
 %>
 <%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
@@ -76,8 +76,33 @@
 <ul>
   <li>Universe</li>
   <ul>
-    <li>Timesource: <%= universe.getTimeSource().getClass().getName() %> / <%= universe.getTimeSource().getTime() %> </li>
-    <li>DMX values: xxxx</li>
+    <li>Timesource: <%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %> </li>
+    <li>DMX values
+    <form action="controller.html" method="post" >
+    <input type="hidden" name="action" value="setDmxValues" />
+<table id="controller" cellspacing=0 cellpadding=0>
+<% 
+    for (int i=0; i<16; i++) {
+%>
+    <tr>
+<% 
+        for (int j=0; j<16; j++) {
+%>
+        <td><div class="label"><%= i*16+j %></div></td><td><input name="dmx[<%= i*16+j %>]" value="<%= universe.getDmxChannelValue(i*16+j) %>" size="2"/></td>
+<%
+        }
+%>
+    </tr>
+<% 
+    } 
+%>
+    <tr>
+        <td colspan="32"><input type="submit" value="Update..."/></td>
+    </tr>
+</table>
+</form>
+    
+    </li>
     <li>Fixtures</li>
   <ul>
 <%

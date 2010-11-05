@@ -3,7 +3,7 @@
   language="java"
   contentType="text/html; charset=ISO-8859-1"
   pageEncoding="ISO-8859-1"
-  errorPage="errorPage.jsp"
+  errorPage="misc/errorPage.jsp"
   import="java.util.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*"
 %>
 <%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>

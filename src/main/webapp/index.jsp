@@ -67,6 +67,7 @@ Things to try:
 
 <ul>
 <li><a href="manualController.html">Manual controller</a></li>
+<li><a href="controller.html">The other controller</a></li>
 </ul>
 
 </body>
