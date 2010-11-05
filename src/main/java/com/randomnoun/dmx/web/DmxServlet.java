@@ -1,6 +1,7 @@
 package com.randomnoun.dmx.web;
 
 import gnu.io.PortInUseException;
+import gnu.io.RXTXCommDriver;
 import gnu.io.RXTXVersion;
 
 import java.io.IOException;
@@ -83,8 +84,20 @@ public class DmxServlet extends HttpServlet {
     	
     	List dmxValues = (List) form.get("dmx");
     	
-    	String dllVersion = RXTXVersion.nativeGetVersion();
+    	
     	String jarVersion = RXTXVersion.getVersion();
+    	String dllVersion = "unknown";
+    	try {
+    		dllVersion = RXTXVersion.nativeGetVersion();
+    	} catch (Error e1) {
+    		try {
+    			dllVersion = RXTXCommDriver.nativeGetVersion();
+    		} catch (Exception e2) {
+    			logger.error("Exception 1 determining version: ", e1);
+    			logger.error("Exception 2 determining version: ", e2);
+    			dllVersion = "Exception determining version: " + e1.getMessage();
+    		}
+    	}
     	request.setAttribute("rxtx.jarVersion", jarVersion);
     	request.setAttribute("rxtx.dllVersion", dllVersion);
     	

@@ -65,11 +65,9 @@
 <table id="config">
 <col width="100px">
 <col />
-<tr><td>DMX DLL version</td><td><%= request.getAttribute("dllVersion") %></td></tr>
-<tr><td>DMX DLL loaded</td><td>OK</td></tr>
-<tr><td>port check</td><td><%= request.getAttribute("search4") %></td></tr>
-<tr><td>device check</td><td><%= request.getAttribute("init4") %></td></tr>
-<tr><td valign="top">send</td><td><%= request.getAttribute("sent4") %></td></tr>
+<tr><td>RXTX JAR version</td><td><%= request.getAttribute("rxtx.jarVersion") %></td></tr>
+<tr><td>RXTX DLL version</td><td><%= request.getAttribute("rxtx.dllVersion") %></td></tr>
+<tr><td valign="top">exception</td><td><%= request.getAttribute("sent4") %></td></tr>
 </table>
 
 <h3>Manual controller:</h3>
