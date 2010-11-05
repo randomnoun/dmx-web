@@ -6,13 +6,13 @@ import java.util.TooManyListenersException;
 import gnu.io.PortInUseException;
 
 /** Holy shit it works */
-public class JavaWidgetTest {
+public class UsbProWidgetTest {
 
 	public static void main(String args[]) throws PortInUseException, IOException, TooManyListenersException {
 		//JavaWidgetTranslator widget = new JavaWidgetTranslator(4);
 		
-		JavaWidget widget = new JavaWidget("COM4");
-		JavaWidgetTranslator translator = widget.openPort();
+		UsbProWidget widget = new UsbProWidget("COM4");
+		UsbProWidgetTranslator translator = widget.openPort();
 		byte[] dmxData = new byte[512];
 		
 		System.out.println("Setting dmx channels to 0");

@@ -1,6 +1,6 @@
 package com.randomnoun.dmx.protocol.dmxUsbPro.message;
 
-import com.randomnoun.dmx.protocol.dmxUsbPro.JavaWidgetTranslator;
+import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetTranslator;
 
 public abstract class ResponseMessage {
 	ResponseMessageType responseMessageType;

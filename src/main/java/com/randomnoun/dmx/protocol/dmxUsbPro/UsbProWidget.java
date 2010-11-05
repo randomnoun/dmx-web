@@ -34,16 +34,16 @@ import org.apache.log4j.Logger;
  * message queue. 
  * 
  */
-public class JavaWidget {
+public class UsbProWidget {
 	
-	static Logger logger = Logger.getLogger(JavaWidget.class);
+	static Logger logger = Logger.getLogger(UsbProWidget.class);
 	
 	String portName;
 	boolean portFound = false;
 	SerialPort serialPort = null;
 	OutputStream outputStream = null;
 	InputStream inputStream = null;
-	JavaWidgetTranslator javaWidgetTranslator = null;
+	UsbProWidgetTranslator javaWidgetTranslator = null;
 	
 	/** Create a new low-level interface to a Enttec USB Pro Widget.
 	 * 
@@ -55,7 +55,7 @@ public class JavaWidget {
 	 * 
 	 * @param portName communications port name
 	 */
-	public JavaWidget(String portName) {
+	public UsbProWidget(String portName) {
 		this.portName = portName;
 	}
 
@@ -69,7 +69,7 @@ public class JavaWidget {
 	 * @throws IOException
 	 * @throws TooManyListenersException
 	 */
-	public JavaWidgetTranslator openPort() throws PortInUseException, IOException, TooManyListenersException {
+	public UsbProWidgetTranslator openPort() throws PortInUseException, IOException, TooManyListenersException {
 		Enumeration portList = CommPortIdentifier.getPortIdentifiers();
 		while (portList.hasMoreElements()) {
 			CommPortIdentifier portId = (CommPortIdentifier) portList.nextElement();
@@ -84,7 +84,7 @@ public class JavaWidget {
 					//serialPort.setSerialPortParams(9600, SerialPort.DATABITS_8, 
 					//	       SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
-				    javaWidgetTranslator = new JavaWidgetTranslator(inputStream, outputStream);
+				    javaWidgetTranslator = new UsbProWidgetTranslator(inputStream, outputStream);
 				    serialPort.addEventListener(new JavaWidgetSerialPortEventListener(javaWidgetTranslator));
 				    serialPort.notifyOnDataAvailable(true);
 				    serialPort.notifyOnOutputEmpty(true);
@@ -128,9 +128,9 @@ public class JavaWidget {
 	
 	public static class JavaWidgetSerialPortEventListener implements SerialPortEventListener {
 		/** Object which will translate received bytes into ResponseMessages */
-		JavaWidgetTranslator javaWidgetTranslator;
+		UsbProWidgetTranslator javaWidgetTranslator;
 		
-		public JavaWidgetSerialPortEventListener(JavaWidgetTranslator javaWidgetTranslator) {
+		public JavaWidgetSerialPortEventListener(UsbProWidgetTranslator javaWidgetTranslator) {
 			this.javaWidgetTranslator = javaWidgetTranslator;
 		}
 		public void serialEvent(SerialPortEvent arg0) {

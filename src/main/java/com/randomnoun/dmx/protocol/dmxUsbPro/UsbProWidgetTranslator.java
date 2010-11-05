@@ -23,10 +23,10 @@ import com.randomnoun.dmx.protocol.dmxUsbPro.message.ResponseMessageType;
  * 
  * @author knoxg
  */
-public class JavaWidgetTranslator {
+public class UsbProWidgetTranslator {
 
 	/** Logger instance for this class */
-	Logger logger = Logger.getLogger(JavaWidgetTranslator.class);
+	Logger logger = Logger.getLogger(UsbProWidgetTranslator.class);
 
 	/** Start of message marker for widget */
 	private static byte START_OF_MESSAGE = (byte) 0x7E;
@@ -95,7 +95,7 @@ public class JavaWidgetTranslator {
     boolean parseBadMessage = false;
 	
 	
-    public JavaWidgetTranslator(InputStream inputStream, OutputStream outputStream) {
+    public UsbProWidgetTranslator(InputStream inputStream, OutputStream outputStream) {
     	this.readBuffer = inputStream;
     	this.writeBuffer = outputStream;
     }

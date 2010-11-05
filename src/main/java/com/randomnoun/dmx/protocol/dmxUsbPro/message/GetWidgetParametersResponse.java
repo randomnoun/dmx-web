@@ -73,7 +73,7 @@ public class GetWidgetParametersResponse extends ResponseMessage {
 	 * 
 	 * @return User defined configuration data. 
 	 * 
-	 * @see JavaWidgetTranslator#sendSetWidgetParametersRequest(int, int, int, byte[])
+	 * @see UsbProWidgetTranslator#sendSetWidgetParametersRequest(int, int, int, byte[])
 	 */
 	public byte[] getUserData() { return userData; }
 	
