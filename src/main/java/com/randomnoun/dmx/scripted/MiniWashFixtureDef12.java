@@ -90,9 +90,11 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 		double majorPanStep = this.panRange / 256; double minorPanStep = majorPanStep / 256;
 		double majorTiltStep = this.tiltRange / 256; double minorTiltStep = majorTiltStep / 256;
 		this.addChannelDef(new PanPositionChannelDef(0, 0, this.panRange /*- majorPanStep*/));  // 0->255 == 0 to 540degrees
-		this.addChannelDef(new PanPositionChannelDef(1, 0, majorPanStep));     // 0->255 == 0->540/255 degrees
+		// TODO: multiple pan channels
+		//this.addChannelDef(new PanPositionChannelDef(1, 0, majorPanStep));     // 0->255 == 0->540/255 degrees
 		this.addChannelDef(new TiltPositionChannelDef(2, 0, this.tiltRange /*- majorTiltStep*/));  // 0->255 == 0 to 180degrees
-		this.addChannelDef(new TiltPositionChannelDef(3, 0, majorTiltStep));  // 0->255 == 0->180/255 degrees
+		// TODO: multiple tilt channels
+		//this.addChannelDef(new TiltPositionChannelDef(3, 0, majorTiltStep));  // 0->255 == 0->180/255 degrees
 		
 		// channel 4 affects speed at which target pan/tilt position is reached
 		//this.addChannelDef(new VectorSpeedChannelDef(4, 0, 255, 0, 0.5));  // 0->255 == normal->slow
@@ -179,10 +181,11 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 		
 		// guessing .5second -> .1second strobe speed
 		StrobeChannelDef scd = new StrobeChannelDef(4, 0, 2, 135, 10, 239);
-		StrobeChannelMuxer strobeMuxer = new StrobeChannelMuxer(colorMuxer, universeTimeSource);
+		// TODO: strobeMuxers that can find strobeChannels inside MacroChannelDefs
+		//StrobeChannelMuxer strobeMuxer = new StrobeChannelMuxer(colorMuxer, universeTimeSource);
 		ChannelMuxer openMuxer = new NullChannelMuxer(colorMuxer);
 		MacroChannelMuxer dimmerStrobeMuxer = new MacroChannelMuxer(colorMuxer,
-			new ChannelMuxer[] { blackMuxer, dimmerMuxer, strobeMuxer, openMuxer });
+			new ChannelMuxer[] { blackMuxer, dimmerMuxer, /*strobeMuxer*/ dimmerMuxer, openMuxer });
 		
 		// TODO: color/position macro muxers
 
