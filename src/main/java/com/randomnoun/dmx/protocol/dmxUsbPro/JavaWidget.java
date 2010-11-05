@@ -22,13 +22,16 @@ import org.apache.log4j.Logger;
  * <pre>
  * JavaWidget javaWidget = new JavaWidget("COM4");
  * JavaWidgetTranslator translator = javaWidget.openPort();
- * translator.whatever();
+ * ...
+ * translator.sendWhatever();
+ * ResponseMessage message = translator.getMessage();
  * ...
  * javaWidget.close();
  * </pre>
  * 
  * Presumably the event handling in javax.comm (which I assume is in it's
- * own thread) will cause messages to magically appear on the translator's queue 
+ * own thread) will cause messages to magically appear on the translator's 
+ * message queue. 
  * 
  */
 public class JavaWidget {
