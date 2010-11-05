@@ -1,5 +1,8 @@
 package com.randomnoun.dmx.web;
 
+import gnu.io.PortInUseException;
+import gnu.io.RXTXVersion;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -14,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TooManyListenersException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -30,11 +34,14 @@ import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.SafeArray;
 import com.jacob.com.Variant;
 import com.jacobgen.dmx._USBDMXProCom;
+import com.randomnoun.common.ExceptionUtils;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.db.DatabaseTO;
 import com.randomnoun.common.db.DatabaseTO.TableColumnTO;
 import com.randomnoun.common.db.DatabaseTO.TableTO;
+import com.randomnoun.dmx.protocol.dmxUsbPro.JavaWidget;
+import com.randomnoun.dmx.protocol.dmxUsbPro.JavaWidgetTranslator;
 
 
 /**
@@ -75,28 +82,32 @@ public class DmxServlet extends HttpServlet {
     	HttpSession session = request.getSession(true);
     	
     	List dmxValues = (List) form.get("dmx");
-    	ActiveXComponent axc = new ActiveXComponent("Randomnoun.DMX.USBDMXProCom");
-    	_USBDMXProCom usbDMXPro = new _USBDMXProCom(axc);
-    	request.setAttribute("dllVersion", usbDMXPro.getDllVersion());
     	
-    	usbDMXPro.searchPorts();
-    	request.setAttribute("search4", usbDMXPro.getErrorString(4));
-    	usbDMXPro.init(4);
-    	request.setAttribute("init4", usbDMXPro.getErrorString(4));
-    	byte[] universe = new byte[512];
-    	for (int i=0; i<255; i++) {
-    		String value = (String) dmxValues.get(i);
-    		if (!Text.isBlank(value)) {
-    			universe[i] = (byte) new Long(value).longValue();
-    		}
+    	String dllVersion = RXTXVersion.nativeGetVersion();
+    	String jarVersion = RXTXVersion.getVersion();
+    	request.setAttribute("rxtx.jarVersion", jarVersion);
+    	request.setAttribute("rxtx.dllVersion", dllVersion);
+    	
+    	JavaWidget widget = new JavaWidget("COM4");
+    	JavaWidgetTranslator translator;
+		try {
+			translator = widget.openPort();
+	    	byte[] dmxData = new byte[513];
+	    	dmxData[0] = 0; // start code
+	    	
+	    	for (int i=0; i<255; i++) {
+	    		String value = (String) dmxValues.get(i);
+	    		if (!Text.isBlank(value)) {
+	    			dmxData[i+1] = (byte) new Long(value).longValue();
+	    		}
+	    	}
+    		translator.sendOutputOnlySendDMXPacketRequest(dmxData);
+    		request.setAttribute("sent4", "OK"); 
+    	} catch (Exception e) {
+    		logger.error(e);
+    		request.setAttribute("sent4", ExceptionUtils.getStackTrace(e));
     	}
-    	SafeArray safeArray = new SafeArray(Variant.VariantByte, 512);
-		safeArray.fromByteArray(universe);
-		usbDMXPro.setDMXValues(4, safeArray);
-		usbDMXPro.send(4);
-		request.setAttribute("sent4", usbDMXPro.getErrorString(4));
-		usbDMXPro.close(4);
-
+		widget.close();
 		request.setAttribute("dmx", dmxValues);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
 		dispatcher.forward(request, response);
