@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.randomnoun.dmx.event.DmxUpdateEvent;
-import com.randomnoun.dmx.event.DmxUpdateListener;
+import com.randomnoun.dmx.event.UniverseUpdateListener;
 import com.randomnoun.dmx.timeSource.TimeSource;
 
 /** This object contains all the dmx values of all fixtures on a 
@@ -15,9 +15,9 @@ public class Universe {
 
 	public static int MAX_CHANNELS=512;
 	
-	int dmxValues[] = new int[MAX_CHANNELS];
-	List<DmxUpdateListener> listeners = new ArrayList<DmxUpdateListener>();
-	TimeSource timeSource;
+	private int dmxValues[] = new int[MAX_CHANNELS];
+	private List<UniverseUpdateListener> listeners = new ArrayList<UniverseUpdateListener>();
+	private TimeSource timeSource;
 	
 	/** Returns the DMX value of one channel in this universe
 	 *  
@@ -40,7 +40,7 @@ public class Universe {
 		dmxValues[dmxChannelNumber] = value;
 		// @TODO fire some events off to any listeners
 		// (for display, sending to the outside world, etc)
-		for (DmxUpdateListener listener : listeners) {
+		for (UniverseUpdateListener listener : listeners) {
 			listener.onEvent(new DmxUpdateEvent(this, dmxChannelNumber, value));
 		}
 	}
@@ -49,16 +49,20 @@ public class Universe {
 		this.timeSource = timeSource;
 	}
 	
+	public TimeSource getTimeSource() { 
+		return timeSource; 
+	}
+	
 	public long getTime() {
 		return timeSource.getTime();
 	}
 	
 	
-	public void addListener(DmxUpdateListener listener) {
+	public void addListener(UniverseUpdateListener listener) {
 		listeners.add(listener);
 	}
 	
-	public void removeListener(DmxUpdateListener listener) {
+	public void removeListener(UniverseUpdateListener listener) {
 		listeners.remove(listener);
 	}
 	
