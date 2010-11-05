@@ -3,7 +3,7 @@ package com.randomnoun.dmx.protocol.dmxUsbPro;
 import java.io.IOException;
 import java.util.TooManyListenersException;
 
-import javax.comm.PortInUseException;
+import gnu.io.PortInUseException;
 
 public class JavaWidgetTest {
 
