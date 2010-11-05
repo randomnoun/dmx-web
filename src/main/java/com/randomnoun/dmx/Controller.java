@@ -15,6 +15,9 @@ public class Controller {
 	public void setUniverse(Universe universe) {
 		this.universe = universe;
 	}
+	public Universe getUniverse() {
+		return universe;
+	}
 	
 	public void addFixture(Fixture f) {
 		fixtures.add(f);
