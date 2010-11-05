@@ -5,6 +5,7 @@ import java.util.TooManyListenersException;
 
 import gnu.io.PortInUseException;
 
+/** Holy shit it works */
 public class JavaWidgetTest {
 
 	public static void main(String args[]) throws PortInUseException, IOException, TooManyListenersException {
