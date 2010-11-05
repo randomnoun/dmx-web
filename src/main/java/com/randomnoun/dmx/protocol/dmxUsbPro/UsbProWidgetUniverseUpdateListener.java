@@ -2,6 +2,8 @@ package com.randomnoun.dmx.protocol.dmxUsbPro;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.event.DmxUpdateEvent;
 import com.randomnoun.dmx.event.DmxValueDumper;
@@ -17,6 +19,8 @@ import com.randomnoun.dmx.event.DmxValueDumper.DmxValueDumperThread;
  */
 public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListener {
 
+	static Logger logger = Logger.getLogger(UsbProWidgetUniverseUpdateListener.class);
+	
 	UsbProWidgetTranslator translator = null;
 	byte dmxState[];
 		
@@ -39,6 +43,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 				if (hasChanged) {
 					hasChanged = false;  // @TODO race condition
 					try {
+						logger.debug("Sending DMX data");
 						upuul.translator.sendOutputOnlySendDMXPacketRequest((byte) 0, upuul.dmxState);
 					} catch (IOException e) {
 						done = true;
