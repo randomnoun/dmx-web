@@ -50,6 +50,9 @@ public class AppConfig extends AppConfigBase {
     /** Controller instance for this application */
     private Controller controller;
     
+    /** Widget reference */
+    private UsbProWidget widget;
+    
     /** Update listener for this application */
     private UsbProWidgetUniverseUpdateListener usbProWidgetUniverseUpdateListener;
     
@@ -103,12 +106,12 @@ public class AppConfig extends AppConfigBase {
     
     private void initController() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException {
     	String portName = getProperty("controller.portName");
-    	UsbProWidget widget = new UsbProWidget(portName);
+    	widget = new UsbProWidget(portName);
     	UsbProWidgetTranslator translator = widget.openPort();
     	Universe universe = new Universe();
 		universe.setTimeSource(new WallClockTimeSource());
-		Controller c = new Controller();
-		c.setUniverse(universe);
+		controller = new Controller();
+		controller.setUniverse(universe);
 		
 		List fixtures = (List) get("fixtures");
 		for (int i=0; i<fixtures.size(); i++) {
@@ -118,7 +121,7 @@ public class AppConfig extends AppConfigBase {
 			String dmxOffset = (String) fixture.get("dmxOffset");
 			FixtureDef fixtureDef = (FixtureDef) Class.forName(fixtureClass).newInstance();
 			Fixture fixtureObj = new Fixture(name, fixtureDef, universe, Integer.parseInt(dmxOffset));
-			c.addFixture(fixtureObj);
+			controller.addFixture(fixtureObj);
 		}
 		
 		usbProWidgetUniverseUpdateListener = new UsbProWidgetUniverseUpdateListener(translator);
@@ -134,8 +137,16 @@ public class AppConfig extends AppConfigBase {
     
     /** Invoked by servletContextListener to stop any running threads in this application */
     public void shutdownThreads() {
+    	logger.info("appConfig.shutdownThreads() invoked");
     	if (usbProWidgetUniverseUpdateListener!=null) {
     		usbProWidgetUniverseUpdateListener.stopThread();
+    	}
+    	if (widget!=null) {
+    		try {
+				widget.close();
+			} catch (IOException e) {
+				logger.error("Could not close widget", e);
+			}
     	}
     }
 
