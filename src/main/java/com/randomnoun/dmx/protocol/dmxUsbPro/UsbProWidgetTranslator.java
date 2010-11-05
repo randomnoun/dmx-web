@@ -21,6 +21,9 @@ import com.randomnoun.dmx.protocol.dmxUsbPro.message.ResponseMessageType;
  * 
  * <p>Based on API Specification 1.44: http://www.enttec.com/docs/dmx_usb_pro_api_spec.pdf 
  * 
+ * <p>I think if terminators aren't added to the DMX lines then you might get echos
+ * of messages sent across the DMX bus (getting response messages with label 6 in tests)
+ * 
  * @author knoxg
  */
 public class UsbProWidgetTranslator {
