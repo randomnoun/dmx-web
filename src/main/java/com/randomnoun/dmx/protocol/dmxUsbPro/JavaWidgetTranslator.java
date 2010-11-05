@@ -133,7 +133,7 @@ public class JavaWidgetTranslator {
      * the Widget firmware. 
 	 * @throws IOException 
      */
-	void sendReprogramFirmwareRequestMessage() throws IOException {
+	public void sendReprogramFirmwareRequestMessage() throws IOException {
 		byte[] message = getRequestMessage(RequestMessageType.REPROGRAM_FIRMWARE_REQUEST, null);
 		writeBuffer.write(message);
 	}
@@ -143,7 +143,7 @@ public class JavaWidgetTranslator {
      * 
      * @param flashPage  One page of firmware binary file.
      */
-	void sendProgramFlashPageRequest(byte[] flashPage) throws IOException {
+	public void sendProgramFlashPageRequest(byte[] flashPage) throws IOException {
 		if (flashPage.length != 64) { throw new IllegalArgumentException("flash page must be 64 bytes in length"); }
 		byte[] message = getRequestMessage(RequestMessageType.PROGRAM_FLASH_PAGE_REQUEST, flashPage);
 		writeBuffer.write(message);
@@ -156,7 +156,7 @@ public class JavaWidgetTranslator {
 	 * 
 	 * @throws IOException 
 	 */
-	void sendGetWidgetParametersRequest(int configSize) throws IOException {
+	public void sendGetWidgetParametersRequest(int configSize) throws IOException {
 		if (configSize < 0 || configSize > 508) {
 			throw new IllegalArgumentException("configSize must be in range 0 to 508");
 		}
@@ -182,7 +182,7 @@ public class JavaWidgetTranslator {
 	 * @throws IOException 
 	 * 
 	 */
-	void sendSetWidgetParametersRequest(int dmxOutputBreakTime, 
+	public void sendSetWidgetParametersRequest(int dmxOutputBreakTime, 
 		int dmxOutputMarkAfterBreakTime, int dmxOutputPacketsPerSecondRate, 
 		byte[] userData ) throws IOException 
 	{
@@ -219,7 +219,7 @@ public class JavaWidgetTranslator {
      * 
 	 * @throws IOException 
      */ 
-	void sendOutputOnlySendDMXPacketRequest(byte[] dmxData) throws IOException {
+	public void sendOutputOnlySendDMXPacketRequest(byte[] dmxData) throws IOException {
 		if (dmxData.length < 25 || dmxData.length > 513) { throw new IllegalStateException("dmxData must be between 25 and 513 bytes in length"); } 
 		byte[] message = getRequestMessage(RequestMessageType.OUTPUT_ONLY_SEND_DMX_PACKET_REQUEST,
 			dmxData);
@@ -234,7 +234,7 @@ public class JavaWidgetTranslator {
 	 *   
 	 * @throws IOException 
 	 */
-	void sendSendRDMPacketRequest(byte[] rdmData) throws IOException {
+	public void sendSendRDMPacketRequest(byte[] rdmData) throws IOException {
 		if (rdmData.length < 1 || rdmData.length > 513) { throw new IllegalStateException("rdmData must be between 1 and 513 bytes in length"); } 
 		byte[] message = getRequestMessage(RequestMessageType.SEND_RDM_PACKET_REQUEST,
 			rdmData);
@@ -252,7 +252,7 @@ public class JavaWidgetTranslator {
      *
      * @param sendOnDataChange if true, send always; if false, send on data change only 
      */
-	void sendReceiveDMXOnChangeRequest(boolean sendOnDataChange) throws IOException {
+	public void sendReceiveDMXOnChangeRequest(boolean sendOnDataChange) throws IOException {
 		byte[] message = getRequestMessage(RequestMessageType.RECEIVE_DMX_ON_CHANGE_REQUEST,
 			new byte[] { sendOnDataChange ? (byte) 1 : (byte) 0 });
 		writeBuffer.write(message);
@@ -263,7 +263,7 @@ public class JavaWidgetTranslator {
 	 * 
 	 * @throws IOException
 	 */
-	void sendGetWidgetSerialNumberRequest() throws IOException {
+	public void sendGetWidgetSerialNumberRequest() throws IOException {
 		byte[] message = getRequestMessage(RequestMessageType.GET_WIDGET_SERIAL_NUMBER_REQUEST, null);
 		writeBuffer.write(message);
 	}
@@ -275,7 +275,7 @@ public class JavaWidgetTranslator {
 	 * 
 	 * @throws IOException 
 	 */
-	void sendRDMDiscoveryRequest(byte[] discUniqueBranchRdmRequest) throws IOException {
+	public void sendRDMDiscoveryRequest(byte[] discUniqueBranchRdmRequest) throws IOException {
 		if (discUniqueBranchRdmRequest.length != 38) { throw new IllegalStateException("discUniqueBranchRdmRequest must be 38 bytes"); } 
 		byte[] message = getRequestMessage(RequestMessageType.SEND_RDM_DISCOVERY_REQUEST,
 			discUniqueBranchRdmRequest);
@@ -285,7 +285,7 @@ public class JavaWidgetTranslator {
 
     /** Reads all available data from the device, possible adding
      * messages to the readMessageQueue */
-    public void readData() throws IOException {
+    void readData() throws IOException {
     	// read the comm api and push data onto ByteArrayInputStream
     	
     	while (readBuffer.available() > 0) {
