@@ -66,7 +66,7 @@ public class MasterDimmerChannelMuxer extends ChannelMuxer {
 				 1-(masterValue-dmxHighValue)/(dmxLowValue-dmxHighValue));	
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("mux input " + input + ", masterValue=" + masterValue + 
+			logger.debug("fixture=" + fixture.getName() + ", mux input " + input + ", masterValue=" + masterValue + 
 				((dmxLowValue==0 && dmxHighValue==255) ? "" : " (dmxLowValue=" + dmxLowValue + ", dmxHighValue=" + dmxHighValue + ")"));
 		}
 		return new FixtureOutput() {

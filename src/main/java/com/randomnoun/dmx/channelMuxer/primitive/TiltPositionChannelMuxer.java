@@ -41,7 +41,7 @@ public class TiltPositionChannelMuxer extends ChannelMuxer {
 	
 	public FixtureOutput getOutput() {
 		final int tiltValue = fixture.getDmxChannelValue(tiltChannelDef.getOffset());
-		logger.debug("tiltValue=" + tiltValue);
+		logger.debug("fixture=" + fixture.getName() + ", tiltValue=" + tiltValue);
 		return new FixtureOutput() {
 			public Color getColor() {
 				return null;

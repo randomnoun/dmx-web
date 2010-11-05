@@ -39,7 +39,7 @@ public class ColorChannelMuxer extends ChannelMuxer {
 		final int redValue = redOffset == -1 ? 0 : fixture.getDmxChannelValue(redOffset);
 		final int greenValue = greenOffset == -1 ? 0 : fixture.getDmxChannelValue(greenOffset);
 		final int blueValue = blueOffset == -1 ? 0 : fixture.getDmxChannelValue(blueOffset);
-		logger.debug("redValue=" + redValue + ", greenValue=" + greenValue + ", blueValue=" + blueValue);
+		logger.debug("fixture=" + fixture.getName() + ", redValue=" + redValue + ", greenValue=" + greenValue + ", blueValue=" + blueValue);
 		return new FixtureOutput() {
 			public Color getColor() {
 				return new Color(redValue, greenValue, blueValue);

@@ -106,7 +106,7 @@ public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer
 		final long timeInTransition = cycleOffset - currentCgd.startTime;
 		final double fade = ((float) timeInTransition / (float) currentCgd.duration); 
 		
-		logger.debug("mux time=" + timeSource.getTime() + ", cycleOffset=" + cycleOffset + ", currentCgd=[" + currentCgd + "], nextCgd=[" + nextCgd + "], timeInTransition=" + timeInTransition + ", fade=" + fade);
+		logger.debug("fixture=" + fixture.getName() + ", mux time=" + timeSource.getTime() + ", cycleOffset=" + cycleOffset + ", currentCgd=[" + currentCgd + "], nextCgd=[" + nextCgd + "], timeInTransition=" + timeInTransition + ", fade=" + fade);
 		
 		return new FixtureOutput() {
 			public Color getColor() {

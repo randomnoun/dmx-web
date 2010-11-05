@@ -24,7 +24,7 @@ public class NullChannelMuxer extends ChannelMuxer {
 	
 	@Override
 	public FixtureOutput getOutput() {
-		logger.debug("mux input " + inputMuxer.getOutput());
+		logger.debug("fixture=" + fixture.getName() + ", mux input " + inputMuxer.getOutput());
 		return inputMuxer.getOutput();
 	}
 }

@@ -53,7 +53,7 @@ public class StrobeChannelMuxer extends CyclingTimeBasedChannelMuxer {
 	public FixtureOutput getOutput() {
 		final FixtureOutput input = inputMuxer.getOutput();
 		final int strobeValue = fixture.getDmxChannelValue(channelDef.getOffset());
-		logger.debug("mux input " + input + ", strobeValue=" + strobeValue);
+		logger.debug("fixture=" + fixture.getName() + ", mux input " + input + ", strobeValue=" + strobeValue);
 		return new FixtureOutput() {
 			public Color getColor() {
 				Color inputColor = input.getColor();

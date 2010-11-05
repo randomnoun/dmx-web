@@ -48,7 +48,7 @@ public class PanPositionChannelMuxer extends ChannelMuxer {
 	
 	public FixtureOutput getOutput() {
 		final int panValue = fixture.getDmxChannelValue(panChannelDef.getOffset());
-		logger.debug("panValue=" + panValue);
+		logger.debug("fixture=" + fixture.getName() + ", panValue=" + panValue);
 		return new FixtureOutput() {
 			public Color getColor() {
 				return null;

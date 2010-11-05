@@ -22,7 +22,7 @@ public class FixedColorChannelMuxer extends ChannelMuxer {
 	}
 	
 	public FixtureOutput getOutput() {
-		logger.debug("fixedColorChannelMuxer");
+		logger.debug("fixture=" + fixture.getName() + ", fixedColorChannelMuxer");
 		return new FixtureOutput() {
 			public Color getColor() {
 				return color;
