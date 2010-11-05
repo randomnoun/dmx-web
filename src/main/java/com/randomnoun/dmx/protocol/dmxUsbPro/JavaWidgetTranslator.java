@@ -212,32 +212,46 @@ public class JavaWidgetTranslator {
 	 * when the Widget receives any request message other than the Output Only Send DMX Packet
 	 * request, or the Get Widget Parameters request.
      *
+     * @param the DMX startCode, typically 0. See 
+     *   <a href="http://en.wikipedia.org/wiki/DMX512-A#Protocol">http://en.wikipedia.org/wiki/DMX512-A#Protocol</a>
      * @param dmxData DMX data to send, beginning with the start code. The overall
      *   message size specifies the size of the DMX data to send, and also
      *   sets the universe size (the number of DMX channels which are
      *   output).
+     *   <p>A few notes on the DMXKing USB dongle:
+     *   <p>A start code of 0 seems to indicate that dmxData[0] is channel 1. 
+     *   <p>A start code of 1 seems to indicate that dmxData[0] is channel 0.
+     *   <p>So that's interesting.
+     *   
      * 
 	 * @throws IOException 
      */ 
-	public void sendOutputOnlySendDMXPacketRequest(byte[] dmxData) throws IOException {
-		if (dmxData.length < 25 || dmxData.length > 513) { throw new IllegalStateException("dmxData must be between 25 and 513 bytes in length"); } 
+	public void sendOutputOnlySendDMXPacketRequest(byte startCode, byte[] dmxData) throws IOException {
+		if (dmxData.length < 24 || dmxData.length > 512) { throw new IllegalStateException("dmxData must be between 24 and 512 bytes in length"); }
+		byte[] payload = new byte[dmxData.length + 1];
+		payload[0] = startCode;
+		System.arraycopy(dmxData, 0, payload, 1, dmxData.length);
 		byte[] message = getRequestMessage(RequestMessageType.OUTPUT_ONLY_SEND_DMX_PACKET_REQUEST,
-			dmxData);
+			payload);
 		writeBuffer.write(message);
 	}
 	
 	/** This message requests the Widget to send an RDM packet out of the Widget DMX port, and then
 	 * change the DMX port direction to input, so that RDM or DMX packets can be received.
-	 *  
+	 * 
+	 * @param the RDM startCode; typically zero 
 	 * @param rdmData RDM data to send, beginning with the start code. The overall
 	 *   message size specifies the size of the RDM data to send.
 	 *   
 	 * @throws IOException 
 	 */
-	public void sendSendRDMPacketRequest(byte[] rdmData) throws IOException {
-		if (rdmData.length < 1 || rdmData.length > 513) { throw new IllegalStateException("rdmData must be between 1 and 513 bytes in length"); } 
+	public void sendSendRDMPacketRequest(byte startCode, byte[] rdmData) throws IOException {
+		if (rdmData.length < 1 || rdmData.length > 513) { throw new IllegalStateException("rdmData must be between 1 and 513 bytes in length"); }
+		byte[] payload = new byte[rdmData.length + 1];
+		payload[0] = startCode;
+		System.arraycopy(rdmData, 0, payload, 1, rdmData.length);
 		byte[] message = getRequestMessage(RequestMessageType.SEND_RDM_PACKET_REQUEST,
-			rdmData);
+			payload);
 		writeBuffer.write(message);
 	}
 	

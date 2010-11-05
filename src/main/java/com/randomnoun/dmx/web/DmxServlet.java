@@ -100,25 +100,29 @@ public class DmxServlet extends HttpServlet {
     	request.setAttribute("rxtx.jarVersion", jarVersion);
     	request.setAttribute("rxtx.dllVersion", dllVersion);
     	
-    	JavaWidget widget = new JavaWidget("COM4");
-    	JavaWidgetTranslator translator;
-		try {
-			translator = widget.openPort();
-	    	byte[] dmxData = new byte[513];
-	    	dmxData[0] = Text.isBlank(startCode) ? 0 : (byte) new Long(startCode).longValue(); 
-	    	for (int i=0; i<255; i++) {
-	    		String value = (String) dmxValues.get(i);
-	    		if (!Text.isBlank(value)) {
-	    			dmxData[i+1] = (byte) new Long(value).longValue();
-	    		}
+    	if (dmxValues!=null) {
+	    	JavaWidget widget = new JavaWidget("COM4");
+	    	JavaWidgetTranslator translator;
+			try {
+				translator = widget.openPort();
+		    	
+		    	byte startCodeByte = Text.isBlank(startCode) ? 0 : (byte) new Long(startCode).longValue();
+		    	byte[] dmxData = new byte[512];
+		    	for (int i=0; i<255; i++) {
+		    		String value = (String) dmxValues.get(i);
+		    		if (!Text.isBlank(value)) {
+		    			dmxData[i] = (byte) new Long(value).longValue();
+		    		}
+		    	}
+	    		translator.sendOutputOnlySendDMXPacketRequest(startCodeByte, dmxData);
+	    		request.setAttribute("sent4", "OK"); 
+	    	} catch (Exception e) {
+	    		logger.error(e);
+	    		request.setAttribute("sent4", ExceptionUtils.getStackTrace(e));
+	    	} finally {
+	    		widget.close();
 	    	}
-    		translator.sendOutputOnlySendDMXPacketRequest(dmxData);
-    		request.setAttribute("sent4", "OK"); 
-    	} catch (Exception e) {
-    		logger.error(e);
-    		request.setAttribute("sent4", ExceptionUtils.getStackTrace(e));
     	}
-		widget.close();
 		request.setAttribute("dmx", dmxValues);
 		request.setAttribute("startCode", startCode);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
