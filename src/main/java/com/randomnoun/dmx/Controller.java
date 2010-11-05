@@ -30,6 +30,10 @@ public class Controller {
 		universe.setDmxChannelValue(dmxChannelNumer, value);
 	}
 	
+	public List<Fixture> getFixtures() {
+		return fixtures;
+	}
+	
 	
 	
 }
