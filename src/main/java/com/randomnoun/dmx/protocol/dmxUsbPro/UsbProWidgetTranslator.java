@@ -3,8 +3,10 @@ package com.randomnoun.dmx.protocol.dmxUsbPro;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 
@@ -51,16 +53,15 @@ public class UsbProWidgetTranslator {
 	public static byte FIRMWARE_VERSION_3 = 3;
 
 	
-	/** Data that will be written to the device */
+	/** An outputStream to write data to the device */
 	private OutputStream writeBuffer;
 	
-	/** Data that has been read from the device */
+	/** An inputStream to read data from the device */
 	private InputStream readBuffer;
 	
 	/** Messages that have been read from the device */
-	private Queue<ResponseMessage> readMessageQueue = new LinkedList<ResponseMessage>();
+	private Queue<ResponseMessage> readMessageQueue = new ConcurrentLinkedQueue<ResponseMessage>();
 
-	
     /** Parse state: unknown state, start-of-message not yet seen */
 	private final static int STATE_INITIAL = 0;
     
@@ -144,7 +145,7 @@ public class UsbProWidgetTranslator {
 	/** This message programs one Flash page of the Widget firmware. The Flash pages must be
      * programmed in order from first to last Flash page, with the contents of the firmware binary file.
      * 
-     * @param flashPage  One page of firmware binary file.
+     * @param flashPage  One page of firmware binary file. The length of this array must be exactly 64.
      */
 	public void sendProgramFlashPageRequest(byte[] flashPage) throws IOException {
 		if (flashPage.length != 64) { throw new IllegalArgumentException("flash page must be 64 bytes in length"); }
@@ -301,7 +302,11 @@ public class UsbProWidgetTranslator {
 	
 
     /** Reads all available data from the device, possible adding
-     * messages to the readMessageQueue */
+     * messages to the readMessageQueue
+     * 
+     * Note that this is invoked from the serial port monitor thread,
+     * so probably need to synchronise on things.
+     * */
     void readData() throws IOException {
     	// read the comm api and push data onto ByteArrayInputStream
     	
