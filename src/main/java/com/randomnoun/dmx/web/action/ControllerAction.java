@@ -131,7 +131,7 @@ public class ControllerAction
     	} else if (action.equals("setDmxValues")) {
     		List dmxValues = (List) form.get("dmx");
     		byte[] dmxData = new byte[512];
-	    	for (int i=0; i<255; i++) {
+	    	for (int i=1; i<=255; i++) {
 	    		String value = (String) dmxValues.get(i);
 	    		if (!Text.isBlank(value)) {
 	    			controller.getUniverse().setDmxChannelValue(i, (int) new Long(value).longValue());

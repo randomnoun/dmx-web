@@ -15,6 +15,7 @@ public class Universe {
 
 	public static int MAX_CHANNELS=512;
 	
+	// the 0th element of this array is DMX channel one.
 	private int dmxValues[] = new int[MAX_CHANNELS];
 	private List<UniverseUpdateListener> listeners = new ArrayList<UniverseUpdateListener>();
 	private TimeSource timeSource;
@@ -26,7 +27,10 @@ public class Universe {
 	 * @return
 	 */
 	public int getDmxChannelValue(int dmxChannelNumber) {
-		return dmxValues[dmxChannelNumber];
+		if (dmxChannelNumber < 1 || dmxChannelNumber > 512) {
+			throw new IllegalArgumentException("dmxChannelNumber must be between 1 and 512");
+		}
+		return dmxValues[dmxChannelNumber-1];
 	}
 	
 	/** Sets the DMX value of a channel in this universe
@@ -37,7 +41,10 @@ public class Universe {
 	 * @return
 	 */
 	public void setDmxChannelValue(int dmxChannelNumber, int value) {
-		dmxValues[dmxChannelNumber] = value;
+		if (dmxChannelNumber < 1 || dmxChannelNumber > 512) {
+			throw new IllegalArgumentException("dmxChannelNumber must be between 1 and 512");
+		}
+		dmxValues[dmxChannelNumber-1] = value;
 		// @TODO fire some events off to any listeners
 		// (for display, sending to the outside world, etc)
 		for (UniverseUpdateListener listener : listeners) {

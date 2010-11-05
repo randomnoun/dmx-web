@@ -28,7 +28,7 @@ public class DmxValueDumper implements UniverseUpdateListener {
 			startTime = System.currentTimeMillis();
 			while (!done) {
 				String output = "DMX values:     ";
-				for (int i=0; i<Universe.MAX_CHANNELS; i++) {
+				for (int i=1; i<=Universe.MAX_CHANNELS; i++) {
 					if (dvd.dmxState[i]!=0) {
 						output += "[" + i + ":" + dvd.dmxState[i] + "] ";
 					}
@@ -47,7 +47,7 @@ public class DmxValueDumper implements UniverseUpdateListener {
 	}
 	
 	public DmxValueDumper() {
-		dmxState = new int[Universe.MAX_CHANNELS];
+		dmxState = new int[Universe.MAX_CHANNELS+1];
 	}
 	
 	public void onEvent(DmxUpdateEvent event) {

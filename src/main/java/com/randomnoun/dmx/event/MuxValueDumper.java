@@ -22,7 +22,7 @@ public class MuxValueDumper implements UniverseUpdateListener {
 	MuxValueDumperThread t = null;
 	
 	// probably need to replicate another Universe object here, but ... 
-	int dmxState[];
+	//int dmxState[];
 	
 	List<Fixture> fixtures = new ArrayList<Fixture>();
 	
@@ -63,7 +63,7 @@ public class MuxValueDumper implements UniverseUpdateListener {
 	}
 	
 	public MuxValueDumper() {
-		dmxState = new int[Universe.MAX_CHANNELS];
+		//dmxState = new int[Universe.MAX_CHANNELS+1];
 	}
 	
 	public void addFixture(Fixture fixture) {
@@ -71,7 +71,7 @@ public class MuxValueDumper implements UniverseUpdateListener {
 	}
 	
 	public void onEvent(DmxUpdateEvent event) {
-		dmxState[event.getDmxChannel()] = event.getValue();
+		//dmxState[event.getDmxChannel()] = event.getValue();
 	}
 	
 	public void startThread() {

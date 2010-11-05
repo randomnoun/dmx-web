@@ -88,7 +88,8 @@
 <% 
         for (int j=0; j<16; j++) {
 %>
-        <td><div class="label"><%= i*16+j %></div></td><td><input name="dmx[<%= i*16+j %>]" value="<%= universe.getDmxChannelValue(i*16+j) %>" size="2"/></td>
+        <td><div class="label"><%= (i*16+j+1) %></div></td>
+        <td><input name="dmx[<%= i*16+j+1 %>]" value="<%= universe.getDmxChannelValue(i*16+j+1) %>" size="2"/></td>
 <%
         }
 %>

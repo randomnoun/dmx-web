@@ -71,7 +71,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 	}
 	
 	public void onEvent(DmxUpdateEvent event) {
-		dmxState[event.getDmxChannel()] = (byte) event.getValue();
+		dmxState[event.getDmxChannel()-1] = (byte) event.getValue();
 		t.notifyChange();
 	}
 	
