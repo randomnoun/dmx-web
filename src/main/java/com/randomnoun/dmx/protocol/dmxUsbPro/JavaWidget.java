@@ -97,25 +97,33 @@ public class JavaWidget {
 		return javaWidgetTranslator;
 	}
 	
-	/** Closes any streams/resources held by this class
+	/** Closes any streams/resources held by this class.
+	 * 
+	 * This method will attempt to close the serial port's inputStream, outputStream,
+	 * remove any event listeners assigned to the serial port, and close the serial
+	 * port itself. 
+	 * 
+	 * <p>If an exception occurs, then all these steps will still be 
+	 * attempted, but the exception thrown will be the first one encountered.
 	 *  
 	 * @throws IOException
 	 */ 
 	public void close() throws IOException {
-		
-		if (inputStream!=null) { 
-			inputStream.close(); 
+		Exception e = null;
+		if (inputStream!=null) {
+			try { inputStream.close(); } catch (Exception e2) { e = (e==null ? e2 : e); }  
 			inputStream = null; 
 		}
 		if (outputStream!=null) { 
-			outputStream.close(); 
+			try { outputStream.close(); } catch (Exception e2) { e = (e==null ? e2 : e); } 
 			outputStream = null; 
 		}
-		if (serialPort!=null) { 
-			serialPort.removeEventListener(); 
-			serialPort.close(); 
+		if (serialPort!=null) {
+			try { serialPort.removeEventListener(); } catch (Exception e2) { e = (e==null ? e2 : e); } 
+			try { serialPort.close(); } catch (Exception e2) { e = (e==null ? e2 : e); } 
 			serialPort = null; 
 		}
+		if (e!=null) { throw (IOException) new IOException("Exception closing JavaWidget").initCause(e); }
 	}
 	
 	public static class JavaWidgetSerialPortEventListener implements SerialPortEventListener {
