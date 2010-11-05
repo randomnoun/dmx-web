@@ -33,10 +33,6 @@
     <servlet-name>versionServlet</servlet-name>
     <servlet-class>com.randomnoun.common.servlet.VersionServlet</servlet-class>
   </servlet>
-  <servlet>
-    <servlet-name>dmxTestServlet</servlet-name>
-    <servlet-class>com.randomnoun.dmx.web.DmxServlet</servlet-class>
-  </servlet>
 
   <servlet-mapping>
     <servlet-name>action</servlet-name>
@@ -45,10 +41,6 @@
   <servlet-mapping>
     <servlet-name>versionServlet</servlet-name>
     <url-pattern>/version</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>dmxTestServlet</servlet-name>
-    <url-pattern>/dmxTest</url-pattern>
   </servlet-mapping>
   
   

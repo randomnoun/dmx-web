@@ -26,6 +26,20 @@
 	  	  <forward name="success" path="/index.jsp"/>
 	    </action>
 
+        <!-- Note this action is not a PermissionMapping to allow non-authenticated users to use it -->
+        <action path="/manualController" 
+          type="com.randomnoun.dmx.web.action.ManualControllerAction"
+        >
+          <forward name="success" path="/manualController.jsp"/>
+        </action>
+
+        <action path="/controller" 
+          type="com.randomnoun.dmx.web.action.ControllerAction"
+        >
+          <forward name="success" path="/controller.jsp"/>
+        </action>
+
+
 <!-- 
         <action path="/stocktakeDateSelection" 
           type="com.randomnoun.stocktake.action.main.DateSelectionAction"

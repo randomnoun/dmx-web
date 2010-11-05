@@ -63,11 +63,38 @@
 <html>
 <body>
 <h2>DMX Web</h2>
-Things to try:
+<h3>Configuration:</h3>
+<table id="config">
+<col width="100px">
+<col />
+<tr><td>RXTX JAR version</td><td><%= request.getAttribute("rxtx.jarVersion") %></td></tr>
+<tr><td>RXTX DLL version</td><td><%= request.getAttribute("rxtx.dllVersion") %></td></tr>
+<tr><td valign="top">exception</td><td><pre><%= request.getAttribute("sent4") %></pre></td></tr>
+</table>
 
-<ul>
-<li><a href="manualController.html">Manual controller</a></li>
-</ul>
-
+<h3>Manual controller:</h3>
+<form action="manualController.html" method="post" >
+Startcode: <input name="startCode" value="<%= startCode==null ? "" : startCode %>" size="2"/>
+<table id="controller" cellspacing=0 cellpadding=0>
+<% 
+    for (int i=0; i<16; i++) {
+%>
+    <tr>
+<% 
+        for (int j=0; j<16; j++) {
+%>
+        <td><div class="label"><%= i*16+j %></div></td><td><input name="dmx[<%= i*16+j %>]" value="<%= dmx==null ? "" : dmx.get(i*16+j).toString() %>" size="2"/></td>
+<%
+        }
+%>
+    </tr>
+<% 
+    } 
+%>
+    <tr>
+        <td colspan="32"><input type="submit" value="Update..."/></td>
+    </tr>
+</table>
+</form>
 </body>
 </html>
