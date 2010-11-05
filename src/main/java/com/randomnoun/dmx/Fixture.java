@@ -12,16 +12,22 @@ public class Fixture {
 	
 	Universe universe;
 	FixtureDef fixtureDef;
+	String name;
 	int startDmxChannel;
 	
 	// could generate these on demand, perhaps
 	FixtureController fixtureController;
 	ChannelMuxer muxer;
 	
-	public Fixture(FixtureDef fixtureDef, Universe universe, int startDmxChannel) {
+	public Fixture(String name, FixtureDef fixtureDef, Universe universe, int startDmxChannel) {
+		this.name = name;
 		this.fixtureDef = fixtureDef;
 		this.universe = universe;
 		this.startDmxChannel = startDmxChannel;
+	}
+	
+	public String getName() { 
+		return name;
 	}
 	
 	public FixtureDef getFixtureDef() { 

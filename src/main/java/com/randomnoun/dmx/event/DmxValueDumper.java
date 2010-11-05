@@ -7,7 +7,7 @@ import com.randomnoun.dmx.Universe;
  *  
  * @author knoxg
  */
-public class DmxValueDumper implements DmxUpdateListener {
+public class DmxValueDumper implements UniverseUpdateListener {
 
 	DmxValueDumperThread t = null;
 	

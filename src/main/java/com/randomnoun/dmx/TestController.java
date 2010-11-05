@@ -33,8 +33,8 @@ public class TestController {
 			// things
 			Universe universe = new Universe();
 			universe.setTimeSource(new WallClockTimeSource());
-			Fixture leftFixture = new Fixture(x0177FixtureDef, universe, 10);
-			Fixture rightFixture = new Fixture(x0177FixtureDef, universe, 20);
+			Fixture leftFixture = new Fixture("leftFixture", x0177FixtureDef, universe, 10);
+			Fixture rightFixture = new Fixture("rightFixture", x0177FixtureDef, universe, 20);
 			
 			Controller c = new Controller();
 			c.setUniverse(universe);
@@ -48,8 +48,8 @@ public class TestController {
 			
 			// add fixture colour value -> stdout listener
 			mvd = new MuxValueDumper();
-			mvd.addFixture("leftFixture", leftFixture);
-			mvd.addFixture("rightFixture", rightFixture);
+			mvd.addFixture(leftFixture);
+			mvd.addFixture(rightFixture);
 			mvd.startThread();
 			universe.addListener(mvd);
 			
@@ -109,8 +109,8 @@ public class TestController {
 			// things
 			Universe universe = new Universe();
 			universe.setTimeSource(new WallClockTimeSource());
-			Fixture leftFixture = new Fixture(miniWashFixtureDef, universe, 21);
-			Fixture rightFixture = new Fixture(miniWashFixtureDef, universe, 41);
+			Fixture leftFixture = new Fixture("leftFixture", miniWashFixtureDef, universe, 21);
+			Fixture rightFixture = new Fixture("rightFixture", miniWashFixtureDef, universe, 41);
 			
 			Controller c = new Controller();
 			c.setUniverse(universe);
@@ -124,8 +124,8 @@ public class TestController {
 			
 			// add fixture colour value -> stdout listener
 			mvd = new MuxValueDumper();
-			mvd.addFixture("leftFixture", leftFixture);
-			mvd.addFixture("rightFixture", rightFixture);
+			mvd.addFixture(leftFixture);
+			mvd.addFixture(rightFixture);
 			mvd.startThread();
 			universe.addListener(mvd);
 			

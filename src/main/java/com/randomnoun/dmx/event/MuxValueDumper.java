@@ -17,14 +17,14 @@ import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
  *  
  * @author knoxg
  */
-public class MuxValueDumper implements DmxUpdateListener {
+public class MuxValueDumper implements UniverseUpdateListener {
 
 	MuxValueDumperThread t = null;
 	
 	// probably need to replicate another Universe object here, but ... 
 	int dmxState[];
 	
-	Map<String, Fixture> fixtures = new LinkedHashMap<String, Fixture>();
+	List<Fixture> fixtures = new ArrayList<Fixture>();
 	
 	// @TODO obvious thread safety problems
 	public static class MuxValueDumperThread extends Thread {
@@ -40,14 +40,13 @@ public class MuxValueDumper implements DmxUpdateListener {
 			startTime = System.currentTimeMillis();
 			while (!done) {
 				String output = "Fixture output: ";
-				for (String s : mvd.fixtures.keySet()) {
-					Fixture f = mvd.fixtures.get(s);
+				for (Fixture f : mvd.fixtures) {
 					ChannelMuxer mux = f.getChannelMuxer();
 					FixtureOutput muxOutput = mux.getOutput();
 					
 					Color c = muxOutput.getColor();
 					
-					output += "[" + s + ":r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + "] ";
+					output += "[" + f.getName() + ":r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + "] ";
 					
 				}
 				System.out.println((System.currentTimeMillis()-startTime) + ": " + output);
@@ -67,8 +66,8 @@ public class MuxValueDumper implements DmxUpdateListener {
 		dmxState = new int[Universe.MAX_CHANNELS];
 	}
 	
-	public void addFixture(String name, Fixture fixture) {
-		fixtures.put(name, fixture);
+	public void addFixture(Fixture fixture) {
+		fixtures.add(fixture);
 	}
 	
 	public void onEvent(DmxUpdateEvent event) {
