@@ -46,11 +46,11 @@ public class TiltPositionChannelMuxer extends ChannelMuxer {
 			public Color getColor() {
 				return null;
 			}
-			public long getTime() { return -1; }
+			public long getTime() { return fixture.getUniverse().getTime(); }
 			public Double getPan() { return null; }
 			public Double getTilt() {
-				return tiltValue * 
-				(tiltValue - tiltChannelDef.getLowDmxValue()) /
+				return tiltChannelDef.getMinAngle() + 
+				(double) (tiltValue - tiltChannelDef.getLowDmxValue()) /
 				(tiltChannelDef.getHighDmxValue()-tiltChannelDef.getLowDmxValue()) *
 				(tiltChannelDef.getMaxAngle() - tiltChannelDef.getMinAngle());
 			}

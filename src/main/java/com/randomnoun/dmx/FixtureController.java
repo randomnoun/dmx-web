@@ -73,9 +73,9 @@ public abstract class FixtureController {
 		if (panPosition > ppcd.getMaxAngle()) { throw new IllegalArgumentException("panPosition must be equal or less than " + ppcd.getMaxAngle()); }
 		fixture.setDmxChannelValue(ppcd.getOffset(),
 			ppcd.getLowDmxValue() + 
-			(int) ((panPosition - ppcd.getMinAngle()) /
-			(ppcd.getMaxAngle() - ppcd.getMinAngle()) *
-			(ppcd.getHighDmxValue() - ppcd.getLowDmxValue())));
+			(int) ((panPosition - ppcd.getMinAngle()) *
+			(ppcd.getHighDmxValue() - ppcd.getLowDmxValue()) /
+			(ppcd.getMaxAngle() - ppcd.getMinAngle())));
 	}
 
 	
@@ -97,9 +97,9 @@ public abstract class FixtureController {
 		if (tiltPosition > tpcd.getMaxAngle()) { throw new IllegalArgumentException("tiltPosition must be equal or less than " + tpcd.getMaxAngle()); }
 		fixture.setDmxChannelValue(tpcd.getOffset(),
 			tpcd.getLowDmxValue() + 
-			(int) ((tiltPosition - tpcd.getMinAngle()) /
-			(tpcd.getMaxAngle() - tpcd.getMinAngle()) *
-			(tpcd.getHighDmxValue() - tpcd.getLowDmxValue())));
+			(int) ((tiltPosition - tpcd.getMinAngle()) *
+			(tpcd.getHighDmxValue() - tpcd.getLowDmxValue()) /
+			(tpcd.getMaxAngle() - tpcd.getMinAngle()) ));
 	}
 
 	

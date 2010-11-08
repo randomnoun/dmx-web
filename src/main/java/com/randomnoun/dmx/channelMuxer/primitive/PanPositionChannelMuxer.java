@@ -53,10 +53,10 @@ public class PanPositionChannelMuxer extends ChannelMuxer {
 			public Color getColor() {
 				return null;
 			}
-			public long getTime() { return -1;}
+			public long getTime() { return fixture.getUniverse().getTime(); }
 			public Double getPan() { 
-				return panValue * 
-				(panValue - panChannelDef.getLowDmxValue()) /
+				return panChannelDef.getMinAngle() +  
+				(double) (panValue - panChannelDef.getLowDmxValue()) /
 				(panChannelDef.getHighDmxValue()-panChannelDef.getLowDmxValue()) *
 				(panChannelDef.getMaxAngle() - panChannelDef.getMinAngle());
 			}
