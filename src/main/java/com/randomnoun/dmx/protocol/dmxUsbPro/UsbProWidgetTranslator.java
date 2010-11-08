@@ -102,6 +102,7 @@ public class UsbProWidgetTranslator {
     public UsbProWidgetTranslator(InputStream inputStream, OutputStream outputStream) {
     	this.readBuffer = inputStream;
     	this.writeBuffer = outputStream;
+    	this.parseBuffer = new byte[1000];
     }
     
     /** Returns the next message if one is  available, null otherwise */
@@ -304,11 +305,10 @@ public class UsbProWidgetTranslator {
     /** Reads all available data from the device, possible adding
      * messages to the readMessageQueue
      * 
-     * Note that this is invoked from the serial port monitor thread,
-     * so probably need to synchronise on things.
-     * */
+     * <p>Note that this is invoked from the serial port monitor thread,
+     * so we need to use a synchronized message queue.
+     */
     void readData() throws IOException {
-    	// read the comm api and push data onto ByteArrayInputStream
     	
     	while (readBuffer.available() > 0) {
     		int ch = readBuffer.read();
