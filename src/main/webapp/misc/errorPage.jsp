@@ -37,7 +37,7 @@
 %>
 <table style="border: red solid 1px; background-color: #FFFEBB; margin:10px; font-size: 8pt">
 <tr>
-<td valign="top"><img align="left" src="../image/information.gif" /></td>
+<td valign="top"><img align="left" src="images/information.gif" /></td>
 <td valign="top">
   <b>An error has occurred in the application</b>
   <br/><br/>
