@@ -190,11 +190,19 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 		// TODO: color/position macro muxers
 
 		ChannelMuxer maskMuxer = new MaskChannelMuxer(
-			new int[] { FixtureOutput.MASK_COLOR, FixtureOutput.MASK_PAN, FixtureOutput.MASK_TILT },
-			new ChannelMuxer[] { dimmerStrobeMuxer, panMuxer, tiltMuxer });
+			new int[] { 
+				FixtureOutput.MASK_COLOR, 
+				FixtureOutput.MASK_PAN, 
+				FixtureOutput.MASK_TILT 
+			},
+			new ChannelMuxer[] { 
+				dimmerStrobeMuxer, 
+				panMuxer, 
+				tiltMuxer 
+			});
 
 		
-		return dimmerStrobeMuxer;
+		return maskMuxer;
 	}
 	
 	public FixtureController getFixtureController(Fixture fixture) {
