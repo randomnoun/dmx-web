@@ -6,14 +6,10 @@ import org.apache.log4j.Logger;
 
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.event.DmxUpdateEvent;
-import com.randomnoun.dmx.event.DmxValueDumper;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
-import com.randomnoun.dmx.event.DmxValueDumper.DmxValueDumperThread;
 
 /** A class which listens for changes to a universe, and then 
  * passes those changes through to a physical UsbProWidget device
- *  
- * @TODO thread this so that it doesn't send out changes after every channel change 
  *  
  * @author knoxg
  */
@@ -26,7 +22,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 		
 	UsbProUpdaterThread t = null;
 	
-	// @TODO obvious thread safety problems
+	// @TODO less obvious thread safety problems
 	public static class UsbProUpdaterThread extends Thread {
 		UsbProWidgetUniverseUpdateListener upuul;
 		boolean done = false;
@@ -41,7 +37,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 			startTime = System.currentTimeMillis();
 			while (!done) {
 				if (hasChanged) {
-					hasChanged = false;  // @TODO race condition
+					hasChanged = false;
 					try {
 						logger.debug("Sending DMX data");
 						upuul.translator.sendOutputOnlySendDMXPacketRequest((byte) 0, upuul.dmxState);
@@ -51,6 +47,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 					}
 				}
 				try {
+					// sleeping here so that we're not sending a universe DMX update for every individual channel update 
 					Thread.sleep(200);
 				} catch (InterruptedException e) {
 				}
