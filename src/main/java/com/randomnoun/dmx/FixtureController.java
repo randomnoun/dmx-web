@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.randomnoun.dmx.channel.ChannelDef;
+import com.randomnoun.dmx.channel.MacroChannelDef;
+import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
 import com.randomnoun.dmx.channel.StrobeChannelDef;
 import com.randomnoun.dmx.channel.dimmer.BlueDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
@@ -50,7 +53,21 @@ public abstract class FixtureController {
 		fixture.setDmxChannelValue(greenDimmerChannelDef.getOffset(), color.getGreen());
 		fixture.setDmxChannelValue(blueDimmerChannelDef.getOffset(), color.getBlue());
 		
-		if (masterDimmerChannelDef!=null) {
+		if (masterDimmerChannelDef==null) {
+			// look for a master dimmer in a macro channel definition
+			// hmm... going to put this into a FixtureController subclass rather than 
+			// typing the Macros within a MacroChannelDef
+			/*
+			for (ChannelDef channelDef : fixtureDef.getChannelDefs()) {
+				if (channelDef instanceof MacroChannelDef) {
+					MacroChannelDef mcd = (MacroChannelDef) channelDef;
+					for (Macro macro : mcd.getMacros()) {
+						if (macro.)
+					}
+				}
+			}
+			*/
+		} else {
 			fixture.setDmxChannelValue(masterDimmerChannelDef.getOffset(), 255);
 		}
 	}

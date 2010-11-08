@@ -62,6 +62,21 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 			Macro m = mcd.getMacros().get(index);
 			fixture.setDmxChannelValue(5, (m.getLowValue() + m.getHighValue()) / 2);
 		}
+		
+		/** Sets the color of this fixture.
+		 * 
+		 * This sets the red, green and blue dimmers to the values for this color,
+		 * and sets the dimmer/strobe macro channel to open. 
+		 * 
+		 * @param color The color to set the light to.
+		 */
+		public void setColor(Color color) {
+			fixture.setDmxChannelValue(6, color.getRed());
+			fixture.setDmxChannelValue(7, color.getGreen());
+			fixture.setDmxChannelValue(8, color.getBlue());
+			fixture.setDmxChannelValue(5, 255);
+		}
+
 
 		public void setColorMacro(int i) {
 			throw new UnsupportedOperationException("setColorMacro not implemented");
