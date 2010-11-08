@@ -140,10 +140,11 @@
         <input type="hidden" name="fixtureId" value="<%= i %>" />
         <table>
         <tr>
-          <td><div class="label">T</div></td><td><input name="r" value="<%= output.getTilt() %>" size="4"/></td>
+          <td><div class="label">T</div></td><td><input name="t" value="<%= output.getTilt() %>" size="4"/></td>
           <td><input type="submit" value="Set tilt"/></td>
         </tr>
         </table>
+        </form>
       </li>
       <li>
         <form action="controller.html" method="get"/>
@@ -151,10 +152,11 @@
         <input type="hidden" name="fixtureId" value="<%= i %>" />
         <table>
         <tr>
-          <td><div class="label">P</div></td><td><input name="r" value="<%= output.getPan() %>" size="4"/></td>
+          <td><div class="label">P</div></td><td><input name="p" value="<%= output.getPan() %>" size="4"/></td>
           <td><input type="submit" value="Set pan"/></td>
         </tr>
         </table>
+        </form>
       </li>
       <li>setStrobe</li>
       <li>setMacro</li>
