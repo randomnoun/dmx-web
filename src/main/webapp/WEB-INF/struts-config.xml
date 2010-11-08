@@ -40,6 +40,12 @@
         </action>
 
 
+        <action path="/maintainFixtureDef" 
+          type="com.randomnoun.dmx.web.action.MaintainFixtureDefAction"
+        >
+          <forward name="success" path="/maintainFixtureDef.jsp"/>
+        </action>
+
 <!-- 
         <action path="/stocktakeDateSelection" 
           type="com.randomnoun.stocktake.action.main.DateSelectionAction"
