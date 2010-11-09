@@ -1,6 +1,8 @@
 package com.randomnoun.dmx.protocol.dmxUsbPro;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
 import java.util.TooManyListenersException;
 
 import gnu.io.PortInUseException;
@@ -10,9 +12,10 @@ public class UsbProWidgetTest {
 
 	public static void main(String args[]) throws PortInUseException, IOException, TooManyListenersException {
 		//JavaWidgetTranslator widget = new JavaWidgetTranslator(4);
-		
-		UsbProWidget widget = new UsbProWidget("COM4");
-		UsbProWidgetTranslator translator = widget.openPort();
+		Map config = new Properties();
+		config.put("portName", "COM4");
+		UsbProWidget widget = new UsbProWidget(config);
+		UsbProWidgetTranslator translator = widget.getUsbProWidgetTranslator();
 		byte[] dmxData = new byte[512];
 		
 		System.out.println("Setting dmx channels to 0");

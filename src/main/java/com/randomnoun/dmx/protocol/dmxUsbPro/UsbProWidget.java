@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
 import java.util.TooManyListenersException;
 
 import gnu.io.CommPortIdentifier;
@@ -13,6 +15,12 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 
 import org.apache.log4j.Logger;
+
+import com.randomnoun.dmx.DmxDevice;
+import com.randomnoun.dmx.ExceptionContainerImpl;
+import com.randomnoun.dmx.ExceptionContainer.TimestampedException;
+import com.randomnoun.dmx.event.UniverseUpdateListener;
+import com.randomnoun.dmx.protocol.nullDevice.NullAudioController;
 
 /** Wrapper around a COM interface to Enttec USB Pro Widget 
  *
@@ -34,10 +42,12 @@ import org.apache.log4j.Logger;
  * message queue. 
  * 
  */
-public class UsbProWidget {
+public class UsbProWidget extends DmxDevice {
 	
 	static Logger logger = Logger.getLogger(UsbProWidget.class);
-	
+
+	ExceptionContainerImpl exceptionContainer;
+
 	String portName;
 	boolean portFound = false;
 	SerialPort serialPort = null;
@@ -47,6 +57,8 @@ public class UsbProWidget {
 	
 	/** Create a new low-level interface to a Enttec USB Pro Widget.
 	 * 
+	 * <p>The properties supplied should include the key 'portName'.
+	 * 
 	 * <p>On Unix, this will encapsulate a COM port, where port names
 	 * should appear similar to /dev/term/a, /dev/term/b, etc...
 	 * 
@@ -55,8 +67,16 @@ public class UsbProWidget {
 	 * 
 	 * @param portName communications port name
 	 */
-	public UsbProWidget(String portName) {
-		this.portName = portName;
+	public UsbProWidget(Map properties) {
+		super(properties);
+		exceptionContainer = new ExceptionContainerImpl();
+		this.portName = (String) properties.get("portName");
+		try {
+			javaWidgetTranslator = openPort();
+		} catch (Exception e) {
+			logger.error("Error opening port '" + portName + "'", e);
+			exceptionContainer.addException(e);
+		}
 	}
 
 	/** Attempts to open the port, and if successful, creates a JavaWidgetTranslator
@@ -69,7 +89,7 @@ public class UsbProWidget {
 	 * @throws IOException
 	 * @throws TooManyListenersException
 	 */
-	public UsbProWidgetTranslator openPort() throws PortInUseException, IOException, TooManyListenersException {
+	private UsbProWidgetTranslator openPort() throws PortInUseException, IOException, TooManyListenersException {
 		Enumeration portList = CommPortIdentifier.getPortIdentifiers();
 		while (portList.hasMoreElements()) {
 			CommPortIdentifier portId = (CommPortIdentifier) portList.nextElement();
@@ -97,6 +117,13 @@ public class UsbProWidget {
 		return javaWidgetTranslator;
 	}
 	
+	/** Returns an object which can send/receive
+	 * FTDI messages to this device 
+	 */
+	public UsbProWidgetTranslator getUsbProWidgetTranslator() {
+		return javaWidgetTranslator;
+	}
+	
 	/** Closes any streams/resources held by this class.
 	 * 
 	 * This method will attempt to close the serial port's inputStream, outputStream,
@@ -104,26 +131,25 @@ public class UsbProWidget {
 	 * port itself. 
 	 * 
 	 * <p>If an exception occurs, then all these steps will still be 
-	 * attempted, but the exception thrown will be the first one encountered.
+	 * attempted; any exceptions thrown will be retrievable via the 
+	 * ExceptionContainer interface.
 	 *  
 	 * @throws IOException
 	 */ 
-	public void close() throws IOException {
-		Exception e = null;
+	public void close() {
 		if (inputStream!=null) {
-			try { inputStream.close(); } catch (Exception e2) { e = (e==null ? e2 : e); }  
+			try { inputStream.close(); } catch (Exception e2) { logger.error(e2); exceptionContainer.addException(e2); }  
 			inputStream = null; 
 		}
 		if (outputStream!=null) { 
-			try { outputStream.close(); } catch (Exception e2) { e = (e==null ? e2 : e); } 
+			try { outputStream.close(); } catch (Exception e2) { logger.error(e2); exceptionContainer.addException(e2); } 
 			outputStream = null; 
 		}
 		if (serialPort!=null) {
-			try { serialPort.removeEventListener(); } catch (Exception e2) { e = (e==null ? e2 : e); } 
-			try { serialPort.close(); } catch (Exception e2) { e = (e==null ? e2 : e); } 
+			try { serialPort.removeEventListener(); } catch (Exception e2) { logger.error(e2); exceptionContainer.addException(e2); } 
+			try { serialPort.close(); } catch (Exception e2) { logger.error(e2); exceptionContainer.addException(e2); } 
 			serialPort = null; 
 		}
-		if (e!=null) { throw (IOException) new IOException("Exception closing JavaWidget").initCause(e); }
 	}
 	
 	public static class JavaWidgetSerialPortEventListener implements SerialPortEventListener {
@@ -157,7 +183,20 @@ public class UsbProWidget {
 			}
 		}
 	}
-	
+
+
+	public List<TimestampedException> getExceptions() {
+		return exceptionContainer.getExceptions();
+	}
+
+	public void clearExceptions() {
+		exceptionContainer.clearExceptions();
+	}
+
+	@Override
+	public UniverseUpdateListener getUniverseUpdateListener() {
+		return new UsbProWidgetUniverseUpdateListener(javaWidgetTranslator);
+	}
 	
 }
 	
