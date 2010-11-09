@@ -1,8 +1,5 @@
 package com.randomnoun.dmx.config;
 
-
-import gnu.io.PortInUseException;
-
 import java.io.IOException;
 import java.lang.Thread.State;
 import java.lang.reflect.Constructor;
@@ -12,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TooManyListenersException;
 
-import org.apache.log4j.Logger;
-
+import com.randomnoun.common.PropertyParser;
 import com.randomnoun.common.webapp.struts.AppConfigBase;
+import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.Fixture;
 import com.randomnoun.dmx.FixtureDef;
@@ -25,6 +22,10 @@ import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetTranslator;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.ShowThread;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
+
+import org.apache.log4j.Logger;
+
+import gnu.io.PortInUseException;
 
 /** Holds configuration data for this web application. Is used to look up 
  * resources for use by other application components, including:
@@ -161,14 +162,27 @@ public class AppConfig extends AppConfigBase {
         return instance;
     }
     
-    private void initController() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException {
+    private void initController() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
     	String portName = getProperty("controller.portName");
+
     	widget = new UsbProWidget(portName);
     	UsbProWidgetTranslator translator = widget.openPort();
     	Universe universe = new Universe();
 		universe.setTimeSource(new WallClockTimeSource());
+		String acClassname = (String) this.get("audioController.class");
+		if (acClassname==null) {
+			acClassname = "NullAudioController"; // or summink
+		}
+		Map acProperties = PropertyParser.restrict(this, "audioController", true);
+		Class acClass = Class.forName(acClassname);
+		Constructor acConstructor = acClass.getConstructor(Map.class);
+		AudioController audioController = (AudioController) acConstructor.newInstance(acProperties);
+		
+		
 		controller = new Controller();
 		controller.setUniverse(universe);
+		controller.setAudioController(audioController);
+		
 		
 		List fixtures = (List) get("fixtures");
 		for (int i=0; i<fixtures.size(); i++) {

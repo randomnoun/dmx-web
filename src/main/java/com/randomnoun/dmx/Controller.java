@@ -6,6 +6,7 @@ import java.util.List;
 public class Controller {
 	Universe universe;
 	List<Fixture> fixtures;
+	AudioController audioController;
 	
 	public Controller() {
 		this.fixtures = new ArrayList<Fixture>();
@@ -17,6 +18,13 @@ public class Controller {
 	}
 	public Universe getUniverse() {
 		return universe;
+	}
+	
+	public void setAudioController(AudioController audioController) {
+		this.audioController = audioController;
+	}
+	public AudioController getAudioController() {
+		return audioController;
 	}
 	
 	public void addFixture(Fixture f) {
@@ -44,8 +52,5 @@ public class Controller {
 	public Fixture getFixtureByName(String fixtureName) {
 		throw new UnsupportedOperationException("Something to do, no doubt");
 	}
-	
-	
-	
 	
 }
