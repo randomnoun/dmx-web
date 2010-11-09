@@ -53,6 +53,7 @@ import com.randomnoun.dmx.FixtureController;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidget;
 import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetTranslator;
+import com.randomnoun.dmx.show.Show;
 
 /**
  * Manual controller action
@@ -137,27 +138,34 @@ public class ControllerAction
 	    			controller.getUniverse().setDmxChannelValue(i, (int) new Long(value).longValue());
 	    		}
 	    	}
+	    	request.setAttribute("message", "DMX values set");
     	} else if (action.equals("blackOut")) {
     		fixtureController.blackOut();
+    		request.setAttribute("message", "fixture " + fixtureId + " '" + fixture.getName() + "' blackOut");
     	} else if (action.equals("setColor")) {
     		int red = Integer.parseInt(request.getParameter("r"));
     		int green = Integer.parseInt(request.getParameter("g"));
     		int blue = Integer.parseInt(request.getParameter("b"));
     		fixtureController.setColor(new Color(red, green, blue));
+    		request.setAttribute("message", "fixture " + fixtureId + " '" + fixture.getName() + "' color set to " + red + ", " + green + ", " + blue);
     	} else if (action.equals("setPan")) {
     		double pan = Double.parseDouble(request.getParameter("p"));
     		fixtureController.panTo(pan);
+    		request.setAttribute("message", "fixture " + fixtureId + " '" + fixture.getName() + "' pan set to " + pan);
     	} else if (action.equals("setTilt")) {
     		double tilt = Double.parseDouble(request.getParameter("t"));
+    		request.setAttribute("message", "fixture " + fixtureId + " '" + fixture.getName() + "' tilt set to " + tilt);
     		fixtureController.tiltTo(tilt);
     	} else if (action.equals("startShow")) {
     		int showId = Integer.parseInt(request.getParameter("showId"));
+    		Show show = appConfig.getShows().get(showId);
     		appConfig.startShow(showId);
-    		request.setAttribute("message", "Show started");
+    		request.setAttribute("message", "Show " + showId + " '" + show.getName() + "' started (length=" + show.getLength() + "msec)");
     	} else if (action.equals("cancelShow")) {
     		int showId = Integer.parseInt(request.getParameter("showId"));
+    		Show show = appConfig.getShows().get(showId);
     		appConfig.cancelShow(showId);
-    		request.setAttribute("message", "Show cancellation has been requested");
+    		request.setAttribute("message", "Show " + showId + " '" + show.getName() + "' cancel requested");
     	}
     	
     	request.setAttribute("shows", appConfig.getShows());
