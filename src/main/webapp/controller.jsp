@@ -4,7 +4,7 @@
   contentType="text/html; charset=ISO-8859-1"
   pageEncoding="ISO-8859-1"
   errorPage="misc/errorPage.jsp"
-  import="java.util.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*,com.randomnoun.dmx.*,com.randomnoun.dmx.show.Show"
+  import="java.util.*,java.text.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*,com.randomnoun.dmx.*,com.randomnoun.dmx.show.Show"
 %>
 <%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
@@ -100,7 +100,19 @@ function cancelShow(showId) {
     }
 %>
   </ul>
-  
+  <li>Exceptions</li>
+  <ul>
+<%
+    SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy HH:mm:ss");
+    List<ExceptionContainer.TimestampedException> exceptions = controller.getAudioController().getExceptions();
+    for (int i=0; i<exceptions.size(); i++) {
+    	ExceptionContainer.TimestampedException te = exceptions.get(i);
+    	Date d = new Date(te.getTimestamp());
+%>  <%= sdf.format(d) %> <%= te.getException().getMessage() %>
+<%
+    }
+%>
+  </ul>
   <li>Universe</li>
   <ul>
     <li>Timesource: <%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %> </li>
