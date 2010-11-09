@@ -37,6 +37,7 @@ public class WinampAudioController extends AudioController
 		this.timeout = Integer.parseInt((String) properties.get("timeout"));
 		exceptionContainer = new ExceptionContainerImpl();
 		winamp = new NGWinAmp(host, port, timeout);
+		winamp.connect();
 		winamp.authenticate(password);
 	}
 
@@ -50,7 +51,7 @@ public class WinampAudioController extends AudioController
 	@Override
 	public void playAudioFile(String filename) {
 		try {
-			String files[] = winamp.sendGetFiles(NGWinAmp.NGWINAMP_ALL);
+			String[] files = winamp.sendGetFiles(NGWinAmp.NGWINAMP_ALL);
 			int playlistPosition = -1;
 			for (int i=0; i<files.length; i++) {
 				if (files[i].equals(filename)) {
@@ -60,6 +61,7 @@ public class WinampAudioController extends AudioController
 			if (playlistPosition==-1) {
 				String newFiles[] = new String[] { filename };
 				winamp.sendAddFiles(newFiles);
+				files = winamp.sendGetFiles(NGWinAmp.NGWINAMP_ALL);
 				for (int i=0; i<files.length; i++) {
 					if (files[i].equals(filename)) {
 						playlistPosition = i; break;
@@ -90,6 +92,15 @@ public class WinampAudioController extends AudioController
 
 	public void clearExceptions() {
 		exceptionContainer.clearExceptions();
+	}
+
+	@Override
+	public void close() {
+		try {
+			winamp.disconnect();
+		} catch (IOException ioe) {
+			logger.error("Exception closing NGWinAmp audioController", ioe);
+		}
 	}
 	
 }
