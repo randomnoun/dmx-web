@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import org.apache.log4j.Logger;
 
+import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.scripted.MiniWashFixtureDef12.MiniWashFixtureController;
 
@@ -13,13 +14,14 @@ public class LockItInEddieShow extends Show {
 	
 	MiniWashFixtureController leftWash;
 	MiniWashFixtureController rightWash;
+	AudioController audioController;
 	
 	public LockItInEddieShow(Controller controller) {
 		super(controller, "Lock it in, eddie", 5000);
 		sleepMonitor = new Object();
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();
-		
+		audioController = controller.getAudioController();
 	}
 	
 	public void pause() {}
@@ -46,6 +48,7 @@ public class LockItInEddieShow extends Show {
 		if (isCancelled()) { return; }
 		
 		logger.debug("play() part 2");
+		audioController.playAudioFile("c:\\DCB\\audio\\wwm-question.wav");
 		Color lightBlue = new Color(200, 200, 255);
 		leftWash.setColor(lightBlue); 
 		rightWash.setColor(lightBlue);
@@ -56,7 +59,7 @@ public class LockItInEddieShow extends Show {
 		rightWash.panTo(360); rightWash.tiltTo(0);
 		waitUntil(5000); // 5 seconds into show
 		
-		logger.debug("play() comleted");
+		logger.debug("play() completed");
 	}
 	
 
