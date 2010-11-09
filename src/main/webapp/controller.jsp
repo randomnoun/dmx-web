@@ -4,7 +4,7 @@
   contentType="text/html; charset=ISO-8859-1"
   pageEncoding="ISO-8859-1"
   errorPage="misc/errorPage.jsp"
-  import="java.util.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*,com.randomnoun.dmx.*"
+  import="java.util.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*,com.randomnoun.dmx.*,com.randomnoun.dmx.show.Show"
 %>
 <%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
@@ -57,12 +57,23 @@
 #config TD { font-size: 8pt; font-family: Arial;}
 .label { width: 25px; height: 16px; text-align: right; background-color: lightblue; padding-top: 3px; margin-left: 3px; margin-bottom: 1px;}
 </style>
+<script>
+function startShow(showId) {
+	document.location = "controller.html?action=startShow&showId=" + showId;
+}
+function cancelShow(showId) {
+    document.location = "controller.html?action=cancelShow&showId=" + showId;
+}
 
+</script>
 </head>
 
 <html>
 <body>
 <h2>DMX Web</h2>
+<c:if test="${message!=null}" >
+<b><c:out value="${message}" /></b><br/>
+</c:if>
 <h3>Configuration:</h3>
 <table id="config">
 <col width="100px">
@@ -74,6 +85,21 @@
 
 <h2>Controller</h2>
 <ul>
+  <li>Shows</li>
+  <ul>
+<%
+    List<Show> shows = (List<Show>) request.getAttribute("shows");
+    for (int i=0; i<shows.size(); i++) {
+    	  Show show = shows.get(i);
+%><li>Show <%= i %>: <%= show.getName() %> 
+  <input type="button" value="Start" onclick="startShow(<%= i %>)"/>
+  <input type="button" value="Cancel" onclick="cancelShow(<%= i %>)"/>
+</li>
+<%
+    }
+%>
+  </ul>
+  
   <li>Universe</li>
   <ul>
     <li>Timesource: <%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %> </li>

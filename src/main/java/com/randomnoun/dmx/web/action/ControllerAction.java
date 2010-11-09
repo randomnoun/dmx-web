@@ -150,10 +150,17 @@ public class ControllerAction
     	} else if (action.equals("setTilt")) {
     		double tilt = Double.parseDouble(request.getParameter("t"));
     		fixtureController.tiltTo(tilt);
-    	} else {
-    		
+    	} else if (action.equals("startShow")) {
+    		int showId = Integer.parseInt(request.getParameter("showId"));
+    		appConfig.startShow(showId);
+    		request.setAttribute("message", "Show started");
+    	} else if (action.equals("cancelShow")) {
+    		int showId = Integer.parseInt(request.getParameter("showId"));
+    		appConfig.cancelShow(showId);
+    		request.setAttribute("message", "Show cancellation has been requested");
     	}
     	
+    	request.setAttribute("shows", appConfig.getShows());
     	request.setAttribute("controller", controller);
     	request.setAttribute("universe", controller.getUniverse());
     	
