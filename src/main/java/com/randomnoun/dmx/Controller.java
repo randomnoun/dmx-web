@@ -37,6 +37,15 @@ public class Controller {
 		return fixtures;
 	}
 	
+	public Fixture getFixture(int fixtureNumber) {
+		return fixtures.get(fixtureNumber);
+	}
+	
+	public Fixture getFixtureByName(String fixtureName) {
+		throw new UnsupportedOperationException("Something to do, no doubt");
+	}
+	
+	
 	
 	
 }
