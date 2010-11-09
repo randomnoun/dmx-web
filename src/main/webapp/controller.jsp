@@ -70,7 +70,7 @@ function cancelShow(showId) {
 
 <html>
 <body>
-<h2>DMX Web</h2>
+<h2><a href="controller.html">DMX Web</a></h2>
 <c:if test="${message!=null}" >
 <b><c:out value="${message}" /></b><br/>
 </c:if>
