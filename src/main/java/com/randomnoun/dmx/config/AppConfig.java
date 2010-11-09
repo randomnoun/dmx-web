@@ -4,6 +4,10 @@ package com.randomnoun.dmx.config;
 import gnu.io.PortInUseException;
 
 import java.io.IOException;
+import java.lang.Thread.State;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TooManyListenersException;
@@ -18,6 +22,8 @@ import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetUniverseUpdateListener;
 import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidget;
 import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetTranslator;
+import com.randomnoun.dmx.show.Show;
+import com.randomnoun.dmx.show.ShowThread;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
 
 /** Holds configuration data for this web application. Is used to look up 
@@ -55,8 +61,52 @@ public class AppConfig extends AppConfigBase {
     
     /** Update listener for this application */
     private UsbProWidgetUniverseUpdateListener usbProWidgetUniverseUpdateListener;
+
+    private enum AppConfigState { UNINITIALISED, RUNNING, STOPPING, STOPPED };
     
-	/** Private constructor; this class can only be called via .getInstance() */
+    private AppConfigState appConfigState = AppConfigState.UNINITIALISED;
+    
+    // @TODO keep track of which shows require which fixtures,
+    //   prevent shows from running which may have resource conflicts
+    // (or have some kind of show override type of thing)
+    private static class ShowConfig {
+    	Show show;
+    	ShowThread showThread;
+    	AppConfig appConfig;
+    	
+    	public ShowConfig(AppConfig appConfig, Show show) {
+    		this.appConfig = appConfig;
+    		this.show = show;
+    	}
+    	synchronized public boolean hasThread() {
+    		return showThread != null;
+    	}
+    	synchronized public ShowThread getThread() {
+    		// @TODO possibly use thread pools here
+    		// @TODO threadIds
+    		if (showThread==null) {
+    			if (appConfig.appConfigState != AppConfigState.RUNNING) { 
+    				throw new IllegalStateException("Cannot create thread when appConfigState=" + appConfig.appConfigState);
+    			}
+    			showThread = new ShowThread(show);
+    		}
+    		if (showThread.getState()==State.TERMINATED) {
+    			showThread = new ShowThread(show);
+    		}
+    		return showThread;
+    	}
+    	public Show getShow() {
+    		return show;
+    	}
+    }
+
+    /** List of shows that this application knows about, and their threads */
+    private List<ShowConfig> showConfigs;
+    /** List of shows */
+    private List<Show> shows;
+    
+    
+    /** Private constructor; this class can only be called via .getInstance() */
 	private AppConfig() {
         
 	}
@@ -67,8 +117,12 @@ public class AppConfig extends AppConfigBase {
      * @throws InstantiationException 
      * @throws TooManyListenersException 
      * @throws IOException 
-     * @throws PortInUseException */
-    public synchronized void initialise() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException {
+     * @throws PortInUseException 
+     * @throws InvocationTargetException 
+     * @throws NoSuchMethodException 
+     * @throws IllegalArgumentException 
+     * @throws SecurityException */
+    public synchronized void initialise() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException, SecurityException, IllegalArgumentException, NoSuchMethodException, InvocationTargetException {
         logger.info("Initialising dmx-web...");
         AppConfig newInstance = new AppConfig();
         newInstance.initHostname();
@@ -77,6 +131,9 @@ public class AppConfig extends AppConfigBase {
         newInstance.initDatabase();    // db settings also depend on properties
         newInstance.initSecurityContext();
         newInstance.initController();
+        newInstance.initShowConfigs();
+        newInstance.appConfigState = AppConfigState.RUNNING;
+        logger.info("appConfig now in " + appConfigState + " state");
 
         // if this all succeeded, assign it to the singleton instance
         instance = newInstance;
@@ -119,6 +176,7 @@ public class AppConfig extends AppConfigBase {
 			String fixtureClass = (String) fixture.get("class");
 			String name = (String) fixture.get("name");
 			String dmxOffset = (String) fixture.get("dmxOffset");
+			// @TODO re-use fixture definition classes
 			FixtureDef fixtureDef = (FixtureDef) Class.forName(fixtureClass).newInstance();
 			Fixture fixtureObj = new Fixture(name, fixtureDef, universe, Integer.parseInt(dmxOffset));
 			controller.addFixture(fixtureObj);
@@ -133,11 +191,80 @@ public class AppConfig extends AppConfigBase {
 		c.addFixture(rightFixture);
 		*/		
     }
+    
+    private void initShowConfigs() throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    	showConfigs = new ArrayList<ShowConfig>();
+    	shows = new ArrayList<Show>();
+		List showProperties = (List) get("shows");
+		if (showProperties == null || showProperties.size()==0) {
+			logger.warn("appConfig has no shows defined");
+		} else {
+			for (int i=0; i<showProperties.size(); i++) {
+				Map show = (Map) showProperties.get(i);
+				String showClassName = (String) show.get("class");
+				Class showClass = Class.forName(showClassName);
+				Constructor constructor = showClass.getConstructor(Controller.class);
+				Show showObj = (Show) constructor.newInstance(controller);
+				showConfigs.add(new ShowConfig(this, showObj));
+				shows.add(showObj);
+			}
+		}
+    }
+    
+    public List<Show> getShows() {
+    	return shows;
+    }
 	
+    public void startShow(int showId) {
+    	ShowConfig showConfig = showConfigs.get(showId);
+    	ShowThread thread = showConfig.getThread();
+    	if (thread.isAlive()) {
+    		// @TODO cancel & restart show ?
+    		logger.warn("Not starting show " + showId + " '" + showConfig.getShow().getName() + "' since it has already started");
+    	} else {
+    		thread.start();
+    	}
+    }
+    
+    public void cancelShow(int showId) {
+    	ShowConfig showConfig = showConfigs.get(showId);
+    	ShowThread thread = showConfig.getThread();
+    	if (thread.isAlive()) {
+    		// @TODO cancel & restart show ?
+    		thread.cancel();
+    	} else {
+    		logger.warn("Not cancelling show " + showId + " '" + showConfig.getShow().getName() + "' since it is not running");
+    	}
+    }
     
     /** Invoked by servletContextListener to stop any running threads in this application */
     public void shutdownThreads() {
+    	
+    	appConfigState = AppConfigState.STOPPING;
     	logger.info("appConfig.shutdownThreads() invoked");
+    	for (ShowConfig showConfig : showConfigs) {
+    		if (showConfig.hasThread()) { showConfig.getThread().cancel(); }
+    	}
+    	// if any shows are still running, give them a few seconds,
+    	// then just stop the thread
+    	int showsRunning = 0;
+    	for (ShowConfig showConfig : showConfigs) {
+    		if (showConfig.hasThread()) { 
+    			if (showConfig.getThread().isAlive()) { showsRunning++; } 
+    		}
+    	}
+    	if (showsRunning > 0) {
+    		logger.info("There are " + showsRunning + " shows still running; waiting 5 seconds");
+    		try { Thread.sleep(5000); } catch (InterruptedException ie) { }
+    		logger.info("Forcing thread shutdown");
+        	for (ShowConfig showConfig : showConfigs) {
+        		if (showConfig.hasThread()) { 
+        			if (showConfig.getThread().isAlive()) { showConfig.getThread().stop(); } 
+        		}
+        	}
+    	}
+    	
+    	
     	if (usbProWidgetUniverseUpdateListener!=null) {
     		usbProWidgetUniverseUpdateListener.stopThread();
     	}
@@ -148,6 +275,7 @@ public class AppConfig extends AppConfigBase {
 				logger.error("Could not close widget", e);
 			}
     	}
+    	appConfigState = AppConfigState.STOPPED;
     }
 
     
