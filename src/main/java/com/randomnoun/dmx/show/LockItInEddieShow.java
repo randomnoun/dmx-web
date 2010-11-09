@@ -2,11 +2,15 @@ package com.randomnoun.dmx.show;
 
 import java.awt.Color;
 
+import org.apache.log4j.Logger;
+
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.scripted.MiniWashFixtureDef12.MiniWashFixtureController;
 
 public class LockItInEddieShow extends Show {
 
+	Logger logger = Logger.getLogger(LockItInEddieShow.class);
+	
 	MiniWashFixtureController leftWash;
 	MiniWashFixtureController rightWash;
 	
@@ -23,22 +27,25 @@ public class LockItInEddieShow extends Show {
 	
 	protected void reset() {
 		super.reset();
+		logger.debug("reset()");
 		leftWash.setColor(Color.BLACK);
 		rightWash.setColor(Color.BLACK);
 		leftWash.setMovementSpeed(0);
 		rightWash.setMovementSpeed(0);
-		leftWash.panTo(45); leftWash.tiltTo(90);
-		rightWash.panTo(45); leftWash.tiltTo(270);
+		leftWash.panTo(90); leftWash.tiltTo(45);
+		rightWash.panTo(270); rightWash.tiltTo(45);
 		
 		// @TODO wait until muxers say that the fixtures
 		// are in the right position
 	}
 	
 	public void play() {
+		logger.debug("play()");
 		reset();
 		waitUntil(1000);
 		if (isCancelled()) { return; }
 		
+		logger.debug("play() part 2");
 		Color lightBlue = new Color(200, 200, 255);
 		leftWash.setColor(lightBlue); 
 		rightWash.setColor(lightBlue);
@@ -48,6 +55,8 @@ public class LockItInEddieShow extends Show {
 		leftWash.panTo(0); leftWash.tiltTo(0);
 		rightWash.panTo(360); rightWash.tiltTo(0);
 		waitUntil(5000); // 5 seconds into show
+		
+		logger.debug("play() comleted");
 	}
 	
 
