@@ -1,5 +1,6 @@
 package com.randomnoun.dmx.protocol.winamp;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ public class WinampAudioController extends AudioController
 	int port;
 	int timeout;
 	String password;
+	String defaultPath;
 	
 	NGWinAmp winamp;
 	
@@ -35,6 +37,10 @@ public class WinampAudioController extends AudioController
 		this.port = Integer.parseInt((String) properties.get("port"));
 		this.password = (String) properties.get("password");
 		this.timeout = Integer.parseInt((String) properties.get("timeout"));
+		this.defaultPath = (String) properties.get("defaultPath");
+		if (defaultPath != null && !defaultPath.endsWith("/")) {
+			defaultPath += "/";
+		}
 		exceptionContainer = new ExceptionContainerImpl();
 		winamp = new NGWinAmp(host, port, timeout);
 		winamp.connect();
@@ -50,7 +56,10 @@ public class WinampAudioController extends AudioController
 	 */
 	@Override
 	public void playAudioFile(String filename) {
+		File file = new File(filename);
+		if (!file.isAbsolute() && defaultPath!=null) { file = new File(new File(defaultPath), filename); }
 		try {
+			
 			String[] files = winamp.sendGetFiles(NGWinAmp.NGWINAMP_ALL);
 			int playlistPosition = -1;
 			for (int i=0; i<files.length; i++) {
