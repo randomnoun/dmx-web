@@ -200,18 +200,22 @@ public class AppConfig extends AppConfigBase {
 		
 		
 		List fixtures = (List) get("fixtures");
-		for (int i=0; i<fixtures.size(); i++) {
-			Map fixture = (Map) fixtures.get(i);
-			String fixtureClass = (String) fixture.get("class");
-			String name = (String) fixture.get("name");
-			String dmxOffset = (String) fixture.get("dmxOffset");
-			// @TODO re-use fixture definition classes
-			FixtureDef fixtureDef = (FixtureDef) Class.forName(fixtureClass).newInstance();
-			if (fixtureDef.getNumDmxChannels()<=0) {
-				logger.error("Fixture " + i + " has no DMX channels");
+		if (fixtures == null || fixtures.size()==0) {
+			logger.warn("No fixtures in appConfig");
+		} else {
+			for (int i=0; i<fixtures.size(); i++) {
+				Map fixture = (Map) fixtures.get(i);
+				String fixtureClass = (String) fixture.get("class");
+				String name = (String) fixture.get("name");
+				String dmxOffset = (String) fixture.get("dmxOffset");
+				// @TODO re-use fixture definition classes
+				FixtureDef fixtureDef = (FixtureDef) Class.forName(fixtureClass).newInstance();
+				if (fixtureDef.getNumDmxChannels()<=0) {
+					logger.error("Fixture " + i + " has no DMX channels");
+				}
+				Fixture fixtureObj = new Fixture(name, fixtureDef, universe, Integer.parseInt(dmxOffset));
+				controller.addFixture(fixtureObj);
 			}
-			Fixture fixtureObj = new Fixture(name, fixtureDef, universe, Integer.parseInt(dmxOffset));
-			controller.addFixture(fixtureObj);
 		}
 		
 		dmxDeviceUniverseUpdateListener = dmxDevice.getUniverseUpdateListener();
@@ -224,7 +228,7 @@ public class AppConfig extends AppConfigBase {
     	shows = new ArrayList<Show>();
 		List showProperties = (List) get("shows");
 		if (showProperties == null || showProperties.size()==0) {
-			logger.warn("appConfig has no shows defined");
+			logger.warn("No shows in appConfig");
 		} else {
 			for (int i=0; i<showProperties.size(); i++) {
 				Map show = (Map) showProperties.get(i);
