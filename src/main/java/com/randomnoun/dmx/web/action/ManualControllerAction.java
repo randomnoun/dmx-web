@@ -112,10 +112,12 @@ public class ManualControllerAction
     	request.setAttribute("rxtx.dllVersion", dllVersion);
     	
     	if (dmxValues!=null) {
-	    	UsbProWidget widget = new UsbProWidget("COM4");
+    		Map config = new Properties();
+    		config.put("portName", "COM4");
+	    	UsbProWidget widget = new UsbProWidget(config);
 	    	UsbProWidgetTranslator translator;
 			try {
-				translator = widget.openPort();
+				translator = widget.getUsbProWidgetTranslator();
 		    	byte startCodeByte = Text.isBlank(startCode) ? 0 : (byte) new Long(startCode).longValue();
 		    	byte[] dmxData = new byte[512];
 		    	for (int i=0; i<255; i++) {
