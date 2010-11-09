@@ -1,4 +1,4 @@
-package com.randomnoun.dmx.jni;
+package com.randomnoun.dmx.protocol.openDmxJni;
 
 /** A JNI wrapper around the OpenDMX C interface to the OpenDMX VB
  * module/class thing.
