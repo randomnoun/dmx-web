@@ -48,7 +48,7 @@ public class PerformerEntranceShow extends Show {
 		if (isCancelled()) { return; }
 		
 		logger.debug("play() part 2");
-		audioController.playAudioFile("c:\\DCB\\audio\\smoothCrimimanl.mp3");
+		audioController.playAudioFile("smoothCriminal.mp3");
 		leftWash.setColor(Color.GREEN); 
 		rightWash.setColor(Color.GREEN);
 		leftWash.setMovementSpeed(100);

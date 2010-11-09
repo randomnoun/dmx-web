@@ -48,7 +48,7 @@ public class LockItInEddieShow extends Show {
 		if (isCancelled()) { return; }
 		
 		logger.debug("play() part 2");
-		audioController.playAudioFile("c:\\DCB\\audio\\wwm-question.wav");
+		audioController.playAudioFile("wwm-question.wav");
 		Color lightBlue = new Color(200, 200, 255);
 		leftWash.setColor(lightBlue); 
 		rightWash.setColor(lightBlue);
