@@ -24,7 +24,7 @@ public class Controller {
 	}
 
 	public void blackOut() {
-		for (int i=0; i<Universe.MAX_CHANNELS; i++){
+		for (int i=1; i<Universe.MAX_CHANNELS; i++){
 			universe.setDmxChannelValue(i, 0);
 		}
 	}

@@ -85,6 +85,7 @@ function cancelShow(showId) {
 
 <h2>Controller</h2>
 <ul>
+  <li><a href="controller.html?action=blackOut">blackOut</a></li>
   <li>Shows</li>
   <ul>
 <%

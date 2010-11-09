@@ -140,8 +140,13 @@ public class ControllerAction
 	    	}
 	    	request.setAttribute("message", "DMX values set");
     	} else if (action.equals("blackOut")) {
-    		fixtureController.blackOut();
-    		request.setAttribute("message", "fixture " + fixtureId + " '" + fixture.getName() + "' blackOut");
+    		if (fixtureId == -1) {
+	    		controller.blackOut();
+	    		request.setAttribute("message", "controller blackOut");
+    		} else {
+	    		fixtureController.blackOut();
+	    		request.setAttribute("message", "fixture " + fixtureId + " '" + fixture.getName() + "' blackOut");
+    		}
     	} else if (action.equals("setColor")) {
     		int red = Integer.parseInt(request.getParameter("r"));
     		int green = Integer.parseInt(request.getParameter("g"));
