@@ -16,6 +16,7 @@ import com.randomnoun.dmx.channel.dimmer.MasterDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.RedDimmerChannelDef;
 import com.randomnoun.dmx.channel.rotation.AngularPanSpeedChannelDef;
 import com.randomnoun.dmx.channel.rotation.AngularTiltSpeedChannelDef;
+import com.randomnoun.dmx.channel.rotation.AngularTransitionSpeedChannelDef;
 import com.randomnoun.dmx.channel.rotation.PanPositionChannelDef;
 import com.randomnoun.dmx.channel.rotation.TiltPositionChannelDef;
 import com.randomnoun.dmx.channel.SpeedChannelDef;
@@ -77,13 +78,18 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 			fixture.setDmxChannelValue(5, 255);
 		}
 
+		public void setMovementSpeed(int i) {
+			fixture.setDmxChannelValue(4, i);
+		}
 
 		public void setColorMacro(int i) {
 			throw new UnsupportedOperationException("setColorMacro not implemented");
 		}
 
 		public void setMovementMacro(int i) {
-			throw new UnsupportedOperationException("setMovementMacro not implemented");		}
+			throw new UnsupportedOperationException("setMovementMacro not implemented");		
+		}
+		
 	}
 
 	
@@ -112,7 +118,7 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 		//this.addChannelDef(new TiltPositionChannelDef(3, 0, majorTiltStep));  // 0->255 == 0->180/255 degrees
 		
 		// channel 4 affects speed at which target pan/tilt position is reached
-		//this.addChannelDef(new VectorSpeedChannelDef(4, 0, 255, 0, 0.5));  // 0->255 == normal->slow
+		this.addChannelDef(new AngularTransitionSpeedChannelDef(4, 0, 255, 2, 2, 10, 10));  // 0->255 == slow->fast; (2 degrees/second->10 degrees/second)
 
 		MacroChannelDef dimmerStrobeChannelDef = new MacroChannelDef(5);
 		dimmerStrobeChannelDef.addMacro(new Macro("closed", 0, 7));

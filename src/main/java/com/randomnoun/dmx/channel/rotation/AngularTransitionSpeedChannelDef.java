@@ -19,7 +19,7 @@ import com.randomnoun.dmx.channel.ChannelDef;
  * 
  * 
  */
-public abstract class AngularTransitionSpeedChannelDef extends ChannelDef {
+public class AngularTransitionSpeedChannelDef extends ChannelDef {
 
 	public int slowValue;
 	public int fastValue;
