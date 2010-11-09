@@ -202,11 +202,6 @@ public class AppConfig extends AppConfigBase {
 		usbProWidgetUniverseUpdateListener = new UsbProWidgetUniverseUpdateListener(translator);
 		universe.addListener(usbProWidgetUniverseUpdateListener);
 		usbProWidgetUniverseUpdateListener.startThread();
-		
-		/*
-		c.addFixture(leftFixture);
-		c.addFixture(rightFixture);
-		*/		
     }
     
     private void initShowConfigs() throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -281,6 +276,10 @@ public class AppConfig extends AppConfigBase {
         	}
     	}
     	
+    	AudioController audioController = controller.getAudioController();
+    	if (audioController!=null) { audioController.close(); }
+    	
+    	// @TODO could possibly even reset the controller before doing this
     	
     	if (usbProWidgetUniverseUpdateListener!=null) {
     		usbProWidgetUniverseUpdateListener.stopThread();
@@ -292,6 +291,7 @@ public class AppConfig extends AppConfigBase {
 				logger.error("Could not close widget", e);
 			}
     	}
+    	
     	appConfigState = AppConfigState.STOPPED;
     }
 

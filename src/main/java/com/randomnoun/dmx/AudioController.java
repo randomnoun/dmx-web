@@ -7,7 +7,7 @@ import java.util.Map;
  * 
  * @author knoxg
  */
-public abstract class AudioController {
+public abstract class AudioController implements ExceptionContainer {
 
 	public AudioController(Map properties) {
 		
@@ -20,4 +20,7 @@ public abstract class AudioController {
 	 */
 	public abstract void playAudioFile(String filename);
 	
+	
+	/** Close any resources associated with this audioController */
+	public abstract void close();
 }
