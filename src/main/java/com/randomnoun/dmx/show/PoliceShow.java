@@ -9,8 +9,6 @@ public class PoliceShow extends Show {
 
 	MiniWashFixtureController leftWash;
 	MiniWashFixtureController rightWash;
-	long startTime;
-	Object sleepMonitor;
 	
 	public PoliceShow(Controller controller) {
 		super(controller, "Police", 5000);
@@ -20,12 +18,11 @@ public class PoliceShow extends Show {
 		
 	}
 	
-	public long getLength() { return length; }
 	public void pause() {}
 	public void stop() {}
 	
-	private void reset() {
-		startTime = System.currentTimeMillis();
+	protected void reset() {
+		super.reset();
 		leftWash.blackOut();
 		rightWash.blackOut();
 		// @TODO wait until muxers say that the fixtures
@@ -36,8 +33,8 @@ public class PoliceShow extends Show {
 		reset();
 		leftWash.setColor(Color.RED); 
 		rightWash.setColor(Color.BLUE);
-		leftWash.setMovementSpeed(255);
-		rightWash.setMovementSpeed(255);
+		leftWash.setMovementSpeed(0);
+		rightWash.setMovementSpeed(0);
 		leftWash.panTo(leftWash.getFixtureDef().panRange); // ==540
 		rightWash.panTo(rightWash.getFixtureDef().panRange); // ==540
 		waitUntil(2500); // 2.5 seconds into show
@@ -45,7 +42,7 @@ public class PoliceShow extends Show {
 		leftWash.setColor(Color.BLUE);
 		rightWash.setColor(Color.RED);
 		leftWash.panTo(0);
-		rightWash.panTo(255);
+		rightWash.panTo(0);
 		waitUntil(5000); // 5 seconds into show
 		if (isCancelled()) { return; }
 		leftWash.setColor(Color.BLACK);
@@ -53,15 +50,5 @@ public class PoliceShow extends Show {
 		
 	}
 	
-	public void waitUntil(long millisecondsIntoShow) {
-		try { 
-			synchronized (sleepMonitor) {
-				sleepMonitor.wait(millisecondsIntoShow-(System.currentTimeMillis() - startTime));
-			}
-			// Thread.sleep(millisecondsIntoShow-(System.currentTimeMillis() - startTime));
-		} catch (InterruptedException ie) {
-			
-		}
-	}
 	
 }	
