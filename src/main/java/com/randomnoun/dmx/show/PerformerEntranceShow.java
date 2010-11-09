@@ -17,7 +17,7 @@ public class PerformerEntranceShow extends Show {
 	AudioController audioController;
 	
 	public PerformerEntranceShow(Controller controller) {
-		super(controller, "Lock it in, eddie", 5000);
+		super(controller, "Performer entrance", 5000);
 		sleepMonitor = new Object();
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();
