@@ -154,8 +154,8 @@ public abstract class FixtureController {
 	public void blackOut() {
 		// which is different to setting the color to black
 		// this.setColor(Color.BLACK);
-		
-		for (int i=0; i<fixture.getFixtureDef().getNumDmxChannels(); i++){
+		FixtureDef fixtureDef = fixture.getFixtureDef();
+		for (int i = 0; i < fixtureDef.getNumDmxChannels(); i++){
 			fixture.setDmxChannelValue(i, 0);
 		}
 	}

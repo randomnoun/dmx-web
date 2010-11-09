@@ -95,7 +95,7 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 	
 		
 	public MiniWashFixtureDef12() {
-		
+		this.numDmxChannels = 12;
 		// perhaps these are absolute pan/tilt values ?
 		//this.addChannelDef(new AngularPanSpeedChannelDef(0, 0, 255, 0, 20));  // 0->255 == still->20 degrees/sec
 		//this.addChannelDef(new AngularPanSpeedChannelDef(1, 0, 255, 0, 5));  // 0->255 == still->5 degrees/sec

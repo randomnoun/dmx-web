@@ -178,6 +178,9 @@ public class AppConfig extends AppConfigBase {
 			String dmxOffset = (String) fixture.get("dmxOffset");
 			// @TODO re-use fixture definition classes
 			FixtureDef fixtureDef = (FixtureDef) Class.forName(fixtureClass).newInstance();
+			if (fixtureDef.getNumDmxChannels()<=0) {
+				logger.error("Fixture " + i + " has no DMX channels");
+			}
 			Fixture fixtureObj = new Fixture(name, fixtureDef, universe, Integer.parseInt(dmxOffset));
 			controller.addFixture(fixtureObj);
 		}
