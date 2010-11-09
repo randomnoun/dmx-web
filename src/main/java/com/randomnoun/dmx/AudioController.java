@@ -9,6 +9,12 @@ import java.util.Map;
  */
 public abstract class AudioController implements ExceptionContainer {
 
+	/** Create a new AudioController. Any resources requires to operate
+	 * the controller should be obtained during construction, using
+	 * the properties supplied.
+	 * 
+	 * @param properties
+	 */
 	public AudioController(Map properties) {
 		
 	}
