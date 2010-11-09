@@ -13,12 +13,11 @@ import com.randomnoun.common.PropertyParser;
 import com.randomnoun.common.webapp.struts.AppConfigBase;
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
+import com.randomnoun.dmx.DmxDevice;
 import com.randomnoun.dmx.Fixture;
 import com.randomnoun.dmx.FixtureDef;
 import com.randomnoun.dmx.Universe;
-import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetUniverseUpdateListener;
-import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidget;
-import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetTranslator;
+import com.randomnoun.dmx.event.UniverseUpdateListener;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.ShowThread;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
@@ -57,11 +56,11 @@ public class AppConfig extends AppConfigBase {
     /** Controller instance for this application */
     private Controller controller;
     
-    /** Widget reference */
-    private UsbProWidget widget;
+    /** DMX device reference */
+    private DmxDevice dmxDevice;
     
     /** Update listener for this application */
-    private UsbProWidgetUniverseUpdateListener usbProWidgetUniverseUpdateListener;
+    private UniverseUpdateListener dmxDeviceUniverseUpdateListener;
 
     private enum AppConfigState { UNINITIALISED, RUNNING, STOPPING, STOPPED };
     
@@ -168,21 +167,32 @@ public class AppConfig extends AppConfigBase {
     }
     
     private void initController() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
-    	String portName = getProperty("controller.portName");
 
-    	widget = new UsbProWidget(portName);
-    	UsbProWidgetTranslator translator = widget.openPort();
     	Universe universe = new Universe();
 		universe.setTimeSource(new WallClockTimeSource());
+
+    	//String portName = getProperty("dmxDevice.portName");
+    	//widget = new UsbProWidget(portName);
+    	//UsbProWidgetTranslator translator = widget.openPort();
+
+		String dmxClassname = (String) this.get("dmxDevice.class");
+		if (dmxClassname==null) {
+			dmxClassname = "com.randomnoun.dmx.protocol.nullDevice.NullAudioController";
+		}
+		Map dmxProperties = PropertyParser.restrict(this, "dmxDevice", true);
+		Class dmxClass = Class.forName(dmxClassname);
+		Constructor dmxConstructor = dmxClass.getConstructor(Map.class);
+		DmxDevice dmxDevice = (DmxDevice) dmxConstructor.newInstance(dmxProperties);
+    	
+
 		String acClassname = (String) this.get("audioController.class");
 		if (acClassname==null) {
-			acClassname = "NullAudioController"; // or summink
+			acClassname = "com.randomnoun.dmx.protocol.nullDevice.NullAudioController";
 		}
 		Map acProperties = PropertyParser.restrict(this, "audioController", true);
 		Class acClass = Class.forName(acClassname);
 		Constructor acConstructor = acClass.getConstructor(Map.class);
 		AudioController audioController = (AudioController) acConstructor.newInstance(acProperties);
-		
 		
 		controller = new Controller();
 		controller.setUniverse(universe);
@@ -204,9 +214,9 @@ public class AppConfig extends AppConfigBase {
 			controller.addFixture(fixtureObj);
 		}
 		
-		usbProWidgetUniverseUpdateListener = new UsbProWidgetUniverseUpdateListener(translator);
-		universe.addListener(usbProWidgetUniverseUpdateListener);
-		usbProWidgetUniverseUpdateListener.startThread();
+		dmxDeviceUniverseUpdateListener = dmxDevice.getUniverseUpdateListener();
+		universe.addListener(dmxDeviceUniverseUpdateListener);
+		dmxDeviceUniverseUpdateListener.startThread();
     }
     
     private void initShowConfigs() throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -286,15 +296,12 @@ public class AppConfig extends AppConfigBase {
     	
     	// @TODO could possibly even reset the controller before doing this
     	
-    	if (usbProWidgetUniverseUpdateListener!=null) {
-    		usbProWidgetUniverseUpdateListener.stopThread();
+    	if (dmxDeviceUniverseUpdateListener!=null) {
+    		dmxDeviceUniverseUpdateListener.stopThread();
     	}
-    	if (widget!=null) {
-    		try {
-				widget.close();
-			} catch (IOException e) {
-				logger.error("Could not close widget", e);
-			}
+    	if (dmxDevice!=null) {
+			dmxDevice.close();
+			// @TODO dump any exceptions in the device's ExceptionContainer interface
     	}
     	
     	appConfigState = AppConfigState.STOPPED;
