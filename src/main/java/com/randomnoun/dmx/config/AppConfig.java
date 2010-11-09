@@ -123,18 +123,22 @@ public class AppConfig extends AppConfigBase {
      * @throws NoSuchMethodException 
      * @throws IllegalArgumentException 
      * @throws SecurityException */
-    public synchronized void initialise() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException, SecurityException, IllegalArgumentException, NoSuchMethodException, InvocationTargetException {
+    public synchronized static void initialise() {
         logger.info("Initialising dmx-web...");
         AppConfig newInstance = new AppConfig();
-        newInstance.initHostname();
-        newInstance.loadProperties();  // properties depends on hostname
-        newInstance.initLogger();      // logger depends on properties
-        newInstance.initDatabase();    // db settings also depend on properties
-        newInstance.initSecurityContext();
-        newInstance.initController();
-        newInstance.initShowConfigs();
-        newInstance.appConfigState = AppConfigState.RUNNING;
-        logger.info("appConfig now in " + appConfigState + " state");
+    	try {
+	        newInstance.initHostname();
+	        newInstance.loadProperties();  // properties depends on hostname
+	        newInstance.initLogger();      // logger depends on properties
+	        newInstance.initDatabase();    // db settings also depend on properties
+	        newInstance.initSecurityContext();
+	        newInstance.initController();
+	        newInstance.initShowConfigs();
+	        newInstance.appConfigState = AppConfigState.RUNNING;
+	        logger.info("appConfig now in " + newInstance.appConfigState + " state");
+    	} catch (Throwable t) {
+    		newInstance.initialisationFailure = new RuntimeException("Could not initialise application", t);
+    	}
 
         // if this all succeeded, assign it to the singleton instance
         instance = newInstance;
@@ -146,14 +150,15 @@ public class AppConfig extends AppConfigBase {
      */
     public static AppConfig getAppConfig() {
         if (instance == null) {
-            instance = new AppConfig();
+            //instance = new AppConfig();
             try {
-                instance.initialise();
+                AppConfig.initialise();
             } catch (Throwable t) {
                 System.out.println("Error initialising");
                 t.printStackTrace();
-                instance.initialisationFailure = new RuntimeException("Could not initialise application", t);
+                //instance.initialisationFailure = new RuntimeException("Could not initialise application", t);
             }
+            
         }
         if (instance.initialisationFailure!=null) {
             throw (IllegalStateException) new IllegalStateException("Application failed initialisation").
