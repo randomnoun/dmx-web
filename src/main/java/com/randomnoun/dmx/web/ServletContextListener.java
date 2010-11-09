@@ -26,7 +26,7 @@ public class ServletContextListener
 	 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
 	 */
 	public void contextDestroyed(ServletContextEvent event) {
-		System.out.println("eomail servletContext destroyed");
+		System.out.println("dmx-web servletContext destroyed");
 		AppConfig appConfig = AppConfig.getAppConfig();
 		appConfig.shutdownThreads();
 	}
