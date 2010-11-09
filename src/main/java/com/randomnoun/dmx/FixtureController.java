@@ -13,6 +13,7 @@ import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.GreenDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.MasterDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.RedDimmerChannelDef;
+import com.randomnoun.dmx.channel.rotation.AngularTransitionSpeedChannelDef;
 import com.randomnoun.dmx.channel.rotation.PanPositionChannelDef;
 import com.randomnoun.dmx.channel.rotation.TiltPositionChannelDef;
 
@@ -94,6 +95,7 @@ public abstract class FixtureController {
 			(ppcd.getHighDmxValue() - ppcd.getLowDmxValue()) /
 			(ppcd.getMaxAngle() - ppcd.getMinAngle())));
 	}
+	
 
 	
 	/** Sets the pan position of this fixture.
@@ -157,5 +159,14 @@ public abstract class FixtureController {
 			fixture.setDmxChannelValue(i, 0);
 		}
 	}
+	
+	public Fixture getFixture() {
+		return fixture;
+	}
+	
+	public FixtureDef getFixtureDef() {
+		return fixture.getFixtureDef();
+	}
+	
 
 }
