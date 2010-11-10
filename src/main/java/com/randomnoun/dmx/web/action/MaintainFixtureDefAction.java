@@ -236,7 +236,7 @@ public class MaintainFixtureDefAction
 			}
 		} catch (bsh.ParseException e) {
 			// ParseException.getErrorLineNumber() raises NPEs
-			Pattern p = Pattern.compile("Parse error at line ([0-9]+*), column ([0-9]+)");
+			Pattern p = Pattern.compile("Parse error at line ([0-9]+), column ([0-9]+)");
 			Matcher m = p.matcher(e.getMessage());
 			if (m.matches()) {
 				errors.add(new ScriptLocationErrorData("script", "Parse error", 
