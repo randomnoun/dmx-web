@@ -42,8 +42,11 @@ public abstract class Show {
 	
 	public void waitUntil(long millisecondsIntoShow) {
 		try { 
-			synchronized (sleepMonitor) {
-				sleepMonitor.wait(millisecondsIntoShow-(System.currentTimeMillis() - startTime));
+			long timeout = millisecondsIntoShow-(System.currentTimeMillis() - startTime);
+			if (timeout < 0) {
+				synchronized (sleepMonitor) {
+					sleepMonitor.wait(timeout);
+				}
 			}
 			// Thread.sleep(millisecondsIntoShow-(System.currentTimeMillis() - startTime));
 		} catch (InterruptedException ie) {
