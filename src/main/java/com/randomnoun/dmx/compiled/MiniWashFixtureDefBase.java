@@ -1,4 +1,4 @@
-package com.randomnoun.dmx.scripted;
+package com.randomnoun.dmx.compiled;
 
 import com.randomnoun.dmx.Fixture;
 import com.randomnoun.dmx.FixtureController;

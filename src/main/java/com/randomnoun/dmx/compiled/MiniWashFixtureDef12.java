@@ -1,4 +1,4 @@
-package com.randomnoun.dmx.scripted;
+package com.randomnoun.dmx.compiled;
 
 import java.awt.Color;
 
