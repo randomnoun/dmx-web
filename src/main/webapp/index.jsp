@@ -65,7 +65,8 @@
 Things to try:
 
 <ul>
-<li><a href="maintainFixtureDef.html">Maintain fixture definitions</a></li>
+<li><a href="maintainFixtureDef.html">Maintain fixture types</a></li>
+<li><a href="maintainFixture.html">Maintain fixtures</a></li>
 <li><a href="controller.html">The other controller</a></li>
 <li><a href="manualController.html">Manual controller</a> (don't use this if the other controller has already been used)</li>
 <li><a href="debug.html">Debug page</a></li>

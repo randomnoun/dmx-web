@@ -52,6 +52,13 @@
           <forward name="success" path="/maintainFixtureDef.jsp"/>
         </action>
 
+        <action path="/maintainFixture" 
+          type="com.randomnoun.dmx.web.action.MaintainFixtureAction"
+        >
+          <forward name="success" path="/maintainFixture.jsp"/>
+        </action>
+
+
 <!-- 
         <action path="/stocktakeDateSelection" 
           type="com.randomnoun.stocktake.action.main.DateSelectionAction"
