@@ -101,6 +101,7 @@ function cancelShow(showId) {
 %>
   </ul>
   <li>Exceptions</li>
+  <ul><li>Audio exceptions</li>
   <ul>
 <%
     SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy HH:mm:ss");
@@ -108,11 +109,26 @@ function cancelShow(showId) {
     for (int i=0; i<exceptions.size(); i++) {
     	ExceptionContainer.TimestampedException te = exceptions.get(i);
     	Date d = new Date(te.getTimestamp());
-%>  <%= sdf.format(d) %> <%= te.getException().getMessage() %>
+%><li><%= sdf.format(d) %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtils.getStackTrace(te.getException()) %></pre>
 <%
     }
 %>
   </ul>
+  <li>DMX exceptions</li>
+  <ul>
+<%  
+    exceptions = appConfig.getDmxDeviceExceptions();
+    for (int i=0; i<exceptions.size(); i++) {
+        ExceptionContainer.TimestampedException te = exceptions.get(i);
+        Date d = new Date(te.getTimestamp());
+%><li><%= sdf.format(d) %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtils.getStackTrace(te.getException()) %></pre>
+<%
+    }
+%>
+  
+  </ul>
+  </ul>
+  
   <li>Universe</li>
   <ul>
     <li>Timesource: <%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %> </li>
