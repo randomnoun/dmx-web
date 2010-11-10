@@ -5,10 +5,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.randomnoun.dmx.to.FixtureTO;
 import com.randomnoun.dmx.to.ShowTO;
 
 public class ShowDAO {
@@ -19,7 +19,8 @@ public class ShowDAO {
         public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
             ShowTO s = new ShowTO();
             s.setId(rs.getLong("id"));
-            s.setShowTypeId(rs.getLong("showTypeId"));
+            s.setShowDefId(rs.getLong("showDefId"));
+            s.setName(rs.getString("name"));
             s.setOnCancelShowId(rs.getLong("onCancelShowId"));
             s.setOnCompleteShowId(rs.getLong("onCompleteShowId"));
             return s;
@@ -39,8 +40,8 @@ public class ShowDAO {
      */
     public List<ShowTO> getShows(String sqlWhereClause) {
         String sql =
-            "SELECT id, showTypeId, onCancelShowId, onCompleteShowId " +
-            " FROM show " +
+            "SELECT id, showDefId, name, onCancelShowId, onCompleteShowId " +
+            " FROM `show` " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<ShowTO>) jt.query(sql, new ShowDAORowMapper());
     }
@@ -53,8 +54,8 @@ public class ShowDAO {
      */
     public ShowTO getShow(long showId) {
         return (ShowTO) jt.queryForObject(
-            "SELECT id, showTypeId, onCancelShowId, onCompleteShowId " +
-            " FROM show " +
+            "SELECT id, showDefId, name, onCancelShowId, onCompleteShowId " +
+            " FROM `show` " +
             " WHERE id = ?",
             new Object[] { new Long(showId) }, 
             new ShowDAORowMapper());
@@ -66,12 +67,13 @@ public class ShowDAO {
      */
     public void updateShow(ShowTO show) {
         String sql =
-            "UPDATE show " +
-            " SET showTypeId=?, onCancelShowId=?, onCompleteShowId=? " + 
+            "UPDATE `show` " +
+            " SET showDefId=?, name=?, onCancelShowId=?, onCompleteShowId=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
-                show.getShowTypeId(),
+                show.getShowDefId(),
+                show.getName(),
                 show.getOnCancelShowId(),
                 show.getOnCompleteShowId(),
                 show.getId() });
@@ -80,6 +82,22 @@ public class ShowDAO {
         }
     }
 
+    /** Delete a show
+    *
+    * @param show the show to update
+    */
+   public void deleteShow(ShowTO fixture) {
+       String sql =
+           "DELETE FROM `show` " +
+           " WHERE id = ?";
+       int updated = jt.update(sql, 
+           new Object[] { fixture.getId() } );
+       if (updated!=1) {
+           throw new DataIntegrityViolationException("show delete failed (" + updated + " rows updated)");
+       }
+   }
+    
+    
     /** Inserts a show into the database.
      *
      * The id column of the object will be populated on return
@@ -90,12 +108,13 @@ public class ShowDAO {
      */
     public long createShow(ShowTO show) {
         String sql =
-            "INSERT INTO show " + 
-            " (showTypeId, onCancelShowId, onCompleteShowId) " +
-            " VALUES (?, ?, ? )";
+            "INSERT INTO `show` " + 
+            " (showDefId, name, onCancelShowId, onCompleteShowId) " +
+            " VALUES (?, ?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] { 
-                show.getShowTypeId(),
+                show.getShowDefId(),
+                show.getName(),
                 show.getOnCancelShowId(),
                 show.getOnCompleteShowId()});
         if (updated!=1) {
@@ -105,4 +124,7 @@ public class ShowDAO {
         show.setId(showId);
         return showId;
     }
+    
+
+    
 }

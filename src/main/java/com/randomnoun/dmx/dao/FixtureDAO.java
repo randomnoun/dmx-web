@@ -81,7 +81,7 @@ public class FixtureDAO {
         }
     }
     
-    /** Delete a fixture
+   /** Delete a fixture
     *
     * @param fixture the fixture to update
     */

@@ -3,7 +3,8 @@ package com.randomnoun.dmx.to;
 public class ShowTO {
 
     private long id;
-    private long showTypeId;
+    private long showDefId;
+    private String name;
     private Long onCancelShowId;
     private Long onCompleteShowId;
 
@@ -21,18 +22,32 @@ public class ShowTO {
         this.id = id;
     }
 
-    /** Returns the showTypeId
-     * @return the showTypeId
+    /** Returns the showDefId
+     * @return the showDefId
      */
-    public long getShowTypeId() {
-        return showTypeId;
+    public long getShowDefId() {
+        return showDefId;
     }
 
-    /** Set the showTypeId
-     * @param showTypeId
+    /** Set the showDefId
+     * @param showDefId
      */
-    public void setShowTypeId(long showTypeId) {
-        this.showTypeId = showTypeId;
+    public void setShowDefId(long showDefId) {
+        this.showDefId = showDefId;
+    }
+
+    /** Returns the name
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /** Set the name
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     /** Returns the onCancelShowId

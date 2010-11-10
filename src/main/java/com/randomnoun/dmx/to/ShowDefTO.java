@@ -1,8 +1,9 @@
 package com.randomnoun.dmx.to;
 
-public class ShowTypeTO {
+public class ShowDefTO {
 
     private long id;
+    private String name;
     private String className;
     private String script;
 
@@ -18,6 +19,20 @@ public class ShowTypeTO {
      */
     public void setId(long id) {
         this.id = id;
+    }
+
+    /** Returns the name
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /** Set the name
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     /** Returns the className
@@ -49,3 +64,4 @@ public class ShowTypeTO {
     }
 
 }
+
