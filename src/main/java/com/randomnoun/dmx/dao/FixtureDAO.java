@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -75,9 +77,24 @@ public class FixtureDAO {
                 fixture.getDmxOffset(),
                 fixture.getId() });
         if (updated!=1) {
-            throw new UncategorizedSQLException("fixture update failed (" + updated + " rows updated)", sql, null);
+            throw new DataIntegrityViolationException("fixture update failed (" + updated + " rows updated)");
         }
     }
+    
+    /** Delete a fixture
+    *
+    * @param fixture the fixture to update
+    */
+   public void deleteFixture(FixtureTO fixture) {
+       String sql =
+           "DELETE FROM fixture " +
+           " WHERE id = ?";
+       int updated = jt.update(sql, 
+           new Object[] { fixture.getId() } );
+       if (updated!=1) {
+           throw new DataIntegrityViolationException("fixture delete failed (" + updated + " rows updated)");
+       }
+   }
 
     /** Inserts a fixture into the database.
      *
@@ -98,7 +115,7 @@ public class FixtureDAO {
                 fixture.getName(),
                 fixture.getDmxOffset()});
         if (updated!=1) {
-            throw new UncategorizedSQLException("fixture insert failed (" + updated + " rows updated)", sql, null);
+            throw new DataIntegrityViolationException("fixture insert failed (" + updated + " rows updated)");
         }
         long fixtureId = jt.queryForLong("SELECT LAST_INSERT_ID()");
         fixture.setId(fixtureId);

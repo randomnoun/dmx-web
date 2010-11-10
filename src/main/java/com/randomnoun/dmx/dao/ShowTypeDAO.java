@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -73,7 +74,7 @@ public class ShowTypeDAO {
                 showType.getScript(),
                 showType.getId() });
         if (updated!=1) {
-            throw new UncategorizedSQLException("showType update failed (" + updated + " rows updated)", sql, null);
+            throw new DataIntegrityViolationException("showType update failed (" + updated + " rows updated)");
         }
     }
 
@@ -95,7 +96,7 @@ public class ShowTypeDAO {
                 showType.getClassName(),
                 showType.getScript()});
         if (updated!=1) {
-            throw new UncategorizedSQLException("showType insert failed (" + updated + " rows updated)", sql, null);
+            throw new DataIntegrityViolationException("showType insert failed (" + updated + " rows updated)");
         }
         long showTypeId = jt.queryForLong("SELECT LAST_INSERT_ID()");
         showType.setId(showTypeId);

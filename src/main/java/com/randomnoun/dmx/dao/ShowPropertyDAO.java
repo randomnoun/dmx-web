@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -75,7 +76,7 @@ public class ShowPropertyDAO {
                 showProperty.getValue(),
                 showProperty.getId() });
         if (updated!=1) {
-            throw new UncategorizedSQLException("showProperty update failed (" + updated + " rows updated)", sql, null);
+            throw new DataIntegrityViolationException("showProperty update failed (" + updated + " rows updated)");
         }
     }
 
@@ -98,7 +99,7 @@ public class ShowPropertyDAO {
                 showProperty.getKey(),
                 showProperty.getValue()});
         if (updated!=1) {
-            throw new UncategorizedSQLException("showProperty insert failed (" + updated + " rows updated)", sql, null);
+            throw new DataIntegrityViolationException("showProperty insert failed (" + updated + " rows updated)");
         }
         long showPropertyId = jt.queryForLong("SELECT LAST_INSERT_ID()");
         showProperty.setId(showPropertyId);

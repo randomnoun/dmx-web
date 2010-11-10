@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -75,7 +76,7 @@ public class FixtureDefDAO {
                 fixtureDef.getScript(),
                 fixtureDef.getId() });
         if (updated!=1) {
-            throw new UncategorizedSQLException("fixtureDef update failed (" + updated + " rows updated)", sql, null);
+            throw new DataIntegrityViolationException("fixtureDef update failed (" + updated + " rows updated)");
         }
     }
 
@@ -98,7 +99,7 @@ public class FixtureDefDAO {
                 fixtureDef.getClassName(),
                 fixtureDef.getScript()});
         if (updated!=1) {
-            throw new UncategorizedSQLException("fixtureDef insert failed (" + updated + " rows updated)", sql, null);
+            throw new DataIntegrityViolationException("fixtureDef insert failed (" + updated + " rows updated)");
         }
         long fixtureDefId = jt.queryForLong("SELECT LAST_INSERT_ID()");
         fixtureDef.setId(fixtureDefId);
