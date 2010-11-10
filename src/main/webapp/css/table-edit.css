@@ -1,0 +1,59 @@
+.redstar {
+    color: #FF0000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+}
+.headererror {  
+    background-color: #FFEEEE;
+    color: #993333;
+}
+.headerinfo {  
+    background-color: #EEEEFF;
+    color: #081484;
+}
+.formfooter {
+    background-color: #DFE7F4;
+}
+
+.formheader {
+    background-color: #C9D7ED;
+    color: #333333;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.formtext {
+    color: #000000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+}
+
+.formtextblue {
+    background-color: #EAF5FF;
+    color: #000000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+}
+
+.formtextbold {
+    background-color: #EAF5FF;
+    color: #4D4D4D;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.formtext {
+    background-color: #EAF5FF;
+    color: #4D4D4D;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+}
+
+
+.greenrollover a { display:block; width:18px; background-color: #FFFFFF}
+.greenrollover a:hover { background-color: #D1F2D1}
+.redrollover a { display:block; width:18px; background-color: #FFFFFF}
+.redrollover a:hover { background-color: #FFD1D1}
