@@ -28,7 +28,7 @@
     
     <title><%= appConfig.getProperty("webapp.titlePrefix") %> DMX</title>
 
-    <link rel="shortcut icon" href="images/favicon.png" />
+    <link rel="shortcut icon" href="image/favicon.png" />
 
     <!-- CSS -->
     <link href="stylesheets/stocktake-site.css" media="all" rel="stylesheet" type="text/css" />
@@ -47,7 +47,6 @@
       DD_belatedPNG.fix('#button_login, #button_start_an_auction_now,   #button_feedback,   #feedback_panel, #feedback_panel .head, #feedback_panel .body,  .btn_generic_clear, .btn_generic_clear span, .more, #process span, .button, .button span');
     </script>
     <![endif]-->
-    <link rel="shortcut icon" href="images/favicon.png" />
 
 <style>
 #controller { font-size: 8pt; font-family: Arial;}

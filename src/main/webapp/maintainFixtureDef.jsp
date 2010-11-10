@@ -28,7 +28,7 @@
     
     <title><%= appConfig.getProperty("webapp.titlePrefix") %> DMX</title>
 
-    <link rel="shortcut icon" href="images/favicon.png" />
+    <link rel="shortcut icon" href="image/favicon.png" />
 
     <!-- CSS -->
     <link href="stylesheets/stocktake-site.css" media="all" rel="stylesheet" type="text/css" />
@@ -47,9 +47,9 @@
       DD_belatedPNG.fix('#button_login, #button_start_an_auction_now,   #button_feedback,   #feedback_panel, #feedback_panel .head, #feedback_panel .body,  .btn_generic_clear, .btn_generic_clear span, .more, #process span, .button, .button span');
     </script>
     <![endif]-->
-    <link rel="shortcut icon" href="images/favicon.png" />
 
 <style>
+BODY { font-size: 8pt; font-family: Arial; }
 .fixtureDef { font-size: 8pt; font-family: Arial;}
 .fixtureDef TD { font-size: 8pt; font-family: Arial;}
 .fixtureDef INPUT { font-size: 8pt; }
@@ -80,11 +80,17 @@ function newFixtureDef() {
 <c:if test="${message!=null}">
 <b><c:out value="${message}" /></b><br/>
 </c:if>
-Select fixture definition: 
-<r:select name="fixtureDefId" value="${fixtureDefId}" data="${fixtureDefs}" 
-  displayColumn="txtName" valueColumn="lngId"  />
-<input type="button" name="getFixtureDef" value="Get fixture definition" onclick="getFixtureDef()" />
-<input type="button" name="createFixtureDef" value="Create new fixture definition" onclick="newFixtureDef()" />
+<jsp:include page="misc/errorHeader.jsp" />
+<table>
+<tr><td>Select fixture definition:</td>
+    <td><r:select name="fixtureDefId" value="${fixtureDefId}" data="${fixtureDefs}" 
+  displayColumn="txtName" valueColumn="lngId"  /></td>
+    <td><input type="button" name="getFixtureDef" value="Get fixture definition" onclick="getFixtureDef()" /></td>
+</tr><tr>    
+    <td></td>
+    <td></td>
+    <td><input type="button" name="createFixtureDef" value="Create new fixture definition" onclick="newFixtureDef()" /></td>
+</tr>
 <p>
 <c:if test="${fixtureDef!=null}" >
 <form action="maintainFixtureDef.html" method="post">

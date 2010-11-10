@@ -160,7 +160,7 @@ public class AppConfig extends AppConfigBase {
     		newInstance.initialisationFailure = new RuntimeException("Could not initialise application", t);
     	}
 
-        // if this all succeeded, assign it to the singleton instance
+        // assign this to the singleton instance, even if initialisation failed
         instance = newInstance;
     }
     

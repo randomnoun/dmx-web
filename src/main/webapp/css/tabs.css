@@ -39,7 +39,7 @@
 	
 .tabs {
 	font-size: 93%; 
-	background: url("images/tabs/bg.gif") ButtonFace repeat-x 50% bottom; 
+	background: url("image/tabs/bg.gif") ButtonFace repeat-x 50% bottom; 
 	float: left; 
 	width: 100%; 
 	line-height: normal
@@ -55,7 +55,7 @@
 .tabs LI {
 	padding-right: 0px; 
 	padding-left: 9px; 
-	background: url("images/tabs/left.gif") no-repeat left top; 
+	background: url("image/tabs/left.gif") no-repeat left top; 
 	float: left; 
 	padding-bottom: 0px; 
 	margin: 0px; 
@@ -66,7 +66,7 @@
 	display: block; 
 	padding-left: 6px; 
 	font-weight: bold; 
-	background: url("images/tabs/right.gif") no-repeat right top; 
+	background: url("image/tabs/right.gif") no-repeat right top; 
 	padding-bottom: 4px; 
 	color: #765; 
 	padding-top: 5px; 
@@ -77,10 +77,10 @@
 	text-decoration: underline;
 }
 .tabs #current {
-	background-image: url("images/tabs/left_on.gif")
+	background-image: url("image/tabs/left_on.gif")
 }
 .tabs #current A {
-	background-image: url("images/tabs/right_on.gif"); 
+	background-image: url("image/tabs/right_on.gif"); 
 	padding-bottom: 5px; 
   color: #333
 }
