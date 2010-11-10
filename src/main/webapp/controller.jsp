@@ -105,36 +105,42 @@ function cancelShow(showId) {
 <%
     SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy HH:mm:ss");
     List<ExceptionContainer.TimestampedException> exceptions = controller.getAudioController().getExceptions();
-    for (int i=0; i<exceptions.size(); i++) {
+    synchronized(exceptions) {
+      for (int i=0; i<exceptions.size(); i++) {
     	ExceptionContainer.TimestampedException te = exceptions.get(i);
     	Date d = new Date(te.getTimestamp());
 %><li><%= sdf.format(d) %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtils.getStackTrace(te.getException()) %></pre>
 <%
-    }
+      }
+    }  
 %>
   </ul>
   <li>DMX exceptions</li>
   <ul>
 <%  
     exceptions = appConfig.getDmxDeviceExceptions();
-    for (int i=0; i<exceptions.size(); i++) {
+    synchronized(exceptions) {
+      for (int i=0; i<exceptions.size(); i++) {
         ExceptionContainer.TimestampedException te = exceptions.get(i);
         Date d = new Date(te.getTimestamp());
 %><li><%= sdf.format(d) %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtils.getStackTrace(te.getException()) %></pre>
 <%
-    }
+      }
+    }  
 %>
   </ul>
   <li>Show exceptions</li>
   <ul>
 <%  
     List<AppConfig.TimestampedShowException> showExceptions = appConfig.getShowExceptions();
-    for (int i=0; i<showExceptions.size(); i++) {
+    synchronized(showExceptions) {
+      for (int i=0; i<showExceptions.size(); i++) {
     	AppConfig.TimestampedShowException te = showExceptions.get(i);
         Date d = new Date(te.getTimestamp());
 %><li><%= sdf.format(d) %> <%= te.getShow().getName() %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtils.getStackTrace(te.getException()) %></pre>
 <%
-    }
+      }
+    }  
 %>
   
   </ul>
