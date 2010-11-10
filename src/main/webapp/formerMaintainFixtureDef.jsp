@@ -84,7 +84,7 @@ function newFixtureDef() {
 <table>
 <tr><td>Select fixture definition:</td>
     <td><r:select name="fixtureDefId" value="${fixtureDefId}" data="${fixtureDefs}" 
-  displayColumn="name" valueColumn="id"  /></td>
+  displayColumn="txtName" valueColumn="lngId"  /></td>
     <td><input type="button" name="getFixtureDef" value="Get fixture definition" onclick="getFixtureDef()" /></td>
 </tr><tr>    
     <td></td>
@@ -95,18 +95,18 @@ function newFixtureDef() {
 <c:if test="${fixtureDef!=null}" >
 <form action="maintainFixtureDef.html" method="post">
 <%-- <r:setForm bundle="${generalBundle}" htmlFormat="${0}" labelFormat="${0}" data="${fixtureDef}" /> --%>
-<input type="hidden" name="fixtureDef.id" value="${fixtureDef.id}" />
+<input type="hidden" name="fixtureDef.lngId" value="${fixtureDef.lngId}" />
 <table class="fixtureDef">
 <tr><td>Name:</td>
-    <td><r:input type="text" name="fixtureDef.name" value="${fixtureDef.name}"/></td></tr>
+    <td><r:input type="text" name="fixtureDef.txtName" value="${fixtureDef.txtName}"/></td></tr>
 <tr><td valign="top">Script:</td>
-    <td><r:input type="textarea" name="fixtureDef.script" value="${fixtureDef.script}" rows="25" cols="100"/></td></tr>
+    <td><r:input type="textarea" name="fixtureDef.txtScript" value="${fixtureDef.txtScript}" rows="25" cols="100"/></td></tr>
 <tr><td></td>
     <td>
-    <c:if test="${fixtureDef.id==-1}">
+    <c:if test="${fixtureDef.lngId==-1}">
     <input type="submit" name="updateFixtureDef" value="Create" />
     </c:if>
-    <c:if test="${fixtureDef.id!=-1}">
+    <c:if test="${fixtureDef.lngId!=-1}">
     <input type="submit" name="updateFixtureDef" value="Update" />
     </c:if>
       

@@ -20,21 +20,14 @@ import org.apache.struts.action.ActionMapping;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import bsh.BSHAmbiguousName;
-import bsh.BSHClassDeclaration;
-import bsh.BSHPackageDeclaration;
 import bsh.Parser;
-import bsh.SimpleNode;
 // import bsh.SimpleNode; - package private. bastardos.
 
 import com.randomnoun.common.ErrorList;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
-import com.randomnoun.dmx.FixtureDef;
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.dao.FixtureDefDAO;
-import com.randomnoun.dmx.to.FixtureDefTO;
 
 /**
  * Fixture definition maintenance action
@@ -47,13 +40,13 @@ import com.randomnoun.dmx.to.FixtureDefTO;
  * @version         $Id$
  * @author          knoxg
  */
-public class MaintainFixtureDefAction
+public class FormerMaintainFixtureDefAction
     extends Action {
     /** A revision marker to be used in exception stack traces. */
     public static final String _revision = "$Id$";
 
     /** Logger instance for this class */
-    private static final Logger logger = Logger.getLogger(MaintainFixtureDefAction.class);
+    private static final Logger logger = Logger.getLogger(FormerMaintainFixtureDefAction.class);
 
     /**
      * Perform this struts action. See the javadoc for this
@@ -80,9 +73,6 @@ public class MaintainFixtureDefAction
     	Map form = new HashMap();
     	Struct.setFromRequest(form, request);
     	ErrorList errors = new ErrorList();
-    	
-    	FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
-    	FixtureDefTO fixtureDef;
 
     	long fixtureDefId = -1;
     	String fixtureDefIdString = request.getParameter("fixtureDefId");
@@ -92,34 +82,41 @@ public class MaintainFixtureDefAction
     	 
     	
     	if (action.equals("getFixtureDef")) {
-    		fixtureDef = fixtureDefDAO.getFixtureDef(fixtureDefId);
+    		Map fixtureDef = (Map) DataAccessUtils.requiredSingleResult(jt.queryForList(
+    			"SELECT lngId, txtName, txtScript " +
+    			" FROM tblFixtureDefinition " +
+    			" WHERE lngId = ?", new Object[] { new Integer((int) fixtureDefId) } ));
     		request.setAttribute("fixtureDef", fixtureDef);
     		
     	} else if (action.equals("newFixtureDef")) {
-    		fixtureDef = new FixtureDefTO();
-    		fixtureDef.setId(-1);
-    		fixtureDef.setName("name of fixture");
-    		fixtureDef.setScript(getScriptTemplate());
+    		Map fixtureDef = new HashMap();
+    		fixtureDef.put("lngId", "-1");
+    		fixtureDef.put("txtName", "name of fixture");
+    		fixtureDef.put("txtScript", getScriptTemplate());
     		request.setAttribute("fixtureDef", fixtureDef);
     				
     	} else if (request.getParameter("updateFixtureDef")!=null) {
-    		Map fixtureDefMap = (Map) form.get("fixtureDef");
-    		long lngId = Long.parseLong((String) fixtureDefMap.get("id"));
-    		String txtName = (String) fixtureDefMap.get("name");
-    		String txtScript = (String) fixtureDefMap.get("script");
+    		long lngId = Long.parseLong(request.getParameter("fixtureDef.lngId"));
+    		String txtName = request.getParameter("fixtureDef.txtName");
+    		String txtScript = request.getParameter("fixtureDef.txtScript");
     		errors.addErrors(validateScript(txtScript));
     		if (errors.hasErrors()) {
     			Struct.setFromRequest(form, request);
     			request.setAttribute("fixtureDef", form.get("fixtureDef"));
+    			
     		} else {
-    			fixtureDef = new FixtureDefTO();
-    			Struct.setFromMap(fixtureDef, fixtureDefMap, false, true, false);
-    			fixtureDef.setClassName(getClassName(fixtureDef.getScript()));
 	    		if (lngId==-1) {
-	    			fixtureDefDAO.createFixtureDef(fixtureDef);
+	    			jt.update(
+	    				"INSERT INTO tblFixtureDefinition (txtName, txtScript) " +
+	    				" VALUES (?, ?) ",
+	    				new Object[] { txtName, txtScript });
 	    			errors.addError("Fixture created", "Fixture definition created", ErrorList.SEVERITY_OK);
 	    		} else {
-	    			fixtureDefDAO.updateFixtureDef(fixtureDef);
+	    			jt.update(
+	    				"UPDATE tblFixtureDefinition " +
+	    				" SET txtName = ?, txtScript = ? " +
+	    				" WHERE lngId = ?" , 
+	    				new Object[] { txtName, txtScript, new Integer((int) lngId) });
 	    			errors.addError("Fixture updated", "Fixture definition updated", ErrorList.SEVERITY_OK);
 	    		}
     		} 
@@ -132,7 +129,10 @@ public class MaintainFixtureDefAction
     	}
     	
     	if (forward.equals("success")) {
-    		List fixtureDefs = fixtureDefDAO.getFixtureDefs(null);
+    		List fixtureDefs = jt.queryForList(
+    			"SELECT lngId, txtName " +
+    			" FROM tblFixtureDefinition " +
+    			" ORDER BY lngId");
     		request.setAttribute("fixtureDefs", fixtureDefs);
     	}
 
@@ -232,7 +232,7 @@ public class MaintainFixtureDefAction
     	Parser parser = new Parser(new StringReader(script));
     	try {
 			while( ! parser.Line() /* eof */ ) {
-				Object node = parser.popNode(); // (See the bsh.BSH* classes)
+				/*SimpleNode*/ Object node = parser.popNode(); // (See the bsh.BSH* classes) - classes are package private
 			}
 		} catch (bsh.ParseException e) {
 			// ParseException.getErrorLineNumber() raises NPEs
@@ -254,30 +254,9 @@ public class MaintainFixtureDefAction
         //factory.registerEngineName("Beanshell", new BshScriptEngineFactory());
         //ScriptEngine engine = factory.getEngineByName("Beanshell");
         // engine.eval("print('Hello, World')");
+    	
+    	
         return errors;
-    }
-    
-    public String getClassName(String script) {
-    	Parser parser = new Parser(new StringReader(script));
-    	String packageName = null;
-    	String className = null;
-    	try {
-			while( ! parser.Line() /* eof */ ) {
-				SimpleNode node = parser.popNode(); // (See the bsh.BSH* classes)
-				if (node instanceof BSHPackageDeclaration) {
-					BSHPackageDeclaration packageNode = (BSHPackageDeclaration) node;
-					packageName = ((BSHAmbiguousName) packageNode.getChild(0)).text;
-				} else if (node instanceof BSHClassDeclaration) {
-					BSHClassDeclaration classNode = (BSHClassDeclaration) node;
-					className = classNode.getName();
-				}
-			}
-		} catch (bsh.ParseException e) {
-			throw new IllegalArgumentException("Invalid script", e);
-		}
-		if (className == null) { throw new IllegalArgumentException("No script defined"); }
-		if (packageName == null) { return className; }
-		return packageName + "." + className;
     }
     
 }
