@@ -39,6 +39,12 @@
           <forward name="success" path="/controller.jsp"/>
         </action>
 
+        <action path="/debug" 
+          type="com.randomnoun.dmx.web.action.DebugAction"
+        >
+          <forward name="success" path="/debug.jsp"/>
+        </action>
+
 
         <action path="/maintainFixtureDef" 
           type="com.randomnoun.dmx.web.action.MaintainFixtureDefAction"
