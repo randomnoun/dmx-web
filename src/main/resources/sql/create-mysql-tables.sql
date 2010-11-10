@@ -17,8 +17,9 @@ CREATE TABLE `comedy_dev`.`fixture` (
 )
 ENGINE = InnoDB;
 
-CREATE TABLE `comedy_dev`.`showType` (
+CREATE TABLE `comedy_dev`.`showDef` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL,
   `className` VARCHAR(100) NOT NULL,
   `script` MEDIUMTEXT NOT NULL,
   PRIMARY KEY (`Id`)
@@ -27,7 +28,8 @@ ENGINE = InnoDB;
 
 CREATE TABLE `comedy_dev`.`show` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-  `showTypeId` INTEGER UNSIGNED NOT NULL,
+  `showDefId` INTEGER UNSIGNED NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
   `onCancelShowId` INTEGER UNSIGNED,
   `onCompleteShowId` INTEGER UNSIGNED,
   PRIMARY KEY (`Id`)
