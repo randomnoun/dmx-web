@@ -48,9 +48,72 @@ public class Controller {
 	public Fixture getFixture(int fixtureNumber) {
 		return fixtures.get(fixtureNumber);
 	}
-	
-	public Fixture getFixtureByName(String fixtureName) {
-		throw new UnsupportedOperationException("Something to do, no doubt");
+
+	/** Returns a fixture by name; 
+	 * if missing, will return null
+	 * 
+	 * @param fixtureName
+	 * 
+	 * @return
+	 */
+	public Fixture getFixtureByNameNoEx(String fixtureName) {
+		// @TODO hashMap this if people start using it
+		for (Fixture fixture : fixtures) {
+			if (fixture.getName().equals(fixtureName)) {
+				return fixture;
+			}
+		}
+		return null;
 	}
+
+	/** Returns a fixture by name; 
+	 * if missing, will throw an IllegalArgumentException
+	 * 
+	 * @param fixtureName
+	 * 
+	 * @return
+	 */
+	public Fixture getFixtureByName(String fixtureName) {
+		Fixture fixture = getFixtureByNameNoEx(fixtureName);
+		if (fixture==null) {
+			throw new IllegalArgumentException("No fixture found with name '" + fixtureName + "'");
+		}
+		return fixture;
+	}
+
+	
+	/** Returns a fixtureController by name; 
+	 * if missing, will return null
+	 * 
+	 * @param fixtureName
+	 * 
+	 * @return
+	 */
+	public FixtureController getFixtureControllerByNameNoEx(String fixtureName) {
+		// @TODO hashMap this if people start using it
+		for (Fixture fixture : fixtures) {
+			if (fixture.getName().equals(fixtureName)) {
+				return fixture.getFixtureController();
+			}
+		}
+		return null;
+	}
+
+	/** Returns a fixtureController by name; 
+	 * if missing, will throw an IllegalArgumentException
+	 * 
+	 * @param fixtureName
+	 * 
+	 * @return
+	 */
+	public FixtureController getFixtureControllerByName(String fixtureName) {
+		FixtureController fixture = getFixtureControllerByNameNoEx(fixtureName);
+		if (fixture==null) {
+			throw new IllegalArgumentException("No fixture found with name '" + fixtureName + "'");
+		}
+		return fixture;
+	}
+	
+	
 	
 }
