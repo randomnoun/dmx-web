@@ -9,6 +9,11 @@ import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.scripted.MiniWashFixtureDef12.MiniWashFixtureController;
 
+/** Flash the lights and play 'smooth criminal'.
+ * 
+ * If nothing happens in ten seconds, the volume will fade down to 50% over the next 10 seconds. 
+ * If it still isn't cancelled, this show will loop the music after three minutes.
+ */
 public class PerformerEntranceShow extends Show {
 
 	Logger logger = Logger.getLogger(PerformerEntranceShow.class);
@@ -18,7 +23,7 @@ public class PerformerEntranceShow extends Show {
 	AudioController audioController;
 	
 	public PerformerEntranceShow(Controller controller, Map properties) {
-		super(controller, "Performer entrance", 6000, properties);
+		super(controller, "Performer entrance", Long.MAX_VALUE, properties);
 		sleepMonitor = new Object();
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();
@@ -49,20 +54,54 @@ public class PerformerEntranceShow extends Show {
 		if (isCancelled()) { return; }
 		
 		logger.debug("play() part 2");
+		long songStartTime = getShowTime();
 		audioController.playAudioFile("smoothCriminal.mp3");
+		
 		Color[] chaseColors = new Color[]{
 			Color.GREEN,
 			Color.BLUE,
 			Color.RED
 		};
-		for (int i=0; i<10; i++) {
+		// 20 steps at half a second per chase step
+		int i=0;
+		while (getShowTime() < 10 * 1000) {
+			i++;
 			leftWash.setColor(chaseColors[i % 3]);
 			rightWash.setColor(chaseColors[(i+1) % 3]);
-			waitUntil(1000+i*500);
+			waitFor(500);
 			if (isCancelled()) { return; }
 		}
 		
-		logger.debug("play() completed");
+		// fade music down
+		double volume = 100;
+		long startFadeTime = getShowTime();
+		long stopFadeTime = getShowTime() + 20 * 1000;
+		while (getShowTime() < stopFadeTime) {
+			i++; 
+			// volume = volume - (50 / 20);
+			volume = 100 - (getShowTime() - startFadeTime) * 50 / (stopFadeTime-startFadeTime);
+			leftWash.setColor(chaseColors[i % 3]);
+			rightWash.setColor(chaseColors[(i+1) % 3]);
+			audioController.setVolume(volume);
+			waitFor(500);
+			if (isCancelled()) { return; }
+		}
+		
+		while (true) {
+			while (getShowTime() - songStartTime < 180 * 1000) {
+				i++;
+				leftWash.setColor(chaseColors[i % 3]);
+				rightWash.setColor(chaseColors[(i+1) % 3]);
+				waitFor(500);
+				if (isCancelled()) { return; }
+			}
+			songStartTime = getShowTime();
+			audioController.playAudioFile("smoothCriminal.mp3");
+			audioController.setVolume(50.0);
+		}
+		
+		
+		//logger.debug("play() never completes");
 	}
 	
 
