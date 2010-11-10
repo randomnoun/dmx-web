@@ -310,8 +310,8 @@ public class BshScriptEngine extends AbstractScriptEngine
 	private bsh.This getGlobal()
 	{
 		// requires 2.0b5 to make getThis() public
-		// return getEngineNameSpace( getContext() ).getThis( getInterpreter() );
-		throw new UnsupportedOperationException("getGlobal() requires bsh2.0b5");
+		return getEngineNameSpace( getContext() ).getThis( getInterpreter() );
+		// throw new UnsupportedOperationException("getGlobal() requires bsh2.0b5");
 	}
 
 	/*
