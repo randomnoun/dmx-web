@@ -165,7 +165,8 @@ public class ControllerAction
     		int showId = Integer.parseInt(request.getParameter("showId"));
     		Show show = appConfig.getShows().get(showId);
     		appConfig.startShow(showId);
-    		request.setAttribute("message", "Show " + showId + " '" + show.getName() + "' started (length=" + show.getLength() + "msec)");
+    		request.setAttribute("message", "Show " + showId + " '" + show.getName() + "' started " +
+    			(show.getLength()==Long.MAX_VALUE ? " (continuous)" : " (length=" + show.getLength() + "msec)"));
     	} else if (action.equals("cancelShow")) {
     		int showId = Integer.parseInt(request.getParameter("showId"));
     		Show show = appConfig.getShows().get(showId);
