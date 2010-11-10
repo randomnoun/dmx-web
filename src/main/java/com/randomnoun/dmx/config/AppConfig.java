@@ -5,6 +5,7 @@ import java.lang.Thread.State;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TooManyListenersException;
@@ -104,11 +105,26 @@ public class AppConfig extends AppConfigBase {
     		return show;
     	}
     }
+    
+    
+    public static class TimestampedShowException extends ExceptionContainer.TimestampedException {
+    	Show show;
+		public TimestampedShowException(Show show, Exception exception) {
+			super(System.currentTimeMillis(), exception);
+			this.show = show;
+		}
+		public Show getShow() {
+			return show;
+		}
+    }
+    
 
     /** List of shows that this application knows about, and their threads */
     private List<ShowConfig> showConfigs;
     /** List of shows */
     private List<Show> shows;
+    
+    private List<TimestampedShowException> showExceptions;
     
     
     /** Private constructor; this class can only be called via .getInstance() */
@@ -231,16 +247,17 @@ public class AppConfig extends AppConfigBase {
     private void initShowConfigs() throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
     	showConfigs = new ArrayList<ShowConfig>();
     	shows = new ArrayList<Show>();
-		List showProperties = (List) get("shows");
-		if (showProperties == null || showProperties.size()==0) {
+    	showExceptions = Collections.synchronizedList(new ArrayList<TimestampedShowException>());
+		List showPropertiesList = (List) get("shows");
+		if (showPropertiesList == null || showPropertiesList.size()==0) {
 			logger.warn("No shows in appConfig");
 		} else {
-			for (int i=0; i<showProperties.size(); i++) {
-				Map show = (Map) showProperties.get(i);
-				String showClassName = (String) show.get("class");
+			for (int i=0; i<showPropertiesList.size(); i++) {
+				Map showProperties = (Map) showPropertiesList.get(i);
+				String showClassName = (String) showProperties.get("class");
 				Class showClass = Class.forName(showClassName);
-				Constructor constructor = showClass.getConstructor(Controller.class);
-				Show showObj = (Show) constructor.newInstance(controller);
+				Constructor constructor = showClass.getConstructor(Controller.class, Map.class);
+				Show showObj = (Show) constructor.newInstance(controller, showProperties);
 				showConfigs.add(new ShowConfig(this, i, showObj));
 				shows.add(showObj);
 			}
@@ -272,6 +289,11 @@ public class AppConfig extends AppConfigBase {
     		logger.warn("Not cancelling show " + showId + " '" + showConfig.getShow().getName() + "' since it is not running");
     	}
     }
+ 
+    public void addShowException(Show show, Exception exception) {
+    	showExceptions.add(new TimestampedShowException(show, exception));
+    }
+    
     
     /** Invoked by servletContextListener to stop any running threads in this application */
     public void shutdownThreads() {
@@ -333,6 +355,10 @@ public class AppConfig extends AppConfigBase {
 	
 	public List<ExceptionContainer.TimestampedException> getDmxDeviceExceptions() {
 		return dmxDevice.getExceptions();
+	}
+
+	public List<TimestampedShowException> getShowExceptions() {
+		return showExceptions;
 	}
 
 
