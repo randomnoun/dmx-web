@@ -64,7 +64,7 @@ public class AppConfig extends AppConfigBase {
     /** Update listener for this application */
     private UniverseUpdateListener dmxDeviceUniverseUpdateListener;
 
-    private enum AppConfigState { UNINITIALISED, RUNNING, STOPPING, STOPPED };
+    public enum AppConfigState { UNINITIALISED, RUNNING, STOPPING, STOPPED };
     
     private AppConfigState appConfigState = AppConfigState.UNINITIALISED;
     
@@ -294,21 +294,27 @@ public class AppConfig extends AppConfigBase {
     	showExceptions.add(new TimestampedShowException(show, exception));
     }
     
+    public AppConfigState getAppConfigState() {
+    	return appConfigState;
+    }
     
     /** Invoked by servletContextListener to stop any running threads in this application */
     public void shutdownThreads() {
     	
     	appConfigState = AppConfigState.STOPPING;
+    	
     	logger.info("appConfig.shutdownThreads() invoked");
     	for (ShowConfig showConfig : showConfigs) {
-    		if (showConfig.hasThread()) { showConfig.getThread().cancel(); }
+    		if (showConfig.hasThread() && showConfig.getThread().isAlive()) { 
+    			showConfig.getThread().cancel(); 
+    		}
     	}
     	// if any shows are still running, give them a few seconds,
     	// then just stop the thread
     	int showsRunning = 0;
     	for (ShowConfig showConfig : showConfigs) {
-    		if (showConfig.hasThread()) { 
-    			if (showConfig.getThread().isAlive()) { showsRunning++; } 
+    		if (showConfig.hasThread() && showConfig.getThread().isAlive()) { 
+    			showsRunning++; 
     		}
     	}
     	if (showsRunning > 0) {
