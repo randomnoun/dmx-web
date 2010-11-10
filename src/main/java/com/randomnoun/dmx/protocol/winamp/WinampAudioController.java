@@ -133,6 +133,17 @@ public class WinampAudioController extends AudioController
 		}
 	}
 
+	@Override
+	public void stopAudio() {
+		try {
+			winamp.sendStop();
+		} catch (IOException e) {
+			logger.error(e);
+			exceptionContainer.addException(new RuntimeException("Exception stopping audio file", e));
+		}
+	}
+	
+	
 	public List<TimestampedException> getExceptions() {
 		return exceptionContainer.getExceptions();
 	}
@@ -149,5 +160,6 @@ public class WinampAudioController extends AudioController
 			logger.error("Exception closing NGWinAmp audioController", ioe);
 		}
 	}
+
 	
 }

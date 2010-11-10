@@ -26,6 +26,8 @@ public abstract class AudioController implements ExceptionContainer {
 	 */
 	public abstract void playAudioFile(String filename);
 	
+	/** Stops any audio that is currently running */
+	public abstract void stopAudio();
 	
 	/** Close any resources associated with this audioController */
 	public abstract void close();

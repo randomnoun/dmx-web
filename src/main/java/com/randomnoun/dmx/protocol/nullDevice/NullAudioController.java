@@ -35,6 +35,10 @@ public class NullAudioController extends AudioController
 	public void playAudioFile(String filename) {
 	}
 
+	@Override
+	public void stopAudio() {
+	}
+	
 	public List<TimestampedException> getExceptions() {
 		return exceptionContainer.getExceptions();
 	}
@@ -46,5 +50,5 @@ public class NullAudioController extends AudioController
 	@Override
 	public void close() {
 	}
-	
+
 }
