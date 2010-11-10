@@ -1,6 +1,7 @@
 package com.randomnoun.dmx.show;
 
 import java.awt.Color;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -16,8 +17,8 @@ public class PerformerEntranceShow extends Show {
 	MiniWashFixtureController rightWash;
 	AudioController audioController;
 	
-	public PerformerEntranceShow(Controller controller) {
-		super(controller, "Performer entrance", 5000);
+	public PerformerEntranceShow(Controller controller, Map properties) {
+		super(controller, "Performer entrance", 6000, properties);
 		sleepMonitor = new Object();
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();
@@ -49,14 +50,17 @@ public class PerformerEntranceShow extends Show {
 		
 		logger.debug("play() part 2");
 		audioController.playAudioFile("smoothCriminal.mp3");
-		leftWash.setColor(Color.GREEN); 
-		rightWash.setColor(Color.GREEN);
-		leftWash.setMovementSpeed(100);
-		rightWash.setMovementSpeed(100);
-		
-		leftWash.panTo(0); leftWash.tiltTo(0);
-		rightWash.panTo(360); rightWash.tiltTo(0);
-		waitUntil(5000); // 5 seconds into show
+		Color[] chaseColors = new Color[]{
+			Color.GREEN,
+			Color.BLUE,
+			Color.RED
+		};
+		for (int i=0; i<10; i++) {
+			leftWash.setColor(chaseColors[i % 3]);
+			rightWash.setColor(chaseColors[(i+1) % 3]);
+			waitUntil(1000+i*500);
+			if (isCancelled()) { return; }
+		}
 		
 		logger.debug("play() completed");
 	}

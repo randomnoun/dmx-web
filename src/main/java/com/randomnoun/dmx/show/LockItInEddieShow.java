@@ -1,6 +1,7 @@
 package com.randomnoun.dmx.show;
 
 import java.awt.Color;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -16,9 +17,8 @@ public class LockItInEddieShow extends Show {
 	MiniWashFixtureController rightWash;
 	AudioController audioController;
 	
-	public LockItInEddieShow(Controller controller) {
-		super(controller, "Lock it in, eddie", 5000);
-		sleepMonitor = new Object();
+	public LockItInEddieShow(Controller controller, Map properties) {
+		super(controller, "Lock it in, eddie", 5000, properties);
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();
 		audioController = controller.getAudioController();

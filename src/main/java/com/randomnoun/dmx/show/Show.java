@@ -1,5 +1,7 @@
 package com.randomnoun.dmx.show;
 
+import java.util.Map;
+
 import com.randomnoun.dmx.Controller;
 
 /** either this thing is going to invoke methods on the controller
@@ -18,12 +20,22 @@ public abstract class Show {
 	boolean cancelled;
 	long startTime;
 	Object sleepMonitor;
+	Map properties;
+	String onCancel;
+	String onComplete;
 	
-	protected Show(Controller controller, String name, long length) {
+	protected Show(Controller controller, String name, long length, Map properties) {
 		this.controller = controller;
 		this.name = name;
 		this.length = length;
 		this.cancelled = false;
+		this.properties = properties;
+		onCancel = (String) properties.get("onCancel");
+		onComplete = (String) properties.get("onComplete");
+		String nameOverride = (String) properties.get("name");
+		if (nameOverride!=null) { name = nameOverride; }
+		
+		sleepMonitor = new Object();
 	}
 	
 	public long getLength() { return length; }
@@ -36,7 +48,10 @@ public abstract class Show {
 	public abstract void play();
 	public abstract void pause();
 	public abstract void stop();
-	public void cancel() { cancelled = true; }
+	public void cancel() { 
+		cancelled = true; 
+		sleepMonitor.notify();
+	}
 	public boolean isCancelled() { return cancelled; }
 	
 	
