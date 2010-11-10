@@ -19,7 +19,7 @@ public abstract class AudioController implements ExceptionContainer {
 		
 	}
 	
-	/** Play the supplied file at current volume level. Any existing
+	/** Play the supplied file at 100% volume level. Any existing
 	 * audio will be stopped.
 	 * 
 	 * @param filename
@@ -28,6 +28,9 @@ public abstract class AudioController implements ExceptionContainer {
 	
 	/** Stops any audio that is currently running */
 	public abstract void stopAudio();
+	
+	/** Sets the audio volume, in percent (0.0 - 100.0) */
+	public abstract void setVolume(double volumePercent);
 	
 	/** Close any resources associated with this audioController */
 	public abstract void close();

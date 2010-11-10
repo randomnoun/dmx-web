@@ -57,6 +57,7 @@ public class WinampAudioController extends AudioController
 	 */
 	@Override
 	public void playAudioFile(String filename) {
+		logger.debug("Playing audio file '" + filename + "'");
 		try {
 			File file = new File(filename);
 			if (!file.isAbsolute() && defaultPath!=null) { 
@@ -83,7 +84,9 @@ public class WinampAudioController extends AudioController
 					}
 				}
 			} else {
-				if (playlistPosition!=files.length-1) {
+				// the check-end-of-list here should work but doesn't
+				//if (playlistPosition!=files.length-1) {
+					
 					// we can't play audio at this position, since it
 					// will then go on to play everything else in the playlist.
 					
@@ -116,7 +119,7 @@ public class WinampAudioController extends AudioController
 						}
 					}
 					
-				}
+				//}
 			}
 			if (playlistPosition==-1) {
 				logger.error("File not added to WinAMP playlist");
@@ -124,8 +127,9 @@ public class WinampAudioController extends AudioController
 			} else {
 				winamp.sendSetRepeat(false);
 				winamp.sendSetPlaylistPosition(playlistPosition);
-				winamp.sendSetPosition(0.0);
+				winamp.sendSetPosition(0);
 				winamp.sendPlay();
+				winamp.sendSetVolume(100.0);
 			}
 		} catch (IOException e) {
 			logger.error(e);
@@ -135,6 +139,7 @@ public class WinampAudioController extends AudioController
 
 	@Override
 	public void stopAudio() {
+		logger.debug("Stopping audio");
 		try {
 			winamp.sendStop();
 		} catch (IOException e) {
@@ -142,7 +147,18 @@ public class WinampAudioController extends AudioController
 			exceptionContainer.addException(new RuntimeException("Exception stopping audio file", e));
 		}
 	}
-	
+
+	@Override
+	public void setVolume(double volumePercent) {
+		logger.debug("Setting volume");
+		try {
+			winamp.sendSetVolume(volumePercent);
+		} catch (IOException e) {
+			logger.error(e);
+			exceptionContainer.addException(new RuntimeException("Exception stopping audio file", e));
+		}
+	}
+
 	
 	public List<TimestampedException> getExceptions() {
 		return exceptionContainer.getExceptions();

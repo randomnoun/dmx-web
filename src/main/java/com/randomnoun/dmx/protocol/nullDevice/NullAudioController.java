@@ -38,6 +38,10 @@ public class NullAudioController extends AudioController
 	@Override
 	public void stopAudio() {
 	}
+
+	@Override
+	public void setVolume(double volumePercent) {
+	}
 	
 	public List<TimestampedException> getExceptions() {
 		return exceptionContainer.getExceptions();
