@@ -100,8 +100,6 @@ public class PerformerEntranceShow extends Show {
 			audioController.setVolume(50.0);
 		}
 		
-		
-		//logger.debug("play() never completes");
 	}
 	
 
