@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.randomnoun.common.Text;
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.ExceptionContainerImpl;
@@ -56,9 +57,14 @@ public class WinampAudioController extends AudioController
 	 */
 	@Override
 	public void playAudioFile(String filename) {
-		File file = new File(filename);
-		if (!file.isAbsolute() && defaultPath!=null) { file = new File(new File(defaultPath), filename); }
 		try {
+			File file = new File(filename);
+			if (!file.isAbsolute() && defaultPath!=null) { 
+				file = new File(new File(defaultPath), filename);
+				filename = file.getCanonicalPath();
+			}
+			filename = Text.replaceString(filename, "\\", "/");
+			
 			
 			String[] files = winamp.sendGetFiles(NGWinAmp.NGWINAMP_ALL);
 			int playlistPosition = -1;
@@ -77,8 +83,40 @@ public class WinampAudioController extends AudioController
 					}
 				}
 			} else {
-				winamp.sendSwap(playlistPosition, files.length);
-				playlistPosition = files.length;
+				if (playlistPosition!=files.length-1) {
+					// we can't play audio at this position, since it
+					// will then go on to play everything else in the playlist.
+					
+					// attempt 1: swap with position at end of list (doesn't work)
+					// winamp.sendSwap(playlistPosition, files.length-1); 
+					
+					// attempt 2: delete and re-add audio file (doesn't work and throws a SocketException)
+					/*
+					winamp.sendDeletePlaylist(new int[] { playlistPosition });
+					String newFiles[] = new String[] { filename };
+					winamp.sendAddFiles(newFiles);
+					files = winamp.sendGetFiles(NGWinAmp.NGWINAMP_ALL);
+					for (int i=0; i<files.length; i++) {
+						if (files[i].equals(filename)) {
+							playlistPosition = i; break;
+						}
+					}
+					*/
+					
+					// attempt 3: clear playlist and re-add file
+					// (not great, since whoever's on the desk will need to reset the playlist
+					// when people start getting their groove on, but does seem to work)
+					winamp.sendClearPlaylist();
+					String newFiles[] = new String[] { filename };
+					winamp.sendAddFiles(newFiles);
+					files = winamp.sendGetFiles(NGWinAmp.NGWINAMP_ALL);
+					for (int i=0; i<files.length; i++) {
+						if (files[i].equals(filename)) {
+							playlistPosition = i; break;
+						}
+					}
+					
+				}
 			}
 			if (playlistPosition==-1) {
 				logger.error("File not added to WinAMP playlist");
