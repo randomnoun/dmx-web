@@ -84,7 +84,7 @@ public class MaintainFixtureDefAction
     	if (action.equals("getFixtureDef")) {
     		Map fixtureDef = (Map) DataAccessUtils.requiredSingleResult(jt.queryForList(
     			"SELECT lngId, txtName, txtScript " +
-    			" FROM tblFixtureDefinitions " +
+    			" FROM tblFixtureDefinition " +
     			" WHERE lngId = ?", new Object[] { new Integer((int) fixtureDefId) } ));
     		request.setAttribute("fixtureDef", fixtureDef);
     		
@@ -107,13 +107,13 @@ public class MaintainFixtureDefAction
     		} else {
 	    		if (lngId==-1) {
 	    			jt.update(
-	    				"INSERT INTO tblFixtureDefinitions (txtName, txtScript) " +
+	    				"INSERT INTO tblFixtureDefinition (txtName, txtScript) " +
 	    				" VALUES (?, ?) ",
 	    				new Object[] { txtName, txtScript });
 	    			errors.addError("Fixture created", "Fixture definition created", ErrorList.SEVERITY_OK);
 	    		} else {
 	    			jt.update(
-	    				"UPDATE tblFixtureDefinitions " +
+	    				"UPDATE tblFixtureDefinition " +
 	    				" SET txtName = ?, txtScript = ? " +
 	    				" WHERE lngId = ?" , 
 	    				new Object[] { txtName, txtScript, new Integer((int) lngId) });
@@ -131,7 +131,7 @@ public class MaintainFixtureDefAction
     	if (forward.equals("success")) {
     		List fixtureDefs = jt.queryForList(
     			"SELECT lngId, txtName " +
-    			" FROM tblFixtureDefinitions " +
+    			" FROM tblFixtureDefinition " +
     			" ORDER BY lngId");
     		request.setAttribute("fixtureDefs", fixtureDefs);
     	}
