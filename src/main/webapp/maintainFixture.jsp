@@ -86,7 +86,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
             <div style="height:80px; width:880px;">
     
 				<!-- TODO: save data before leaving page -->
-				<div style="width:158px; height:54px; background: url(images/ui/bg-menu-small.png) no-repeat left top; float:left;
+				<div style="width:158px; height:54px; background: url(images/ui/bg-menu-small.png) no-repeat left top; float:left; background-color: blue;
 				  font-size: 22px; color: white;
 				  font-weight: bold; text-align: center; padding-top: 16px; margin-right:10px; cursor: pointer;"
 				  onclick="document.location='index.html'"
