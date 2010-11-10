@@ -14,6 +14,7 @@ import com.randomnoun.common.webapp.struts.AppConfigBase;
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.DmxDevice;
+import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.Fixture;
 import com.randomnoun.dmx.FixtureDef;
 import com.randomnoun.dmx.Universe;
@@ -71,11 +72,13 @@ public class AppConfig extends AppConfigBase {
     // (or have some kind of show override type of thing)
     private static class ShowConfig {
     	Show show;
+    	long showId;
     	ShowThread showThread;
     	AppConfig appConfig;
     	
-    	public ShowConfig(AppConfig appConfig, Show show) {
+    	public ShowConfig(AppConfig appConfig, long showId, Show show) {
     		this.appConfig = appConfig;
+    		this.showId = showId;
     		this.show = show;
     	}
     	synchronized public boolean hasThread() {
@@ -89,9 +92,11 @@ public class AppConfig extends AppConfigBase {
     				throw new IllegalStateException("Cannot create thread when appConfigState=" + appConfig.appConfigState);
     			}
     			showThread = new ShowThread(show);
+    			showThread.setName("show-" + showId);
     		}
     		if (showThread.getState()==State.TERMINATED) {
     			showThread = new ShowThread(show);
+    			showThread.setName("show-" + showId);
     		}
     		return showThread;
     	}
@@ -182,7 +187,7 @@ public class AppConfig extends AppConfigBase {
 		Map dmxProperties = PropertyParser.restrict(this, "dmxDevice", true);
 		Class dmxClass = Class.forName(dmxClassname);
 		Constructor dmxConstructor = dmxClass.getConstructor(Map.class);
-		DmxDevice dmxDevice = (DmxDevice) dmxConstructor.newInstance(dmxProperties);
+		dmxDevice = (DmxDevice) dmxConstructor.newInstance(dmxProperties);
     	
 
 		String acClassname = (String) this.get("audioController.class");
@@ -236,7 +241,7 @@ public class AppConfig extends AppConfigBase {
 				Class showClass = Class.forName(showClassName);
 				Constructor constructor = showClass.getConstructor(Controller.class);
 				Show showObj = (Show) constructor.newInstance(controller);
-				showConfigs.add(new ShowConfig(this, showObj));
+				showConfigs.add(new ShowConfig(this, i, showObj));
 				shows.add(showObj);
 			}
 		}
@@ -324,6 +329,10 @@ public class AppConfig extends AppConfigBase {
 
 	public Controller getController() {
 		return controller;
+	}
+	
+	public List<ExceptionContainer.TimestampedException> getDmxDeviceExceptions() {
+		return dmxDevice.getExceptions();
 	}
 
 
