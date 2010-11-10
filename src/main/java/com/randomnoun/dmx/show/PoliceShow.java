@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.Map;
 
 import com.randomnoun.dmx.Controller;
-import com.randomnoun.dmx.scripted.MiniWashFixtureDef12.MiniWashFixtureController;
+import com.randomnoun.dmx.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
 
 public class PoliceShow extends Show {
 

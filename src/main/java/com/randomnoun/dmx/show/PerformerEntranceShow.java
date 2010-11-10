@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
-import com.randomnoun.dmx.scripted.MiniWashFixtureDef12.MiniWashFixtureController;
+import com.randomnoun.dmx.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
 
 /** Flash the lights and play 'smooth criminal'.
  * 

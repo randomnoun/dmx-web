@@ -9,7 +9,7 @@ import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.Fixture;
 import com.randomnoun.dmx.FixtureController;
-import com.randomnoun.dmx.scripted.MiniWashFixtureDef12.MiniWashFixtureController;
+import com.randomnoun.dmx.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
 
 /** The spotlight show throws all lights to 100% white, moves them
  * to point to the front of the stage, and cuts the audio.
