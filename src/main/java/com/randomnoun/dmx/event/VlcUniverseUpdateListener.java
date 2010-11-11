@@ -34,6 +34,19 @@ import com.randomnoun.dmx.event.MuxValueDumper.MuxValueDumperThread;
  * 
  * vlc --extraintf rc --rc-host="localhost:9999" --sub-filter=marq@my_marq .....
 
+ * see http://forum.videolan.org/viewtopic.php?f=7&t=78542
+ * 
+ *
+ * Start should be something like
+
+    vlc.exe -I rc --sub-filter=marq@something{marquee=$t ($P%%),color=16776960}:marq@something2{marquee=%H:%m%s,position=6} somevideo.avi
+
+then you can change the first text with command
+    @something marq-marquee new_text
+
+and the second with
+    @something2 marq-marquee new_text2
+
 and in a shell script
 
     #!/bin/bash
@@ -105,12 +118,13 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 					
 					
 					try {
+						logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
 						Socket vlcSocket = new Socket();
 						vlcSocket.connect(new InetSocketAddress(mvd.address, mvd.vlcPort));
 						OutputStream os = vlcSocket.getOutputStream();
 						// see syntax at http://forum.videolan.org/viewtopic.php?f=7&t=57094
 						PrintWriter pw = new PrintWriter(os);
-						pw.println("@my_marq marq-marquee " + dmxOutput + "\n" +
+						pw.println("@text marq-marquee " + dmxOutput + "\n" +
                           "logout\n");
 						pw.flush();
 						os.close();
