@@ -31,22 +31,8 @@
     <link rel="shortcut icon" href="image/favicon.png" />
 
     <!-- CSS -->
-    <link href="stylesheets/stocktake-site.css" media="all" rel="stylesheet" type="text/css" />
-    <link href="stylesheets/stocktake-print.css" media="print" rel="stylesheet" type="text/css" />
-    <!--[if IE]><link href="/stylesheets/ie.css" rel="stylesheet" type="text/css" media="screen" /><![endif]-->
-    <!--[if lt IE 8]><link href="/stylesheets/ie7.css" rel="stylesheet" type="text/css" media="screen" /><![endif]-->
-    <!--[if lt IE 7]><link href="/stylesheets/ie6.css" rel="stylesheet" type="text/css" media="screen" /><![endif]-->
-    
     <!-- JavaScript -->
-    <script src="../mjs?js=prototype,scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,facebox" type="text/javascript"></script>
-    <script src="js/dmx.js" type="text/javascript"></script>
     
-    <!--[if IE 6]>
-    <script type="text/javascript" src="/javascripts/DD_belatedPNG_0.0.8a.js"></script>
-    <script type="text/javascript">
-      DD_belatedPNG.fix('#button_login, #button_start_an_auction_now,   #button_feedback,   #feedback_panel, #feedback_panel .head, #feedback_panel .body,  .btn_generic_clear, .btn_generic_clear span, .more, #process span, .button, .button span');
-    </script>
-    <![endif]-->
 
 <style>
 #controller { font-size: 8pt; font-family: Arial;}

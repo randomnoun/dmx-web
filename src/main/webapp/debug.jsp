@@ -423,35 +423,17 @@ You do not have sufficient permissions to view this tab.
   </table>
   </dt:tab>
 
-  <dt:tab id="webClient" label="WebClient" href="debug.html?debugTab=webClient" >
+  <dt:tab id="webClient" label="DMX" href="debug.html?debugTab=dmx" >
 <form action="debug.html" method="post">
   <div class="helptext">
-  <input type="hidden" name="debugTab" value="webClient" />
-  <b>WebClient Log</b>
-  <input type="submit" name="clearWebClientLog" value="Clear" />
+  <input type="hidden" name="debugTab" value="dmx" />
+  <b>DMX stuff</b>
   </div>
 </form>  
-  <table class="helptext" style="vertical-align: top;" >
-  <col style="width: 150px" />
-  <col style="width: 200px" />
-  <col style="width: 150px" />
-  <col style="width: 100%" />
-  <c:forEach var="event" items="${events}" varStatus="status">
-    <tr>
-    <td nowrap valign="top"><c:out value="${event.id}"/></td>
-    <td nowrap valign="top"><fmt:formatDate value="${event.requestTime}" type="BOTH" dateStyle="SHORT" timeStyle="DEFAULT" /></td>
-    <td valign="top"  class="responseCode<c:out value='${event.responseCode}'/>">
-      <c:out value="${event.responseCode}" /></td>
-    <td valign="top"><a href="../misc/htmlTidy.do?action=showWebClient&webClientId=<c:out value='${event.id}'/>"><c:out value="${event.requestMethod}" /> <c:out value="${event.requestURI}" /></a>
-      <c:if test="${! empty event.error}">
-        <br/><a href="javascript:void();" onclick="x = document.getElementById('E_<c:out value='${status.index}'/>').style; x.display = (x.display=='block' ? 'none' : 'block');">Error</a>
-        <span id="E_<c:out value='${status.index}'/>" style="display:none">
-        <br/><pre><c:out value="${event.error}" /></pre>
-        </span>  
-      </c:if>
-    </td>
-  </c:forEach>
-  </table>
+
+
+
+
   </dt:tab>
 
 
