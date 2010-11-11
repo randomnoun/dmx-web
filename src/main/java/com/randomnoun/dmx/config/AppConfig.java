@@ -79,9 +79,6 @@ public class AppConfig extends AppConfigBase {
     /** DMX device reference */
     private DmxDevice dmxDevice;
     
-    /** Update listener for this application */
-    private UniverseUpdateListener dmxDeviceUniverseUpdateListener;
-
     public enum AppConfigState { UNINITIALISED, RUNNING, STOPPING, STOPPED };
     
     private AppConfigState appConfigState = AppConfigState.UNINITIALISED;
@@ -271,13 +268,15 @@ public class AppConfig extends AppConfigBase {
 		controller.setUniverse(universe);
 		controller.setAudioController(audioController);
 		
-		dmxDeviceUniverseUpdateListener = dmxDevice.getUniverseUpdateListener();
-		universe.addListener(dmxDeviceUniverseUpdateListener);
-		dmxDeviceUniverseUpdateListener.startThread();
+		UniverseUpdateListener updateListener = dmxDevice.getUniverseUpdateListener(); 
+		universe.addListener(updateListener);
+		updateListener.startThread();
 		
 		if (getProperty("dev.vlc.host")!=null) {
-			universe.addListener(new VlcUniverseUpdateListener(
-				getProperty("dev.vlc.host"), getProperty("dev.vlc.port")));
+			updateListener = new VlcUniverseUpdateListener(
+					getProperty("dev.vlc.host"), getProperty("dev.vlc.port"));
+			universe.addListener(updateListener);
+			updateListener.startThread();
 		}
 		
     }
@@ -537,10 +536,9 @@ public class AppConfig extends AppConfigBase {
     	if (audioController!=null) { audioController.close(); }
     	
     	// @TODO could possibly even reset the controller before doing this
-    	
-    	if (dmxDeviceUniverseUpdateListener!=null) {
-    		dmxDeviceUniverseUpdateListener.stopThread();
-    	}
+    	// will also stop listener threads
+    	controller.getUniverse().stopListeners();
+    	controller.getUniverse().removeListeners();
     	if (dmxDevice!=null) {
 			dmxDevice.close();
 			// @TODO dump any exceptions in the device's ExceptionContainer interface

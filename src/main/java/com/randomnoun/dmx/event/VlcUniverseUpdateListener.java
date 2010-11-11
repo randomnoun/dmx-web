@@ -133,7 +133,7 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 	
 	public void onEvent(DmxUpdateEvent event) {
 		dmxState[event.getDmxChannel()] = event.getValue();
-		t.hasChanges = true;
+		if (t!=null) { t.hasChanges = true; }
 	}
 	
 	public void startThread() {

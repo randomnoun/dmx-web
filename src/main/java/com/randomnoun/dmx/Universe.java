@@ -76,6 +76,16 @@ public class Universe {
 	public void removeListener(UniverseUpdateListener listener) {
 		listeners.remove(listener);
 	}
+	
+	public void stopListeners() {
+		for (UniverseUpdateListener listener : listeners) {
+			listener.stopThread();
+		}
+	}
+	
+	public void removeListeners() {
+		listeners.clear();
+	}
 	// @TODO remove and stop all listeners method
 	
 }
