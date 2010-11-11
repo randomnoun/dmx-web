@@ -52,6 +52,10 @@ public class Universe {
 		}
 	}
 	
+	public int[] getAllDmxChannelValues() {
+		return dmxValues; // @TODO clone this
+	}
+	
 	public void setTimeSource(TimeSource timeSource) {
 		this.timeSource = timeSource;
 	}
@@ -72,6 +76,6 @@ public class Universe {
 	public void removeListener(UniverseUpdateListener listener) {
 		listeners.remove(listener);
 	}
-	
+	// @TODO remove and stop all listeners method
 	
 }
