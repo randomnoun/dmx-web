@@ -33,6 +33,7 @@ import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
+import com.randomnoun.dmx.event.VlcUniverseUpdateListener;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.ShowThread;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
@@ -87,6 +88,9 @@ public class AppConfig extends AppConfigBase {
     
     /** Script context containing scripted fixture definitions, fixtures, and shows */
     private ScriptContext scriptContext;
+    
+    /** Accumulated events to broadcast to HTTP clients */
+    //private CometEventManager cometEventManager;
     
     // @TODO keep track of which shows require which fixtures,
     //   prevent shows from running which may have resource conflicts
@@ -176,6 +180,7 @@ public class AppConfig extends AppConfigBase {
 	        newInstance.initController();
 	        newInstance.loadFixtures(newInstance.getScriptContext(), newInstance.getController());
 	        newInstance.loadShowConfigs(newInstance.getScriptContext(), true);
+	        //newInstance.initCometEventManager();
 
 	        newInstance.appConfigState = AppConfigState.RUNNING;
 	        logger.info("appConfig now in " + newInstance.appConfigState + " state");
@@ -214,6 +219,12 @@ public class AppConfig extends AppConfigBase {
         this.scriptContext = getScriptEngine().getContext();
         //engine.eval("print('Hello, World')");
     }
+    
+    /*
+    private void initCometEventManager() {
+    	cometEventManager = new CometEventManager();
+    }
+    */
     
     // @TODO cache this ?
     public ScriptEngine getScriptEngine() {
@@ -263,6 +274,12 @@ public class AppConfig extends AppConfigBase {
 		dmxDeviceUniverseUpdateListener = dmxDevice.getUniverseUpdateListener();
 		universe.addListener(dmxDeviceUniverseUpdateListener);
 		dmxDeviceUniverseUpdateListener.startThread();
+		
+		if (getProperty("dev.vlc.host")!=null) {
+			universe.addListener(new VlcUniverseUpdateListener(
+				getProperty("dev.vlc.host"), getProperty("dev.vlc.port")));
+		}
+		
     }
     
     public void loadFixtures(ScriptContext fixtureScriptContext, Controller fixtureController) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
@@ -362,15 +379,16 @@ public class AppConfig extends AppConfigBase {
 				Map showProperties = (Map) showsFromProperties.get(i);
 				String showClassName = (String) showProperties.get("class");
 				Class showClass = Class.forName(showClassName);
-				Constructor constructor = showClass.getConstructor(Controller.class, Map.class);
+				Constructor constructor = showClass.getConstructor(long.class, Controller.class, Map.class);
 				String onCompleteShowId = (String) showProperties.get("onCompleteShowId");
 				String onCancelShowId = (String) showProperties.get("onCancelShowId");
 				String name = (String) showProperties.get("name");
-				Show showObj = (Show) constructor.newInstance(controller, showProperties);
+				long id = shows.size();
+				Show showObj = (Show) constructor.newInstance(id, controller, showProperties);
 				if (onCompleteShowId!=null) { showObj.setOnCompleteShowId(Long.parseLong(onCompleteShowId)); }
 				if (onCancelShowId!=null) { showObj.setOnCancelShowId(Long.parseLong(onCancelShowId)); }
 				if (!Text.isBlank(name)) { showObj.setName(name); }
-
+				
 				showConfigs.add(new ShowConfig(this, i, showObj));
 				shows.add(showObj);
 			}
@@ -413,11 +431,11 @@ public class AppConfig extends AppConfigBase {
 				ShowTO showTO = (ShowTO) showsFromDatabase.get(i);
 				long showDefId = showTO.getShowDefId();
 				Class showClass = (Class) scriptedShowDefs.get(showDefId);
-				if (showTO==null) {
-					logger.error("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no fixtureDef found with id ' " + showDefId + "'");
+				if (showClass==null) {
+					logger.error("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no show found with id ' " + showDefId + "'");
 				} else {
 					logger.debug("Creating scripted show '" + showTO.getName() + "' from database");
-					Constructor constructor = showClass.getConstructor(Controller.class, Map.class);
+					Constructor constructor = showClass.getConstructor(long.class, Controller.class, Map.class);
 					Map showProperties = new HashMap();
 					//if (showTO.getOnCompleteShowId()!=null) { showProperties.put("onCompleteShowId", showTO.getOnCompleteShowId().toString()); }
 					//if (showTO.getOnCancelShowId()!=null) { showProperties.put("onCancelShowId", showTO.getOnCancelShowId().toString()); }
@@ -426,7 +444,9 @@ public class AppConfig extends AppConfigBase {
 					Show showObj;
 					try {
 						if (addToAppConfig) {
-							showObj = (Show) constructor.newInstance(controller, showProperties);
+							// @TODO get id from id column of DB
+							long id = shows.size();
+							showObj = (Show) constructor.newInstance(id, controller, showProperties);
 							if (showTO.getOnCompleteShowId()!=null) { showObj.setOnCompleteShowId(showTO.getOnCompleteShowId().longValue()); }
 							if (showTO.getOnCancelShowId()!=null) { showObj.setOnCancelShowId(showTO.getOnCancelShowId().longValue()); }
 							if (!Text.isBlank(showTO.getName())) { showObj.setName(showTO.getName()); }
@@ -464,8 +484,8 @@ public class AppConfig extends AppConfigBase {
     	}
     }
     
-    public void cancelShow(int showId) {
-    	ShowConfig showConfig = showConfigs.get(showId);
+    public void cancelShow(long showId) {
+    	ShowConfig showConfig = showConfigs.get((int) showId);
     	ShowThread thread = showConfig.getThread();
     	if (thread.isAlive()) {
     		// @TODO cancel & restart show ?
