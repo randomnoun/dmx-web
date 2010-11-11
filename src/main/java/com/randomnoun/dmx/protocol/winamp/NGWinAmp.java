@@ -3,6 +3,7 @@ package com.randomnoun.dmx.protocol.winamp;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
@@ -539,13 +540,18 @@ public class NGWinAmp {
 			//logger.debug("postsleep");
 			
 			// buffer size should be size + 32
+
+			// allow one retry
 			try {
 				curcode = dataInput.readInt();   // 4 bytes. Why doesn't this block ??
 			} catch (java.net.SocketException se) {
 				// java.net.SocketException: Software caused connection abort: recv failed
-
-				// allow one retry
 				logger.info("Socket exception reading NGwinamp data - retrying");
+				this.disconnect();
+				this.connect();
+				curcode = dataInput.readInt();
+			} catch (EOFException eof) {
+				logger.info("EOF exception reading NGwinamp data - retrying");
 				this.disconnect();
 				this.connect();
 				curcode = dataInput.readInt();
