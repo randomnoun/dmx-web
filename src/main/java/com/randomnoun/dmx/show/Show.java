@@ -26,8 +26,8 @@ public abstract class Show {
 	long startTime;
 	Object sleepMonitor;
 	Map properties;
-	long onCancelShowId;
-	long onCompleteShowId;
+	long onCancelShowId = -1;
+	long onCompleteShowId = -1;
 	Exception lastException;
 	
 	protected Show(Controller controller, String name, long length, Map properties) {
