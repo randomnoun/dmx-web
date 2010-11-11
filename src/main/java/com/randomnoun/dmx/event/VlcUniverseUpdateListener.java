@@ -11,6 +11,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.randomnoun.dmx.Fixture;
 import com.randomnoun.dmx.FixtureDef;
 import com.randomnoun.dmx.FixtureOutput;
@@ -43,6 +45,8 @@ and in a shell script
     @author knoxg
  */
 public class VlcUniverseUpdateListener implements UniverseUpdateListener {
+
+	static Logger logger = Logger.getLogger(VlcUniverseUpdateListener.class);
 	
 	VlcUpdateThread t = null;
 	
@@ -138,8 +142,12 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 	
 	public void startThread() {
 		if (t!=null) { throw new IllegalStateException("Thread already started"); }
-		t = new VlcUpdateThread(this);
-		t.start();
+		if (fixture==null) { 
+			logger.error("No fixture set; thread not started");
+		} else {
+			t = new VlcUpdateThread(this);
+			t.start();
+		}
 	}
 	
 	public void stopThread() {

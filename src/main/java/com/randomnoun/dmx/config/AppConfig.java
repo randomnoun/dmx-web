@@ -273,8 +273,10 @@ public class AppConfig extends AppConfigBase {
 		updateListener.startThread();
 		
 		if (getProperty("dev.vlc.host")!=null) {
+			// hard-coding fixture name in for debugging
 			updateListener = new VlcUniverseUpdateListener(
 					getProperty("dev.vlc.host"), getProperty("dev.vlc.port"));
+			((VlcUniverseUpdateListener) updateListener).setFixture(controller.getFixtureByName("leftWash")); 
 			universe.addListener(updateListener);
 			updateListener.startThread();
 		}
