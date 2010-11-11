@@ -6,9 +6,17 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TooManyListenersException;
+
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
+import bsh.engine.BshScriptEngineFactory;
 
 import com.randomnoun.common.PropertyParser;
 import com.randomnoun.common.webapp.struts.AppConfigBase;
@@ -19,10 +27,14 @@ import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.Fixture;
 import com.randomnoun.dmx.FixtureDef;
 import com.randomnoun.dmx.Universe;
+import com.randomnoun.dmx.dao.FixtureDAO;
+import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.ShowThread;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
+import com.randomnoun.dmx.to.FixtureDefTO;
+import com.randomnoun.dmx.to.FixtureTO;
 
 import org.apache.log4j.Logger;
 
@@ -67,6 +79,9 @@ public class AppConfig extends AppConfigBase {
     public enum AppConfigState { UNINITIALISED, RUNNING, STOPPING, STOPPED };
     
     private AppConfigState appConfigState = AppConfigState.UNINITIALISED;
+    
+    /** Script context containing scripted fixture definitions, fixtures, and shows */
+    private ScriptContext scriptContext;
     
     // @TODO keep track of which shows require which fixtures,
     //   prevent shows from running which may have resource conflicts
@@ -152,6 +167,7 @@ public class AppConfig extends AppConfigBase {
 	        newInstance.initLogger();      // logger depends on properties
 	        newInstance.initDatabase();    // db settings also depend on properties
 	        newInstance.initSecurityContext();
+	        newInstance.initScriptContext();
 	        newInstance.initController();
 	        newInstance.initShowConfigs();
 	        newInstance.appConfigState = AppConfigState.RUNNING;
@@ -187,6 +203,25 @@ public class AppConfig extends AppConfigBase {
         return instance;
     }
     
+    private void initScriptContext() {
+        this.scriptContext = getScriptEngine().getContext();
+        //engine.eval("print('Hello, World')");
+    }
+    
+    // @TODO cache this ?
+    public ScriptEngine getScriptEngine() {
+    	ScriptEngineManager factory = new ScriptEngineManager();
+        factory.registerEngineName("Beanshell", new BshScriptEngineFactory());
+        ScriptEngine scriptEngine = factory.getEngineByName("Beanshell");
+        return scriptEngine;
+    }
+    
+    public ScriptContext getScriptContext() {
+    	return scriptContext;
+    }
+    
+    
+    
     private void initController() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 
     	Universe universe = new Universe();
@@ -198,7 +233,7 @@ public class AppConfig extends AppConfigBase {
 
 		String dmxClassname = (String) this.get("dmxDevice.class");
 		if (dmxClassname==null) {
-			dmxClassname = "com.randomnoun.dmx.protocol.nullDevice.NullAudioController";
+			dmxClassname = "com.randomnoun.dmx.protocol.nullDevice.NullDmxDevice";
 		}
 		Map dmxProperties = PropertyParser.restrict(this, "dmxDevice", true);
 		Class dmxClass = Class.forName(dmxClassname);
@@ -219,13 +254,20 @@ public class AppConfig extends AppConfigBase {
 		controller.setUniverse(universe);
 		controller.setAudioController(audioController);
 		
+		loadFixtures();
 		
-		List fixtures = (List) get("fixtures");
-		if (fixtures == null || fixtures.size()==0) {
-			logger.warn("No fixtures in appConfig");
+		dmxDeviceUniverseUpdateListener = dmxDevice.getUniverseUpdateListener();
+		universe.addListener(dmxDeviceUniverseUpdateListener);
+		dmxDeviceUniverseUpdateListener.startThread();
+    }
+    
+    private void loadFixtures() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		List fixturesFromProperties = (List) get("fixtures");
+		if (fixturesFromProperties == null || fixturesFromProperties.size()==0) {
+			logger.warn("No fixtures in appConfig properties");
 		} else {
-			for (int i=0; i<fixtures.size(); i++) {
-				Map fixture = (Map) fixtures.get(i);
+			for (int i = 0; i < fixturesFromProperties.size(); i++) {
+				Map fixture = (Map) fixturesFromProperties.get(i);
 				String fixtureClass = (String) fixture.get("class");
 				String name = (String) fixture.get("name");
 				String dmxOffset = (String) fixture.get("dmxOffset");
@@ -234,14 +276,75 @@ public class AppConfig extends AppConfigBase {
 				if (fixtureDef.getNumDmxChannels()<=0) {
 					logger.error("Fixture " + i + " has no DMX channels");
 				}
-				Fixture fixtureObj = new Fixture(name, fixtureDef, universe, Integer.parseInt(dmxOffset));
+				Fixture fixtureObj = new Fixture(name, fixtureDef, controller.getUniverse(), Integer.parseInt(dmxOffset));
 				controller.addFixture(fixtureObj);
 			}
 		}
 		
-		dmxDeviceUniverseUpdateListener = dmxDevice.getUniverseUpdateListener();
-		universe.addListener(dmxDeviceUniverseUpdateListener);
-		dmxDeviceUniverseUpdateListener.startThread();
+		
+		Map scriptedFixtureDefs = new HashMap(); // id -> scripted fixtureDef instance
+		FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(getJdbcTemplate());
+		List fixtureDefsFromDatabase = fixtureDefDAO.getFixtureDefs(null);
+		if (fixtureDefsFromDatabase == null || fixtureDefsFromDatabase.size()==0) {
+			logger.warn("No fixture definitions in database");
+		} else {
+			for (int i = 0; i < fixtureDefsFromDatabase.size(); i++) {
+				FixtureDefTO fixtureDef = (FixtureDefTO) fixtureDefsFromDatabase.get(i);
+				// @TODO load this into a separate evaluation context first ?
+				// (what about dependencies between fixtureDef objects) ?
+				try {
+					logger.debug("Loading scripted fixtureDef '" + fixtureDef.getName() + "' from database");
+					getScriptEngine().eval(fixtureDef.getScript(), getScriptContext());
+					// @TODO validate that the scriptContext now contains a 
+					// fixture definition of the class specified in the FixtureDefTO
+					// @TODO maybe scope the instance here so that it doesn't clobber any other global 'instance' instance
+					String testScript =
+						"import com.randomnoun.dmx.FixtureDef;\n" +
+						"import " + fixtureDef.getClassName() + ";\n" +
+						"return new " + fixtureDef.getClassName() + "();\n" ;
+						//"instance = null;\n";
+					// wonder if there's any chance of this working ?
+					// presume I need to unbox it from some scripted object container
+					// if indeed that's possible at all
+					Object instance = (Object) getScriptEngine().eval(testScript, getScriptContext());
+					if (instance instanceof FixtureDef) {
+						scriptedFixtureDefs.put(fixtureDef.getId(), instance);
+					} else {
+						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getClassName() + "' does not extend com.randomnoun.dmx.FixtureDef"); 
+					}
+				} catch (ScriptException se) {
+					logger.error("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", se);
+				}
+			}
+		}
+
+		List fixturesFromDatabase = new FixtureDAO(getJdbcTemplate()).getFixtures(null);
+		if (fixturesFromDatabase == null || fixturesFromDatabase.size()==0) {
+			logger.warn("No fixture definitions in database");
+		} else {
+			for (int i = 0; i < fixturesFromDatabase.size(); i++) {
+				FixtureTO fixtureTO = (FixtureTO) fixturesFromDatabase.get(i);
+				// load this into an evaluation context
+				//try {
+					long fixtureDefId = fixtureTO.getFixtureDefId();
+					FixtureDef fixtureDef = (FixtureDef) scriptedFixtureDefs.get(fixtureDefId);
+					if (fixtureDef==null) {
+						logger.error("Error whilst creating fixture " + fixtureTO.getId() + ": '" + fixtureTO.getName() + "'; no fixtureDef found with id ' " + fixtureDefId + "'");
+					} else {
+						logger.debug("Creating scripted fixture '" + fixtureTO.getName() + "' at dmxOffset + " + fixtureTO.getDmxOffset() + " from database");
+						Fixture fixture = new Fixture(fixtureTO.getName(), 
+							fixtureDef, // some kind of script proxy fixtureDef
+							controller.getUniverse(), (int) fixtureTO.getDmxOffset());
+						controller.addFixture(fixture);
+					}
+				//} catch (ScriptException se) {
+				//	logger.error("Error evaluating script for fixture " + fixtureTO.getId() + ": '" + fixtureDef.getName() + "'");
+				//}
+			}
+		}
+		
+
+		
     }
     
     private void initShowConfigs() throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
