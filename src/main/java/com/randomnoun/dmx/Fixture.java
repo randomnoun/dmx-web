@@ -59,7 +59,9 @@ public class Fixture {
 
 	public void setDmxChannelValue(int offset, int value) {
 		universe.setDmxChannelValue(startDmxChannel + offset, value);
-		
+	}
+	public int getStartDmxChannel() {
+		return startDmxChannel;
 	}
 
 	/** Sets the color of this fixture to the supplied color.
