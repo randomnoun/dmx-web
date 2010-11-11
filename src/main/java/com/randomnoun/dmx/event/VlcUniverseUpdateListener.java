@@ -77,12 +77,11 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 		Fixture fixture;
 		FixtureDef fixtureDef;
 		
-		
-		
 		public VlcUpdateThread(VlcUniverseUpdateListener vuul) {
 			this.mvd = vuul;
 			fixture = vuul.fixture;
 			fixtureDef = vuul.fixture.getFixtureDef();
+			this.setName(getName() + "-VlcUniverseUpdateListener");
 		}
 		
 		public void run() {

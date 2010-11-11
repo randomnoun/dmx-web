@@ -34,6 +34,7 @@ public class MuxValueDumper implements UniverseUpdateListener {
 		
 		public MuxValueDumperThread(MuxValueDumper mvd) {
 			this.mvd = mvd;
+			this.setName(getName() + "-MuxValueDumper");
 		}
 		
 		public void run() {

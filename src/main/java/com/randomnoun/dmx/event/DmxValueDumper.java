@@ -22,6 +22,7 @@ public class DmxValueDumper implements UniverseUpdateListener {
 		
 		public DmxValueDumperThread(DmxValueDumper dvd) {
 			this.dvd = dvd;
+			this.setName(getName() + "-DmxValueDumper");
 		}
 		
 		public void run() {
