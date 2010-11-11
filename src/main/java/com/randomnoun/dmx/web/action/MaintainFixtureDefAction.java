@@ -257,6 +257,7 @@ public class MaintainFixtureDefAction
         return errors;
     }
     
+    /** Returns the *first* class defined in the script */
     public String getClassName(String script) {
     	Parser parser = new Parser(new StringReader(script));
     	String packageName = null;
@@ -270,14 +271,15 @@ public class MaintainFixtureDefAction
 				} else if (node instanceof BSHClassDeclaration) {
 					BSHClassDeclaration classNode = (BSHClassDeclaration) node;
 					className = classNode.getName();
+					if (packageName == null) { return className; }
+					return packageName + "." + className;
 				}
 			}
 		} catch (bsh.ParseException e) {
 			throw new IllegalArgumentException("Invalid script", e);
 		}
 		if (className == null) { throw new IllegalArgumentException("No script defined"); }
-		if (packageName == null) { return className; }
-		return packageName + "." + className;
+		throw new IllegalStateException("Internal error (non-null className)");  // This codepath can't execute
     }
     
 }
