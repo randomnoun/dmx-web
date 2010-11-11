@@ -1,4 +1,4 @@
-CREATE TABLE `comedy_dev`.`fixtureDef` (
+CREATE TABLE `fixtureDef` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(100) NOT NULL,
   `className` VARCHAR(100) NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE `comedy_dev`.`fixtureDef` (
 ENGINE = InnoDB;
 
 
-CREATE TABLE `comedy_dev`.`fixture` (
+CREATE TABLE `fixture` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `fixtureDefId` INTEGER UNSIGNED NOT NULL,
   `name` VARCHAR(100),
@@ -17,7 +17,7 @@ CREATE TABLE `comedy_dev`.`fixture` (
 )
 ENGINE = InnoDB;
 
-CREATE TABLE `comedy_dev`.`showDef` (
+CREATE TABLE `showDef` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(100) NOT NULL,
   `className` VARCHAR(100) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE `comedy_dev`.`showDef` (
 )
 ENGINE = InnoDB;
 
-CREATE TABLE `comedy_dev`.`show` (
+CREATE TABLE `show` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `showDefId` INTEGER UNSIGNED NOT NULL,
   `name` VARCHAR(100) NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE `comedy_dev`.`show` (
 )
 ENGINE = InnoDB;
 
-CREATE TABLE `comedy_dev`.`showProperty` (
+CREATE TABLE `showProperty` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `showId` INTEGER UNSIGNED NOT NULL,
   `key` VARCHAR(100) NOT NULL,
