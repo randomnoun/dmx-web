@@ -1,12 +1,15 @@
 package com.randomnoun.dmx.web.action;
 
 import java.io.StringReader;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -30,8 +33,10 @@ import com.randomnoun.common.ErrorList;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
+import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.ShowDefDAO;
+import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.to.ShowDefTO;
 
 /**
@@ -105,14 +110,19 @@ public class MaintainShowDefAction
     		long lngId = Long.parseLong((String) showDefMap.get("id"));
     		String txtName = (String) showDefMap.get("name");
     		String txtScript = (String) showDefMap.get("script");
-    		errors.addErrors(validateScript(txtScript));
+    		String className = null;
+    		errors.addErrors(validateScriptSyntax(txtScript));
+    		if (!errors.hasErrors()) {
+    			className = getClassName(txtScript);
+    			errors.addErrors(validateScriptInstance(txtScript, className));
+    		}
     		if (errors.hasErrors()) {
     			Struct.setFromRequest(form, request);
     			request.setAttribute("showDef", form.get("showDef"));
     		} else {
     			showDef = new ShowDefTO();
     			Struct.setFromMap(showDef, showDefMap, false, true, false);
-    			showDef.setClassName(getClassName(showDef.getScript()));
+    			showDef.setClassName(className);
 	    		if (lngId==-1) {
 	    			showDefDAO.createShowDef(showDef);
 	    			errors.addError("Show created", "Show definition created", ErrorList.SEVERITY_OK);
@@ -265,7 +275,7 @@ public class MaintainShowDefAction
 		public long getColumnNumber() { return columnNumber; }
     }
     
-    private ErrorList validateScript(String script) {
+    private ErrorList validateScriptSyntax(String script) {
     	ErrorList errors = new ErrorList();
     	Parser parser = new Parser(new StringReader(script));
     	try {
@@ -287,7 +297,7 @@ public class MaintainShowDefAction
 			}
 			e.printStackTrace();
 		}
-    	
+		
         //ScriptEngineManager factory = new ScriptEngineManager();
         //factory.registerEngineName("Beanshell", new BshScriptEngineFactory());
         //ScriptEngine engine = factory.getEngineByName("Beanshell");
@@ -318,5 +328,43 @@ public class MaintainShowDefAction
 		return packageName + "." + className;
     }
     
+    public ErrorList validateScriptInstance(String script, String className) {
+    	ErrorList errors = new ErrorList();
+    	AppConfig appConfig = AppConfig.getAppConfig();
+		Show showObj;
+		try {
+			Controller testController = new Controller();
+			ScriptEngine scriptEngine = appConfig.getScriptEngine();
+			ScriptContext scriptContext = scriptEngine.getContext();
+			appConfig.loadFixtures(scriptContext, testController);
+			scriptEngine.eval(script, scriptContext);
+			String testScript =
+				"import com.randomnoun.dmx.Show;\n" +
+				"import " + className + ";\n" +
+				"return " + className + ".class;\n" ;
+			Class clazz = (Class) scriptEngine.eval(testScript, scriptContext);
+			if (!Show.class.isAssignableFrom(clazz)) {
+				errors.addError("script", "Invalid class", "Class " + className + " does not extend com.randomnoun.dmx.Show"); 
+			} else {
+				Map nullProperties = new HashMap();
+				Constructor constructor = clazz.getConstructor(Controller.class, Map.class);
+				showObj = (Show) constructor.newInstance(testController, nullProperties);
+			}
+		} catch (Exception e) {
+			logger.error("Exception validating scripted show", e);
+			errors.addError("script", "Invalid class", "Error whilst instantiating show: " + getStackSummary(e));
+		}
+    	return errors;
+    }
+    
+    public String getStackSummary(Throwable e) {
+    	String summary = "";
+    	while (e!=null) {
+    		summary += "(" + e.getClass().getName() + ")";
+    		if (!Text.isBlank(e.getMessage())) { summary += " " + e.getMessage(); }
+    		e = e.getCause();
+    	}
+    	return summary;
+    }
 }
 
