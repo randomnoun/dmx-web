@@ -37,13 +37,12 @@ public abstract class Show {
 		this.cancelled = false;
 		this.lastException = null;
 		this.properties = properties;
-		onCancelShowId = parsePropertyLong(properties, "onCancelShowId");
-		onCompleteShowId = parsePropertyLong(properties, "onCancelShowId");
-		String nameOverride = (String) properties.get("name");
-		if (nameOverride!=null) { name = nameOverride; }
-		
 		sleepMonitor = new Object();
 	}
+	
+	public void setName(String name) { this.name = name; }
+	public void setOnCancelShowId(long onCancelShowId) { this.onCancelShowId = onCancelShowId; }
+	public void setOnCompleteShowId(long onCompleteShowId) { this.onCompleteShowId = onCompleteShowId; }
 	
 	private long parsePropertyLong(Map properties, String key) {
 		String value = (String) properties.get(key);
