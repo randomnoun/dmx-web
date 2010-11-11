@@ -148,9 +148,10 @@ public class MaintainShowAction
     	public Map readShows(Map request) {
 			Map form = new HashMap();
 			List shows = getShows();
-			form.put("showDefs", getShowDefs());
 			form.put("shows", shows);
 			form.put("shows_size", shows.size());
+			form.put("showDefs", getShowDefs());
+			form.put("followupShows", getFollowupShows());
 			return form;
     	}
     	
@@ -175,6 +176,14 @@ public class MaintainShowAction
     		ShowDefDAO showDefDAO = new ShowDefDAO(jt);
     		return showDefDAO.getShowDefs(null);
     	}
+    	
+    	public List getFollowupShows() {
+    		AppConfig appConfig = AppConfig.getAppConfig();
+    		JdbcTemplate jt = appConfig.getJdbcTemplate();
+    		ShowDAO showDAO = new ShowDAO(jt);
+    		return showDAO.getShows(null);
+    	}
+    	
    }
       
       
@@ -220,9 +229,10 @@ public class MaintainShowAction
 			//System.out.println("======================================");
 			//System.out.println(Struct.structuredListToString("rows", result.getRows()));
 			//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
-			form.put("showDefs", tableEditor.getShowDefs());
 			form.put("shows", result.getRows());
 			form.put("shows_size", result.getRows().size());
+			form.put("showDefs", tableEditor.getShowDefs());
+			form.put("followupShows", tableEditor.getFollowupShows());
 			request.setAttribute("errors", result.getErrors());
 			request.setAttribute("form", form);
 			

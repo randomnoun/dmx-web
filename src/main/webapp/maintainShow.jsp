@@ -138,16 +138,16 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
                                         <%--  <input type="hidden" name="shows[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>"> --%>
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].showDefId' text='errorBg' />"> 
-                                        <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].showDefId" value="<c:out value='${rowData.showDefId}'/>" size="10">
+                                        <r:select name="shows[${rowStatus.index}].showDefId" data="${form.showDefs}" value="${rowData.showDefId}" displayColumn="name" valueColumn="id" firstOption="(please select...)" />
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].name' text='errorBg' />"> 
-                                        <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="55">
+                                        <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="30">
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].onCompleteShowId' text='errorBg' />"> 
-                                        <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].onCompleteShowId" value="<c:out value='${rowData.onCompleteShowId}'/>" size="30">
+                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCompleteShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" />
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].onCancelShowId' text='errorBg' />"> 
-                                        <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].onCancelShowId" value="<c:out value='${rowData.onCancelShowId}'/>" size="30">
+                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCencelShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" />
                                     </td>
 
                                 </tr>
@@ -161,16 +161,16 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 	                                    <input type="hidden" name="shows[<c:out value='${rowStatus.index}'/>].cmdUpdate" value="Y">                
 	                                </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].showDefId' text='errorBg' />"> 
-                                        <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].showDefId" value="<c:out value='${rowData.showDefId}'/>" size="10">
+                                        <r:select name="shows[${rowStatus.index}].showDefId" data="${form.showDefs}" value="${rowData.showDefId}" displayColumn="name" valueColumn="id" firstOption="(please select...)" />
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].name' text='errorBg' />"> 
-                                        <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="55">
+                                        <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="30">
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].onCompleteShowId' text='errorBg' />"> 
-                                        <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].onCompleteShowId" value="<c:out value='${rowData.onCompleteShowId}'/>" size="30">
+                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCompleteShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" />
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].onCancelShowId' text='errorBg' />"> 
-                                        <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].onCancelShowId" value="<c:out value='${rowData.onCancelShowId}'/>" size="30">
+                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCancelShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" />
                                     </td>
 	                            </tr>
 	                        </c:otherwise></c:choose> 
@@ -181,10 +181,10 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 	                        <td> <div class="redrollover"> <a href="javascript:void(0)" onclick="fnDeleteRow(tblObj,<c:out value='${form.shows_size}'/>,0); return 0;"><img src="image/delete-icon.gif" width="18" height="17" border="0"></a></div>
 	                            <input type="hidden" name="shows[<c:out value='${form.shows_size}'/>].cmdUpdate" value="N">
 	                        </td>
-	                        <td><input type="text" class="formfield" name="shows[<c:out value='${form.shows_size}' />].showDefId" value="" size="55"></td>
+	                        <td><r:select name="shows[${form.shows_size}].showDefId" data="${form.showDefs}" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)" /></td>
 	                        <td><input type="text" class="formfield" name="shows[<c:out value='${form.shows_size}' />].name" value="" size="30"></td>
-	                        <td><input type="text" class="formfield" name="shows[<c:out value='${form.shows_size}' />].onCancelShowId" value="" size="30"></td>
-	                        <td><input type="text" class="formfield" name="shows[<c:out value='${form.shows_size}' />].onCompleteShowId" value="" size="30"></td>
+	                        <td><r:select style="width: 150px;" name="shows[${form.shows_size}].onCompleteShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" /></td>
+	                        <td><r:select style="width: 150px;" name="shows[${form.shows_size}].onCancelShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" /></td>
 	                    </tr>
 	                    <tr> 
 	                        <td> <div class="greenrollover"> <a href="javascript:void(0)" onclick="fnAddRow(tblObj); return 0;"><img src="image/add-icon.gif" width="18" height="17" border="0"></a></div></td>
