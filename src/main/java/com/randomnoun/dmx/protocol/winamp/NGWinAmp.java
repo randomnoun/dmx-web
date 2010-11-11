@@ -24,6 +24,9 @@ public class NGWinAmp {
 	int port;
 	int timeout;
 	
+	private boolean retryEnabled = false;
+	private String retryPassword;
+	
 	long curcode = 0;
 	long curparam1 = 0;
 	long curparam2 = 0;
@@ -109,10 +112,11 @@ public class NGWinAmp {
 	
 
 	
-	public NGWinAmp(String host, int port, int timeout) {
+	public NGWinAmp(String host, int port, int timeout, boolean retryEnabled) {
 		this.host = host;
 		this.port = port;
 		this.timeout = timeout;
+		this.retryEnabled = retryEnabled;
 	}
 	
 	public void connect() throws IOException {
@@ -131,6 +135,7 @@ public class NGWinAmp {
 	}
 	
 	public long authenticate(String password) throws IOException {
+		if (retryEnabled) { retryPassword = password; }
 		if (!ngsend(NGWINAMP_REQ_AUTH, 0, 0, 0.0, password.length(), password.getBytes())) {
 			return NGWINAMP_AUTH_FAILURE;
 		}
@@ -549,12 +554,14 @@ public class NGWinAmp {
 				logger.info("Socket exception reading NGwinamp data - retrying");
 				this.disconnect();
 				this.connect();
+				this.authenticate(retryPassword);
 				curcode = dataInput.readInt();
 			} catch (EOFException eof) {
-				logger.info("EOF exception reading NGwinamp data - retrying");
+				logger.info("EOF exception reading NGwinamp data - reconnecting");
 				this.disconnect();
 				this.connect();
-				curcode = dataInput.readInt();
+				this.authenticate(retryPassword);
+				throw new IOException("EOF exception occurred on NGwinamp read; reconnect attempted");
 			}
 
 			curparam1 = dataInput.readInt(); // 4 bytes
@@ -618,6 +625,7 @@ public class NGWinAmp {
 				logger.info("Socket exception writing NGwinamp data - retrying");
 				this.disconnect();
 				this.connect();
+				this.authenticate(retryPassword);
 				outputStream.write(buffer);
 			}
 			outputStream.flush();

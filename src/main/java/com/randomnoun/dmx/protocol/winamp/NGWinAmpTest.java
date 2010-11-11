@@ -12,7 +12,7 @@ public class NGWinAmpTest {
 	Logger logger = Logger.getLogger(NGWinAmpTest.class);
 	
 	public void testThings() throws IOException {
-		NGWinAmp winAmp = new NGWinAmp("localhost", 18443, 10000);
+		NGWinAmp winAmp = new NGWinAmp("localhost", 18443, 10000, true);
 		try {
 			winAmp.connect();
 			logger.info("authenticate: " + winAmp.authenticate("abc123"));

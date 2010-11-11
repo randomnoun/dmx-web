@@ -43,7 +43,7 @@ public class WinampAudioController extends AudioController
 			defaultPath += "/";
 		}
 		exceptionContainer = new ExceptionContainerImpl();
-		winamp = new NGWinAmp(host, port, timeout);
+		winamp = new NGWinAmp(host, port, timeout, true);
 		winamp.connect();
 		winamp.authenticate(password);
 	}
