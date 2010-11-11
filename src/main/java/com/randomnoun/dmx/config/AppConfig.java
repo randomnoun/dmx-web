@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.Thread.State;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -177,6 +178,7 @@ public class AppConfig extends AppConfigBase {
 	        newInstance.initController();
 	        newInstance.loadFixtures(newInstance.getScriptContext(), newInstance.getController());
 	        newInstance.loadShowConfigs(newInstance.getScriptContext(), true);
+	        newInstance.loadListeners();
 	        //newInstance.initCometEventManager();
 
 	        newInstance.appConfigState = AppConfigState.RUNNING;
@@ -267,19 +269,6 @@ public class AppConfig extends AppConfigBase {
 		controller = new Controller();
 		controller.setUniverse(universe);
 		controller.setAudioController(audioController);
-		
-		UniverseUpdateListener updateListener = dmxDevice.getUniverseUpdateListener(); 
-		universe.addListener(updateListener);
-		updateListener.startThread();
-		
-		if (getProperty("dev.vlc.host")!=null) {
-			// hard-coding fixture name in for debugging
-			updateListener = new VlcUniverseUpdateListener(
-					getProperty("dev.vlc.host"), getProperty("dev.vlc.port"));
-			((VlcUniverseUpdateListener) updateListener).setFixture(controller.getFixtureByName("leftWash")); 
-			universe.addListener(updateListener);
-			updateListener.startThread();
-		}
 		
     }
     
@@ -467,7 +456,27 @@ public class AppConfig extends AppConfigBase {
 				}
 			}
 		}
-
+    }
+    
+    public void loadListeners() {
+		Universe universe = controller.getUniverse();
+    	UniverseUpdateListener updateListener = dmxDevice.getUniverseUpdateListener(); 
+		universe.addListener(updateListener);
+		updateListener.startThread();
+		
+		if (getProperty("dev.vlc.host")!=null) {
+			// hard-coding fixture name in for debugging
+			try {
+				updateListener = new VlcUniverseUpdateListener(
+						getProperty("dev.vlc.host"), getProperty("dev.vlc.port"));
+				((VlcUniverseUpdateListener) updateListener).setFixture(controller.getFixtureByName("leftWash")); 
+				universe.addListener(updateListener);
+				updateListener.startThread();
+				
+			} catch (UnknownHostException e) {
+				logger.error("Could not attach VLC listener", e);
+			}
+		}
     }
     
     public List<Show> getShows() {

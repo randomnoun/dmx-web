@@ -27,6 +27,7 @@ import com.randomnoun.dmx.event.MuxValueDumper.MuxValueDumperThread;
  *
  * .vlc dshow:// "--dshow-vdev=Creative WebCam Notebook" 
  *   --sub-filter "marq{marquee=@my_marq,color=16776960}:marq{marquee=%H:%M:%S,position=6}"
+ *   --video-filter "adjust{gamma=2.0}"
  *   --extraintf rc --rc-host="localhost:9999"
  * 
  * 
