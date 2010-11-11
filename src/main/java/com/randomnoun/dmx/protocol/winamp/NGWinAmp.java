@@ -539,7 +539,18 @@ public class NGWinAmp {
 			//logger.debug("postsleep");
 			
 			// buffer size should be size + 32
-			curcode = dataInput.readInt();   // 4 bytes. Why doesn't this block ??
+			try {
+				curcode = dataInput.readInt();   // 4 bytes. Why doesn't this block ??
+			} catch (java.net.SocketException se) {
+				// java.net.SocketException: Software caused connection abort: recv failed
+
+				// allow one retry
+				logger.info("Socket exception reading NGwinamp data - retrying");
+				this.disconnect();
+				this.connect();
+				curcode = dataInput.readInt();
+			}
+
 			curparam1 = dataInput.readInt(); // 4 bytes
 			curparam2 = dataInput.readInt(); // 4 bytes
 			long zero = dataInput.readInt(); // 4 ignored bytes
@@ -593,7 +604,16 @@ public class NGWinAmp {
 				throw new IllegalStateException("buffer length (" + buffer.length + ") should be header size (32) + data length (" + data.length + ")"); 
 			}
 			logger.debug("Sending msg type " + code + ", data size=" + size + ", buffer size: " + buffer.length);
-			outputStream.write(buffer);
+			try {
+				outputStream.write(buffer);
+			} catch (java.net.SocketException se) {
+				// allow one retry
+				// java.net.SocketException: Software caused connection abort: socket write error
+				logger.info("Socket exception writing NGwinamp data - retrying");
+				this.disconnect();
+				this.connect();
+				outputStream.write(buffer);
+			}
 			outputStream.flush();
 			try { Thread.sleep(100); } catch (InterruptedException ie) { }
 			return true;
