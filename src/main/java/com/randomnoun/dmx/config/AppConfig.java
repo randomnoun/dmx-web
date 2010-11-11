@@ -19,6 +19,7 @@ import javax.script.ScriptException;
 import bsh.engine.BshScriptEngineFactory;
 
 import com.randomnoun.common.PropertyParser;
+import com.randomnoun.common.Text;
 import com.randomnoun.common.webapp.struts.AppConfigBase;
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
@@ -29,12 +30,16 @@ import com.randomnoun.dmx.FixtureDef;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
+import com.randomnoun.dmx.dao.ShowDAO;
+import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.ShowThread;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
 import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
+import com.randomnoun.dmx.to.ShowDefTO;
+import com.randomnoun.dmx.to.ShowTO;
 
 import org.apache.log4j.Logger;
 
@@ -169,7 +174,9 @@ public class AppConfig extends AppConfigBase {
 	        newInstance.initSecurityContext();
 	        newInstance.initScriptContext();
 	        newInstance.initController();
-	        newInstance.initShowConfigs();
+	        newInstance.loadFixtures(newInstance.getScriptContext(), newInstance.getController());
+	        newInstance.loadShowConfigs(newInstance.getScriptContext(), true);
+
 	        newInstance.appConfigState = AppConfigState.RUNNING;
 	        logger.info("appConfig now in " + newInstance.appConfigState + " state");
     	} catch (Throwable t) {
@@ -240,7 +247,6 @@ public class AppConfig extends AppConfigBase {
 		Constructor dmxConstructor = dmxClass.getConstructor(Map.class);
 		dmxDevice = (DmxDevice) dmxConstructor.newInstance(dmxProperties);
     	
-
 		String acClassname = (String) this.get("audioController.class");
 		if (acClassname==null) {
 			acClassname = "com.randomnoun.dmx.protocol.nullDevice.NullAudioController";
@@ -254,14 +260,12 @@ public class AppConfig extends AppConfigBase {
 		controller.setUniverse(universe);
 		controller.setAudioController(audioController);
 		
-		loadFixtures();
-		
 		dmxDeviceUniverseUpdateListener = dmxDevice.getUniverseUpdateListener();
 		universe.addListener(dmxDeviceUniverseUpdateListener);
 		dmxDeviceUniverseUpdateListener.startThread();
     }
     
-    private void loadFixtures() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public void loadFixtures(ScriptContext fixtureScriptContext, Controller fixtureController) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		List fixturesFromProperties = (List) get("fixtures");
 		if (fixturesFromProperties == null || fixturesFromProperties.size()==0) {
 			logger.warn("No fixtures in appConfig properties");
@@ -277,11 +281,14 @@ public class AppConfig extends AppConfigBase {
 					logger.error("Fixture " + i + " has no DMX channels");
 				}
 				Fixture fixtureObj = new Fixture(name, fixtureDef, controller.getUniverse(), Integer.parseInt(dmxOffset));
-				controller.addFixture(fixtureObj);
+				if (fixtureController!=null) {
+					fixtureController.addFixture(fixtureObj);
+				}
 			}
 		}
 		
 		
+		// I'm assuming all this needs to go into a separate classLoader eventually
 		Map scriptedFixtureDefs = new HashMap(); // id -> scripted fixtureDef instance
 		FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(getJdbcTemplate());
 		List fixtureDefsFromDatabase = fixtureDefDAO.getFixtureDefs(null);
@@ -294,19 +301,18 @@ public class AppConfig extends AppConfigBase {
 				// (what about dependencies between fixtureDef objects) ?
 				try {
 					logger.debug("Loading scripted fixtureDef '" + fixtureDef.getName() + "' from database");
-					getScriptEngine().eval(fixtureDef.getScript(), getScriptContext());
+					getScriptEngine().eval(fixtureDef.getScript(), fixtureScriptContext);
 					// @TODO validate that the scriptContext now contains a 
 					// fixture definition of the class specified in the FixtureDefTO
 					// @TODO maybe scope the instance here so that it doesn't clobber any other global 'instance' instance
+					
+					// @TODO is there a way to reset the import declarations specified in a scriptContext ?
 					String testScript =
 						"import com.randomnoun.dmx.FixtureDef;\n" +
 						"import " + fixtureDef.getClassName() + ";\n" +
 						"return new " + fixtureDef.getClassName() + "();\n" ;
-						//"instance = null;\n";
-					// wonder if there's any chance of this working ?
-					// presume I need to unbox it from some scripted object container
-					// if indeed that's possible at all
-					Object instance = (Object) getScriptEngine().eval(testScript, getScriptContext());
+					// @TODO check class before instantiating
+					Object instance = (Object) getScriptEngine().eval(testScript, fixtureScriptContext);
 					if (instance instanceof FixtureDef) {
 						scriptedFixtureDefs.put(fixtureDef.getId(), instance);
 					} else {
@@ -320,51 +326,127 @@ public class AppConfig extends AppConfigBase {
 
 		List fixturesFromDatabase = new FixtureDAO(getJdbcTemplate()).getFixtures(null);
 		if (fixturesFromDatabase == null || fixturesFromDatabase.size()==0) {
-			logger.warn("No fixture definitions in database");
+			logger.warn("No fixtures in database");
 		} else {
 			for (int i = 0; i < fixturesFromDatabase.size(); i++) {
 				FixtureTO fixtureTO = (FixtureTO) fixturesFromDatabase.get(i);
-				// load this into an evaluation context
-				//try {
-					long fixtureDefId = fixtureTO.getFixtureDefId();
-					FixtureDef fixtureDef = (FixtureDef) scriptedFixtureDefs.get(fixtureDefId);
-					if (fixtureDef==null) {
-						logger.error("Error whilst creating fixture " + fixtureTO.getId() + ": '" + fixtureTO.getName() + "'; no fixtureDef found with id ' " + fixtureDefId + "'");
-					} else {
-						logger.debug("Creating scripted fixture '" + fixtureTO.getName() + "' at dmxOffset + " + fixtureTO.getDmxOffset() + " from database");
-						Fixture fixture = new Fixture(fixtureTO.getName(), 
-							fixtureDef, // some kind of script proxy fixtureDef
-							controller.getUniverse(), (int) fixtureTO.getDmxOffset());
-						controller.addFixture(fixture);
+				long fixtureDefId = fixtureTO.getFixtureDefId();
+				FixtureDef fixtureDef = (FixtureDef) scriptedFixtureDefs.get(fixtureDefId);
+				if (fixtureDef==null) {
+					logger.error("Error whilst creating fixture " + fixtureTO.getId() + ": '" + fixtureTO.getName() + "'; no fixtureDef found with id ' " + fixtureDefId + "'");
+				} else {
+					logger.debug("Creating scripted fixture '" + fixtureTO.getName() + "' at dmxOffset + " + fixtureTO.getDmxOffset() + " from database");
+					Fixture fixture = new Fixture(fixtureTO.getName(), 
+						fixtureDef, 
+						controller.getUniverse(), (int) fixtureTO.getDmxOffset());
+					if (fixtureController != null) {
+						fixtureController.addFixture(fixture);
 					}
-				//} catch (ScriptException se) {
-				//	logger.error("Error evaluating script for fixture " + fixtureTO.getId() + ": '" + fixtureDef.getName() + "'");
-				//}
+				}
 			}
 		}
 		
-
-		
     }
     
-    private void initShowConfigs() throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    public void loadShowConfigs(ScriptContext showScriptContext, boolean addToAppConfig) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
     	showConfigs = new ArrayList<ShowConfig>();
     	shows = new ArrayList<Show>();
     	showExceptions = Collections.synchronizedList(new ArrayList<TimestampedShowException>());
-		List showPropertiesList = (List) get("shows");
-		if (showPropertiesList == null || showPropertiesList.size()==0) {
-			logger.warn("No shows in appConfig");
+    	
+    	
+		List showsFromProperties = (List) get("shows");
+		if (showsFromProperties == null || showsFromProperties.size()==0) {
+			logger.warn("No show definitions in appConfig");
 		} else {
-			for (int i=0; i<showPropertiesList.size(); i++) {
-				Map showProperties = (Map) showPropertiesList.get(i);
+			for (int i=0; i<showsFromProperties.size(); i++) {
+				Map showProperties = (Map) showsFromProperties.get(i);
 				String showClassName = (String) showProperties.get("class");
 				Class showClass = Class.forName(showClassName);
 				Constructor constructor = showClass.getConstructor(Controller.class, Map.class);
+				String onCompleteShowId = (String) showProperties.get("onCompleteShowId");
+				String onCancelShowId = (String) showProperties.get("onCancelShowId");
+				String name = (String) showProperties.get("name");
 				Show showObj = (Show) constructor.newInstance(controller, showProperties);
+				if (onCompleteShowId!=null) { showObj.setOnCompleteShowId(Long.parseLong(onCompleteShowId)); }
+				if (onCancelShowId!=null) { showObj.setOnCancelShowId(Long.parseLong(onCancelShowId)); }
+				if (!Text.isBlank(name)) { showObj.setName(name); }
+
 				showConfigs.add(new ShowConfig(this, i, showObj));
 				shows.add(showObj);
 			}
 		}
+		
+		// I'm assuming all this needs to go into a separate classLoader eventually
+		// @TODO see all the comments above for fixture defs
+		Map scriptedShowDefs = new HashMap(); // id -> scripted show class object
+		ShowDefDAO showDefDAO = new ShowDefDAO(getJdbcTemplate());
+		List showDefsFromDatabase = showDefDAO.getShowDefs(null);
+		if (showDefsFromDatabase == null || showDefsFromDatabase.size()==0) {
+			logger.warn("No show definitions in database");
+		} else {
+			for (int i = 0; i < showDefsFromDatabase.size(); i++) {
+				ShowDefTO showDef = (ShowDefTO) showDefsFromDatabase.get(i);
+				try {
+					logger.debug("Loading scripted show class '" + showDef.getName() + "' from database");
+					getScriptEngine().eval(showDef.getScript(), showScriptContext);
+					String testScript =
+						"import com.randomnoun.dmx.Show;\n" +
+						"import " + showDef.getClassName() + ";\n" +
+						"return " + showDef.getClassName() + ".class;\n" ;
+					Class clazz = (Class) getScriptEngine().eval(testScript, showScriptContext);
+					if (Show.class.isAssignableFrom(clazz)) {
+						scriptedShowDefs.put(showDef.getId(), clazz);
+					} else {
+						logger.error("Error processing show " + showDef.getId() + ": '" + showDef.getName() + "'; className='" + showDef.getClassName() + "' does not extend com.randomnoun.dmx.Show"); 
+					}
+				} catch (ScriptException se) {
+					logger.error("Error evaluating script for show " + showDef.getId() + ": '" + showDef.getName() + "'", se);
+				}
+			}
+		}
+
+		List showsFromDatabase = new ShowDAO(getJdbcTemplate()).getShows(null);
+		if (showsFromDatabase == null || showsFromDatabase.size()==0) {
+			logger.warn("No show instances in database");
+		} else {
+			for (int i = 0; i < showsFromDatabase.size(); i++) {
+				ShowTO showTO = (ShowTO) showsFromDatabase.get(i);
+				long showDefId = showTO.getShowDefId();
+				Class showClass = (Class) scriptedShowDefs.get(showDefId);
+				if (showTO==null) {
+					logger.error("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no fixtureDef found with id ' " + showDefId + "'");
+				} else {
+					logger.debug("Creating scripted show '" + showTO.getName() + "' from database");
+					Constructor constructor = showClass.getConstructor(Controller.class, Map.class);
+					Map showProperties = new HashMap();
+					//if (showTO.getOnCompleteShowId()!=null) { showProperties.put("onCompleteShowId", showTO.getOnCompleteShowId().toString()); }
+					//if (showTO.getOnCancelShowId()!=null) { showProperties.put("onCancelShowId", showTO.getOnCancelShowId().toString()); }
+					//if (!Text.isBlank(showTO.getName())) { showProperties.put("name", showTO.getName()); }
+					// @TODO additional properties from database
+					Show showObj;
+					try {
+						if (addToAppConfig) {
+							showObj = (Show) constructor.newInstance(controller, showProperties);
+							if (showTO.getOnCompleteShowId()!=null) { showObj.setOnCompleteShowId(showTO.getOnCompleteShowId().longValue()); }
+							if (showTO.getOnCancelShowId()!=null) { showObj.setOnCancelShowId(showTO.getOnCancelShowId().longValue()); }
+							if (!Text.isBlank(showTO.getName())) { showObj.setName(showTO.getName()); }
+							showConfigs.add(new ShowConfig(this, showTO.getId(), showObj));
+							shows.add(showObj);
+						}
+					} catch (Exception e) {
+						logger.error("Error whilst instantiating show " + showTO.getId() + ": '" + showTO.getName() + "'", e);
+					}
+					
+					/*
+					Fixture fixture = new Fixture(showTO.getName(), 
+						fixtureDef, 
+						controller.getUniverse(), (int) showTO.getDmxOffset());
+					controller.addFixture(fixture);
+					*/
+				}
+			}
+		}
+
     }
     
     public List<Show> getShows() {
