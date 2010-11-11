@@ -99,6 +99,10 @@ function newFixtureDef() {
 <table class="fixtureDef">
 <tr><td>Name:</td>
     <td><r:input type="text" name="fixtureDef.name" value="${fixtureDef.name}"/></td></tr>
+<c:if test="${fixtureDef.className != null}" >    
+<tr><td valign="top">Class:</td>
+    <td><c:out value="${fixtureDef.className}"/></td></tr>    
+</c:if>    
 <tr><td valign="top">Script:</td>
     <td><r:input type="textarea" name="fixtureDef.script" value="${fixtureDef.script}" rows="25" cols="100"/></td></tr>
 <tr><td></td>
