@@ -22,8 +22,8 @@ public class PerformerEntranceShow extends Show {
 	MiniWashFixtureController rightWash;
 	AudioController audioController;
 	
-	public PerformerEntranceShow(Controller controller, Map properties) {
-		super(controller, "Performer entrance", Long.MAX_VALUE, properties);
+	public PerformerEntranceShow(long id, Controller controller, Map properties) {
+		super(id, controller, "Performer entrance", Long.MAX_VALUE, properties);
 		sleepMonitor = new Object();
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();

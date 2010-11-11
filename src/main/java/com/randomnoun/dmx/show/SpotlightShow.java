@@ -26,8 +26,8 @@ public class SpotlightShow extends Show {
 	FixtureController rightPar64;
 	AudioController audioController;
 	
-	public SpotlightShow(Controller controller, Map properties) {
-		super(controller, "Spotlight", 1000, properties);
+	public SpotlightShow(long id, Controller controller, Map properties) {
+		super(id, controller, "Spotlight", 1000, properties);
 		leftWash = (MiniWashFixtureController) controller.getFixtureControllerByName("leftWash");
 		rightWash = (MiniWashFixtureController) controller.getFixtureControllerByName("rightWash");
 		leftPar64 = controller.getFixtureControllerByNameNoEx("leftPar");

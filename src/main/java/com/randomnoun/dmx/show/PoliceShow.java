@@ -11,8 +11,8 @@ public class PoliceShow extends Show {
 	MiniWashFixtureController leftWash;
 	MiniWashFixtureController rightWash;
 	
-	public PoliceShow(Controller controller, Map properties) {
-		super(controller, "Police", 5000, properties);
+	public PoliceShow(long id, Controller controller, Map properties) {
+		super(id, controller, "Police", 5000, properties);
 		sleepMonitor = new Object();
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();

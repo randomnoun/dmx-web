@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.config.AppConfig.AppConfigState;
+import com.randomnoun.dmx.show.Show.State;
 
 public class ShowThread extends Thread {
 
@@ -18,12 +19,15 @@ public class ShowThread extends Thread {
 
 	public void run() {
 		logger.debug("Playing show '" + show.getName() + "'");
+		show.state = Show.State.SHOW_RUNNING;
 		AppConfig appConfig = AppConfig.getAppConfig();
 		long onCancelShowId = show.getOnCancelShowId();
 		long onCompleteShowId = show.getOnCompleteShowId();
 		try {
 			show.internalReset();
 			show.play();
+			
+			show.state = Show.State.SHOW_STOPPED; // although the thread is still running, really... 
 			if (show.isCancelled()) { 
 				logger.debug("Show '" + show.getName() + "' was cancelled");
 				// @TODO if this is the same show (*really bad idea*), then just loop this method

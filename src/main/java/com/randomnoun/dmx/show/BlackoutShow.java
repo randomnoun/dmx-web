@@ -18,8 +18,8 @@ public class BlackoutShow extends Show {
 
 	Logger logger = Logger.getLogger(BlackoutShow.class);
 	
-	public BlackoutShow(Controller controller, Map properties) {
-		super(controller, "Blackout", 0, properties);
+	public BlackoutShow(long id, Controller controller, Map properties) {
+		super(id, controller, "Blackout", 0, properties);
 	}
 	
 	public void pause() {}

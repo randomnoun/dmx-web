@@ -17,8 +17,8 @@ public class LockItInEddieShow extends Show {
 	MiniWashFixtureController rightWash;
 	AudioController audioController;
 	
-	public LockItInEddieShow(Controller controller, Map properties) {
-		super(controller, "Lock it in, eddie", 5000, properties);
+	public LockItInEddieShow(long id, Controller controller, Map properties) {
+		super(id, controller, "Lock it in, eddie", 5000, properties);
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();
 		audioController = controller.getAudioController();

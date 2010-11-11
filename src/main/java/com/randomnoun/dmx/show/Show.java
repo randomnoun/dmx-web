@@ -19,6 +19,9 @@ public abstract class Show {
 
 	static Logger logger = Logger.getLogger(Show.class);
 	
+	public enum State { SHOW_STOPPED, SHOW_RUNNING };
+	
+	long id;
 	long length;
 	Controller controller;
 	String name;
@@ -29,14 +32,17 @@ public abstract class Show {
 	long onCancelShowId = -1;
 	long onCompleteShowId = -1;
 	Exception lastException;
+	State state;
 	
-	protected Show(Controller controller, String name, long length, Map properties) {
+	protected Show(long id, Controller controller, String name, long length, Map properties) {
+		this.id = id;
 		this.controller = controller;
 		this.name = name;
 		this.length = length;
 		this.cancelled = false;
 		this.lastException = null;
 		this.properties = properties;
+		this.state = State.SHOW_STOPPED;
 		sleepMonitor = new Object();
 	}
 	
@@ -55,10 +61,13 @@ public abstract class Show {
 		}
 	}
 	
+	public long getId() { return id; }
 	public long getLength() { return length; }
 	public long getOnCancelShowId() { return onCancelShowId; }
 	public long getOnCompleteShowId() { return onCompleteShowId; }
 	public String getName() { return name; }
+	
+	public State getState() { return state; }
 	
 	/** Resets the show's startTime, cancellation status and 'last
 	 * exception' local variable. Show only be called by the ShowThread 
