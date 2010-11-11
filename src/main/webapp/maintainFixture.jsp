@@ -137,7 +137,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
                                         <%--  <input type="hidden" name="fixtures[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>"> --%>
                                     </td>
                                     <td class="<r:onError name='fixtures[${rowStatus.index}].fixtureDefId' text='errorBg' />"> 
-                                        <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].fixtureDefId" value="<c:out value='${rowData.fixtureDefId}'/>" size="10">
+                                        <r:select data="${form.fixtureDefs}" name="fixtures[${rowStatus.index}].fixtureDefId" value="${rowData.fixtureDefId}" displayColumn="name" valueColumn="id" firstOption="(please select...)" />
                                     </td>
                                     <td class="<r:onError name='fixtures[${rowStatus.index}].name' text='errorBg' />"> 
                                         <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="55">
@@ -156,7 +156,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 	                                    <input type="hidden" name="fixtures[<c:out value='${rowStatus.index}'/>].cmdUpdate" value="Y">                
 	                                </td>
                                     <td class="<r:onError name='fixtures[${rowStatus.index}].fixtureDefId' text='errorBg' />"> 
-                                        <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].fixtureDefId" value="<c:out value='${rowData.fixtureDefId}'/>" size="10">
+                                        <r:select data="${form.fixtureDefs}" name="fixtures[${rowStatus.index}].fixtureDefId" value="${rowData.fixtureDefId}" displayColumn="name" valueColumn="id" firstOption="(please select...)"/>
                                     </td>
                                     <td class="<r:onError name='fixtures[${rowStatus.index}].name' text='errorBg' />"> 
                                         <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="55">
@@ -173,7 +173,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 	                        <td> <div class="redrollover"> <a href="javascript:void(0)" onclick="fnDeleteRow(tblObj,<c:out value='${form.fixtures_size}'/>,0); return 0;"><img src="image/delete-icon.gif" width="18" height="17" border="0"></a></div>
 	                            <input type="hidden" name="fixtures[<c:out value='${form.fixtures_size}'/>].cmdUpdate" value="N">
 	                        </td>
-	                        <td><input type="text" class="formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].fixtureDefId" value="" size="55"></td>
+	                        <td><r:select data="${form.fixtureDefs}" name="fixtures[${form.fixtures_size}].fixtureDefId" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)"/></td>
 	                        <td><input type="text" class="formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].name" value="" size="30"></td>
 	                        <td><input type="text" class="formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].dmxOffset" value="" size="30"></td>
 	                    </tr>
