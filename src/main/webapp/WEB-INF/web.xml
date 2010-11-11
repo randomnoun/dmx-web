@@ -34,6 +34,11 @@
     <servlet-name>versionServlet</servlet-name>
     <servlet-class>com.randomnoun.common.servlet.VersionServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>multiJavascript</servlet-name>
+    <servlet-class>com.randomnoun.dmx.web.MultiJavascriptServlet</servlet-class>
+  </servlet>
+
 
   <servlet-mapping>
     <servlet-name>action</servlet-name>
@@ -43,6 +48,10 @@
     <servlet-name>versionServlet</servlet-name>
     <url-pattern>/version</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>multiJavascript</servlet-name>
+    <url-pattern>/mjs</url-pattern>
+  </servlet-mapping>  
   
   
       <welcome-file-list>
