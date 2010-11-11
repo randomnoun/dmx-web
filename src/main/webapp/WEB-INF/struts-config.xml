@@ -39,6 +39,14 @@
           <forward name="success" path="/controller.jsp"/>
         </action>
 
+        <action path="/fancyController" 
+          type="com.randomnoun.dmx.web.action.FancyControllerAction"
+        >
+          <forward name="success" path="/fancyController.jsp"/>
+          <forward name="json" path="/misc/json.jsp"/>
+        </action>
+
+
         <action path="/debug" 
           type="com.randomnoun.dmx.web.action.DebugAction"
         >

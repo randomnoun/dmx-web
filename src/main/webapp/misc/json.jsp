@@ -9,4 +9,4 @@ response.setHeader("Pragma","no-cache"); //HTTP 1.0
   pageEncoding="ISO-8859-1"
   import="java.util.*" 
   errorPage="../misc/errorPage.jsp"
-%><%@ taglib uri="/WEB-INF/c.tld" prefix="c" %><%@ taglib uri="/WEB-INF/common.tld" prefix="r" %><r:authCheck/><c:out value="${json}" escapeXml="false" />
+%><%@ taglib uri="/WEB-INF/c.tld" prefix="c" %><%@ taglib uri="/WEB-INF/common.tld" prefix="r" %><c:out value="${json}" escapeXml="false" />
