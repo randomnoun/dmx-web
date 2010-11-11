@@ -68,6 +68,8 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 	//int dmxState[];
 	
 	Fixture fixture;
+	FixtureDef fixtureDef;
+
 	int dmxState[];
 	String vlcHost;
 	int vlcPort;
@@ -83,44 +85,38 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 	
 	// @TODO obvious thread safety problems
 	public static class VlcUpdateThread extends Thread {
-		VlcUniverseUpdateListener mvd;
+		VlcUniverseUpdateListener vuul;
 		boolean done = false;
 		boolean hasChanges = false;
 		long startTime = 0;
-		Fixture fixture;
-		FixtureDef fixtureDef;
 		
 		public VlcUpdateThread(VlcUniverseUpdateListener vuul) {
-			this.mvd = vuul;
-			fixture = vuul.fixture;
-			fixtureDef = vuul.fixture.getFixtureDef();
+			this.vuul = vuul;
 			this.setName(getName() + "-VlcUniverseUpdateListener");
 		}
 		
 		public void run() {
 			startTime = System.currentTimeMillis();
 			while (!done) {
-				if (hasChanges) {
+				if (hasChanges && vuul.fixture!=null) {
 					hasChanges = false;
 					
 					String dmxOutput="[";
-					for (int i=0; i<fixtureDef.getNumDmxChannels(); i++) {
-						dmxOutput += mvd.dmxState[fixture.getStartDmxChannel() + i] + ", ";
+					for (int i=0; i<vuul.fixtureDef.getNumDmxChannels(); i++) {
+						dmxOutput += vuul.dmxState[vuul.fixture.getStartDmxChannel() + i] + ", ";
 					}
 					dmxOutput += "]";
 					
 					String fixOutput="";
-					ChannelMuxer mux = fixture.getChannelMuxer();
+					ChannelMuxer mux = vuul.fixture.getChannelMuxer();
 					FixtureOutput muxOutput = mux.getOutput();
 					Color c = muxOutput.getColor();
 					fixOutput += "[r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + "][p=" + muxOutput.getPan() + "][t=" + muxOutput.getTilt() + "]";
 					
-					
-					
 					try {
 						logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
 						Socket vlcSocket = new Socket();
-						vlcSocket.connect(new InetSocketAddress(mvd.address, mvd.vlcPort));
+						vlcSocket.connect(new InetSocketAddress(vuul.address, vuul.vlcPort));
 						OutputStream os = vlcSocket.getOutputStream();
 						// see syntax at http://forum.videolan.org/viewtopic.php?f=7&t=57094
 						PrintWriter pw = new PrintWriter(os);
@@ -146,7 +142,8 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 	}
 	
 	public void setFixture(Fixture fixture) {
-		fixture = fixture;
+		this.fixtureDef = fixture.getFixtureDef();
+		this.fixture = fixture;
 	}
 	
 	public void onEvent(DmxUpdateEvent event) {
@@ -156,12 +153,8 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 	
 	public void startThread() {
 		if (t!=null) { throw new IllegalStateException("Thread already started"); }
-		if (fixture==null) { 
-			logger.error("No fixture set; thread not started");
-		} else {
-			t = new VlcUpdateThread(this);
-			t.start();
-		}
+		t = new VlcUpdateThread(this);
+		t.start();
 	}
 	
 	public void stopThread() {
