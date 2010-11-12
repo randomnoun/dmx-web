@@ -93,7 +93,13 @@ BODY { font-size: 8pt; font-family: Arial; }
 .dmxHighlightFooter {
   position: absolute; top: 40px; height: 20px; width: 100%; 
   color: black; background-color: white;
-  
+}
+
+
+/*** LOG panel ***/
+.logException {
+  position: absolute; width: 800px; height: 30px; 
+  color: white; background-color: red; font-size:14pt;
 }
 
 
@@ -111,7 +117,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 <r:setJavascriptVar name="fixtureDefs" value="${fixtureDefs}" />
 var dmxToFixture=new Array();
 var dmxHighlightTimeout=-1;
-var lhsMenuPanels=new Array("shwPanel", "dmxPanel");
+var lhsMenuPanels=new Array("shwPanel", "dmxPanel", "logPanel");
 var longPollRequest=null;
 var currentPanelName=null;
 function startShow(showId) {
@@ -184,7 +190,7 @@ function lhsBlackout() {
 function lhsShows() { lhsSelect($("lhsShows")); lhsShowPanel("shwPanel"); startRequests(); }
 function lhsFixtures() { lhsSelect($("lhsFixtures"));lhsShowPanel("fixPanel"); }
 function lhsDMX() { lhsSelect($("lhsDMX")); lhsShowPanel("dmxPanel"); }
-function lhsLogs() { lhsSelect($("lhsLogs")); lhsShowPanel("logPanel"); }
+function lhsLogs() { lhsSelect($("lhsLogs")); lhsShowPanel("logPanel"); startRequests(); }
 function lhsConfig() { lhsSelect($("lhsConfig")); lhsShowPanel("cnfPanel"); }
 
 
@@ -203,8 +209,14 @@ function startRequests() {
 				// catch-all called after all other event lifecycle handlers
 			} });
     }
-	
 	*/
+	if (currentPanelName=="logPanel") {
+		new Ajax.Request('fancyController.html?action=getExceptions', {
+	        method:'get', // evalJSON:true,
+	        onSuccess: function(transport) {
+	            logSetExceptions(transport.responseJSON);
+	        } });
+	}
 }
 
 /******************************* SHOW PANEL ******************************/
@@ -297,6 +309,25 @@ function dmxValueOnMouseOver(event) {
     h2.innerHTML="<div class=\"dmxHighlightFooter\">" + f["name"] + "</div>";
 }
 
+/******************************* LOG PANEL ******************************/
+  
+function initLogPanel() {
+	
+} 
+
+function logSetExceptions(json) {
+	var el = $("logExceptionContainer");
+	el.innerHTML = ""; // reset any existing DIVs
+	for (var i=0; i<json.exceptions.length; i++) {
+		var e = json.exceptions[i];
+		var exEl = new Element("div", { "class" : "logException" }).update(e.message);
+		exEl.style.left=20+"px"; exEl.style.top=(20+(i*30))+"px";
+		el.appendChild(exEl);
+	}
+}
+
+
+
 /******************************* LONG POLLING ******************************/
 
 /*
@@ -352,8 +383,6 @@ function initWindow() {
 %>
 </div>
 
-
-
 <div id="dmxPanel" style="display: none;">
   <div id="dmxImmediate">Immediate ON</div>
   <div id="dmxUpdateAll">Update all</div> 
@@ -372,7 +401,15 @@ function initWindow() {
   <div id="dmxHighlight" ></div>
   <div id="dmxHighlight2" ></div>
 </div>
+
+<div id="logPanel" style="display: none;">
+  <div id="logExceptionContainer"></div>
 </div>
+
+
+</div>
+
+
 
 </body>
 </html>

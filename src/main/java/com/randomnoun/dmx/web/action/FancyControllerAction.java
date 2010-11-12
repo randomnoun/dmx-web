@@ -49,11 +49,12 @@ import com.randomnoun.common.db.DatabaseTO.TableColumnTO;
 import com.randomnoun.common.db.DatabaseTO.TableTO;
 import com.randomnoun.common.security.User;
 import com.randomnoun.dmx.Controller;
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureController;
-import com.randomnoun.dmx.FixtureDef;
+import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.config.AppConfig;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureController;
+import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidget;
 import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetTranslator;
 import com.randomnoun.dmx.show.Show;
@@ -248,6 +249,37 @@ public class FancyControllerAction
     			}
     			result.put("message", "Cancel all shows requested");
     		}
+    		
+    	} else if (action.equals("getExceptions")) {
+    		List exceptions = new ArrayList();
+    		List<ExceptionContainer.TimestampedException> e1 = controller.getAudioController().getExceptions();
+    		synchronized(e1) {
+    			for (int i=0; i<e1.size(); i++) {
+    				ExceptionContainer.TimestampedException te = e1.get(i);
+    				Map m = new HashMap(); 
+    				m.put("message", te.getException().getMessage());
+    				exceptions.add(m);
+    			}
+    		}
+    		e1 = appConfig.getDmxDeviceExceptions();
+    		synchronized(e1) {
+    			for (int i=0; i<e1.size(); i++) {
+    				ExceptionContainer.TimestampedException te = e1.get(i);
+    				Map m = new HashMap(); 
+    				m.put("message", te.getException().getMessage());
+    				exceptions.add(m);
+    			}
+    		}
+    		List<AppConfig.TimestampedShowException> e2 = appConfig.getShowExceptions();
+    		synchronized(e2) {
+    			for (int i=0; i<e2.size(); i++) {
+    				ExceptionContainer.TimestampedException te = e1.get(i);
+    				Map m = new HashMap(); 
+    				m.put("message", te.getException().getMessage());
+    				exceptions.add(m);
+    			}
+    		}
+    		result.put("exceptions", exceptions);
     		
     	} else {
     		
