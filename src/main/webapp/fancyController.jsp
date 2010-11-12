@@ -39,11 +39,11 @@
 <style>
 BODY { font-size: 8pt; font-family: Arial; }
 .lhsMenuContainer {
-  position: absolute; top: 30px; left: 5px; width: 200px; height: 500px;
+  position: absolute; top: 30px; left: 5px; width: 200px; height: 700px;
   background-color: red;
 }
 .rhsPanel {
-  position: absolute; top: 30px; left: 225px; width: 900px; height: 500px;
+  position: absolute; top: 30px; left: 225px; width: 900px; height: 700px;
   background-color: blue;
 }
 #rhsMessage {
@@ -114,18 +114,25 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 
 /*** DMX panel ***/
+#dmxPanel { position: relative; }
 #dmxImmediate {
   position: absolute; top: 5px; left: 20px; width: 180px; height: 70px;
-  background-color: green;
 }
 #dmxUpdateAll {
   position: absolute; top: 5px; left: 220px; width: 180px; height: 70px;
-  background-color: green;
 }
 #dmxTimeSource {
   position: absolute; top: 5px; left: 420px; width: 300px; height: 70px;
+}
+.dmxControl {
+  text-align: center; color: white; font-size: 18pt;
   background-color: green;
 }
+.dmxTimeSource {
+  text-align: left; color: white; font-size: 10pt;
+  background-color: green;
+}
+
 .dmxValue {
   position: absolute; width: 44px; height: 26px; background-color: green;
   text-align: right; color: white; font-weight: bold; font-size: 14pt; padding-top: 2px; padding-right: 4px;
@@ -225,7 +232,10 @@ function lhsShowPanel(panelName) {
 	}
 	currentPanelName = panelName;
 	if (longPollRequest) { longPollRequest.abort(); }
-	var el=$(panelName); if (el) { el.style.display = "block"; }
+	var el=$(panelName); if (el) { 
+		el.style.display = "block";
+	}
+	
 	// @TODO update with current state
 }
 function lhsSelect(el) {
@@ -314,7 +324,7 @@ function initFixPanel() {
 	Event.observe($("fixBlackout"), 'click', fixBlackout);
 	fixDimSlider = new Control.Slider("fixDimHandle", "fixDim", {
 		axis: "vertical",
-		onSlide: function(v) { fixDimSlide(v); },
+		onSlide: function(v) { fixDimChange(v); },
 		onChange: function(v) { fixDimChange(v); }
 	});
 	new Draggable("fixAimHandle", {
@@ -383,16 +393,6 @@ function fixGetItemIds() {
 function fixBlackout(event) {
 	sendRequest('fancyController.html?action=fixtureBlackout&fixtureIds=' + fixGetItemIds());
 }
-function fixDimSlide(v) {
-	
-}
-function fixDimChange(v) {
-	v=Math.floor(255*(1-v));
-	var fixItemIds=fixGetItemIds();
-	if (fixItemIds!="") {
-	   sendRequest('fancyController.html?action=fixtureDim&v=' + v + '&fixtureIds=' + fixItemIds);
-    }
-}
 
 // this is triggered far too many times
 var AjaxLimitter = Class.create({
@@ -424,11 +424,21 @@ var AjaxLimitter = Class.create({
 			sendRequest(url);
 		} else {
 			if (this.newValueTimeoutId==-1) {
-				this.newValueTimeoutId=window.setTimeout(this.updateValue.curry(url), this.finalRequestInterval);
+				this.newValueTimeoutId=window.setTimeout(this.sendRequest.curry(url), this.finalRequestInterval);
 			}
 		}
 	}
 })
+
+var fixDimLimitter = new AjaxLimitter(100, 200);
+function fixDimChange(v) {
+    v=Math.floor(255*(1-v));
+    var fixItemIds=fixGetItemIds();
+    if (fixItemIds!="") {
+        fixDimLimitter.sendRequest( 
+           'fancyController.html?action=fixtureDim&v=' + v + '&fixtureIds=' + fixItemIds);
+    }
+}
 
 var fixColorLimitter = new AjaxLimitter(100, 200);
 function fixColorChange(color) {
@@ -510,8 +520,8 @@ function dmxHideHighlight(event) {
 	if (dmxHighlightTimeout==-1) { dmxHighlightTimeout=window.setTimeout(dmxHideHighlight2, 1000); }
 }
 function dmxHideHighlight2() {
-    $("dmxHighlight").style.visibility="hidden";
-    $("dmxHighlight2").style.visibility="hidden";
+    $("dmxHighlight").style.display="none";
+    $("dmxHighlight2").style.display="none";
     if (dmxHighlightTimeout!=-1) { window.clearTimeout(dmxHighlightTimeout); }
     dmxHighlightTimeout=-1;
 }
@@ -540,10 +550,10 @@ function dmxValueOnMouseOver(event) {
     }
     dmxHideHighlight2(); 
     h1.style.left=(h1x-10)+"px"; h1.style.top=(h1y-10)+"px";
-    h1.style.width=(h1w+20)+"px"; h1.style.visibility="visible";
+    h1.style.width=(h1w+20)+"px"; h1.style.display="block";
     if (h2x) {
         h2.style.left=(h2x-10)+"px"; h2.style.top=(h2y-10)+"px";
-        h2.style.width=(h2w+20)+"px"; h2.style.visibility="visible";
+        h2.style.width=(h2w+20)+"px"; h2.style.display="block";
     }
     h1.innerHTML="<div class=\"dmxHighlightFooter\">" + f["name"] + "</div>";
     h2.innerHTML="<div class=\"dmxHighlightFooter\">" + f["name"] + "</div>";
@@ -632,7 +642,7 @@ function initWindow() {
   <div id="fixDim" class="fixControl"><div id="fixDimHandle"></div></div>
   </div>
   <!--  <div id="fixColor" class="fixControl">Colour</div> -->
-  <input type="text" id="fixColor" name="fixColor" value="#123456" /></div>
+  <input type="text" id="fixColor" name="fixColor" value="#123456" />
   <div id="fixColorPicker"></div>
   <div id="fixAim" class="fixControl"><div id="fixAimHandle"></div></div>
   <div id="fixGroup" class="fixControl">Select individual</div>
@@ -642,9 +652,9 @@ function initWindow() {
 
 
 <div id="dmxPanel" style="display: none;">
-  <div id="dmxImmediate">Immediate ON</div>
-  <div id="dmxUpdateAll">Update all</div> 
-  <div id="dmxTimeSource"><%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %></div>
+  <div id="dmxImmediate" class="dmxControl">Immediate ON</div>
+  <div id="dmxUpdateAll" class="dmxControl">Update all</div> 
+  <div id="dmxTimeSource" class="dmxTimeSource"><%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %></div>
   <div id="dmxValues">
 <% 
     for (int i=1; i<=255; i++) {
@@ -656,8 +666,8 @@ function initWindow() {
     }
 %>
   </div>
-  <div id="dmxHighlight" ></div>
-  <div id="dmxHighlight2" ></div>
+  <div id="dmxHighlight" style="display:none;"></div>
+  <div id="dmxHighlight2" style="display:none;"></div>
 </div>
 
 <div id="logPanel" style="display: none;">
