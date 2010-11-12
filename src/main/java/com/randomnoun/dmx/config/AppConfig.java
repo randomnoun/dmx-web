@@ -26,8 +26,6 @@ import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.DmxDevice;
 import com.randomnoun.dmx.ExceptionContainer;
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureDef;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
@@ -35,6 +33,8 @@ import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 import com.randomnoun.dmx.event.VlcUniverseUpdateListener;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.ShowThread;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
@@ -422,7 +422,7 @@ public class AppConfig extends AppConfigBase {
 				long showDefId = showTO.getShowDefId();
 				Class showClass = (Class) scriptedShowDefs.get(showDefId);
 				if (showClass==null) {
-					logger.error("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no show found with id ' " + showDefId + "'");
+					logger.error("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no show found with id '" + showDefId + "'");
 				} else {
 					logger.debug("Creating scripted show '" + showTO.getName() + "' from database");
 					Constructor constructor = showClass.getConstructor(long.class, Controller.class, Map.class);

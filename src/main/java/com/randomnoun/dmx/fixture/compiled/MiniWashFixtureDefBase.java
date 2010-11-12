@@ -1,9 +1,9 @@
-package com.randomnoun.dmx.compiled;
+package com.randomnoun.dmx.fixture.compiled;
 
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureController;
-import com.randomnoun.dmx.FixtureDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureController;
+import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.lightSource.HexagonLedGridDef;
 
 public abstract class MiniWashFixtureDefBase extends FixtureDef {

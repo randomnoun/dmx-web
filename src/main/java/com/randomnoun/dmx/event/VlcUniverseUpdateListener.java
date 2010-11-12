@@ -18,12 +18,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureDef;
-import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.event.MuxValueDumper.MuxValueDumperThread;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureDef;
+import com.randomnoun.dmx.fixture.FixtureOutput;
 
 /** This listener will send DMX change events to VLC
  *

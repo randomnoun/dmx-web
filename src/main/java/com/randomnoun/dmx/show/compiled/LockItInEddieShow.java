@@ -1,4 +1,4 @@
-package com.randomnoun.dmx.show;
+package com.randomnoun.dmx.show.compiled;
 
 import java.awt.Color;
 import java.util.Map;
@@ -7,7 +7,8 @@ import org.apache.log4j.Logger;
 
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
-import com.randomnoun.dmx.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
+import com.randomnoun.dmx.fixture.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
+import com.randomnoun.dmx.show.Show;
 
 public class LockItInEddieShow extends Show {
 

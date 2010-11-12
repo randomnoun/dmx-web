@@ -4,11 +4,11 @@ import java.awt.Color;
 
 import org.apache.log4j.Logger;
 
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureOutput;
 
 /** This muxer requires a red green and blue channel */
 public class ColorChannelMuxer extends ChannelMuxer {

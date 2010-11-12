@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.config.AppConfig.AppConfigState;
-import com.randomnoun.dmx.show.Show.State;
 
 public class ShowThread extends Thread {
 

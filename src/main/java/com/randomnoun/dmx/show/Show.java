@@ -68,6 +68,7 @@ public abstract class Show {
 	public String getName() { return name; }
 	
 	public State getState() { return state; }
+	public Controller getController() { return controller; }
 	
 	/** Resets the show's startTime, cancellation status and 'last
 	 * exception' local variable. Show only be called by the ShowThread 

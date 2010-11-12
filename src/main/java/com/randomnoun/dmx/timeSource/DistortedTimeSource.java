@@ -2,13 +2,13 @@ package com.randomnoun.dmx.timeSource;
 
 import java.awt.Color;
 
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureDef;
-import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channel.SpeedChannelDef;
 import com.randomnoun.dmx.channel.StrobeChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureDef;
+import com.randomnoun.dmx.fixture.FixtureOutput;
 
 /** A timesource which can be sped up or slowed down with a SpeedChannelDef
  */ 

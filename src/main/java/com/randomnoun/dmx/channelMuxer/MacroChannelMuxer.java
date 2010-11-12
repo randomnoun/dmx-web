@@ -4,13 +4,13 @@ import java.awt.Color;
 
 import org.apache.log4j.Logger;
 
-import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
 import com.randomnoun.dmx.channelMuxer.timed.CyclingTimeBasedChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.timed.StrobeChannelMuxer;
 import com.randomnoun.dmx.channel.StrobeChannelDef;
+import com.randomnoun.dmx.fixture.FixtureOutput;
 
 /** A muxer which takes a single macro channel and, if enabled, 
  * will replace another muxer's output

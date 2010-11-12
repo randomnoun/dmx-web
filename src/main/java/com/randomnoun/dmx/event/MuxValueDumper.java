@@ -7,10 +7,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureOutput;
 
 /** This MuxUpdateListener kicks off a thread, which then logs fixture RGB values
  * to stdout every 200msec

@@ -1,4 +1,4 @@
-package com.randomnoun.dmx.show;
+package com.randomnoun.dmx.show.compiled;
 
 import java.awt.Color;
 import java.util.Map;
@@ -7,9 +7,10 @@ import org.apache.log4j.Logger;
 
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureController;
-import com.randomnoun.dmx.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureController;
+import com.randomnoun.dmx.fixture.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
+import com.randomnoun.dmx.show.Show;
 
 /** The spotlight show throws all lights to 100% white, moves them
  * to point to the front of the stage, and cuts the audio.
@@ -40,8 +41,8 @@ public class SpotlightShow extends Show {
 	protected void reset() {
 		super.reset();
 		logger.debug("reset()");
-		controller.blackOut();
-		controller.getAudioController().stopAudio();
+		getController().blackOut();
+		getController().getAudioController().stopAudio();
 	}
 	
 	public void play() {

@@ -1,4 +1,4 @@
-package com.randomnoun.dmx;
+package com.randomnoun.dmx.fixture;
 
 import java.awt.Color;
 import java.util.ArrayList;

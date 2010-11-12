@@ -31,9 +31,9 @@ import com.randomnoun.common.ErrorList;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
-import com.randomnoun.dmx.FixtureDef;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
+import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.to.FixtureDefTO;
 
 /**

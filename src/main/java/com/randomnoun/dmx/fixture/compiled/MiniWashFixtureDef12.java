@@ -1,11 +1,7 @@
-package com.randomnoun.dmx.compiled;
+package com.randomnoun.dmx.fixture.compiled;
 
 import java.awt.Color;
 
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureController;
-import com.randomnoun.dmx.FixtureDef;
-import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.channel.MacroChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
 import com.randomnoun.dmx.channel.dimmer.BlueDimmerChannelDef;
@@ -32,6 +28,10 @@ import com.randomnoun.dmx.channelMuxer.primitive.PanPositionChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.primitive.TiltPositionChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.timed.StrobeChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.timed.TimedColorGradientChannelMuxer;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureController;
+import com.randomnoun.dmx.fixture.FixtureDef;
+import com.randomnoun.dmx.fixture.FixtureOutput;
 import com.randomnoun.dmx.timeSource.DistortedTimeSource;
 import com.randomnoun.dmx.timeSource.TimeSource;
 import com.randomnoun.dmx.timeSource.UniverseTimeSource;

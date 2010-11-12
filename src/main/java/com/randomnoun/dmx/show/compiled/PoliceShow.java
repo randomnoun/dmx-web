@@ -1,10 +1,11 @@
-package com.randomnoun.dmx.show;
+package com.randomnoun.dmx.show.compiled;
 
 import java.awt.Color;
 import java.util.Map;
 
 import com.randomnoun.dmx.Controller;
-import com.randomnoun.dmx.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
+import com.randomnoun.dmx.fixture.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
+import com.randomnoun.dmx.show.Show;
 
 public class PoliceShow extends Show {
 
@@ -13,7 +14,6 @@ public class PoliceShow extends Show {
 	
 	public PoliceShow(long id, Controller controller, Map properties) {
 		super(id, controller, "Police", 5000, properties);
-		sleepMonitor = new Object();
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();
 		

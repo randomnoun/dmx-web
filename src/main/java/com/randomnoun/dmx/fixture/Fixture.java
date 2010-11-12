@@ -1,7 +1,8 @@
-package com.randomnoun.dmx;
+package com.randomnoun.dmx.fixture;
 
 import java.awt.Color;
 
+import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 
 /** This class represents a physically patched fixture.

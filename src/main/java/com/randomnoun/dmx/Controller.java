@@ -3,6 +3,9 @@ package com.randomnoun.dmx;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureController;
+
 public class Controller {
 	Universe universe;
 	List<Fixture> fixtures;

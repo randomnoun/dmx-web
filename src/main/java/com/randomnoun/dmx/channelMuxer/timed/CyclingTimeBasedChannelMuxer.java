@@ -1,8 +1,8 @@
 package com.randomnoun.dmx.channelMuxer.timed;
 
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureDef;
-import com.randomnoun.dmx.FixtureOutput;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureDef;
+import com.randomnoun.dmx.fixture.FixtureOutput;
 import com.randomnoun.dmx.timeSource.TimeSource;
 
 /** A time-based channel muxer that has a cycle time

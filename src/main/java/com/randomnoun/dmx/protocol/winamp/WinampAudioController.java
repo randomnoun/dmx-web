@@ -44,8 +44,13 @@ public class WinampAudioController extends AudioController
 		}
 		exceptionContainer = new ExceptionContainerImpl();
 		winamp = new NGWinAmp(host, port, timeout, true);
-		winamp.connect();
-		winamp.authenticate(password);
+		try {
+			winamp.connect();
+			winamp.authenticate(password);
+		} catch (Exception e) {
+			logger.error("Exception connecting to Winamp", e);
+			exceptionContainer.addException(new RuntimeException("Exception connecting to Winamp"));			
+		}
 	}
 
 	// TODO: this may block for a shockingly long time

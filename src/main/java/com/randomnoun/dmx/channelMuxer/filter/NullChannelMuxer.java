@@ -4,10 +4,10 @@ import java.awt.Color;
 
 import org.apache.log4j.Logger;
 
-import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channel.StrobeChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
+import com.randomnoun.dmx.fixture.FixtureOutput;
 
 /** A muxer which performs no changes on another muxer's input
  * 

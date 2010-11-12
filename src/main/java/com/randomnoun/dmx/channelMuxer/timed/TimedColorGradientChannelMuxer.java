@@ -4,11 +4,11 @@ import java.awt.Color;
 
 import org.apache.log4j.Logger;
 
-import com.randomnoun.dmx.Fixture;
-import com.randomnoun.dmx.FixtureOutput;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
 import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureOutput;
 import com.randomnoun.dmx.timeSource.TimeSource;
 
 /** This muxer transitions between a set of colours over time, with either
