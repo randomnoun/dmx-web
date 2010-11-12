@@ -48,7 +48,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 				}
 				try {
 					// sleeping here so that we're not sending a universe DMX update for every individual channel update 
-					Thread.sleep(200);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 				}
 			}
