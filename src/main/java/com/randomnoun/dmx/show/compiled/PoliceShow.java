@@ -36,8 +36,8 @@ public class PoliceShow extends Show {
 		rightWash.setColor(Color.BLUE);
 		leftWash.setMovementSpeed(0);
 		rightWash.setMovementSpeed(0);
-		leftWash.panTo(leftWash.getFixtureDef().panRange); // ==540
-		rightWash.panTo(rightWash.getFixtureDef().panRange); // ==540
+		leftWash.panTo(leftWash.getFixtureDef().getPanRange()); // ==540
+		rightWash.panTo(rightWash.getFixtureDef().getPanRange()); // ==540
 		waitUntil(2500); // 2.5 seconds into show
 		if (isCancelled()) { return; }
 		leftWash.setColor(Color.BLUE);
