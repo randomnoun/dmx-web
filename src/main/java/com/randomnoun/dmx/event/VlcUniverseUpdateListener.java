@@ -39,6 +39,7 @@ import com.randomnoun.dmx.fixture.FixtureOutput;
  *     marq{marquee=%H:%M:%S,position=6}" 
  *   --video-filter "adjust{gamma=2.0}"
  *
+ * See http://wiki.videolan.org/Documentation:Modules/marq
  * 
  *
  * Start should be something like
