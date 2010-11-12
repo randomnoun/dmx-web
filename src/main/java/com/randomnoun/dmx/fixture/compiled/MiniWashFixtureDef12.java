@@ -53,6 +53,7 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 	 * @author knoxg
 	 */
 	public static class MiniWashFixtureController extends FixtureController {
+
 		public MiniWashFixtureController(Fixture fixture) {
 			super(fixture);
 		}
@@ -77,6 +78,12 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 			fixture.setDmxChannelValue(8, color.getBlue());
 			fixture.setDmxChannelValue(5, 255);
 		}
+		
+		public void setMasterDimmer(int value) {
+			//super.setMasterDimmer(value);
+			fixture.setDmxChannelValue(5, 8 + (value*126)/255);
+		}
+		
 
 		public void setMovementSpeed(int i) {
 			fixture.setDmxChannelValue(4, i);

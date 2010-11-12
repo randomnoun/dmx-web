@@ -259,6 +259,18 @@ public class FancyControllerAction
     			c++;
     		}
     		result.put("message", c + " fixture(s) blacked out");
+
+    	} else if (action.equals("fixtureDim")) {
+    		int c=0;
+    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		int v = Integer.parseInt(request.getParameter("v"));
+    		for (String iterationId : fixtureIdStrings) {
+    			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
+    			f.getFixtureController().setMasterDimmer(v);
+    			c++;
+    		}
+    		result.put("message", c + " fixture(s) set to " + (100*v/255) + "%");
+    		
     		
     	} else if (action.equals("getExceptions")) {
     		List exceptions = new ArrayList();

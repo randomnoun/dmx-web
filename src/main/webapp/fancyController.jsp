@@ -29,15 +29,16 @@
     <link rel="shortcut icon" href="image/favicon.png" />
 
     <!-- JavaScript -->
-    <script src="mjs?js=prototype,scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover" type="text/javascript"></script>
+    <script src="mjs?js=prototype,scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,johnford" type="text/javascript"></script>
+    <%-- <script src="mjs?js=prototype,slider" type="text/javascript"></script>  --%>
 <style>
 BODY { font-size: 8pt; font-family: Arial; }
 .lhsMenuContainer {
-  position: absolute; top: 30px; left: 5px; width: 200px; height: 1000px;
+  position: absolute; top: 30px; left: 5px; width: 200px; height: 500px;
   background-color: red;
 }
 .rhsPanel {
-  position: absolute; top: 30px; left: 225px; width: 900px; height: 1000px;
+  position: absolute; top: 30px; left: 225px; width: 900px; height: 500px;
   background-color: blue;
 }
 #rhsMessage {
@@ -78,6 +79,9 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 #fixDim {
   position: absolute; top: 20px; left: 220px; width: 90px; height: 160px;
+}
+#fixDimHandle {
+  background-color: red; width: 90px; height: 30px; cursor: move;
 }
 #fixGroup {
   position: absolute; top: 110px; left: 20px; width: 180px; height: 70px;
@@ -274,6 +278,7 @@ function shwCancel(event) {
 
 /******************************* FIXTURE PANEL ******************************/
 
+var fixDimSlider;
 function initFixPanel() {
 	var x,y,fixEl;
 	var fp=$("fixPanel");
@@ -289,6 +294,14 @@ function initFixPanel() {
     }
 	Event.observe($("fixGroup"), 'click', fixGroupClick);
 	Event.observe($("fixBlackout"), 'click', fixBlackout);
+	fixDimSlider = new Control.Slider("fixDimHandle", "fixDim", {
+		axis: "vertical",
+		onSlide: function(v) { fixDimSlide(v); },
+		onChange: function(v) { fixDimChange(v); }
+	});
+    Event.observe('fixDimScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // mozilla
+    Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
+
 } 
 
 function fixToggleEl(el) {
@@ -320,11 +333,25 @@ function fixGroupClick(event) {
 	}
 }
 
-function fixBlackout(event) {
+function fixGetItemIds() {
 	var fixItems=new Array();
-	$$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
-	fixItems=fixItems.join(",");
-	sendRequest('fancyController.html?action=fixtureBlackout&fixtureIds='+fixItems);
+    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
+    return fixItems.join(",");
+}
+
+function fixBlackout(event) {
+	sendRequest('fancyController.html?action=fixtureBlackout&fixtureIds=' + fixGetItemIds());
+}
+
+function fixDimSlide(v) {
+	
+}
+function fixDimChange(v) {
+	v=Math.floor(255*(1-v));
+	var fixItemIds=fixGetItemIds();
+	if (fixItemIds!="") {
+	   sendRequest('fancyController.html?action=fixtureDim&v=' + v + '&fixtureIds=' + fixItemIds);
+    }
 }
 
 function fixSetState(json) {
@@ -445,12 +472,13 @@ function initLongPolling() {
 /******************************* INIT ******************************/
 
 function initWindow() {
+	lhsFixtures();
     initLookups();
     initLhsMenu();
     initDmxPanel();
     initShwPanel();
     initFixPanel();
-    lhsShows();
+    
 }
 
 </script>
@@ -484,7 +512,9 @@ function initWindow() {
 
 <div id="fixPanel" style="display: none;">
   <div id="fixBlackout" class="fixControl">Blackout</div>
-  <div id="fixDim" class="fixControl">Dim</div>
+  <div id="fixDimScrollArea">
+  <div id="fixDim" class="fixControl"><div id="fixDimHandle"></div></div>
+  </div>
   <div id="fixColor" class="fixControl">Colour</div>
   <div id="fixAim" class="fixControl">Aim</div>
   <div id="fixGroup" class="fixControl">Select individual</div>
