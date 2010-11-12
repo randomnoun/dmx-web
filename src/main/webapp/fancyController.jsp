@@ -27,9 +27,14 @@
     <title><%= appConfig.getProperty("webapp.titlePrefix") %> DMX</title>
 
     <link rel="shortcut icon" href="image/favicon.png" />
+    <link rel="stylesheet" href="css/farbtastic.css" type="text/css" />
 
     <!-- JavaScript -->
-    <script src="mjs?js=prototype,scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,johnford" type="text/javascript"></script>
+    <script src="mjs?js=prototype" type="text/javascript"></script>
+    <script src="mjs?js=jquery-1.4.4.min,farbtastic"></script> 
+    <script>jQuery.noConflict();</script> 
+    <script src="mjs?js=scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,johnford" type="text/javascript"></script> 
+    
     <%-- <script src="mjs?js=prototype,slider" type="text/javascript"></script>  --%>
 <style>
 BODY { font-size: 8pt; font-family: Arial; }
@@ -86,11 +91,15 @@ BODY { font-size: 8pt; font-family: Arial; }
 #fixGroup {
   position: absolute; top: 110px; left: 20px; width: 180px; height: 70px;
 }
+#fixColorPicker {
+  /* 195x195 pixels */
+  position: absolute; top: 0px; left: 330px; /*width: 160px; height: 160px;*/
+}
 #fixColor {
-  position: absolute; top: 20px; left: 330px; width: 160px; height: 160px;
+  display: none;
 }
 #fixAim {
-  position: absolute; top: 20px; left: 510px; width: 160px; height: 160px;
+  position: absolute; top: 20px; left: 550px; width: 160px; height: 160px;
 }
 .fixControl {
   text-align: center; color: white; font-size: 18pt;
@@ -173,12 +182,16 @@ function setRhsMessageHTML(text) {
 	$("rhsMessage").innerHTML = text;
 }
 
-function sendRequest(url) {
+// @TODO what's the bet that completedFunction isn't scoped right here
+function sendRequest(url,completedFunction) {
 	new Ajax.Request(url, {
 	    method:'get', // evalJSON:true,
 	    onSuccess: function(transport) {
 	        setRhsMessageHTML(transport.responseJSON.message);
-	    } });
+	    },
+	    onComplete: function(transport) {
+	    	completedFunction();
+	    }});
 }
 
 
@@ -301,7 +314,7 @@ function initFixPanel() {
 	});
     Event.observe('fixDimScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // mozilla
     Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
-
+    jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
 } 
 
 function fixToggleEl(el) {
@@ -342,7 +355,6 @@ function fixGetItemIds() {
 function fixBlackout(event) {
 	sendRequest('fancyController.html?action=fixtureBlackout&fixtureIds=' + fixGetItemIds());
 }
-
 function fixDimSlide(v) {
 	
 }
@@ -353,6 +365,28 @@ function fixDimChange(v) {
 	   sendRequest('fancyController.html?action=fixtureDim&v=' + v + '&fixtureIds=' + fixItemIds);
     }
 }
+
+// this is triggered far too many times
+var newColor=null;
+var lastColorSetTime=-1;
+var newColorTimeoutId=-1;
+function fixColorChange(color) {
+    var now = new Date().getTime();
+	if (now-lastColorSetTime>100) {
+		lastColorSetTime=now;
+		if (newColorTimeoutId!=-1) { window.clearTimeout(newColorTimeoutId); }
+		newColorTimeoutId=-1;
+	    var fixItemIds=fixGetItemIds();
+	    if (fixItemIds!="") {
+	        sendRequest('fancyController.html?action=fixtureColor&color=' + color.substring(1) + '&fixtureIds=' + fixItemIds);
+	    }
+	} else {
+	    if (newColorTimeoutId==-1) {
+	    	newColorTimeoutId=window.setTimeout(fixColorChange.curry(color),200);
+	    }
+	}
+}
+
 
 function fixSetState(json) {
 	/* eventually 
@@ -515,7 +549,9 @@ function initWindow() {
   <div id="fixDimScrollArea">
   <div id="fixDim" class="fixControl"><div id="fixDimHandle"></div></div>
   </div>
-  <div id="fixColor" class="fixControl">Colour</div>
+  <!--  <div id="fixColor" class="fixControl">Colour</div> -->
+  <input type="text" id="fixColor" name="fixColor" value="#123456" /></div>
+  <div id="fixColorPicker"></div>
   <div id="fixAim" class="fixControl">Aim</div>
   <div id="fixGroup" class="fixControl">Select individual</div>
   

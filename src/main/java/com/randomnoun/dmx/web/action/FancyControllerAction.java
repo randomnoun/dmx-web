@@ -270,7 +270,22 @@ public class FancyControllerAction
     			c++;
     		}
     		result.put("message", c + " fixture(s) set to " + (100*v/255) + "%");
-    		
+
+    	} else if (action.equals("fixtureColor")) {
+    		int c=0;
+    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		String colorString = request.getParameter("color");
+    		Color color = new Color(
+    			Integer.parseInt(colorString.substring(0, 2), 16),
+    			Integer.parseInt(colorString.substring(2, 4), 16),
+    			Integer.parseInt(colorString.substring(4, 6), 16));
+    		for (String iterationId : fixtureIdStrings) {
+    			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
+    			f.getFixtureController().setColor(color);
+    			c++;
+    		}
+    		result.put("message", c + " fixture(s) set to #" + colorString);
+
     		
     	} else if (action.equals("getExceptions")) {
     		List exceptions = new ArrayList();
