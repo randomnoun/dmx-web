@@ -8,7 +8,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -23,18 +26,15 @@ import com.randomnoun.dmx.event.MuxValueDumper.MuxValueDumperThread;
 /** This listener will send DMX change events to VLC
  *
  * start vlc with these options, with a webcam pointing at the fixture
- * you want to  record:
+ * you want to  record (all on one line, no space after "size=20}:" )
  *
- * .vlc dshow:// "--dshow-vdev=Creative WebCam Notebook" 
- *   --sub-filter "marq{marquee=@my_marq,color=16776960}:marq{marquee=%H:%M:%S,position=6}"
+ * ./vlc dshow:// "--dshow-vdev=Creative WebCam Notebook" 
+ *   --sub-filter "marq@topleft{marquee=topleft,size=20}:
+ *     marq@bottomleft{marquee=bottomleft,position=9,size=20}:
+ *     marq@bottomright{marquee=bottomright,position=10,size=20}:
+ *     marq{marquee=%H:%M:%S,position=6}" 
  *   --video-filter "adjust{gamma=2.0}"
- *   --extraintf rc --rc-host="localhost:9999"
- * 
- * 
- * 
- * vlc --extraintf rc --rc-host="localhost:9999" --sub-filter=marq@my_marq .....
-
- * see http://forum.videolan.org/viewtopic.php?f=7&t=78542
+ *
  * 
  *
  * Start should be something like
@@ -90,40 +90,52 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 		VlcUniverseUpdateListener vuul;
 		boolean done = false;
 		boolean hasChanges = false;
+		private boolean updateText = false;
 		long startTime = 0;
+		SimpleDateFormat sdf;
+		DecimalFormat df;
 		
 		public VlcUpdateThread(VlcUniverseUpdateListener vuul) {
 			this.vuul = vuul;
 			this.setName(getName() + "-VlcUniverseUpdateListener");
+			this.sdf=new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss.SSS");
+			this.df=new DecimalFormat("##0.000");
 		}
 		
 		public void run() {
+			String dmxOutput = "", muxOutput = "";
 			startTime = System.currentTimeMillis();
 			while (!done) {
-				if (hasChanges && vuul.fixture!=null) {
-					hasChanges = false;
-					
-					String dmxOutput="[";
-					for (int i=0; i<vuul.fixtureDef.getNumDmxChannels(); i++) {
-						dmxOutput += vuul.dmxState[vuul.fixture.getStartDmxChannel() + i] + ", ";
+				if (vuul.fixture!=null) {
+					if (hasChanges) {
+						hasChanges = false;
+						updateText = true;
+						dmxOutput="[";
+						for (int i=0; i<vuul.fixtureDef.getNumDmxChannels(); i++) {
+							dmxOutput += vuul.dmxState[vuul.fixture.getStartDmxChannel() + i] + ", ";
+						}
+						dmxOutput += "]";
+						
+						muxOutput="";
+						ChannelMuxer mux = vuul.fixture.getChannelMuxer();
+						FixtureOutput output = mux.getOutput();
+						Color c = output.getColor();
+						muxOutput += "[r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + "][p=" + df.format(output.getPan()) + "][t=" + df.format(output.getTilt()) + "]";
 					}
-					dmxOutput += "]";
-					
-					String fixOutput="";
-					ChannelMuxer mux = vuul.fixture.getChannelMuxer();
-					FixtureOutput muxOutput = mux.getOutput();
-					Color c = muxOutput.getColor();
-					fixOutput += "[r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + "][p=" + muxOutput.getPan() + "][t=" + muxOutput.getTilt() + "]";
 					
 					try {
-						logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
 						Socket vlcSocket = new Socket();
 						vlcSocket.connect(new InetSocketAddress(vuul.address, vuul.vlcPort));
 						OutputStream os = vlcSocket.getOutputStream();
 						// see syntax at http://forum.videolan.org/viewtopic.php?f=7&t=57094
 						PrintWriter pw = new PrintWriter(os);
 						pw.println();  // initial newline to get past password
-						pw.println("@text marq-marquee " + dmxOutput);
+						if (updateText) {
+							logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
+							pw.println("@topleft     marq-marquee " + dmxOutput);
+							pw.println("@bottomleft  marq-marquee " + muxOutput);
+						}
+						pw.println("@bottomright marq-marquee " + sdf.format(new Date()));
                         pw.println("logout\n");
 						pw.flush();
 						os.close();
