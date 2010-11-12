@@ -2,8 +2,10 @@ package com.randomnoun.dmx.event;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -95,12 +97,44 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 		SimpleDateFormat sdf;
 		DecimalFormat df;
 		
+		Socket vlcSocket;
+		OutputStream os;
+		InputStream is;
+		PrintWriter pw;
+		long lastConnectTime = -1;
+		
 		public VlcUpdateThread(VlcUniverseUpdateListener vuul) {
 			this.vuul = vuul;
 			this.setName(getName() + "-VlcUniverseUpdateListener");
 			this.sdf=new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss.SSS");
 			this.df=new DecimalFormat("##0.000");
+			this.vlcSocket = null;
 		}
+		
+		public void reconnect() {
+			try {
+				if (vlcSocket!=null && !vlcSocket.isClosed()) { 
+					try { vlcSocket.close(); } catch (Exception e2) { } 
+				}
+				if (System.currentTimeMillis()-lastConnectTime > 5000) {
+					lastConnectTime = System.currentTimeMillis();	
+					vlcSocket = new Socket();
+					vlcSocket.connect(new InetSocketAddress(vuul.address, vuul.vlcPort));
+					os = vlcSocket.getOutputStream();
+					is = vlcSocket.getInputStream();
+					// see syntax at http://forum.videolan.org/viewtopic.php?f=7&t=57094
+					pw = new PrintWriter(os);
+					pw.println();  // initial newline to get past password
+				}
+			} catch (IOException e) {
+				if (vlcSocket!=null && !vlcSocket.isClosed()) { 
+					try { vlcSocket.close(); } catch (Exception e2) { } 
+				}
+				vlcSocket = null;
+				logger.debug("No connection to VLC: " + e.getMessage());
+			}
+		}
+			
 		
 		public void run() {
 			String dmxOutput = "", muxOutput = "";
@@ -124,25 +158,22 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 						muxOutput += "[r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + "][p=" + df.format(output.getPan()) + "][t=" + df.format(output.getTilt()) + "]";
 					}
 				}
-				// @TODO could keep socket open
-				try {
-					Socket vlcSocket = new Socket();
-					vlcSocket.connect(new InetSocketAddress(vuul.address, vuul.vlcPort));
-					OutputStream os = vlcSocket.getOutputStream();
-					// see syntax at http://forum.videolan.org/viewtopic.php?f=7&t=57094
-					PrintWriter pw = new PrintWriter(os);
-					pw.println();  // initial newline to get past password
-					if (updateText) {
-						logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
-						pw.println("@topleft     marq-marquee " + dmxOutput);
-						pw.println("@bottomleft  marq-marquee " + muxOutput);
+				if (vlcSocket!=null) {
+					try {
+					// @TODO could keep socket open
+						if (updateText) {
+							logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
+							pw.println("@topleft marq-marquee " + dmxOutput);
+							pw.println("@bottomleft marq-marquee " + muxOutput);
+						}
+						pw.println("@bottomright marq-marquee " + sdf.format(new Date()));
+	                    pw.println("logout\n");
+						pw.flush();
+						os.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+						reconnect();
 					}
-					pw.println("@bottomright marq-marquee " + sdf.format(new Date()));
-                    pw.println("logout\n");
-					pw.flush();
-					os.close();
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
 				//System.out.println((System.currentTimeMillis()-startTime) + ": " + output);
 				try {
