@@ -83,10 +83,10 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 110px; left: 20px; width: 180px; height: 70px;
 }
 #fixColor {
-  position: absolute; top: 20px; left: 330px; width: 240px; height: 160px;
+  position: absolute; top: 20px; left: 330px; width: 160px; height: 160px;
 }
 #fixAim {
-  position: absolute; top: 20px; left: 590px; width: 240px; height: 160px;
+  position: absolute; top: 20px; left: 510px; width: 160px; height: 160px;
 }
 .fixControl {
   text-align: center; color: white; font-size: 18pt;
@@ -288,6 +288,7 @@ function initFixPanel() {
         Event.observe(fixEl, 'click', fixItemClick);
     }
 	Event.observe($("fixGroup"), 'click', fixGroupClick);
+	Event.observe($("fixBlackout"), 'click', fixBlackout);
 } 
 
 function fixToggleEl(el) {
@@ -303,7 +304,9 @@ var fixSelectIndividual = false;
 function fixItemClick(event) {
 	var fixItemEl = event.element();
 	if (fixSelectIndividual) {
-		if (fixLastFixSelectedEl!=null) { fixLastFixSelectedEl.removeClassName("fixSelect"); }
+		if (fixLastFixSelectedEl!=null && fixLastFixSelectedEl!=fixItemEl) { 
+			fixLastFixSelectedEl.removeClassName("fixSelect"); 
+		}
 	}
 	fixLastFixSelectedEl = fixToggleEl(fixItemEl) ? fixItemEl : null;
 }
@@ -315,6 +318,13 @@ function fixGroupClick(event) {
 		$$(".fixItem").each(function(f){f.removeClassName("fixSelect");});
 		if (fixLastFixSelectedEl!=null) { fixLastFixSelectedEl.addClassName("fixSelect"); }
 	}
+}
+
+function fixBlackout(event) {
+	var fixItems=new Array();
+	$$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
+	fixItems=fixItems.join(",");
+	sendRequest('fancyController.html?action=fixtureBlackout&fixtureIds='+fixItems);
 }
 
 function fixSetState(json) {

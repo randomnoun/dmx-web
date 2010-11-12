@@ -249,6 +249,16 @@ public class FancyControllerAction
     			}
     			result.put("message", "Cancel all shows requested");
     		}
+    	
+    	} else if (action.equals("fixtureBlackout")) {
+    		int c=0;
+    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		for (String iterationId : fixtureIdStrings) {
+    			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
+    			f.blackOut();
+    			c++;
+    		}
+    		result.put("message", c + " fixture(s) blacked out");
     		
     	} else if (action.equals("getExceptions")) {
     		List exceptions = new ArrayList();
