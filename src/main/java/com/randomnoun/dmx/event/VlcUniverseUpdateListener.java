@@ -55,6 +55,8 @@ and in a shell script
     @my_marq marq-marquee $1
     logout
     EOF
+
+    now using oldtelnet interface
     
     @author knoxg
  */
@@ -120,8 +122,9 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 						OutputStream os = vlcSocket.getOutputStream();
 						// see syntax at http://forum.videolan.org/viewtopic.php?f=7&t=57094
 						PrintWriter pw = new PrintWriter(os);
-						pw.println("@text marq-marquee " + dmxOutput + "\n" +
-                          "logout\n");
+						pw.println();  // initial newline to get past password
+						pw.println("@text marq-marquee " + dmxOutput);
+                        pw.println("logout\n");
 						pw.flush();
 						os.close();
 					} catch (IOException e) {
