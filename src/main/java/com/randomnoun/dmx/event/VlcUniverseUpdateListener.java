@@ -174,6 +174,8 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 						e.printStackTrace();
 						reconnect();
 					}
+				} else {
+					reconnect();
 				}
 				//System.out.println((System.currentTimeMillis()-startTime) + ": " + output);
 				try {
