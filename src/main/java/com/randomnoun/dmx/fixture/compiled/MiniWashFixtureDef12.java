@@ -81,7 +81,7 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 		
 		public void setMasterDimmer(int value) {
 			//super.setMasterDimmer(value);
-			fixture.setDmxChannelValue(5, 8 + (value*126)/255);
+			fixture.setDmxChannelValue(5, 8 + ((255-value)*126)/255);
 		}
 		
 
