@@ -99,7 +99,11 @@ BODY { font-size: 8pt; font-family: Arial; }
   display: none;
 }
 #fixAim {
-  position: absolute; top: 20px; left: 550px; width: 160px; height: 160px;
+  position: absolute; top: 20px; left: 550px; width: 160px; height: 160px; cursor: crosshair;
+}
+#fixAimHandle {
+  width: 20px; height: 20px;
+  background-color: red;
 }
 .fixControl {
   text-align: center; color: white; font-size: 18pt;
@@ -291,9 +295,10 @@ function shwCancel(event) {
 
 /******************************* FIXTURE PANEL ******************************/
 
-var fixDimSlider;
+// 
 function initFixPanel() {
 	var x,y,fixEl;
+	var fixDimSlider;
 	var fp=$("fixPanel");
 	for (var i=0; i<fixtures.length; i++) {
 		x=20+(i%4)*200; y=200+Math.floor(i/4)*90;
@@ -312,9 +317,32 @@ function initFixPanel() {
 		onSlide: function(v) { fixDimSlide(v); },
 		onChange: function(v) { fixDimChange(v); }
 	});
+	new Draggable("fixAimHandle", {
+		// constain code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
+		snap: function(x,y,draggable) {
+			function constrain(n, lower, upper) {
+				if (n>upper) { return upper; }
+				else if (n<lower) { return lower; }
+				else return n;
+			}
+			handleDimensions=Element.getDimensions(draggable.element);
+			parentDimensions=Element.getDimensions(draggable.element.parentNode);
+			return[constrain(x, 0, parentDimensions.width - handleDimensions.width),
+			       constrain(y, 0, parentDimensions.height - handleDimensions.height)];
+		},
+		onDrag: function(draggable, event) {
+			handleDimensions=Element.getDimensions(draggable.element);
+            parentDimensions=Element.getDimensions(draggable.element.parentNode);
+            handlePos=Position.positionedOffset(draggable.element);
+            fixAimDrag(handlePos[0]/(parentDimensions.width - handleDimensions.width),
+            	       handlePos[1]/(parentDimensions.height - handleDimensions.height));
+		},
+		revert: false
+	});
     Event.observe('fixDimScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // mozilla
     Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
     jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
+    
 } 
 
 function fixToggleEl(el) {
@@ -367,6 +395,60 @@ function fixDimChange(v) {
 }
 
 // this is triggered far too many times
+var AjaxLimitter = Class.create({
+	// This limiter will limit submitted Ajax requests so that they 
+	// do not occur less than minRequestInterval milliseconds between the start of
+	// one request and the start of the next request. This is handy for
+	// controls that update frequently (the dimmer slider, the color control).
+	// 
+	// The finalRequestInterval is the timeout value used to send the
+	// final update through to the server. It should be greater than the
+	// minRequestInterval. This should be the maximum allowable time between
+	// the start of AJAX requests submitted by the browser.
+	//
+	// NB: this limitter does not ensure that one request finishes before
+	// the next is generated
+	initialize: function(minRequestInterval,finalRequestInterval) {
+		this.minRequestInterval=minRequestInterval;
+		this.finalRequestInterval=finalRequestInterval;
+	    this.newValue=null;
+		this.lastValueSetTime=-1;
+		this.newValueTimeoutId=-1;
+	},
+	sendRequest: function(url) {  // could pass in value here to prevent duplicate requests going through
+		var now=new Date().getTime();
+		if (now-this.lastValueSetTime>this.minRequestInterval) {
+			this.lastValueSetTime=now;
+			if (this.newValueTimeoutId!=-1) { window.clearTimeout(this.newValueTimeoutId); }
+			this.newValueTimeoutId=-1;
+			sendRequest(url);
+		} else {
+			if (this.newValueTimeoutId==-1) {
+				this.newValueTimeoutId=window.setTimeout(this.updateValue.curry(url), this.finalRequestInterval);
+			}
+		}
+	}
+})
+
+var fixColorLimitter = new AjaxLimitter(100, 200);
+function fixColorChange(color) {
+	var fixItemIds=fixGetItemIds();
+	if (fixItemIds!="") {
+		fixColorLimitter.sendRequest( 
+           'fancyController.html?action=fixtureColor&color=' + color.substring(1) + '&fixtureIds=' + fixItemIds);
+	}
+}
+
+var fixAimLimitter = new AjaxLimitter(100, 200);
+function fixAimDrag(x, y) {
+	var fixItemIds=fixGetItemIds();
+    if (fixItemIds!="") {
+       fixAimLimitter.sendRequest( 
+           'fancyController.html?action=fixtureAim&x=' + (x*100) + '&y=' + (y*100) + '&fixtureIds=' + fixItemIds);
+    }
+}
+
+/*
 var newColor=null;
 var lastColorSetTime=-1;
 var newColorTimeoutId=-1;
@@ -386,7 +468,7 @@ function fixColorChange(color) {
 	    }
 	}
 }
-
+*/
 
 function fixSetState(json) {
 	/* eventually 
@@ -552,7 +634,7 @@ function initWindow() {
   <!--  <div id="fixColor" class="fixControl">Colour</div> -->
   <input type="text" id="fixColor" name="fixColor" value="#123456" /></div>
   <div id="fixColorPicker"></div>
-  <div id="fixAim" class="fixControl">Aim</div>
+  <div id="fixAim" class="fixControl"><div id="fixAimHandle"></div></div>
   <div id="fixGroup" class="fixControl">Select individual</div>
   
 </div>

@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -286,6 +287,29 @@ public class FancyControllerAction
     		}
     		result.put("message", c + " fixture(s) set to #" + colorString);
 
+    	} else if (action.equals("fixtureAim")) {
+    		int c=0;
+    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		double x = Double.parseDouble(request.getParameter("x"));
+    		double y = Double.parseDouble(request.getParameter("y"));
+    		// TODO: probably express this as minPan/maxPan later
+    		// if same pan/tilt range for all fixtures, keep degrees info for message
+    		boolean sameRange = true;
+    		int lastPanRange=-1, lastTiltRange=-1;
+    		FixtureDef fd = null;
+    		for (String iterationId : fixtureIdStrings) {
+    			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
+    			fd = f.getFixtureDef();
+    			f.getFixtureController().panTo(fd.getPanRange() * x / 100);
+    			f.getFixtureController().tiltTo(fd.getTiltRange() * y / 100);
+    			if (lastPanRange==-1) { lastPanRange=fd.getPanRange(); } else { sameRange &= fd.getPanRange()==lastPanRange; };
+    			if (lastTiltRange==-1) { lastTiltRange=fd.getTiltRange(); } else { sameRange &= fd.getTiltRange()==lastTiltRange; };
+    			c++;
+    		}
+    		DecimalFormat df = new DecimalFormat("0.000");
+			result.put("message", c + " fixture(s) set to " +
+				"pan " + df.format(x) + "%" + (sameRange ? " " + df.format(fd.getPanRange()*x/100) + "&deg;" : "") +
+				", tilt " + df.format(y) + "%" + (sameRange ? " " + df.format(fd.getTiltRange()*y/100) + "&deg;" : ""));
     		
     	} else if (action.equals("getExceptions")) {
     		List exceptions = new ArrayList();
