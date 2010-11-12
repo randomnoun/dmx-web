@@ -13,38 +13,49 @@ import com.randomnoun.dmx.lightSource.LightSourceDef;
  */
 public abstract class FixtureDef {
 
-	public String vendor;
-	public String model;
+	protected String vendor;
+	protected String model;
 	
 	/** Length of fixture, in mm */
-	public long length;
+	protected long length;
 	
 	/** Width of fixture, in mm */
-	public long width;
+	protected long width;
 	
 	/** Height of fixture, in mm */
-	public long height;
+	protected long height;
 	
 	/** Weight of fixture, in mm */
-	public long weight;
+	protected long weight;
 	
 	/** Range of pan, in degrees */
-	public int panRange;
+	protected int panRange;
 	
 	/** Range of tilt, in degrees */
-	public int tiltRange;
+	protected int tiltRange;
 	
 	/** Maximum ambient temperator, in degrees */
-	public int maxAmbientTemperature;
+	protected int maxAmbientTemperature;
 	
 	/** Maximum wattage, in watts */
-	public int maxWattage;
+	protected int maxWattage;
 	
 	/** Light source definition */
-	public LightSourceDef lightSourceDef;
-
+	protected LightSourceDef lightSourceDef;
 
 	protected int numDmxChannels;
+	
+	public String getVendor() { return vendor; }
+	public String getModel() { return model; }
+	public long getLength() { return length; }
+	public long getHeight() { return height; }
+	public int getPanRange() { return panRange; }
+	public int getTiltRange() { return tiltRange; }
+	public int getMaxAmbientTemperature() { return maxAmbientTemperature; }
+	public int getMaxWattage() { return maxWattage; }
+	public LightSourceDef getLightSourceDef() { return lightSourceDef; }
+	public int getNumDmxChannels() { return numDmxChannels; }	
+	
 	public ChannelMuxer muxer;
 	
 	public List<ChannelDef> channelDefs = new ArrayList<ChannelDef>();
@@ -88,11 +99,10 @@ public abstract class FixtureDef {
 		throw new IllegalArgumentException("Offset " + offset + " not a valid offset for this fixture definition");
 	}
 
-	public int getNumDmxChannels() { return numDmxChannels; }
-	
-	
 	// to be implemented by subclasses of this class
 	public abstract ChannelMuxer getChannelMuxer(Fixture fixture);
 	public abstract FixtureController getFixtureController(Fixture fixture);
+	
+	
 	
 }
