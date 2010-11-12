@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -114,7 +116,8 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 		public void reconnect() {
 			try {
 				if (vlcSocket!=null && !vlcSocket.isClosed()) { 
-					try { vlcSocket.close(); } catch (Exception e2) { } 
+					try { vlcSocket.close(); } catch (Exception e2) { }
+					vlcSocket = null;
 				}
 				if (System.currentTimeMillis()-lastConnectTime > 5000) {
 					lastConnectTime = System.currentTimeMillis();	
@@ -156,17 +159,14 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 					muxOutput += "[r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + "][p=" + df.format(output.getPan()) + "][t=" + df.format(output.getTilt()) + "]";
 				}
 				if (vlcSocket!=null) {
-					try {
+					
 					// @TODO could keep socket open
-						logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
-						pw.println("@topleft marq-marquee " + dmxOutput);
-						pw.println("@bottomleft marq-marquee " + muxOutput);
-						pw.println("@bottomright marq-marquee " + sdf.format(new Date()));
-	                    pw.println("logout\n");
-						pw.flush();
-						os.close();
-					} catch (IOException e) {
-						e.printStackTrace();
+					logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
+					pw.println("@topleft marq-marquee " + dmxOutput);
+					pw.println("@bottomleft marq-marquee " + muxOutput);
+					pw.println("@bottomright marq-marquee " + sdf.format(new Date()));
+					if (pw.checkError()) {
+						logger.debug("Error in VLC printWriter");
 						reconnect();
 					}
 				} else {
@@ -177,8 +177,21 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 					Thread.sleep(20); // plenty fast enough
 				} catch (InterruptedException e) {
 				}
-				
 			}
+			
+			// shut down socket before completion
+			if (vlcSocket!=null) {
+				try {
+		            pw.println("logout\n");
+					pw.flush();
+					os.close();
+					vlcSocket.close();
+				} catch (IOException ioe) {
+					logger.error("Error closing socket to VLC", ioe);
+				}
+			}
+
+			
 		}
 		public void done() {
 			done = true;
