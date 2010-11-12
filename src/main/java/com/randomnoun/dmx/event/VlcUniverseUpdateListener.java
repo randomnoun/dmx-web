@@ -106,6 +106,7 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 			String dmxOutput = "", muxOutput = "";
 			startTime = System.currentTimeMillis();
 			while (!done) {
+				updateText = false;
 				if (vuul.fixture!=null) {
 					if (hasChanges) {
 						hasChanges = false;
@@ -122,26 +123,26 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 						Color c = output.getColor();
 						muxOutput += "[r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + "][p=" + df.format(output.getPan()) + "][t=" + df.format(output.getTilt()) + "]";
 					}
-					
-					try {
-						Socket vlcSocket = new Socket();
-						vlcSocket.connect(new InetSocketAddress(vuul.address, vuul.vlcPort));
-						OutputStream os = vlcSocket.getOutputStream();
-						// see syntax at http://forum.videolan.org/viewtopic.php?f=7&t=57094
-						PrintWriter pw = new PrintWriter(os);
-						pw.println();  // initial newline to get past password
-						if (updateText) {
-							logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
-							pw.println("@topleft     marq-marquee " + dmxOutput);
-							pw.println("@bottomleft  marq-marquee " + muxOutput);
-						}
-						pw.println("@bottomright marq-marquee " + sdf.format(new Date()));
-                        pw.println("logout\n");
-						pw.flush();
-						os.close();
-					} catch (IOException e) {
-						e.printStackTrace();
+				}
+				// @TODO could keep socket open
+				try {
+					Socket vlcSocket = new Socket();
+					vlcSocket.connect(new InetSocketAddress(vuul.address, vuul.vlcPort));
+					OutputStream os = vlcSocket.getOutputStream();
+					// see syntax at http://forum.videolan.org/viewtopic.php?f=7&t=57094
+					PrintWriter pw = new PrintWriter(os);
+					pw.println();  // initial newline to get past password
+					if (updateText) {
+						logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
+						pw.println("@topleft     marq-marquee " + dmxOutput);
+						pw.println("@bottomleft  marq-marquee " + muxOutput);
 					}
+					pw.println("@bottomright marq-marquee " + sdf.format(new Date()));
+                    pw.println("logout\n");
+					pw.flush();
+					os.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 				//System.out.println((System.currentTimeMillis()-startTime) + ": " + output);
 				try {
