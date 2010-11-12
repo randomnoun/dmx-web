@@ -142,30 +142,25 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 			while (!done) {
 				updateText = false;
 				if (vuul.fixture!=null) {
-					if (hasChanges) {
-						hasChanges = false;
-						updateText = true;
-						dmxOutput="[";
-						for (int i=0; i<vuul.fixtureDef.getNumDmxChannels(); i++) {
-							dmxOutput += vuul.dmxState[vuul.fixture.getStartDmxChannel() + i] + ", ";
-						}
-						dmxOutput += "]";
-						
-						muxOutput="";
-						ChannelMuxer mux = vuul.fixture.getChannelMuxer();
-						FixtureOutput output = mux.getOutput();
-						Color c = output.getColor();
-						muxOutput += "[r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + "][p=" + df.format(output.getPan()) + "][t=" + df.format(output.getTilt()) + "]";
+					updateText = true;
+					dmxOutput="[";
+					for (int i=0; i<vuul.fixtureDef.getNumDmxChannels(); i++) {
+						dmxOutput += vuul.dmxState[vuul.fixture.getStartDmxChannel() + i] + ", ";
 					}
+					dmxOutput += "]";
+					
+					muxOutput="";
+					ChannelMuxer mux = vuul.fixture.getChannelMuxer();
+					FixtureOutput output = mux.getOutput();
+					Color c = output.getColor();
+					muxOutput += "[r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + "][p=" + df.format(output.getPan()) + "][t=" + df.format(output.getTilt()) + "]";
 				}
 				if (vlcSocket!=null) {
 					try {
 					// @TODO could keep socket open
-						if (updateText) {
-							logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
-							pw.println("@topleft marq-marquee " + dmxOutput);
-							pw.println("@bottomleft marq-marquee " + muxOutput);
-						}
+						logger.debug("Updating VLC marquee to '" + dmxOutput + "'");
+						pw.println("@topleft marq-marquee " + dmxOutput);
+						pw.println("@bottomleft marq-marquee " + muxOutput);
 						pw.println("@bottomright marq-marquee " + sdf.format(new Date()));
 	                    pw.println("logout\n");
 						pw.flush();
