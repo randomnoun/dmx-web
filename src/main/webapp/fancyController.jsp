@@ -58,7 +58,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 /*** SHOW panel ***/
 #shwCancel {
-  position: absolute; top: 5px; left: 20px; width: 180px; height: 70px;
+  position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
   background-color: red;
   text-align: center; color: white; font-size: 18pt;
 }
@@ -67,6 +67,34 @@ BODY { font-size: 8pt; font-family: Arial; }
   text-align: center; color: white; font-size: 18pt; 
 }
 
+/*** FIXTURE panel ***/
+.fixItem {
+  position: absolute; width: 180px; height: 70px; background-color: green; 
+  text-align: center; color: white; font-size: 18pt; 
+}
+#fixBlackout {
+  position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
+  background-color: red;
+}
+#fixDim {
+  position: absolute; top: 20px; left: 220px; width: 90px; height: 160px;
+}
+#fixGroup {
+  position: absolute; top: 110px; left: 20px; width: 180px; height: 70px;
+}
+#fixColor {
+  position: absolute; top: 20px; left: 330px; width: 240px; height: 160px;
+}
+#fixAim {
+  position: absolute; top: 20px; left: 590px; width: 240px; height: 160px;
+}
+.fixControl {
+  text-align: center; color: white; font-size: 18pt;
+  background-color: green;
+}
+.fixSelect {
+  background-color: #DDFFDD;
+}
 
 /*** DMX panel ***/
 #dmxImmediate {
@@ -117,7 +145,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 <r:setJavascriptVar name="fixtureDefs" value="${fixtureDefs}" />
 var dmxToFixture=new Array();
 var dmxHighlightTimeout=-1;
-var lhsMenuPanels=new Array("shwPanel", "dmxPanel", "logPanel");
+var lhsMenuPanels=new Array("shwPanel", "fixPanel", "dmxPanel", "logPanel");
 var longPollRequest=null;
 var currentPanelName=null;
 function startShow(showId) {
@@ -224,7 +252,7 @@ function startRequests() {
 function initShwPanel() {
 	var x, y, el;
 	for (var i=0; i<shows.length; i++) {
-		x=20+(i%4)*200; y=90+Math.floor(i/4)*90;
+		x=20+(i%4)*200; y=110+Math.floor(i/4)*90;
 		el=$("shwItem[" + i + "]");
 		el.style.left=x+"px"; el.style.top=y+"px";
 		el.setAttribute("showId", i);
@@ -243,7 +271,66 @@ function shwItemClick(event) {
 function shwCancel(event) {
 	sendRequest('fancyController.html?action=cancelShow');
 }
- 
+
+/******************************* FIXTURE PANEL ******************************/
+
+function initFixPanel() {
+	var x,y,fixEl;
+	var fp=$("fixPanel");
+	for (var i=0; i<fixtures.length; i++) {
+		x=20+(i%4)*200; y=200+Math.floor(i/4)*90;
+    	f=fixtures[i]; fd=fixtureDefs[f.type];
+        var fixEl = new Element("div", { 
+            "id": "fixItem[" + i + "]", "fixtureId": i,
+            "class" : "fixItem" }).update(f.name);
+        fixEl.style.left=x+"px"; fixEl.style.top=y+"px";
+        fp.appendChild(fixEl);
+        Event.observe(fixEl, 'click', fixItemClick);
+    }
+	Event.observe($("fixGroup"), 'click', fixGroupClick);
+} 
+
+function fixToggleEl(el) {
+    if (el.hasClassName("fixSelect")) {
+        el.removeClassName("fixSelect"); return false;
+    } else {
+        el.addClassName("fixSelect"); return true;
+    }
+}
+
+var fixLastFixSelectedEl = null;
+var fixSelectIndividual = false;
+function fixItemClick(event) {
+	var fixItemEl = event.element();
+	if (fixSelectIndividual) {
+		if (fixLastFixSelectedEl!=null) { fixLastFixSelectedEl.removeClassName("fixSelect"); }
+	}
+	fixLastFixSelectedEl = fixToggleEl(fixItemEl) ? fixItemEl : null;
+}
+
+function fixGroupClick(event) {
+	var fixGroupEl = event.element();
+	fixSelectIndividual=fixToggleEl(fixGroupEl);
+	if (fixSelectIndividual) {
+		$$(".fixItem").each(function(f){f.removeClassName("fixSelect");});
+		if (fixLastFixSelectedEl!=null) { fixLastFixSelectedEl.addClassName("fixSelect"); }
+	}
+}
+
+function fixSetState(json) {
+	/* eventually 
+    var el = $("logExceptionContainer");
+    el.innerHTML = ""; // reset any existing DIVs
+    for (var i=0; i<json.exceptions.length; i++) {
+        var e = json.exceptions[i];
+        var exEl = new Element("div", { "class" : "logException" }).update(e.message);
+        exEl.style.left=20+"px"; exEl.style.top=(20+(i*30))+"px";
+        el.appendChild(exEl);
+    }
+    */
+}
+
+
 
 /******************************* DMX PANEL ******************************/
 
@@ -352,6 +439,7 @@ function initWindow() {
     initLhsMenu();
     initDmxPanel();
     initShwPanel();
+    initFixPanel();
     lhsShows();
 }
 
@@ -382,6 +470,18 @@ function initWindow() {
     }
 %>
 </div>
+
+
+<div id="fixPanel" style="display: none;">
+  <div id="fixBlackout" class="fixControl">Blackout</div>
+  <div id="fixDim" class="fixControl">Dim</div>
+  <div id="fixColor" class="fixControl">Colour</div>
+  <div id="fixAim" class="fixControl">Aim</div>
+  <div id="fixGroup" class="fixControl">Select individual</div>
+  
+</div>
+
+
 
 <div id="dmxPanel" style="display: none;">
   <div id="dmxImmediate">Immediate ON</div>
