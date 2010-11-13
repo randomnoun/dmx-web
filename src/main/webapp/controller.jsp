@@ -91,9 +91,9 @@ function cancelShow(showId) {
     List<Show> shows = (List<Show>) request.getAttribute("shows");
     for (int i=0; i<shows.size(); i++) {
     	  Show show = shows.get(i);
-%><li>Show <%= i %>: <%= show.getName() %> 
-  <input type="button" value="Start" onclick="startShow(<%= i %>)"/>
-  <input type="button" value="Cancel" onclick="cancelShow(<%= i %>)"/>
+%><li>Show <%= show.getId() %>: <%= show.getName() %> 
+  <input type="button" value="Start" onclick="startShow(<%= show.getId() %>)"/>
+  <input type="button" value="Cancel" onclick="cancelShow(<%= show.getId() %>)"/>
 </li>
 <%
     }

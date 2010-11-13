@@ -72,6 +72,9 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; width: 180px; height: 70px; background-color: green; 
   text-align: center; color: white; font-size: 18pt; 
 }
+.shwRunning {
+  background-color: #DDDDFF;
+}
 
 /*** FIXTURE panel ***/
 .fixItem {
@@ -246,14 +249,19 @@ function lhsBlackout() {
 	clickFx($("lhsBlackout"));
     sendRequest('fancyController.html?action=blackOut');
 }
-function lhsShows() { lhsSelect($("lhsShows")); lhsShowPanel("shwPanel"); startRequests(); }
-function lhsFixtures() { lhsSelect($("lhsFixtures"));lhsShowPanel("fixPanel"); }
-function lhsDMX() { lhsSelect($("lhsDMX")); lhsShowPanel("dmxPanel"); }
-function lhsLogs() { lhsSelect($("lhsLogs")); lhsShowPanel("logPanel"); startRequests(); }
+function lhsShows() { lhsSelect($("lhsShows")); lhsShowPanel("shwPanel"); startPollRequests(); }
+function lhsFixtures() { lhsSelect($("lhsFixtures"));lhsShowPanel("fixPanel"); startPollRequests(); }
+function lhsDMX() { lhsSelect($("lhsDMX")); lhsShowPanel("dmxPanel"); startPollRequests(); }
+function lhsLogs() { lhsSelect($("lhsLogs")); lhsShowPanel("logPanel"); startPollRequests(); }
 function lhsConfig() { lhsSelect($("lhsConfig")); lhsShowPanel("cnfPanel"); }
 
 
-function startRequests() {
+function startPollRequests() {
+	new Ajax.Request('fancyController.html?action=poll&panel=' + currentPanelName, {
+	    onSuccess: function(transport) {
+	    	updatePanel(transport.responseJSON);
+	    }		
+	})
 	/*
     if (currentPanelName=="shwPanel") {
 	    new Ajax.Request('fancyController.html?action=poll&panel=show', {
@@ -268,13 +276,23 @@ function startRequests() {
 				// catch-all called after all other event lifecycle handlers
 			} });
     }
-	*/
 	if (currentPanelName=="logPanel") {
 		new Ajax.Request('fancyController.html?action=getExceptions', {
 	        method:'get', // evalJSON:true,
 	        onSuccess: function(transport) {
 	            logSetExceptions(transport.responseJSON);
 	        } });
+	}
+	*/
+}
+
+function updatePanel(json) {
+	var jsonPanel = json.panel;
+	if (jsonPanel==currentPanelName) {
+		if (jsonPanel=="shwPanel") { updateShwPanel(json); }
+		if (!json.stopPollRequests) {
+		    window.setTimeout(startPollRequests, 500);
+	    }
 	}
 }
 
@@ -283,10 +301,11 @@ function startRequests() {
 function initShwPanel() {
 	var x, y, el;
 	for (var i=0; i<shows.length; i++) {
+		var show = shows[i];
 		x=20+(i%4)*200; y=110+Math.floor(i/4)*90;
-		el=$("shwItem[" + i + "]");
+		el=$("shwItem[" + show["id"] + "]");
 		el.style.left=x+"px"; el.style.top=y+"px";
-		el.setAttribute("showId", i);
+		el.setAttribute("showId", show["id"]);
 		Event.observe(el, 'click', shwItemClick);
 	}
 	Event.observe($("shwCancel"), 'click', shwCancel);
@@ -296,11 +315,24 @@ function shwItemClick(event) {
 	var shwItemEl = event.element();
 	clickFx(shwItemEl);
 	var showId = shwItemEl.readAttribute("showId");
-	sendRequest('fancyController.html?action=startShow&showId=' + showId);
+	sendRequest('fancyController.html?action=startShow&showId=' + showId, startPollRequests);
 }
 
 function shwCancel(event) {
 	sendRequest('fancyController.html?action=cancelShow');
+}
+
+function updateShwPanel(json) {
+	var newShows = json.shows;
+	for (var i=0; i<newShows.length; i++) {
+		var showId = newShows["id"];
+		var el = $("shwItem[" + showId + "]");
+		if (newShows[i]["state"]=="SHOW_RUNNING") {
+			el.addClassName("shwRunning");
+		} else {
+			el.removeClassName("shwRunning");
+		}
+	}
 }
 
 /******************************* FIXTURE PANEL ******************************/
@@ -629,7 +661,7 @@ function initWindow() {
     for (int i=0; i<shows.size(); i++) {
     	Map show = (Map) shows.get(i);
 %>
-  <div id="shwItem[<%= i %>]" class="shwItem"><%= show.get("name") %></div>
+  <div id="shwItem[<%= show.get("id") %>]" class="shwItem"><%= show.get("name") %></div>
 <%
     }
 %>

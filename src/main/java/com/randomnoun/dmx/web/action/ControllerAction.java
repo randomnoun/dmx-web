@@ -163,13 +163,13 @@ public class ControllerAction
     		fixtureController.tiltTo(tilt);
     	} else if (action.equals("startShow")) {
     		int showId = Integer.parseInt(request.getParameter("showId"));
-    		Show show = appConfig.getShows().get(showId);
+    		Show show = appConfig.getShow(showId);
     		appConfig.startShow(showId);
     		request.setAttribute("message", "Show " + showId + " '" + show.getName() + "' started " +
     			(show.getLength()==Long.MAX_VALUE ? " (continuous)" : " (length=" + show.getLength() + "msec)"));
     	} else if (action.equals("cancelShow")) {
     		int showId = Integer.parseInt(request.getParameter("showId"));
-    		Show show = appConfig.getShows().get(showId);
+    		Show show = appConfig.getShow(showId);
     		appConfig.cancelShow(showId);
     		request.setAttribute("message", "Show " + showId + " '" + show.getName() + "' cancel requested");
     	}

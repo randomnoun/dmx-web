@@ -1,32 +1,13 @@
 package com.randomnoun.dmx.web.action;
 
-import gnu.io.PortInUseException;
-import gnu.io.RXTXCommDriver;
-import gnu.io.RXTXVersion;
 
 import java.awt.Color;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.TooManyListenersException;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -36,18 +17,9 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.jacob.activeX.ActiveXComponent;
-import com.jacob.com.SafeArray;
-import com.jacob.com.Variant;
-import com.jacobgen.dmx._USBDMXProCom;
-import com.randomnoun.common.ExceptionUtils;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
-import com.randomnoun.common.db.DatabaseTO;
-import com.randomnoun.common.db.DatabaseTO.TableColumnTO;
-import com.randomnoun.common.db.DatabaseTO.TableTO;
 import com.randomnoun.common.security.User;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.ExceptionContainer;
@@ -56,8 +28,6 @@ import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
-import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidget;
-import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetTranslator;
 import com.randomnoun.dmx.show.Show;
 
 /**
@@ -140,7 +110,7 @@ public class FancyControllerAction
     		for (int i=0; i<appConfig.getShows().size(); i++) {
     			Show s = appConfig.getShows().get(i);
     			Map m = new HashMap();
-    			m.put("id", new Long(i));
+    			m.put("id", new Long(s.getId()));
     			m.put("name", s.getName());
     			shows.add(m);
     		}
@@ -154,7 +124,8 @@ public class FancyControllerAction
     	} else if (action.equals("poll")) {
     		// just poll the goddamn thing every second or so.
     		String panel = request.getParameter("panel");
-    		if (panel.equals("dmx")) {
+    		result.put("panel", panel);
+    		if (panel.equals("dmxPanel")) {
     			Universe u = appConfig.getController().getUniverse();
     			int[] d = u.getAllDmxChannelValues();
     			String j = "";
@@ -162,13 +133,14 @@ public class FancyControllerAction
     			j += "";
     			result.put("dmx", j); 
     			
-    		} else if (panel.equals("show")) {
+    		} else if (panel.equals("shwPanel")) {
     			List<Show> shows = appConfig.getShows();
     			List showResult = new ArrayList();
     			for (int i=0; i<shows.size(); i++) {
     				Show show = shows.get(i);
     				HashMap m = new HashMap();
-    				m.put("state", show.getState());
+    				m.put("id", show.getId());
+    				m.put("state", show.getState().toString());
     				m.put("time", show.getShowTime());
     				showResult.add(m);
     			}
@@ -230,7 +202,7 @@ public class FancyControllerAction
     		
     	} else if (action.equals("startShow")) {
     		int showId = Integer.parseInt(request.getParameter("showId"));
-    		Show show = appConfig.getShows().get(showId);
+    		Show show = appConfig.getShow(showId);
     		appConfig.startShow(showId);
     		result.put("message", "Show " + showId + " '" + show.getName() + "' started " +
     			(show.getLength()==Long.MAX_VALUE ? " (continuous)" : " (length=" + show.getLength() + "msec)"));
@@ -241,7 +213,7 @@ public class FancyControllerAction
     			showId = Integer.parseInt(request.getParameter("showId"));
     		}
     		if (showId != -1) {
-	    		Show show = appConfig.getShows().get(showId);
+	    		Show show = appConfig.getShow(showId);
 	    		appConfig.cancelShow(showId);
 	    		result.put("message", "Show " + showId + " '" + show.getName() + "' cancel requested");
     		} else {

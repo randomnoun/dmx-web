@@ -32,23 +32,24 @@ public class ShowThread extends Thread {
 				// @TODO if this is the same show (*really bad idea*), then just loop this method
 				if (onCancelShowId!=-1 && appConfig.getAppConfigState()==AppConfigState.RUNNING) {
 					logger.debug("Show '" + show.getName() + "' requesting onCancelShowId " + onCancelShowId + " to start");
-					AppConfig.getAppConfig().startShow((int) onCancelShowId);
+					AppConfig.getAppConfig().startShow(onCancelShowId);
 				}
 			} else {
 				logger.debug("Show '" + show.getName() + "' completed");
 				if (onCompleteShowId!=-1 && appConfig.getAppConfigState()==AppConfigState.RUNNING) {
 					logger.debug("Show '" + show.getName() + "' requesting onCompletedShowId " + onCompleteShowId + " to start");
-					AppConfig.getAppConfig().startShow((int) onCompleteShowId);
+					AppConfig.getAppConfig().startShow(onCompleteShowId);
 				}
 
 			}
 		} catch (Exception e) {
 			logger.debug("Show '" + show.getName() + "' threw an exception", e);
+			show.state = Show.State.SHOW_STOPPED;
 			show.setLastException(e);
 			AppConfig.getAppConfig().addShowException(show, e);
 			if (onCancelShowId!=-1 && appConfig.getAppConfigState()==AppConfigState.RUNNING) {
 				logger.debug("Show '" + show.getName() + "' requesting onCancelShowId " + onCancelShowId + " to start due to exception");
-				AppConfig.getAppConfig().startShow((int) onCancelShowId);
+				AppConfig.getAppConfig().startShow(onCancelShowId);
 			}
 
 		}
