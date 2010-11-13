@@ -144,10 +144,10 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
                                         <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="30">
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].onCompleteShowId' text='errorBg' />"> 
-                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCompleteShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" />
+                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCompleteShowId" data="${form.followupShows}" value="${rowData.onCompleteShowId}" displayColumn="name" valueColumn="id" firstOption="" />
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].onCancelShowId' text='errorBg' />"> 
-                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCencelShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" />
+                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCancelShowId" data="${form.followupShows}" value="${rowData.onCancelShowId}" displayColumn="name" valueColumn="id" firstOption="" />
                                     </td>
 
                                 </tr>
@@ -167,10 +167,10 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
                                         <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="30">
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].onCompleteShowId' text='errorBg' />"> 
-                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCompleteShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" />
+                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCompleteShowId" data="${form.followupShows}" value="${rowData.onCompleteShowId}" displayColumn="name" valueColumn="id" firstOption="" />
                                     </td>
                                     <td class="<r:onError name='shows[${rowStatus.index}].onCancelShowId' text='errorBg' />"> 
-                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCancelShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" />
+                                        <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCancelShowId" data="${form.followupShows}" value="${rowData.onCancelShowId}" displayColumn="name" valueColumn="id" firstOption="" />
                                     </td>
 	                            </tr>
 	                        </c:otherwise></c:choose> 
