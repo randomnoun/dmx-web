@@ -101,7 +101,7 @@ public class MaintainShowDefAction
     	} else if (action.equals("newShowDef")) {
     		showDef = new ShowDefTO();
     		showDef.setId(-1);
-    		showDef.setName("name of fixture");
+    		showDef.setName("Untitled show");
     		showDef.setScript(getScriptTemplate());
     		request.setAttribute("showDef", showDef);
     				
@@ -151,111 +151,112 @@ public class MaintainShowDefAction
     
     private String getScriptTemplate() {
     	return
-    	"package com.randomnoun.dmx.example.shows;" + 
-    	"" + 
-    	"import java.awt.Color;" + 
-    	"import java.util.Map;" + 
-    	"" + 
-    	"import org.apache.log4j.Logger;" + 
-    	"" + 
-    	"import com.randomnoun.dmx.AudioController;" + 
-    	"import com.randomnoun.dmx.Controller;" + 
-    	"import com.randomnoun.dmx.compiled.MiniWashFixtureDef12.MiniWashFixtureController;" + 
-    	"" + 
-    	"/** Flash the lights and play 'smooth criminal'." + 
-    	" * " + 
-    	" * If nothing happens in ten seconds, the volume will fade down to 50% over the next 10 seconds. " + 
-    	" * If it still isn't cancelled, this show will loop the music after three minutes." + 
-    	" */" + 
-    	"public class PerformerEntranceShow extends Show {" + 
-    	"" + 
-    	"	Logger logger = Logger.getLogger(PerformerEntranceShow.class);" + 
-    	"	" + 
-    	"	MiniWashFixtureController leftWash;" + 
-    	"	MiniWashFixtureController rightWash;" + 
-    	"	AudioController audioController;" + 
-    	"	" + 
-    	"	public PerformerEntranceShow(Controller controller, Map properties) {" + 
-    	"		super(controller, \"Performer entrance\", Long.MAX_VALUE, properties);" + 
-    	"		sleepMonitor = new Object();" + 
-    	"		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();" + 
-    	"		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();" + 
-    	"		audioController = controller.getAudioController();" + 
-    	"	}" + 
-    	"	" + 
-    	"	public void pause() {}" + 
-    	"	public void stop() {}" + 
-    	"	" + 
-    	"	protected void reset() {" + 
-    	"		super.reset();" + 
-    	"		logger.debug(\"reset()\");" + 
-    	"		leftWash.setColor(Color.BLACK);" + 
-    	"		rightWash.setColor(Color.BLACK);" + 
-    	"		leftWash.setMovementSpeed(0);" + 
-    	"		rightWash.setMovementSpeed(0);" + 
-    	"		leftWash.panTo(90); leftWash.tiltTo(45);" + 
-    	"		rightWash.panTo(270); rightWash.tiltTo(45);" + 
-    	"		" + 
-    	"		// @TODO wait until muxers say that the fixtures" + 
-    	"		// are in the right position" + 
-    	"	}" + 
-    	"	" + 
-    	"	public void play() {" + 
-    	"		logger.debug(\"play()\");" + 
-    	"		reset();" + 
-    	"		waitUntil(1000);" + 
-    	"		if (isCancelled()) { return; }" + 
-    	"		" + 
-    	"		logger.debug(\"play() part 2\");" + 
-    	"		long songStartTime = getShowTime();" + 
-    	"		audioController.playAudioFile(\"smoothCriminal.mp3\");" + 
-    	"		" + 
-    	"		Color[] chaseColors = new Color[]{" + 
-    	"			Color.GREEN," + 
-    	"			Color.BLUE," + 
-    	"			Color.RED" + 
-    	"		};" + 
-    	"		// 20 steps at half a second per chase step" + 
-    	"		int i=0;" + 
-    	"		while (getShowTime() < 10 * 1000) {" + 
-    	"			i++;" + 
-    	"			leftWash.setColor(chaseColors[i % 3]);" + 
-    	"			rightWash.setColor(chaseColors[(i+1) % 3]);" + 
-    	"			waitFor(500);" + 
-    	"			if (isCancelled()) { return; }" + 
-    	"		}" + 
-    	"		" + 
-    	"		// fade music down" + 
-    	"		double volume = 100;" + 
-    	"		long startFadeTime = getShowTime();" + 
-    	"		long stopFadeTime = getShowTime() + 20 * 1000;" + 
-    	"		while (getShowTime() < stopFadeTime) {" + 
-    	"			i++; " + 
-    	"			// volume = volume - (50 / 20);" + 
-    	"			volume = 100 - (getShowTime() - startFadeTime) * 50 / (stopFadeTime-startFadeTime);" + 
-    	"			leftWash.setColor(chaseColors[i % 3]);" + 
-    	"			rightWash.setColor(chaseColors[(i+1) % 3]);" + 
-    	"			audioController.setVolume(volume);" + 
-    	"			waitFor(500);" + 
-    	"			if (isCancelled()) { return; }" + 
-    	"		}" + 
-    	"		" + 
-    	"		while (true) {" + 
-    	"			while (getShowTime() - songStartTime < 180 * 1000) {" + 
-    	"				i++;" + 
-    	"				leftWash.setColor(chaseColors[i % 3]);" + 
-    	"				rightWash.setColor(chaseColors[(i+1) % 3]);" + 
-    	"				waitFor(500);" + 
-    	"				if (isCancelled()) { return; }" + 
-    	"			}" + 
-    	"			songStartTime = getShowTime();" + 
-    	"			audioController.playAudioFile(\"smoothCriminal.mp3\");" + 
-    	"			audioController.setVolume(50.0);" + 
-    	"		}" + 
-    	"		" + 
-    	"	}" + 
-    	"	" + 
-    	"" + 
+    	"package com.randomnoun.dmx.show.script;\n" + 
+    	"\n" + 
+    	"import java.awt.Color;\n" + 
+    	"import java.util.Map;\n" + 
+    	"\n" + 
+    	"import org.apache.log4j.Logger;\n" + 
+    	"\n" + 
+    	"import com.randomnoun.dmx.AudioController;\n" + 
+    	"import com.randomnoun.dmx.Controller;\n" + 
+    	"import com.randomnoun.dmx.fixture.script.MiniWashFixtureController;\n" +
+    	"import com.randomnoun.dmx.show.Show;\n" +
+    	"\n" + 
+    	"/** Flash the lights and play 'smooth criminal'.\n" + 
+    	" * \n" + 
+    	" * If nothing happens in ten seconds, the volume will fade down to 50% over the next 10 seconds. \n" + 
+    	" * If it still isn't cancelled, this show will loop the music after three minutes.\n" + 
+    	" */\n" + 
+    	"public class PerformerEntranceShow extends Show {\n" + 
+    	"\n" + 
+    	"	Logger logger = Logger.getLogger(PerformerEntranceShow.class);\n" + 
+    	"	\n" + 
+    	"	MiniWashFixtureController leftWash;\n" + 
+    	"	MiniWashFixtureController rightWash;\n" + 
+    	"	AudioController audioController;\n" + 
+    	"	\n" + 
+    	"	public PerformerEntranceShow(long id, Controller controller, Map properties) {\n" + 
+    	"		super(id, controller, \"Performer entrance\", Long.MAX_VALUE, properties);\n" + 
+    	"		sleepMonitor = new Object();\n" + 
+    	"		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();\n" + 
+    	"		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();\n" + 
+    	"		audioController = controller.getAudioController();\n" + 
+    	"	}\n" + 
+    	"	\n" + 
+    	"	public void pause() {}\n" + 
+    	"	public void stop() {}\n" + 
+    	"	\n" + 
+    	"	protected void reset() {\n" + 
+    	"		super.reset();\n" + 
+    	"		logger.debug(\"reset()\");\n" + 
+    	"		leftWash.setColor(Color.BLACK);\n" + 
+    	"		rightWash.setColor(Color.BLACK);\n" + 
+    	"		leftWash.setMovementSpeed(0);\n" + 
+    	"		rightWash.setMovementSpeed(0);\n" + 
+    	"		leftWash.panTo(90); leftWash.tiltTo(45);\n" + 
+    	"		rightWash.panTo(270); rightWash.tiltTo(45);\n" + 
+    	"		\n" + 
+    	"		// @TODO wait until muxers say that the fixtures\n" + 
+    	"		// are in the right position\n" + 
+    	"	}\n" + 
+    	"	\n" + 
+    	"	public void play() {\n" + 
+    	"		logger.debug(\"play()\");\n" + 
+    	"		reset();\n" + 
+    	"		waitUntil(1000);\n" + 
+    	"		if (isCancelled()) { return; }\n" + 
+    	"		\n" + 
+    	"		logger.debug(\"play() part 2\");\n" + 
+    	"		long songStartTime = getShowTime();\n" + 
+    	"		audioController.playAudioFile(\"smoothCriminal.mp3\");\n" + 
+    	"		\n" + 
+    	"		Color[] chaseColors = new Color[]{\n" + 
+    	"			Color.GREEN,\n" + 
+    	"			Color.BLUE,\n" + 
+    	"			Color.RED\n" + 
+    	"		};\n" + 
+    	"		// 20 steps at half a second per chase step\n" + 
+    	"		int i=0;\n" + 
+    	"		while (getShowTime() < 10 * 1000) {\n" + 
+    	"			i++;\n" + 
+    	"			leftWash.setColor(chaseColors[i % 3]);\n" + 
+    	"			rightWash.setColor(chaseColors[(i+1) % 3]);\n" + 
+    	"			waitFor(500);\n" + 
+    	"			if (isCancelled()) { return; }\n" + 
+    	"		}\n" + 
+    	"		\n" + 
+    	"		// fade music down\n" + 
+    	"		double volume = 100;\n" + 
+    	"		long startFadeTime = getShowTime();\n" + 
+    	"		long stopFadeTime = getShowTime() + 20 * 1000;\n" + 
+    	"		while (getShowTime() < stopFadeTime) {\n" + 
+    	"			i++; \n" + 
+    	"			// volume = volume - (50 / 20);\n" + 
+    	"			volume = 100 - (getShowTime() - startFadeTime) * 50 / (stopFadeTime-startFadeTime);\n" + 
+    	"			leftWash.setColor(chaseColors[i % 3]);\n" + 
+    	"			rightWash.setColor(chaseColors[(i+1) % 3]);\n" + 
+    	"			audioController.setVolume(volume);\n" + 
+    	"			waitFor(500);\n" + 
+    	"			if (isCancelled()) { return; }\n" + 
+    	"		}\n" + 
+    	"		\n" + 
+    	"		while (true) {\n" + 
+    	"			while (getShowTime() - songStartTime < 180 * 1000) {\n" + 
+    	"				i++;\n" + 
+    	"				leftWash.setColor(chaseColors[i % 3]);\n" + 
+    	"				rightWash.setColor(chaseColors[(i+1) % 3]);\n" + 
+    	"				waitFor(500);\n" + 
+    	"				if (isCancelled()) { return; }\n" + 
+    	"			}\n" + 
+    	"			songStartTime = getShowTime();\n" + 
+    	"			audioController.playAudioFile(\"smoothCriminal.mp3\");\n" + 
+    	"			audioController.setVolume(50.0);\n" + 
+    	"		}\n" + 
+    	"		\n" + 
+    	"	}\n" + 
+    	"	\n" + 
+    	"\n" + 
     	"}	";
     }
     	
@@ -347,8 +348,8 @@ public class MaintainShowDefAction
 				errors.addError("script", "Invalid class", "Class " + className + " does not extend com.randomnoun.dmx.Show"); 
 			} else {
 				Map nullProperties = new HashMap();
-				Constructor constructor = clazz.getConstructor(Controller.class, Map.class);
-				showObj = (Show) constructor.newInstance(testController, nullProperties);
+				Constructor constructor = clazz.getConstructor(long.class, Controller.class, Map.class);
+				showObj = (Show) constructor.newInstance(0L, testController, nullProperties);
 			}
 		} catch (Exception e) {
 			logger.error("Exception validating scripted show", e);
@@ -361,7 +362,7 @@ public class MaintainShowDefAction
     	String summary = "";
     	while (e!=null) {
     		summary += "(" + e.getClass().getName() + ")";
-    		if (!Text.isBlank(e.getMessage())) { summary += " " + e.getMessage(); }
+    		if (!Text.isBlank(e.getMessage())) { summary += "<br/>" + e.getMessage(); }
     		e = e.getCause();
     	}
     	return summary;
