@@ -4,8 +4,10 @@ public class FixtureDefTO {
 
     private long id;
     private String name;
-    private String className;
-    private String script;
+    private String fixtureDefClassName;
+    private String fixtureDefScript;
+    private String fixtureControllerClassName;
+    private String fixtureControllerScript;
 
     /** Returns the id
      * @return the id
@@ -35,32 +37,62 @@ public class FixtureDefTO {
         this.name = name;
     }
 
-    /** Returns the className
-     * @return the className
+    /** Returns the class name of the fixtureDef defined in the script
+     * @return the class name of the fixtureDef defined in the script
      */
-    public String getClassName() {
-        return className;
+    public String getFixtureDefClassName() {
+        return fixtureDefClassName;
     }
 
-    /** Set the className
-     * @param className
+    /** Set the class name of the fixtureDef defined in the script
+     * @param class name of the fixtureDef defined in the script
      */
-    public void setClassName(String className) {
-        this.className = className;
+    public void setFixtureDefClassName(String fixtureDefClassName) {
+        this.fixtureDefClassName = fixtureDefClassName;
     }
 
-    /** Returns the script
-     * @return the script
+    /** Returns the class name of the FixtureController defined in the script
+     * @return the class name of the FixtureController defined in the script
      */
-    public String getScript() {
-        return script;
+    public String getFixtureControllerClassName() {
+        return fixtureControllerClassName;
     }
 
-    /** Set the script
-     * @param script
+    /** Set the class name of the FixtureController defined in the script
+     * @param class name of the FixtureController defined in the script
      */
-    public void setScript(String script) {
-        this.script = script;
+    public void setFixtureControllerClassName(String fixtureControllerClassName) {
+        this.fixtureControllerClassName = fixtureControllerClassName;
     }
 
+
+    /** Returns the fixtureDefScript
+     * @return the fixtureDefScript
+     */
+    public String getFixtureDefScript() {
+        return fixtureDefScript;
+    }
+
+    /** Set the fixtureDefScript
+     * @param fixtureDefScript
+     */
+    public void setFixtureDefScript(String fixtureDefScript) {
+        this.fixtureDefScript = fixtureDefScript;
+    }
+
+    /** Returns the fixtureControllerScript
+     * @return the fixtureControllerScript
+     */
+    public String getFixtureControllerScript() {
+        return fixtureControllerScript;
+    }
+
+    /** Set the fixtureControllerScript
+     * @param fixtureControllerScript
+     */
+    public void setFixtureControllerScript(String fixtureControllerScript) {
+        this.fixtureControllerScript = fixtureControllerScript;
+    }
+    
+    
 }

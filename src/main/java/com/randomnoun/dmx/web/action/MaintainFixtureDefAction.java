@@ -2,12 +2,15 @@ package com.randomnoun.dmx.web.action;
 
 
 import java.io.StringReader;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -31,9 +34,14 @@ import com.randomnoun.common.ErrorList;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
+import com.randomnoun.dmx.Controller;
+import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
+import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.to.FixtureDefTO;
 
 /**
@@ -99,22 +107,32 @@ public class MaintainFixtureDefAction
     		fixtureDef = new FixtureDefTO();
     		fixtureDef.setId(-1);
     		fixtureDef.setName("name of fixture");
-    		fixtureDef.setScript(getScriptTemplate());
+    		fixtureDef.setFixtureDefScript(getFixtureDefScriptTemplate());
+    		fixtureDef.setFixtureControllerScript(getFixtureControllerScriptTemplate());
     		request.setAttribute("fixtureDef", fixtureDef);
     				
     	} else if (request.getParameter("updateFixtureDef")!=null) {
     		Map fixtureDefMap = (Map) form.get("fixtureDef");
     		long lngId = Long.parseLong((String) fixtureDefMap.get("id"));
-    		String txtName = (String) fixtureDefMap.get("name");
-    		String txtScript = (String) fixtureDefMap.get("script");
-    		errors.addErrors(validateScript(txtScript));
+    		String fixtureDefScript = (String) fixtureDefMap.get("fixtureDefScript");
+    		String fixtureControllerScript = (String) fixtureDefMap.get("fixtureControllerScript");
+    		String fixtureDefClassName = null;
+    		String fixtureControllerClassName = null;
+    		errors.addErrors(validateScriptSyntax("fixture definition", fixtureDefScript));
+    		errors.addErrors(validateScriptSyntax("fixture controller", fixtureControllerScript));
+    		if (!errors.hasErrors()) {
+    			fixtureDefClassName = getClassName(fixtureDefScript);
+    			fixtureControllerClassName = getClassName(fixtureControllerScript);
+    			errors.addErrors(validateScriptInstances(fixtureDefScript, fixtureDefClassName, fixtureControllerScript, fixtureControllerClassName));
+    		}
     		if (errors.hasErrors()) {
     			Struct.setFromRequest(form, request);
     			request.setAttribute("fixtureDef", form.get("fixtureDef"));
     		} else {
     			fixtureDef = new FixtureDefTO();
     			Struct.setFromMap(fixtureDef, fixtureDefMap, false, true, false);
-    			fixtureDef.setClassName(getClassName(fixtureDef.getScript()));
+    			fixtureDef.setFixtureDefClassName(getClassName(fixtureDef.getFixtureDefScript()));
+    			fixtureDef.setFixtureControllerClassName(getClassName(fixtureDef.getFixtureControllerScript()));
 	    		if (lngId==-1) {
 	    			fixtureDefDAO.createFixtureDef(fixtureDef);
 	    			errors.addError("Fixture created", "Fixture definition created", ErrorList.SEVERITY_OK);
@@ -141,9 +159,9 @@ public class MaintainFixtureDefAction
 		
     }
     
-    private String getScriptTemplate() {
+    private String getFixtureDefScriptTemplate() {
     	return
-    	"package com.randomnoun.dmx.scripted;\n" +
+    	"package com.randomnoun.dmx.fixture.script;\n" +
     	"\n" +
     	"import java.awt.Color;\n" +
     	"\n" +
@@ -173,12 +191,6 @@ public class MaintainFixtureDefAction
     	" * @author name\n" +
     	" */\n" +
     	"public class X0177FixtureDef extends FixtureDef {\n" +
-    	"\n" +
-    	"	public static class X0177FixtureController extends FixtureController {\n" +
-    	"		public X0177FixtureController(Fixture fixture) {\n" +
-    	"			super(fixture);\n" +
-    	"		}\n" +
-    	"	}\n" +
     	"\n" +
     	"	\n" +
     	"	public X0177FixtureDef() {\n" +
@@ -213,6 +225,23 @@ public class MaintainFixtureDefAction
     	"}\n";
     }
     
+    public String getFixtureControllerScriptTemplate() {
+    	return
+    	"package com.randomnoun.dmx.fixture.script;\n" +
+    	"\n" +
+    	"import java.awt.Color;\n" +
+    	"\n" +
+    	"import com.randomnoun.dmx.Fixture;\n" +
+    	"import com.randomnoun.dmx.FixtureController;\n" +
+    	"import com.randomnoun.dmx.FixtureDef;\n" +
+    	"\n" +
+    	"public class X0177FixtureController extends FixtureController {\n" +
+    	"	public X0177FixtureController(Fixture fixture) {\n" +
+    	"		super(fixture);\n" +
+    	"	}\n" +
+    	"}\n";
+    }
+    
     public static class ScriptLocationErrorData extends ErrorList.ErrorData {
     	long rowNumber;
     	long columnNumber;
@@ -227,7 +256,7 @@ public class MaintainFixtureDefAction
 		public long getColumnNumber() { return columnNumber; }
     }
     
-    private ErrorList validateScript(String script) {
+    private ErrorList validateScriptSyntax(String scriptType, String script) {
     	ErrorList errors = new ErrorList();
     	Parser parser = new Parser(new StringReader(script));
     	try {
@@ -240,15 +269,31 @@ public class MaintainFixtureDefAction
 			Matcher m = p.matcher(e.getMessage());
 			if (m.matches()) {
 				errors.add(new ScriptLocationErrorData("script", "Parse error", 
-					"There was an error parsing the script: " + e.getMessage(), 
+					"There was an error parsing the " + scriptType + " script: " + e.getMessage(), 
 					ErrorList.SEVERITY_ERROR,
 					Long.parseLong(m.group(1)), Long.parseLong(m.group(2))));
 			} else {
-				errors.addError("script", "Parse error", "There was an error parsing the script: " +
+				errors.addError("script", "Parse error", "There was an error parsing the " + scriptType + " script: " +
 					e.getMessage());
 			}
-			e.printStackTrace();
+			logger.debug("Script validation error", e);
+		} catch (bsh.TokenMgrError e) {
+			Pattern p = Pattern.compile("Lexical error at line ([0-9]+), column ([0-9]+)");
+			Matcher m = p.matcher(e.getMessage());
+			if (m.matches()) {
+				errors.add(new ScriptLocationErrorData("script", "Parse error", 
+					"There was an error parsing the " + scriptType + " script: " + e.getMessage(), 
+					ErrorList.SEVERITY_ERROR,
+					Long.parseLong(m.group(1)), Long.parseLong(m.group(2))));
+			} else {
+				errors.addError("script", "Parse error", "There was an error parsing the " + scriptType + " script: " +
+					e.getMessage());
+			}
+			logger.debug("Script validation error", e);
+			
 		}
+		
+		
     	
         //ScriptEngineManager factory = new ScriptEngineManager();
         //factory.registerEngineName("Beanshell", new BshScriptEngineFactory());
@@ -256,6 +301,68 @@ public class MaintainFixtureDefAction
         // engine.eval("print('Hello, World')");
         return errors;
     }
+    
+    public ErrorList validateScriptInstances(String fixtureDefScript, String fixtureDefClassName, String fixtureControllerScript, String fixtureControllerClassName) {
+    	ErrorList errors = new ErrorList();
+    	AppConfig appConfig = AppConfig.getAppConfig();
+    	Fixture fixtureObj = null;
+		FixtureDef fixtureDefObj = null;
+		FixtureController fixtureControllerObj = null;
+		ScriptEngine scriptEngine = null;
+		ScriptContext scriptContext = null;
+		Universe nullUniverse = new Universe();
+		Controller testController = new Controller();
+		
+		try {
+			scriptEngine = appConfig.getScriptEngine();
+			scriptContext = scriptEngine.getContext();
+			appConfig.loadFixtures(scriptContext, testController);
+			scriptEngine.eval(fixtureDefScript, scriptContext);
+			String testScript =
+				"import com.randomnoun.dmx.fixture.FixtureDef;\n" +
+				"import " + fixtureDefClassName + ";\n" +
+				"return " + fixtureDefClassName + ".class;\n" ;
+			// @TODO check class before instantiating
+			Class clazz = (Class) scriptEngine.eval(testScript, scriptContext);
+			if (!FixtureDef.class.isAssignableFrom(clazz)) {
+				errors.addError("script", "Invalid class", "Class " + fixtureDefClassName + " does not extend com.randomnoun.dmx.fixture.Fixture"); 
+			} else {
+				Map nullProperties = new HashMap();
+				Constructor constructor = clazz.getConstructor();
+				fixtureDefObj = (FixtureDef) constructor.newInstance();
+			}
+			fixtureObj = new Fixture("Fixture validation", fixtureDefObj, nullUniverse, 1);
+		} catch (Exception e) {
+			logger.error("Exception validating scripted fixture", e);
+			errors.addError("script", "Invalid class", "Error whilst instantiating fixture definition: " + getStackSummary(e));
+		}
+		
+		if (!errors.hasErrors()) {
+			try {
+				scriptEngine.eval(fixtureControllerScript, scriptContext);
+				String testScript =
+					"import com.randomnoun.dmx.fixture.FixtureController;\n" +
+					"import " + fixtureControllerClassName + ";\n" +
+					"return " + fixtureControllerClassName + ".class;\n" ;
+				// @TODO check class before instantiating
+				Class clazz = (Class) scriptEngine.eval(testScript, scriptContext);
+				if (!FixtureController.class.isAssignableFrom(clazz)) {
+					errors.addError("script", "Invalid class", "Class " + fixtureControllerClassName + " does not extend com.randomnoun.dmx.fixture.FixtureController"); 
+				} else {
+					Map nullProperties = new HashMap();
+					Constructor constructor = clazz.getConstructor(Fixture.class);
+					fixtureControllerObj = (FixtureController) constructor.newInstance(fixtureObj);
+				}
+			} catch (Exception e) {
+				logger.error("Exception validating scripted fixture controller", e);
+				errors.addError("script", "Invalid class", "Error whilst instantiating fixture controller definition: " + getStackSummary(e));
+			}
+		}
+		
+		
+    	return errors;
+    }
+
     
     /** Returns the *first* class defined in the script */
     public String getClassName(String script) {
@@ -281,6 +388,17 @@ public class MaintainFixtureDefAction
 		if (className == null) { throw new IllegalArgumentException("No script defined"); }
 		throw new IllegalStateException("Internal error (non-null className)");  // This codepath can't execute
     }
+    
+    public String getStackSummary(Throwable e) {
+    	String summary = "";
+    	while (e!=null) {
+    		summary += "(" + e.getClass().getName() + ")";
+    		if (!Text.isBlank(e.getMessage())) { summary += "\n" + e.getMessage(); }
+    		e = e.getCause();
+    	}
+    	return summary;
+    }
+
     
 }
 

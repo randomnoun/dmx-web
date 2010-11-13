@@ -20,8 +20,10 @@ public class FixtureDefDAO {
             FixtureDefTO f = new FixtureDefTO();
             f.setId(rs.getLong("id"));
             f.setName(rs.getString("name"));
-            f.setClassName(rs.getString("className"));
-            f.setScript(rs.getString("script"));
+            f.setFixtureDefClassName(rs.getString("fixtureDefClassName"));
+            f.setFixtureControllerClassName(rs.getString("fixtureControllerClassName"));
+            f.setFixtureDefScript(rs.getString("fixtureDefScript"));
+            f.setFixtureControllerScript(rs.getString("fixtureControllerScript"));
             return f;
         }
     }
@@ -39,7 +41,7 @@ public class FixtureDefDAO {
      */
     public List<FixtureDefTO> getFixtureDefs(String sqlWhereClause) {
         String sql =
-            "SELECT id, name, className, script " +
+            "SELECT id, name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript " +
             " FROM fixtureDef " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<FixtureDefTO>) jt.query(sql, new FixtureDefDAORowMapper());
@@ -53,7 +55,7 @@ public class FixtureDefDAO {
      */
     public FixtureDefTO getFixtureDef(long fixtureDefId) {
         return (FixtureDefTO) jt.queryForObject(
-            "SELECT id, name, className, script " +
+            "SELECT id, name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript " +
             " FROM fixtureDef " +
             " WHERE id = ?",
             new Object[] { new Long(fixtureDefId) }, 
@@ -67,13 +69,15 @@ public class FixtureDefDAO {
     public void updateFixtureDef(FixtureDefTO fixtureDef) {
         String sql =
             "UPDATE fixtureDef " +
-            " SET name=?, className=?, script=? " + 
+            " SET name=?, fixtureDefClassName=?, fixtureDefScript=?, fixtureControllerClassName=?, fixtureControllerScript=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
                 fixtureDef.getName(),
-                fixtureDef.getClassName(),
-                fixtureDef.getScript(),
+                fixtureDef.getFixtureDefClassName(),
+                fixtureDef.getFixtureDefScript(),
+                fixtureDef.getFixtureControllerClassName(),
+                fixtureDef.getFixtureControllerScript(),
                 fixtureDef.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixtureDef update failed (" + updated + " rows updated)");
@@ -91,13 +95,15 @@ public class FixtureDefDAO {
     public long createFixtureDef(FixtureDefTO fixtureDef) {
         String sql =
             "INSERT INTO fixtureDef " + 
-            " (name, className, script) " +
-            " VALUES (?, ?, ? )";
+            " (name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript) " +
+            " VALUES (?, ?, ?, ?, ?)";
         long updated = jt.update(sql,
             new Object[] { 
                 fixtureDef.getName(),
-                fixtureDef.getClassName(),
-                fixtureDef.getScript()});
+                fixtureDef.getFixtureDefClassName(),
+                fixtureDef.getFixtureDefScript(),
+                fixtureDef.getFixtureControllerClassName(),
+                fixtureDef.getFixtureControllerScript()});
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixtureDef insert failed (" + updated + " rows updated)");
         }

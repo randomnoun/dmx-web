@@ -1,8 +1,10 @@
 CREATE TABLE `fixtureDef` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(100) NOT NULL,
-  `className` VARCHAR(100) NOT NULL,
-  `script` MEDIUMTEXT NOT NULL,
+  `fixtureDefClassName` VARCHAR(100) NOT NULL,
+  `fixtureDefScript` MEDIUMTEXT NOT NULL,
+  `fixtureControllerClassName` VARCHAR(100) NOT NULL,
+  `fixtureControllerScript` MEDIUMTEXT NOT NULL,
   PRIMARY KEY (`Id`)
 )
 ENGINE = InnoDB;
