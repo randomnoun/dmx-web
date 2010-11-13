@@ -10,6 +10,11 @@ import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.fixture.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
 import com.randomnoun.dmx.show.Show;
 
+/** Tilt the washes to 45 degrees, start some entertaining music,
+ * and then swing them down to point ahead.
+ * 
+ * @author knoxg
+ */
 public class LockItInEddieShow extends Show {
 
 	Logger logger = Logger.getLogger(LockItInEddieShow.class);
@@ -19,7 +24,7 @@ public class LockItInEddieShow extends Show {
 	AudioController audioController;
 	
 	public LockItInEddieShow(long id, Controller controller, Map properties) {
-		super(id, controller, "Lock it in, eddie", 5000, properties);
+		super(id, controller, "Lock it in, eddie", 5000L, properties);
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();
 		audioController = controller.getAudioController();

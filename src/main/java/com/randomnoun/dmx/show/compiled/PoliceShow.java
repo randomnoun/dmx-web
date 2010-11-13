@@ -7,13 +7,18 @@ import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.fixture.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
 import com.randomnoun.dmx.show.Show;
 
+/** Sets the washes to red and blue, then pan them around, swapping
+ * colours occasionally.  
+ * 
+ * @author knoxg
+ */
 public class PoliceShow extends Show {
 
 	MiniWashFixtureController leftWash;
 	MiniWashFixtureController rightWash;
 	
 	public PoliceShow(long id, Controller controller, Map properties) {
-		super(id, controller, "Police", 5000, properties);
+		super(id, controller, "Police", 5000L, properties);
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();
 		
