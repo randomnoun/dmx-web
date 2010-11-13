@@ -34,6 +34,7 @@ import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 import com.randomnoun.dmx.event.VlcUniverseUpdateListener;
 import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.ShowThread;
@@ -142,7 +143,8 @@ public class AppConfig extends AppConfigBase {
     
 
     /** List of shows that this application knows about, and their threads */
-    private List<ShowConfig> showConfigs;
+    private Map<Long, ShowConfig> showConfigs;
+    
     /** List of shows */
     private List<Show> shows;
     
@@ -308,23 +310,39 @@ public class AppConfig extends AppConfigBase {
 				// (what about dependencies between fixtureDef objects) ?
 				try {
 					logger.debug("Loading scripted fixtureDef '" + fixtureDef.getName() + "' from database");
-					getScriptEngine().eval(fixtureDef.getScript(), fixtureScriptContext);
+					getScriptEngine().eval(fixtureDef.getFixtureDefScript(), fixtureScriptContext);
+					
+					logger.debug("Loading scripted fixtureController '" + fixtureDef.getName() + "' from database");
+					getScriptEngine().eval(fixtureDef.getFixtureControllerScript(), fixtureScriptContext);
 					// @TODO validate that the scriptContext now contains a 
 					// fixture definition of the class specified in the FixtureDefTO
 					// @TODO maybe scope the instance here so that it doesn't clobber any other global 'instance' instance
 					
 					// @TODO is there a way to reset the import declarations specified in a scriptContext ?
 					String testScript =
-						"import com.randomnoun.dmx.FixtureDef;\n" +
-						"import " + fixtureDef.getClassName() + ";\n" +
-						"return new " + fixtureDef.getClassName() + "();\n" ;
+						"import com.randomnoun.dmx.fixture.FixtureDef;\n" +
+						"import " + fixtureDef.getFixtureDefClassName() + ";\n" +
+						"return new " + fixtureDef.getFixtureDefClassName() + "();\n" ;
 					// @TODO check class before instantiating
 					Object instance = (Object) getScriptEngine().eval(testScript, fixtureScriptContext);
 					if (instance instanceof FixtureDef) {
 						scriptedFixtureDefs.put(fixtureDef.getId(), instance);
 					} else {
-						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getClassName() + "' does not extend com.randomnoun.dmx.FixtureDef"); 
+						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureDefClassName() + "' does not extend com.randomnoun.dmx.FixtureDef"); 
 					}
+					String testScript2 =
+						"import com.randomnoun.dmx.fixture.FixtureController;\n" +
+						"import " + fixtureDef.getFixtureDefClassName() + ";\n" +
+						"return new " + fixtureDef.getFixtureDefClassName() + "();\n" ;
+					// @TODO check class before instantiating
+					Object instance2 = (Object) getScriptEngine().eval(testScript2, fixtureScriptContext);
+					if (instance2 instanceof FixtureController) {
+						scriptedFixtureDefs.put(fixtureDef.getId(), instance);
+					} else {
+						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureControllerClassName() + "' does not extend com.randomnoun.dmx.FixtureController"); 
+					}
+
+				
 				} catch (ScriptException se) {
 					logger.error("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", se);
 				}
@@ -356,7 +374,7 @@ public class AppConfig extends AppConfigBase {
     }
     
     public void loadShowConfigs(ScriptContext showScriptContext, boolean addToAppConfig) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-    	showConfigs = new ArrayList<ShowConfig>();
+    	showConfigs = new HashMap<Long, ShowConfig>();
     	shows = new ArrayList<Show>();
     	showExceptions = Collections.synchronizedList(new ArrayList<TimestampedShowException>());
     	
@@ -374,13 +392,19 @@ public class AppConfig extends AppConfigBase {
 				String onCancelShowId = (String) showProperties.get("onCancelShowId");
 				String name = (String) showProperties.get("name");
 				long id = shows.size();
-				Show showObj = (Show) constructor.newInstance(id, controller, showProperties);
-				if (onCompleteShowId!=null) { showObj.setOnCompleteShowId(Long.parseLong(onCompleteShowId)); }
-				if (onCancelShowId!=null) { showObj.setOnCancelShowId(Long.parseLong(onCancelShowId)); }
-				if (!Text.isBlank(name)) { showObj.setName(name); }
+				try {
+					Show showObj = (Show) constructor.newInstance(id, controller, showProperties);
+					if (onCompleteShowId!=null) { showObj.setOnCompleteShowId(Long.parseLong(onCompleteShowId)); }
+					if (onCancelShowId!=null) { showObj.setOnCancelShowId(Long.parseLong(onCancelShowId)); }
+					if (!Text.isBlank(name)) { showObj.setName(name); }
+					showConfigs.put(new Long(i), new ShowConfig(this, i, showObj));
+					shows.add(showObj);
+				} catch (Exception e) {
+					logger.error("Error whilst instantiating compiled show " + id + ": '" + name + "'", e);
+					
+				}
 				
-				showConfigs.add(new ShowConfig(this, i, showObj));
-				shows.add(showObj);
+					
 			}
 		}
 		
@@ -434,13 +458,11 @@ public class AppConfig extends AppConfigBase {
 					Show showObj;
 					try {
 						if (addToAppConfig) {
-							// @TODO get id from id column of DB
-							long id = shows.size();
-							showObj = (Show) constructor.newInstance(id, controller, showProperties);
+							showObj = (Show) constructor.newInstance(showTO.getId(), controller, showProperties);
 							if (showTO.getOnCompleteShowId()!=null) { showObj.setOnCompleteShowId(showTO.getOnCompleteShowId().longValue()); }
 							if (showTO.getOnCancelShowId()!=null) { showObj.setOnCancelShowId(showTO.getOnCancelShowId().longValue()); }
 							if (!Text.isBlank(showTO.getName())) { showObj.setName(showTO.getName()); }
-							showConfigs.add(new ShowConfig(this, showTO.getId(), showObj));
+							showConfigs.put(showTO.getId(), new ShowConfig(this, showTO.getId(), showObj));
 							shows.add(showObj);
 						}
 					} catch (Exception e) {
@@ -479,11 +501,19 @@ public class AppConfig extends AppConfigBase {
 		}
     }
     
+    // @TODO private this method ?
+    /** The index of shows in this collection is not the showId. The 
+     * showId is the showId of the Show objects returned.
+     */
     public List<Show> getShows() {
     	return shows;
     }
+    
+    public Show getShow(long showId) {
+    	return showConfigs.get(showId).getShow();
+    }
 	
-    public void startShow(int showId) {
+    public void startShow(long showId) {
     	ShowConfig showConfig = showConfigs.get(showId);
     	ShowThread thread = showConfig.getThread();
     	if (thread.isAlive()) {
@@ -495,7 +525,7 @@ public class AppConfig extends AppConfigBase {
     }
     
     public void cancelShow(long showId) {
-    	ShowConfig showConfig = showConfigs.get((int) showId);
+    	ShowConfig showConfig = showConfigs.get(showId);
     	ShowThread thread = showConfig.getThread();
     	if (thread.isAlive()) {
     		// @TODO cancel & restart show ?
@@ -519,7 +549,7 @@ public class AppConfig extends AppConfigBase {
     	appConfigState = AppConfigState.STOPPING;
     	
     	logger.info("appConfig.shutdownThreads() invoked");
-    	for (ShowConfig showConfig : showConfigs) {
+    	for (ShowConfig showConfig : showConfigs.values()) {
     		if (showConfig.hasThread() && showConfig.getThread().isAlive()) { 
     			showConfig.getThread().cancel(); 
     		}
@@ -527,7 +557,7 @@ public class AppConfig extends AppConfigBase {
     	// if any shows are still running, give them a few seconds,
     	// then just stop the thread
     	int showsRunning = 0;
-    	for (ShowConfig showConfig : showConfigs) {
+    	for (ShowConfig showConfig : showConfigs.values()) {
     		if (showConfig.hasThread() && showConfig.getThread().isAlive()) { 
     			showsRunning++; 
     		}
@@ -536,7 +566,7 @@ public class AppConfig extends AppConfigBase {
     		logger.info("There are " + showsRunning + " shows still running; waiting 5 seconds");
     		try { Thread.sleep(5000); } catch (InterruptedException ie) { }
     		logger.info("Forcing thread shutdown");
-        	for (ShowConfig showConfig : showConfigs) {
+        	for (ShowConfig showConfig : showConfigs.values()) {
         		if (showConfig.hasThread()) { 
         			if (showConfig.getThread().isAlive()) { showConfig.getThread().stop(); } 
         		}
