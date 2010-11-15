@@ -176,6 +176,8 @@ public class FancyControllerAction
     		    }
     		    result.put("fixValues", fixValues);
     		
+    		} else if (panel.equals("cnfPanel")) {
+    			result.put("stopPollRequests", Boolean.TRUE);
     		}
     		
     		
