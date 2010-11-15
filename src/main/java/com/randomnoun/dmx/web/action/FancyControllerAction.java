@@ -24,10 +24,12 @@ import com.randomnoun.common.security.User;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.Universe;
+import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
+import com.randomnoun.dmx.fixture.FixtureOutput;
 import com.randomnoun.dmx.show.Show;
 
 /**
@@ -104,6 +106,8 @@ public class FancyControllerAction
     			if (!fixtureDefs.containsKey(fdName)) {
     				Map m2 = new HashMap();
     				m2.put("dmxChannels", fd.getNumDmxChannels());
+    				m2.put("panRange", fd.getPanRange());
+    				m2.put("tiltRange", fd.getTiltRange());
     				fixtureDefs.put(fdName, m2);
     			}
     		}
@@ -114,7 +118,12 @@ public class FancyControllerAction
     			m.put("name", s.getName());
     			shows.add(m);
     		}
+    		String dmxValues = "";
+    		for (int i=1; i<255; i++) {
+    			dmxValues+=controller.getUniverse().getDmxChannelValue(i) + ",";
+    		}
     		forward="success";
+    		request.setAttribute("dmxValues", dmxValues);
     		request.setAttribute("fixtures", fixtures);
 	    	request.setAttribute("controller", controller);
 	    	request.setAttribute("universe", controller.getUniverse());
@@ -145,7 +154,30 @@ public class FancyControllerAction
     				showResult.add(m);
     			}
     			result.put("shows", showResult);
+
+    		} else if (panel.equals("dmxPanel")) {
+        		String dmxValues = "";
+        		for (int i=1; i<255; i++) {
+        			dmxValues+=controller.getUniverse().getDmxChannelValue(i) + ",";
+        		}
+        		result.put("dmxValues", dmxValues);
+    		
+    		} else if (panel.equals("fixPanel")) {
+    			List fixValues = new ArrayList();
+    		    for (Fixture f : controller.getFixtures()) {
+    		    	ChannelMuxer cm = f.getChannelMuxer();
+    		    	FixtureOutput fo = cm.getOutput();
+    		    	HashMap m = new HashMap();
+    		    	Color c = fo.getColor();
+    		    	m.put("c", getColorHexString(c));
+    		    	m.put("p", fo.getPan());
+    		    	m.put("t", fo.getTilt());
+    		    	fixValues.add(m);
+    		    }
+    		    result.put("fixValues", fixValues);
+    		
     		}
+    		
     		
     		
     		/*
@@ -278,7 +310,7 @@ public class FancyControllerAction
     			if (lastTiltRange==-1) { lastTiltRange=fd.getTiltRange(); } else { sameRange &= fd.getTiltRange()==lastTiltRange; };
     			c++;
     		}
-    		DecimalFormat df = new DecimalFormat("0.000");
+    		DecimalFormat df = new DecimalFormat("0.00");
 			result.put("message", c + " fixture(s) set to " +
 				"pan " + df.format(x) + "%" + (sameRange ? " " + df.format(fd.getPanRange()*x/100) + "&deg;" : "") +
 				", tilt " + df.format(y) + "%" + (sameRange ? " " + df.format(fd.getTiltRange()*y/100) + "&deg;" : ""));
@@ -324,4 +356,15 @@ public class FancyControllerAction
 		return mapping.findForward(forward);
 		
     }
+    
+    String getColorHexString(Color c) {
+    	String r = Integer.toHexString(c.getRed());
+    	String g = Integer.toHexString(c.getGreen());
+    	String b = Integer.toHexString(c.getBlue());
+    	return "#" + ((r.length()==1) ? "0" : "") + r +
+    	  ((g.length()==1) ? "0" : "") + g +
+    	  ((b.length()==1) ? "0" : "") + b;
+    }
+    
+    
 }

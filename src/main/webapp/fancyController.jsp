@@ -40,23 +40,24 @@
 BODY { font-size: 8pt; font-family: Arial; }
 .lhsMenuContainer {
   position: absolute; top: 30px; left: 5px; width: 200px; height: 700px;
-  background-color: red;
+  background-color: #EEEEFF; border: solid 1px blue;
 }
 .rhsPanel {
   position: absolute; top: 30px; left: 225px; width: 900px; height: 700px;
-  background-color: blue;
+  background-color: #EEEEFF; border: solid 1px blue; 
 }
 #rhsMessage {
-  position: absolute; top: 5px; left: 225px; width: 900px; height: 20px;
-  text-align: left; color: white; font-size: 10pt; font-weight: bold;
-  background-color: blue;
+  position: absolute; top: 5px; left: 225px; width: 896px; height: 16px;
+  text-align: left; color: #000044; font-size: 10pt; font-weight: bold;
+  background-color: #EEEEFF; border: solid 1px blue; padding: 2px;
+  
 }
 .lhsMenuItem {
-  width: 180px; height: 70px; background-color: green; margin: 10px;
-  text-align: center; color: white; font-size: 18pt; 
+  width: 180px; height: 70px; background-color: #AAAAFF; margin: 10px;
+  text-align: center; color: #000044; font-size: 18pt; 
 }
 .lhsSelect {
-  background-color: #DDFFDD;
+  background-color: #6666FF;
 }
 .clickHighlight {
   background-color: white;
@@ -69,8 +70,8 @@ BODY { font-size: 8pt; font-family: Arial; }
   text-align: center; color: white; font-size: 18pt;
 }
 .shwItem {
-  position: absolute; width: 180px; height: 70px; background-color: green; 
-  text-align: center; color: white; font-size: 18pt; 
+  position: absolute; width: 180px; height: 70px; background-color: #AAAAFF; 
+  text-align: center; color: #000044; font-size: 18pt; 
 }
 .shwRunning {
   background-color: #DDDDFF;
@@ -78,18 +79,18 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 /*** FIXTURE panel ***/
 .fixItem {
-  position: absolute; width: 180px; height: 70px; background-color: green; 
-  text-align: center; color: white; font-size: 18pt; 
+  position: absolute; width: 180px; height: 70px; background-color: #AAAAFF;  
+  text-align: center; color: #000044; font-size: 18pt; 
 }
 #fixBlackout {
   position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
-  background-color: red;
+  background-color: red; color: white;
 }
 #fixDim {
   position: absolute; top: 20px; left: 220px; width: 90px; height: 160px;
 }
 #fixDimHandle {
-  background-color: red; width: 90px; height: 30px; cursor: move;
+  background-color: blue; width: 90px; height: 30px; cursor: move;
 }
 #fixGroup {
   position: absolute; top: 110px; left: 20px; width: 180px; height: 70px;
@@ -106,15 +107,29 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 #fixAimHandle {
   width: 20px; height: 20px;
-  background-color: red;
+  background-color: blue;
 }
 .fixControl {
-  text-align: center; color: white; font-size: 18pt;
-  background-color: green;
+  text-align: center; color: #000044; font-size: 18pt;
+  background-color: #AAAAFF; 
 }
 .fixSelect {
-  background-color: #DDFFDD;
+  background-color: #6666FF;
 }
+.fixOutput {
+  position: absolute; top:40px; left: 5px; height: 20px; width: 170px;
+  font-size: 16pt;
+}
+.fixOutputColor {
+  display: inline-block;
+  background-color: black; width: 15px; height: 15px;
+  border: solid 1px black;
+}
+.fixOutputPan, .fixOutputTilt {
+  display: inline-block;
+  color: #000044; font-family: Arial; font-size: 10pt; 
+}
+
 
 /*** DMX panel ***/
 #dmxPanel { position: relative; }
@@ -128,26 +143,32 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 5px; left: 420px; width: 300px; height: 70px;
 }
 .dmxControl {
-  text-align: center; color: white; font-size: 18pt;
-  background-color: green;
+  text-align: center; color: #000044; font-size: 18pt;
+  background-color: #AAAAFF; 
 }
 .dmxTimeSource {
-  text-align: left; color: white; font-size: 10pt;
-  background-color: green;
+  text-align: left; color: #000044; font-size: 10pt;
+  background-color: #AAAAFF; 
 }
-
+.dmxOffset {
+  position: absolute; width: 20px; height: 11px; background-color: #DDDDFF;
+  text-align: right; color: #000044; font-weight: normal; font-size: 7pt; padding: 0px; 
+}
+.dmxValueContainer {
+  position: absolute;
+}
 .dmxValue {
-  position: absolute; width: 44px; height: 26px; background-color: green;
-  text-align: right; color: white; font-weight: bold; font-size: 14pt; padding-top: 2px; padding-right: 4px;
+  position: absolute; width: 44px; height: 26px; background-color: #AAAAFF;
+  text-align: right; color: #000044; font-weight: bold; font-size: 14pt; padding-right: 4px;
 }
 #dmxHighlight, #dmxHighlight2 {
   position: absolute; width: 0px; height: 60px;
-  border: 5px solid white;
+  border: 5px solid #000044;
   background-color: transparent;
 }
 .dmxHighlightFooter {
   position: absolute; top: 40px; height: 20px; width: 100%; 
-  color: black; background-color: white;
+  color: white; background-color: #000044;
 }
 
 
@@ -158,18 +179,13 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 
 
-
-#controller { font-size: 8pt; font-family: Arial;}
-#controller TD { font-size: 8pt; font-family: Arial;}
-#controller INPUT { font-size: 8pt; }
-#config { font-size: 8pt; font-family: Arial;}
-#config TD { font-size: 8pt; font-family: Arial;}
-.label { width: 25px; height: 16px; text-align: right; background-color: lightblue; padding-top: 3px; margin-left: 3px; margin-bottom: 1px;}
 </style>
 <script>
 <r:setJavascriptVar name="shows" value="${shows}" />
 <r:setJavascriptVar name="fixtures" value="${fixtures}" />
 <r:setJavascriptVar name="fixtureDefs" value="${fixtureDefs}" />
+<r:setJavascriptVar name="dmxValues" value="${dmxValues}" />
+var dmxValues = dmxValues.split(",");
 var dmxToFixture=new Array();
 var dmxHighlightTimeout=-1;
 var lhsMenuPanels=new Array("shwPanel", "fixPanel", "dmxPanel", "logPanel");
@@ -228,6 +244,7 @@ function clickFx(el) {
 
 function lhsShowPanel(panelName) {
 	if (currentPanelName==panelName) { return; }
+    if (currentPanelName=="dmxPanel") { dmxHideHighlight2(); }
 	for (var i=0; i<lhsMenuPanels.length; i++) {
 		if (panelName!=lhsMenuPanels[i]) {
 			$(lhsMenuPanels[i]).style.display = "none";
@@ -289,7 +306,9 @@ function startPollRequests() {
 function updatePanel(json) {
 	var jsonPanel = json.panel;
 	if (jsonPanel==currentPanelName) {
-		if (jsonPanel=="shwPanel") { updateShwPanel(json); }
+		if (jsonPanel=="shwPanel") { shwUpdatePanel(json); }
+		else if (jsonPanel=="dmxPanel") { dmxUpdatePanel(json); }
+		else if (jsonPanel=="fixPanel") { fixUpdatePanel(json); }
 		if (!json.stopPollRequests) {
 		    window.setTimeout(startPollRequests, 500);
 	    }
@@ -298,7 +317,7 @@ function updatePanel(json) {
 
 /******************************* SHOW PANEL ******************************/
   
-function initShwPanel() {
+function shwInitPanel() {
 	var x, y, el;
 	for (var i=0; i<shows.length; i++) {
 		var show = shows[i];
@@ -322,7 +341,7 @@ function shwCancel(event) {
 	sendRequest('fancyController.html?action=cancelShow');
 }
 
-function updateShwPanel(json) {
+function shwUpdatePanel(json) {
 	var newShows = json.shows;
 	for (var i=0; i<newShows.length; i++) {
 		var showId = newShows["id"];
@@ -338,7 +357,7 @@ function updateShwPanel(json) {
 /******************************* FIXTURE PANEL ******************************/
 
 // 
-function initFixPanel() {
+function fixInitPanel() {
 	var x,y,fixEl;
 	var fixDimSlider;
 	var fp=$("fixPanel");
@@ -347,9 +366,12 @@ function initFixPanel() {
     	f=fixtures[i]; fd=fixtureDefs[f.type];
         var fixEl = new Element("div", { 
             "id": "fixItem[" + i + "]", "fixtureId": i,
-            "class" : "fixItem" }).update(f.name);
+            "class" : "fixItem" }).update(
+            f.name + "<div class=\"fixOutput\"><div class=\"fixOutputColor\"></div>&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div></div>" 
+            );
         fixEl.style.left=x+"px"; fixEl.style.top=y+"px";
         fp.appendChild(fixEl);
+        
         Event.observe(fixEl, 'click', fixItemClick);
     }
 	Event.observe($("fixGroup"), 'click', fixGroupClick);
@@ -399,6 +421,7 @@ var fixLastFixSelectedEl = null;
 var fixSelectIndividual = false;
 function fixItemClick(event) {
 	var fixItemEl = event.element();
+	while (!fixItemEl.hasClassName("fixItem")) { fixItemEl=fixItemEl.parentNode; }
 	if (fixSelectIndividual) {
 		if (fixLastFixSelectedEl!=null && fixLastFixSelectedEl!=fixItemEl) { 
 			fixLastFixSelectedEl.removeClassName("fixSelect"); 
@@ -525,20 +548,37 @@ function fixSetState(json) {
     */
 }
 
+function fixUpdatePanel(json) {
+	var fixValues = json.fixValues;
+	for (var i=0; i<fixValues.length; i++) {
+		var fixValue = fixValues[i];
+		var el = $("fixItem[" + i + "]");
+		var divEls = el.getElementsByTagName("DIV");
+		divEls[1].style.backgroundColor=fixValue["c"];
+		divEls[2].innerHTML=fixValue["p"];
+		divEls[3].innerHTML=fixValue["t"];
+	}
+}
 
 
 /******************************* DMX PANEL ******************************/
 
-function initDmxPanel() {
+function dmxInitPanel() {
 	var x,y,el;
-	for (var i=1; i<=255; i++) { 
+
+	var dv=$("dmxValues");
+    for (var i=1; i<=255; i++) { 
 		x=20+((i-1)%16)*50; y=90+Math.floor((i-1)/16)*30;
-		el=$("dmxValue["+i+"]"); 
-		el.style.left=x+"px"; el.style.top=y+"px";
-		el.setAttribute("dmxChannel", i);
-		Event.observe(el, 'click', dmxValueClick);
-		Event.observe(el, 'mouseover', dmxValueOnMouseOver);
-	}
+		var dmxEl=new Element("div", { "class" : "dmxValueContainer",
+		  "style" : "left:" + x + "px; top:" + y + "px" }).update(
+		  "<div class=\"dmxValue\" dmxChannel=\"" + i + "\">" +
+		  "<div class=\"dmxOffset\">" + i + "</div>" +
+		  "<div id=\"dmxValue[" + i + "]\">" + dmxValues[i] + "</div>" +
+		  "</div>");
+		dv.appendChild(dmxEl);
+        Event.observe(dmxEl, 'click', dmxValueClick);
+        Event.observe(dmxEl, 'mouseover', dmxValueOnMouseOver);
+    }
 	Event.observe($("dmxHighlight"), 'mouseover', dmxShowHighlight);
 	Event.observe($("dmxHighlight2"), 'mouseover', dmxShowHighlight);
 	Event.observe($("dmxHighlight"), 'mouseout', dmxHideHighlight);
@@ -591,9 +631,18 @@ function dmxValueOnMouseOver(event) {
     h2.innerHTML="<div class=\"dmxHighlightFooter\">" + f["name"] + "</div>";
 }
 
+function dmxUpdatePanel(json) {
+    var dmxValues = json.dmxValues.split(",");
+    for (var i=1; i<255; i++) {
+        var el = $("dmxValue[" + i + "]");
+        el.innerHTML = i;
+    }
+}
+
+
 /******************************* LOG PANEL ******************************/
   
-function initLogPanel() {
+function logInitPanel() {
 	
 } 
 
@@ -633,9 +682,10 @@ function initWindow() {
 	lhsFixtures();
     initLookups();
     initLhsMenu();
-    initDmxPanel();
-    initShwPanel();
-    initFixPanel();
+    dmxInitPanel();
+    shwInitPanel();
+    fixInitPanel();
+    logInitPanel();
     
 }
 
@@ -688,15 +738,7 @@ function initWindow() {
   <div id="dmxUpdateAll" class="dmxControl">Update all</div> 
   <div id="dmxTimeSource" class="dmxTimeSource"><%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %></div>
   <div id="dmxValues">
-<% 
-    for (int i=1; i<=255; i++) {
-%>
-  <div class="dmxValueContainer">
-    <div class="dmxValue" id="dmxValue[<%= i %>]"><%= i %></div>
   </div>
-<%
-    }
-%>
   </div>
   <div id="dmxHighlight" style="display:none;"></div>
   <div id="dmxHighlight2" style="display:none;"></div>
