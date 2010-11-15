@@ -178,6 +178,13 @@ BODY { font-size: 8pt; font-family: Arial; }
   color: white; background-color: red; font-size:14pt;
 }
 
+/*** CONFIG panel ***/
+.cnfControl {
+  width: 360px; height: 70px; background-color: #AAAAFF; 
+  text-align: center; color: #000044; font-size: 18pt; 
+  margin: 10px;
+}
+
 
 </style>
 <script>
@@ -188,7 +195,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 var dmxValues = dmxValues.split(",");
 var dmxToFixture=new Array();
 var dmxHighlightTimeout=-1;
-var lhsMenuPanels=new Array("shwPanel", "fixPanel", "dmxPanel", "logPanel");
+var lhsMenuPanels=new Array("shwPanel", "fixPanel", "dmxPanel", "logPanel", "cnfPanel");
 var longPollRequest=null;
 var currentPanelName=null;
 function startShow(showId) {
@@ -657,7 +664,31 @@ function logSetExceptions(json) {
 	}
 }
 
+/******************************* CONFIG PANEL ******************************/
 
+function cnfInitPanel() {
+    Event.observe($("cnfFixtureDef"), 'click', cnfFixtureDefClick);
+    Event.observe($("cnfFixture"), 'click', cnfFixtureClick);
+    Event.observe($("cnfShowDef"), 'click', cnfShowDefClick);
+    Event.observe($("cnfShow"), 'click', cnfShowClick);
+    Event.observe($("cnfSimple"), 'click', cnfSimpleClick);
+}
+
+function cnfFixtureDefClick() {
+	document.location="maintainFixtureDef.html";
+}
+function cnfFixtureClick() {
+	document.location="maintainFixture.html";
+}
+function cnfShowDefClick() {
+	document.location="maintainShowDef.html";
+}
+function cnfShowClick() {
+	document.location="maintainShow.html";
+}
+function cnfSimpleClick() {
+	document.location="controller.html";
+}
 
 /******************************* LONG POLLING ******************************/
 
@@ -686,7 +717,7 @@ function initWindow() {
     shwInitPanel();
     fixInitPanel();
     logInitPanel();
-    
+    cnfInitPanel();
 }
 
 </script>
@@ -731,14 +762,11 @@ function initWindow() {
   
 </div>
 
-
-
 <div id="dmxPanel" style="display: none;">
   <div id="dmxImmediate" class="dmxControl">Immediate ON</div>
   <div id="dmxUpdateAll" class="dmxControl">Update all</div> 
   <div id="dmxTimeSource" class="dmxTimeSource"><%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %></div>
   <div id="dmxValues">
-  </div>
   </div>
   <div id="dmxHighlight" style="display:none;"></div>
   <div id="dmxHighlight2" style="display:none;"></div>
@@ -747,6 +775,16 @@ function initWindow() {
 <div id="logPanel" style="display: none;">
   <div id="logExceptionContainer"></div>
 </div>
+
+<div id="cnfPanel" style="display: none;">
+  <div id="cnfFixtureDef" class="cnfControl">Fixture definitions</div>
+  <div id="cnfFixture" class="cnfControl">Fixtures</div>
+  <div id="cnfShowDef" class="cnfControl">Show definitions</div>
+  <div id="cnfShow" class="cnfControl">Shows</div>
+  <div id="cnfSimple" class="cnfControl">Simple controller</div>
+  
+</div>
+
 
 
 </div>
