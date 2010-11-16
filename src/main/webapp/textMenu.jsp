@@ -59,6 +59,7 @@ Things to try:
 <li><a href="fancyController.html">Fancy Controller</a></li>
 <li><strike><a href="manualController.html">Manual controller</a></strike> (don't use this)</li>
 <li><a href="debug.html">Debug page</a></li>
+<li><a href="streaming.html">Streaming video</a></li>
 </ul>
 
 </body>

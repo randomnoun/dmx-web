@@ -26,6 +26,12 @@
 	  	  <forward name="success" path="/textMenu.jsp"/>
 	    </action>
 
+        <action path="/streaming" 
+          type="com.randomnoun.common.webapp.struts.NoAction"
+        >
+          <forward name="success" path="/streaming.jsp"/>
+        </action>
+
 
         <!-- Note this action is not a PermissionMapping to allow non-authenticated users to use it -->
         <action path="/manualController" 
