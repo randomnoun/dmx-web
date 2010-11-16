@@ -61,12 +61,12 @@ public class MasterDimmerChannelMuxer extends ChannelMuxer {
 				((masterValue > dmxHighValue) ? 1 :
 				 (masterValue-dmxLowValue)/(dmxHighValue-dmxLowValue));	
 		} else {
-			dimValue = masterValue < dmxLowValue ? 1 : 
-				((masterValue > dmxHighValue) ? 0 :
-				 1-(masterValue-dmxHighValue)/(dmxLowValue-dmxHighValue));	
+			dimValue = masterValue > dmxLowValue ? 1 : 
+				((masterValue < dmxHighValue) ? 0 :
+				 1-(masterValue-dmxHighValue)/(double) (dmxLowValue-dmxHighValue));	
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("fixture=" + fixture.getName() + ", mux input " + input + ", masterValue=" + masterValue + 
+			logger.debug("fixture=" + fixture.getName() + ", mux input " + input + ", masterValue=" + masterValue + ", dimValue=" + dimValue +  
 				((dmxLowValue==0 && dmxHighValue==255) ? "" : " (dmxLowValue=" + dmxLowValue + ", dmxHighValue=" + dmxHighValue + ")"));
 		}
 		return new FixtureOutput() {
@@ -79,6 +79,7 @@ public class MasterDimmerChannelMuxer extends ChannelMuxer {
 			public long getTime() { return input.getTime(); }
 			public Double getPan() { return input.getPan(); }
 			public Double getTilt() { return input.getTilt(); }
+			public Double getDim() { return dimValue; }
 		};
 	}
 }

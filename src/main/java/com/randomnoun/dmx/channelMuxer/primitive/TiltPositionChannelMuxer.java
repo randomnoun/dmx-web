@@ -54,6 +54,7 @@ public class TiltPositionChannelMuxer extends ChannelMuxer {
 				(tiltChannelDef.getHighDmxValue()-tiltChannelDef.getLowDmxValue()) *
 				(tiltChannelDef.getMaxAngle() - tiltChannelDef.getMinAngle());
 			}
+			public Double getDim() { return null; }
 		};
 	}
 }

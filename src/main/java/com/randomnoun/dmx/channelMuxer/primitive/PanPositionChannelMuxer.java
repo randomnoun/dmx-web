@@ -61,6 +61,7 @@ public class PanPositionChannelMuxer extends ChannelMuxer {
 				(panChannelDef.getMaxAngle() - panChannelDef.getMinAngle());
 			}
 			public Double getTilt() { return null; }
+			public Double getDim() { return null; }
 		};
 	}
 }

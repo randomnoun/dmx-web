@@ -22,9 +22,15 @@ public class MacroChannelMuxer extends ChannelMuxer {
 	ChannelMuxer[] outputMuxers;
 	MacroChannelDef channelDef;
 	Logger logger = Logger.getLogger(MacroChannelMuxer.class);
-	
+
 	public MacroChannelMuxer(ChannelMuxer inputMuxer, ChannelMuxer[] outputMuxers) {
+		this(inputMuxer.getFixtureDef().getChannelDefByClass(MacroChannelDef.class), 
+			inputMuxer, outputMuxers);
+	}
+	
+	public MacroChannelMuxer(ChannelDef channelDef, ChannelMuxer inputMuxer, ChannelMuxer[] outputMuxers) {
 		super(inputMuxer.getFixture());
+		this.channelDef = (MacroChannelDef) channelDef;
 		this.inputMuxer = inputMuxer;
 		this.outputMuxers = outputMuxers;
 		
@@ -32,12 +38,6 @@ public class MacroChannelMuxer extends ChannelMuxer {
 		if (outputMuxers==null) { throw new NullPointerException("Null outputMuxers"); }
 		if (outputMuxers.length==0) { throw new IllegalArgumentException("Null outputMuxers"); }
 
-		
-		for (ChannelDef cd : getFixtureDef().getChannelDefs()) {
-			if (cd instanceof MacroChannelDef) {
-				this.channelDef = (MacroChannelDef) cd;
-			}
-		}
 		if (this.channelDef==null) { 
 			throw new IllegalStateException("Cannot apply a macro muxer to a fixture without a macroChannel definition");
 		}

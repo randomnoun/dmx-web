@@ -26,10 +26,11 @@ public abstract class FixtureOutput {
 	/** A mask containing all fixture attributes (color, time, pan and tilt) */
 	public static int MASK_ALL=MASK_COLOR | MASK_TIME | MASK_PAN | MASK_TILT;
 	
-	public abstract Color getColor();
+	public abstract Color getColor();  /* post-dim color */
 	public abstract long getTime();
 	public abstract Double getPan();   /* pan value, in degrees */
 	public abstract Double getTilt();  /* pan value, in degrees */
+	public abstract Double getDim();   /* master dimmer value (0.0-1.0 : closed-open)*/
 	
 	// TODO: what direction is it pointing in, what gobos has it got on, etc...
 	// could get interesting for fixtures with multiple heads, but we'll get to that later
@@ -39,7 +40,7 @@ public abstract class FixtureOutput {
 	
 	public String toString() {
 		Color c = getColor();
-		return "r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue();
+		return "r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + ", d=" + getDim();
 	}
 	
 }

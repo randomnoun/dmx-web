@@ -187,6 +187,7 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 	// TODO: this bit needs a GUI
 	@Override
 	public ChannelMuxer getChannelMuxer(Fixture fixture) {
+		FixtureDef fixtureDef = fixture.getFixtureDef();
 		TimeSource universeTimeSource = new UniverseTimeSource(fixture.getUniverse());
 		//TimeSource distortedTimeSource = new DistortedTimeSource(fixture, universeTimeSource);
 		
@@ -205,14 +206,15 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 		ChannelMuxer tiltMuxer = new TiltPositionChannelMuxer(fixture);
 
 		ChannelMuxer blackMuxer = new FixedColorChannelMuxer(fixture, Color.BLACK);
-		ChannelMuxer dimmerMuxer = new MasterDimmerChannelMuxer(colorMuxer, 4, 134, 8);
+		ChannelMuxer dimmerMuxer = new MasterDimmerChannelMuxer(colorMuxer, 5, 134, 8);
 		
 		// guessing .5second -> .1second strobe speed
-		StrobeChannelDef scd = new StrobeChannelDef(4, 0, 2, 135, 10, 239);
+		StrobeChannelDef scd = new StrobeChannelDef(5, 0, 2, 135, 10, 239);
 		// TODO: strobeMuxers that can find strobeChannels inside MacroChannelDefs
 		//StrobeChannelMuxer strobeMuxer = new StrobeChannelMuxer(colorMuxer, universeTimeSource);
 		ChannelMuxer openMuxer = new NullChannelMuxer(colorMuxer);
-		MacroChannelMuxer dimmerStrobeMuxer = new MacroChannelMuxer(colorMuxer,
+		MacroChannelMuxer dimmerStrobeMuxer = new MacroChannelMuxer(fixtureDef.getChannelDefByOffset(5), 
+				colorMuxer,
 			new ChannelMuxer[] { blackMuxer, dimmerMuxer, /*strobeMuxer*/ dimmerMuxer, openMuxer });
 		
 		// TODO: color/position macro muxers

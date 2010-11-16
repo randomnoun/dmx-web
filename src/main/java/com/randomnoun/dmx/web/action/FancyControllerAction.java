@@ -134,6 +134,7 @@ public class FancyControllerAction
 		    	m.put("c", getColorHexString(c));
 		    	m.put("p", fo.getPan());
 		    	m.put("t", fo.getTilt());
+		    	m.put("d", fo.getDim());
 		    	fixValues.add(m);
 		    }
 
@@ -194,6 +195,7 @@ public class FancyControllerAction
     		    	m.put("c", getColorHexString(c));
     		    	m.put("p", fo.getPan());
     		    	m.put("t", fo.getTilt());
+    		    	m.put("d", fo.getDim());
     		    	fixValues.add(m);
     		    }
     		    result.put("fixValues", fixValues);
@@ -374,8 +376,8 @@ public class FancyControllerAction
     		}
     		DecimalFormat df = new DecimalFormat("0.00");
 			result.put("message", c + " fixture(s) set to " +
-				"pan " + df.format(x) + "%" + (sameRange ? " " + df.format(fd.getPanRange()*x/100) + "&deg;" : "") +
-				", tilt " + df.format(y) + "%" + (sameRange ? " " + df.format(fd.getTiltRange()*y/100) + "&deg;" : ""));
+				"pan " + (sameRange ? " " + df.format(fd.getPanRange()*x/100) + "&deg;" : "") + "(" + df.format(x) + "%)" + 
+				", tilt " + (sameRange ? " " + df.format(fd.getTiltRange()*y/100) + "&deg;" : "") + "(" + df.format(y) + "%)");
     		
     	} else {
     		
