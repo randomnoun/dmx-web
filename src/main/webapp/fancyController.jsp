@@ -42,6 +42,12 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 30px; left: 5px; width: 200px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue;
 }
+#lhsLogo {
+  position: absolute; top: 5px; left: 5px; width: 200px; height: 16px;
+  text-align: left; color: white; font-size: 10pt; font-weight: bold;
+  background-color: blue; border: solid 1px blue;
+  padding: 2px 0px;
+}
 .rhsPanel {
   position: absolute; top: 30px; left: 225px; width: 900px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue; 
@@ -50,7 +56,6 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 5px; left: 225px; width: 896px; height: 16px;
   text-align: left; color: #000044; font-size: 10pt; font-weight: bold;
   background-color: #EEEEFF; border: solid 1px blue; padding: 2px;
-  
 }
 .lhsMenuItem {
   width: 180px; height: 70px; background-color: #AAAAFF; margin: 10px;
@@ -62,6 +67,12 @@ BODY { font-size: 8pt; font-family: Arial; }
 .clickHighlight {
   background-color: white;
 }
+
+/**** LOGO panel ***/
+#lgoPanel {
+  position: relative; width: 900px; height: 700px; 
+}
+
 
 /*** SHOW panel ***/
 #shwCancel {
@@ -209,7 +220,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 var dmxValues = dmxValues.split(",");
 var dmxToFixture=new Array();
 var dmxHighlightTimeout=-1;
-var lhsMenuPanels=new Array("shwPanel", "fixPanel", "dmxPanel", "logPanel", "cnfPanel");
+var lhsMenuPanels=new Array("lgoPanel", "shwPanel", "fixPanel", "dmxPanel", "logPanel", "cnfPanel");
 var longPollRequest=null;
 var currentPanelName=null;
 function startShow(showId) {
@@ -254,6 +265,7 @@ function sendRequest(url,completedFunction) {
 /******************************* LHS MENU ******************************/
 
 function initLhsMenu() {
+	Event.observe($("lhsLogo"), 'click', lhsLogo);
 	Event.observe($("lhsBlackout"), 'click', lhsBlackout);
 	Event.observe($("lhsShows"), 'click', lhsShows);
 	Event.observe($("lhsFixtures"), 'click', lhsFixtures);
@@ -261,6 +273,7 @@ function initLhsMenu() {
 	Event.observe($("lhsLogs"), 'click', lhsLogs);
 	Event.observe($("lhsConfig"), 'click', lhsConfig);
 	$$(".lhsMenuItem").each(function(s){Event.observe(s, 'mousedown', function(){return false});});
+	Event.observe($("lhsLogo"), 'mousedown', function(){return false});
 }
 
 function clickFx(el) {
@@ -292,6 +305,8 @@ function lhsBlackout() {
 	clickFx($("lhsBlackout"));
     sendRequest('fancyController.html?action=blackOut');
 }
+
+function lhsLogo() { lhsSelect($("lhsLogo")); lhsShowPanel("lgoPanel"); }
 function lhsShows() { lhsSelect($("lhsShows")); lhsShowPanel("shwPanel"); startPollRequests(); }
 function lhsFixtures() { lhsSelect($("lhsFixtures"));lhsShowPanel("fixPanel"); startPollRequests(); }
 function lhsDMX() { lhsSelect($("lhsDMX")); lhsShowPanel("dmxPanel"); startPollRequests(); }
@@ -760,7 +775,8 @@ function initLongPolling() {
 /******************************* INIT ******************************/
 
 function initWindow() {
-	lhsFixtures();
+	//lhsFixtures();
+	lhsLogo();
     initLookups();
     initLhsMenu();
 
@@ -774,7 +790,7 @@ function initWindow() {
 </script>
 </head>
 <body onload="initWindow()">
-
+<div id="lhsLogo"><img src="image/favicon.png"/> DMX-WEB</div>
 <div class="lhsMenuContainer">
   <div id="lhsBlackout" class="lhsMenuItem">Blackout</div>
   <div id="lhsShows" class="lhsMenuItem">Shows</div>
@@ -784,8 +800,16 @@ function initWindow() {
   <div id="lhsConfig" class="lhsMenuItem">Config</div>
 </div>
 
-<div id="rhsMessage">RHS message text</div>
+<div id="rhsMessage">Messages</div>
+
 <div class="rhsPanel">
+<div id="lgoPanel" >
+<img style="position: absolute; left:20px; top:20px; " src="image/dmx-web.png"/>
+<div style="position: absolute; left:370px; top:20px; " >
+DMX-WEB Version something-or-rather
+</div>
+</div>
+
 <div id="shwPanel" >
   <div id="shwCancel">Cancel</div>
 </div>
