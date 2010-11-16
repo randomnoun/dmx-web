@@ -19,7 +19,7 @@ public abstract class Show {
 
 	static Logger logger = Logger.getLogger(Show.class);
 	
-	public enum State { SHOW_STOPPED, SHOW_RUNNING };
+	public enum State { SHOW_STOPPED, SHOW_STOPPED_WITH_EXCEPTION, SHOW_RUNNING };
 	
 	long id;
 	long length;

@@ -44,7 +44,7 @@ public class ShowThread extends Thread {
 			}
 		} catch (Exception e) {
 			logger.debug("Show '" + show.getName() + "' threw an exception", e);
-			show.state = Show.State.SHOW_STOPPED;
+			show.state = Show.State.SHOW_STOPPED_WITH_EXCEPTION;
 			show.setLastException(e);
 			AppConfig.getAppConfig().addShowException(show, e);
 			if (onCancelShowId!=-1 && appConfig.getAppConfigState()==AppConfigState.RUNNING) {
