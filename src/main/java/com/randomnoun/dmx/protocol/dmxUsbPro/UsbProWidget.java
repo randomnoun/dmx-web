@@ -22,9 +22,9 @@ import com.randomnoun.dmx.ExceptionContainer.TimestampedException;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 import com.randomnoun.dmx.protocol.nullDevice.NullAudioController;
 
-/** Wrapper around a COM interface to Enttec USB Pro Widget 
+/** Wrapper around an RXTX interface to an Enttec USB Pro Widget. 
  *
- * <p>To use this class, instantiate it with a COM port, and then use the
+ * <p>To use this class, instantiate it with a serial COM port, and then use the
  * JavaWidgetTranslator class to send and receive messages; e.g.
  * 
  * <pre>
