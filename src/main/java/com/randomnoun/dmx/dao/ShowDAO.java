@@ -22,7 +22,9 @@ public class ShowDAO {
             s.setShowDefId(rs.getLong("showDefId"));
             s.setName(rs.getString("name"));
             s.setOnCancelShowId(rs.getLong("onCancelShowId"));
+            if (rs.wasNull()) { s.setOnCancelShowId(null); }
             s.setOnCompleteShowId(rs.getLong("onCompleteShowId"));
+            if (rs.wasNull()) { s.setOnCompleteShowId(null); }
             return s;
         }
     }
