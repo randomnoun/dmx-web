@@ -686,12 +686,12 @@ function dmxInitPanel() {
     var dv=$("dmxValues");
     for (var i=1; i<=255; i++) { 
         x=20+((i-1)%16)*50; y=90+Math.floor((i-1)/16)*30;
-        var dmxEl=new Element("div", { "class" : "dmxValueContainer",
-          "style" : "left:" + x + "px; top:" + y + "px" }).update(
-          "<div class=\"dmxValue\" dmxChannel=\"" + i + "\">" +
+        var dmxEl=new Element("div", { "class" : "dmxValue",
+          "style" : "left:" + x + "px; top:" + y + "px",
+          "dmxChannel" : i}).update(
           "<div class=\"dmxOffset\">" + i + "</div>" +
-          "<div id=\"dmxValue[" + i + "]\">" + dmxValues[i-1] + "</div>" +
-          "</div>");
+          "<div id=\"dmxValue[" + i + "]\">" + dmxValues[i-1] + "</div>"
+          );
         dv.appendChild(dmxEl);
         Event.observe(dmxEl, 'click', dmxValueClick);
         Event.observe(dmxEl, 'mouseover', dmxValueOnMouseOver);
@@ -722,6 +722,7 @@ function dmxValueOnMouseOver(event) {
     //alert(el.id + " - " + $(el).readAttribute("dmxChannel"));
     //alert(dmxToFixture[$(el).readAttribute("dmxChannel")]['name']);
     var i=$(dmxValueEl).readAttribute("dmxChannel");
+    while (!i && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; i=$(dmxValueEl).readAttribute("dmxChannel"); }
     var f=dmxToFixture[i]; 
     if (!f) { return; }
     var i=f["dmxOffset"];
