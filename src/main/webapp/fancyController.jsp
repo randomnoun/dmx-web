@@ -72,7 +72,12 @@ BODY { font-size: 8pt; font-family: Arial; }
 #lgoPanel {
   position: relative; width: 900px; height: 700px; 
 }
-
+#lgoImage {
+  position: absolute; left:20px; top:20px;
+}
+#lgoText {
+  position: absolute; left:370px; top:20px;
+}
 
 /*** SHOW panel ***/
 #shwCancel {
@@ -217,6 +222,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 <r:setJavascriptVar name="fixtureDefs" value="${fixtureDefs}" />
 <r:setJavascriptVar name="dmxValues" value="${dmxValues}" />
 <r:setJavascriptVar name="fixValues" value="${fixValues}" />
+<r:setJavascriptVar name="version" value="${version}" />
 var dmxValues = dmxValues.split(",");
 var dmxToFixture=new Array();
 var dmxHighlightTimeout=-1;
@@ -356,6 +362,16 @@ function updatePanel(json) {
 	    }
 	}
 }
+
+/******************************* CONFIG PANEL ******************************/
+
+function lgoInitPanel() {
+    $("lgoText").update("<b>DMX-WEB</b><br/><br/>" +
+      "Release: " + version["release"] + "<br/>" +
+      "Build number: " + version["buildNumber"]
+    );
+}
+
 
 /******************************* SHOW PANEL ******************************/
   
@@ -780,6 +796,7 @@ function initWindow() {
     initLookups();
     initLhsMenu();
 
+    lgoInitPanel();
     dmxInitPanel();
     shwInitPanel();
     fixInitPanel();
@@ -804,9 +821,9 @@ function initWindow() {
 
 <div class="rhsPanel">
 <div id="lgoPanel" >
-<img style="position: absolute; left:20px; top:20px; " src="image/dmx-web.png"/>
-<div style="position: absolute; left:370px; top:20px; " >
-DMX-WEB Version something-or-rather
+<img id="lgoImage" src="image/dmx-web.png"/>
+<div id="lgoText" >
+DMX-WEB
 </div>
 </div>
 

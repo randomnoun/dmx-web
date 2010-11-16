@@ -2,11 +2,13 @@ package com.randomnoun.dmx.web.action;
 
 
 import java.awt.Color;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +23,7 @@ import org.apache.struts.action.ActionMapping;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
+import com.randomnoun.common.servlet.VersionServlet;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.Universe;
@@ -134,15 +137,28 @@ public class FancyControllerAction
 		    	fixValues.add(m);
 		    }
 
-    		forward="success";
-    		request.setAttribute("dmxValues", dmxValues);
+		    InputStream is = FancyControllerAction.class.getClassLoader().getResourceAsStream("/build.properties");
+	    	Properties props = new Properties();
+	    	if (is==null) {
+	    		props.put("error", "Missing build.properties");
+	    	} else {
+		    	props.load(is);
+		    	is.close();
+	    	}
+	    	Map version = new HashMap();
+	    	version.put("release", props.get("maven.pom.version"));
+	    	version.put("buildNumber", props.get("bamboo.buildNumber"));
+
+	    	request.setAttribute("dmxValues", dmxValues);
     		request.setAttribute("fixValues", fixValues);
     		request.setAttribute("fixtures", fixtures);
 	    	request.setAttribute("controller", controller);
 	    	request.setAttribute("universe", controller.getUniverse());
     		request.setAttribute("fixtureDefs", fixtureDefs);
     		request.setAttribute("shows", shows);
-    	
+    		request.setAttribute("version", version);
+    		forward="success";
+
     	} else if (action.equals("poll")) {
     		// just poll the goddamn thing every second or so.
     		String panel = request.getParameter("panel");
