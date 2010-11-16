@@ -29,41 +29,37 @@ import com.randomnoun.dmx.fixture.FixtureOutput;
 
 /** This listener will send DMX change events to VLC
  *
- * start vlc with these options, with a webcam pointing at the fixture
+ * <p>start vlc with these options, with a webcam pointing at the fixture
  * you want to  record (all on one line, no space after "size=20}:" )
  *
+ * <pre>
  * ./vlc dshow:// "--dshow-vdev=Creative WebCam Notebook" 
  *   --sub-filter "marq@topleft{marquee=topleft,size=20}:
  *     marq@bottomleft{marquee=bottomleft,position=9,size=20}:
  *     marq@bottomright{marquee=bottomright,position=10,size=20}:
  *     marq{marquee=%H:%M:%S,position=6}" 
  *   --video-filter "adjust{gamma=2.0}"
- *
- * See http://wiki.videolan.org/Documentation:Modules/marq
+ * </pre>
  * 
+ * <p>add
+ * 
+ * <pre>
+ * --sout "#transcode{vcodec=h264,vb=256,deinterlace,fps=25,width=425,
+ *   height=300,acodec=none}:duplicate{dst=std{access=http{mime=video/x-flv},
+ *   mux=ffmpeg{mux=flv},dst=0.0.0.0:8081/mediaplayer/stream.flv}}"
+ * </pre>
+ *   
+ * <p>to stream via /streaming.html page
  *
- * Start should be something like
-
-    vlc.exe -I rc --sub-filter=marq@something{marquee=$t ($P%%),color=16776960}:marq@something2{marquee=%H:%m%s,position=6} somevideo.avi
-
-then you can change the first text with command
-    @something marq-marquee new_text
-
-and the second with
-    @something2 marq-marquee new_text2
-
-and in a shell script
-
-    #!/bin/bash
-
-    nc localhost 9999 <<EOF
-    @my_marq marq-marquee $1
-    logout
-    EOF
-
-    now using oldtelnet interface
-    
-    @author knoxg
+ * <p>use %%ages in windows to prevent shell expansion
+ * 
+ * <p>See http://wiki.videolan.org/Documentation:Modules/marq
+ *
+ * <p>Telnet commands:
+ * 
+ * <p>You can change the topleft text via <pre>@topleft marq-marquee new_text</pre>
+ *   
+ * @author knoxg
  */
 public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 
