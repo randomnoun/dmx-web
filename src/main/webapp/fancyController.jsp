@@ -244,7 +244,7 @@ var lhsMenuPanels=new Array("lgoPanel", "shwPanel", "fixPanel", "dmxPanel", "log
 var longPollRequest=null;
 var currentPanelName=null;
 function startShow(showId) {
-	document.location = "controller.html?action=startShow&showId=" + showId;
+    document.location = "controller.html?action=startShow&showId=" + showId;
 }
 function cancelShow(showId) {
     document.location = "controller.html?action=cancelShow&showId=" + showId;
@@ -266,63 +266,63 @@ function twoDigits(v) {
 }
 // @TODO timeout this text or something
 function setRhsMessageHTML(text) {
-	$("rhsMessage").innerHTML = text;
+    $("rhsMessage").innerHTML = text;
 }
 
 // @TODO what's the bet that completedFunction isn't scoped right here
 function sendRequest(url,completedFunction) {
-	new Ajax.Request(url, {
-	    method:'get', // evalJSON:true,
-	    onSuccess: function(transport) {
-	        setRhsMessageHTML(transport.responseJSON.message);
-	    },
-	    onComplete: function(transport) {
-	    	completedFunction();
-	    }});
+    new Ajax.Request(url, {
+        method:'get', // evalJSON:true,
+        onSuccess: function(transport) {
+            setRhsMessageHTML(transport.responseJSON.message);
+        },
+        onComplete: function(transport) {
+            completedFunction();
+        }});
 }
 
 
 /******************************* LHS MENU ******************************/
 
 function initLhsMenu() {
-	Event.observe($("lhsLogo"), 'click', lhsLogo);
-	Event.observe($("lhsBlackout"), 'click', lhsBlackout);
-	Event.observe($("lhsShows"), 'click', lhsShows);
-	Event.observe($("lhsFixtures"), 'click', lhsFixtures);
-	Event.observe($("lhsDMX"), 'click', lhsDMX);
-	Event.observe($("lhsLogs"), 'click', lhsLogs);
-	Event.observe($("lhsConfig"), 'click', lhsConfig);
-	$$(".lhsMenuItem").each(function(s){Event.observe(s, 'mousedown', function(){return false});});
-	Event.observe($("lhsLogo"), 'mousedown', function(){return false});
+    Event.observe($("lhsLogo"), 'click', lhsLogo);
+    Event.observe($("lhsBlackout"), 'click', lhsBlackout);
+    Event.observe($("lhsShows"), 'click', lhsShows);
+    Event.observe($("lhsFixtures"), 'click', lhsFixtures);
+    Event.observe($("lhsDMX"), 'click', lhsDMX);
+    Event.observe($("lhsLogs"), 'click', lhsLogs);
+    Event.observe($("lhsConfig"), 'click', lhsConfig);
+    $$(".lhsMenuItem").each(function(s){Event.observe(s, 'mousedown', function(){return false});});
+    Event.observe($("lhsLogo"), 'mousedown', function(){return false});
 }
 
 function clickFx(el) {
-	el.addClassName("clickHighlight");
-	window.setTimeout(function() { el.removeClassName("clickHighlight") }, 50);
+    el.addClassName("clickHighlight");
+    window.setTimeout(function() { el.removeClassName("clickHighlight") }, 50);
 }
 
 function lhsShowPanel(panelName) {
-	if (currentPanelName==panelName) { return; }
+    if (currentPanelName==panelName) { return; }
     if (currentPanelName=="dmxPanel") { dmxHideHighlight2(); }
-	for (var i=0; i<lhsMenuPanels.length; i++) {
-		if (panelName!=lhsMenuPanels[i]) {
-			$(lhsMenuPanels[i]).style.display = "none";
-		}
-	}
-	currentPanelName = panelName;
-	if (longPollRequest) { longPollRequest.abort(); }
-	var el=$(panelName); if (el) { 
-		el.style.display = "block";
-	}
-	
-	// @TODO update with current state
+    for (var i=0; i<lhsMenuPanels.length; i++) {
+        if (panelName!=lhsMenuPanels[i]) {
+            $(lhsMenuPanels[i]).style.display = "none";
+        }
+    }
+    currentPanelName = panelName;
+    if (longPollRequest) { longPollRequest.abort(); }
+    var el=$(panelName); if (el) { 
+        el.style.display = "block";
+    }
+    
+    // @TODO update with current state
 }
 function lhsSelect(el) {
-	$$(".lhsMenuItem").each(function(s){s.removeClassName("lhsSelect");});
-	el.addClassName("lhsSelect");
+    $$(".lhsMenuItem").each(function(s){s.removeClassName("lhsSelect");});
+    el.addClassName("lhsSelect");
 }
 function lhsBlackout() { 
-	clickFx($("lhsBlackout"));
+    clickFx($("lhsBlackout"));
     sendRequest('fancyController.html?action=blackOut');
 }
 
@@ -335,46 +335,46 @@ function lhsConfig() { lhsSelect($("lhsConfig")); lhsShowPanel("cnfPanel"); }
 
 
 function startPollRequests() {
-	new Ajax.Request('fancyController.html?action=poll&panel=' + currentPanelName, {
-	    onSuccess: function(transport) {
-	    	updatePanel(transport.responseJSON);
-	    }		
-	})
-	/*
+    new Ajax.Request('fancyController.html?action=poll&panel=' + currentPanelName, {
+        onSuccess: function(transport) {
+            updatePanel(transport.responseJSON);
+        }       
+    })
+    /*
     if (currentPanelName=="shwPanel") {
-	    new Ajax.Request('fancyController.html?action=poll&panel=show', {
-		    method:'post',
-		    onSuccess: function(transport) {
-		        shwUpdatePanel(transport.responseJSON);
-		    },
-		    onFailure: function(transport) {
-			    // mark comms as down ?        
-			},
-			onComplete: function(transport) {
-				// catch-all called after all other event lifecycle handlers
-			} });
+        new Ajax.Request('fancyController.html?action=poll&panel=show', {
+            method:'post',
+            onSuccess: function(transport) {
+                shwUpdatePanel(transport.responseJSON);
+            },
+            onFailure: function(transport) {
+                // mark comms as down ?        
+            },
+            onComplete: function(transport) {
+                // catch-all called after all other event lifecycle handlers
+            } });
     }
-	if (currentPanelName=="logPanel") {
-		new Ajax.Request('fancyController.html?action=getExceptions', {
-	        method:'get', // evalJSON:true,
-	        onSuccess: function(transport) {
-	            logSetExceptions(transport.responseJSON);
-	        } });
-	}
-	*/
+    if (currentPanelName=="logPanel") {
+        new Ajax.Request('fancyController.html?action=getExceptions', {
+            method:'get', // evalJSON:true,
+            onSuccess: function(transport) {
+                logSetExceptions(transport.responseJSON);
+            } });
+    }
+    */
 }
 
 function updatePanel(json) {
-	var jsonPanel = json.panel;
-	if (jsonPanel==currentPanelName) {
-		if (jsonPanel=="shwPanel") { shwUpdatePanel(json); }
-		else if (jsonPanel=="dmxPanel") { dmxUpdatePanel(json); }
-		else if (jsonPanel=="fixPanel") { fixUpdatePanel(json); }
-		else if (jsonPanel=="logPanel") { logUpdatePanel(json); }
-		if (!json.stopPollRequests) {
-		    window.setTimeout(startPollRequests, 500);
-	    }
-	}
+    var jsonPanel = json.panel;
+    if (jsonPanel==currentPanelName) {
+        if (jsonPanel=="shwPanel") { shwUpdatePanel(json); }
+        else if (jsonPanel=="dmxPanel") { dmxUpdatePanel(json); }
+        else if (jsonPanel=="fixPanel") { fixUpdatePanel(json); }
+        else if (jsonPanel=="logPanel") { logUpdatePanel(json); }
+        if (!json.stopPollRequests) {
+            window.setTimeout(startPollRequests, 500);
+        }
+    }
 }
 
 /******************************* CONFIG PANEL ******************************/
@@ -390,11 +390,11 @@ function lgoInitPanel() {
 /******************************* SHOW PANEL ******************************/
   
 function shwInitPanel() {
-	var x, y, el;
+    var x, y, el;
     var sp=$("shwPanel");
-	for (var i=0; i<shows.length; i++) {
-		var show = shows[i];
-		x=20+(i%4)*200; y=110+Math.floor(i/4)*90;
+    for (var i=0; i<shows.length; i++) {
+        var show = shows[i];
+        x=20+(i%4)*200; y=110+Math.floor(i/4)*90;
         var shwEl = new Element("div", { 
             "id": "shwItem[" + show["id"] + "]", "showId": show["id"],
             "class" : "shwItem" }).update(
@@ -402,50 +402,50 @@ function shwInitPanel() {
             );
         shwEl.style.left=x+"px"; shwEl.style.top=y+"px";
         sp.appendChild(shwEl);
-		Event.observe(shwEl, 'click', shwItemClick);
-	}
-	Event.observe($("shwCancel"), 'click', shwCancel);
+        Event.observe(shwEl, 'click', shwItemClick);
+    }
+    Event.observe($("shwCancel"), 'click', shwCancel);
 } 
 
 function shwItemClick(event) {
-	var shwItemEl = event.element();
-	clickFx(shwItemEl);
-	var showId = shwItemEl.readAttribute("showId");
-	sendRequest('fancyController.html?action=startShow&showId=' + showId, startPollRequests);
+    var shwItemEl = event.element();
+    clickFx(shwItemEl);
+    var showId = shwItemEl.readAttribute("showId");
+    sendRequest('fancyController.html?action=startShow&showId=' + showId, startPollRequests);
 }
 
 function shwCancel(event) {
-	sendRequest('fancyController.html?action=cancelShow');
+    sendRequest('fancyController.html?action=cancelShow');
 }
 
 function shwUpdatePanel(json) {
-	var newShows = json.shows;
-	for (var i=0; i<newShows.length; i++) {
-		var showId = newShows[i]["id"];
-		var el = $("shwItem[" + showId + "]");
-		if (newShows[i]["state"]=="SHOW_RUNNING") {
-			el.addClassName("shwRunning");
-			el.removeClassName("shwException");
-		} else if (newShows[i]["state"]=="SHOW_STOPPED_WITH_EXCEPTION") {
+    var newShows = json.shows;
+    for (var i=0; i<newShows.length; i++) {
+        var showId = newShows[i]["id"];
+        var el = $("shwItem[" + showId + "]");
+        if (newShows[i]["state"]=="SHOW_RUNNING") {
+            el.addClassName("shwRunning");
+            el.removeClassName("shwException");
+        } else if (newShows[i]["state"]=="SHOW_STOPPED_WITH_EXCEPTION") {
             el.removeClassName("shwRunning");
             el.addClassName("shwException");
-		} else {			
-			el.removeClassName("shwRunning");
-			el.removeClassName("shwException");
-		}
-	}
+        } else {            
+            el.removeClassName("shwRunning");
+            el.removeClassName("shwException");
+        }
+    }
 }
 
 /******************************* FIXTURE PANEL ******************************/
 
 var fixColorPicker = null;
 function fixInitPanel() {
-	var x,y,fixEl;
-	var fixDimSlider;
-	var fp=$("fixPanel");
-	for (var i=0; i<fixtures.length; i++) {
-		x=20+(i%4)*200; y=210+Math.floor(i/4)*90;
-    	f=fixtures[i]; fd=fixtureDefs[f.type];
+    var x,y,fixEl;
+    var fixDimSlider;
+    var fp=$("fixPanel");
+    for (var i=0; i<fixtures.length; i++) {
+        x=20+(i%4)*200; y=210+Math.floor(i/4)*90;
+        f=fixtures[i]; fd=fixtureDefs[f.type];
         var fixEl = new Element("div", { 
             "id": "fixItem[" + i + "]", "fixtureId": i,
             "class" : "fixItem" }).update(
@@ -456,35 +456,35 @@ function fixInitPanel() {
         
         Event.observe(fixEl, 'click', fixItemClick);
     }
-	Event.observe($("fixGroup"), 'click', fixGroupClick);
-	Event.observe($("fixBlackout"), 'click', fixBlackout);
-	fixDimSlider = new Control.Slider("fixDimHandle", "fixDim", {
-		axis: "vertical",
-		onSlide: function(v) { fixDimChange(v); },
-		onChange: function(v) { fixDimChange(v); }
-	});
-	new Draggable("fixAimHandle", {
-		// constain code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
-		snap: function(x,y,draggable) {
-			function constrain(n, lower, upper) {
-				if (n>upper) { return upper; }
-				else if (n<lower) { return lower; }
-				else return n;
-			}
-			handleDimensions=Element.getDimensions(draggable.element);
-			parentDimensions=Element.getDimensions(draggable.element.parentNode);
-			return[constrain(x, 0, parentDimensions.width - handleDimensions.width),
-			       constrain(y, 0, parentDimensions.height - handleDimensions.height)];
-		},
-		onDrag: function(draggable, event) {
-			handleDimensions=Element.getDimensions(draggable.element);
+    Event.observe($("fixGroup"), 'click', fixGroupClick);
+    Event.observe($("fixBlackout"), 'click', fixBlackout);
+    fixDimSlider = new Control.Slider("fixDimHandle", "fixDim", {
+        axis: "vertical",
+        onSlide: function(v) { fixDimChange(v); },
+        onChange: function(v) { fixDimChange(v); }
+    });
+    new Draggable("fixAimHandle", {
+        // constain code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
+        snap: function(x,y,draggable) {
+            function constrain(n, lower, upper) {
+                if (n>upper) { return upper; }
+                else if (n<lower) { return lower; }
+                else return n;
+            }
+            handleDimensions=Element.getDimensions(draggable.element);
+            parentDimensions=Element.getDimensions(draggable.element.parentNode);
+            return[constrain(x, 0, parentDimensions.width - handleDimensions.width),
+                   constrain(y, 0, parentDimensions.height - handleDimensions.height)];
+        },
+        onDrag: function(draggable, event) {
+            handleDimensions=Element.getDimensions(draggable.element);
             parentDimensions=Element.getDimensions(draggable.element.parentNode);
             handlePos=Position.positionedOffset(draggable.element);
             fixAimDrag(handlePos[0]/(parentDimensions.width - handleDimensions.width),
-            	       handlePos[1]/(parentDimensions.height - handleDimensions.height));
-		},
-		revert: false
-	});
+                       handlePos[1]/(parentDimensions.height - handleDimensions.height));
+        },
+        revert: false
+    });
     Event.observe('fixDimScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // mozilla
     Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
     //jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
@@ -502,17 +502,17 @@ function fixToggleEl(el) {
 var fixLastFixSelectedEl = null;
 var fixSelectIndividual = false;
 function fixItemClick(event) {
-	var fixItemEl = event.element();
-	while (!fixItemEl.hasClassName("fixItem")) { fixItemEl=fixItemEl.parentNode; }
-	if (fixSelectIndividual) {
-		if (fixLastFixSelectedEl!=null && fixLastFixSelectedEl!=fixItemEl) { 
-			fixLastFixSelectedEl.removeClassName("fixSelect"); 
-		}
-	}
-	fixLastFixSelectedEl = fixToggleEl(fixItemEl) ? fixItemEl : null;
+    var fixItemEl = event.element();
+    while (!fixItemEl.hasClassName("fixItem")) { fixItemEl=fixItemEl.parentNode; }
+    if (fixSelectIndividual) {
+        if (fixLastFixSelectedEl!=null && fixLastFixSelectedEl!=fixItemEl) { 
+            fixLastFixSelectedEl.removeClassName("fixSelect"); 
+        }
+    }
+    fixLastFixSelectedEl = fixToggleEl(fixItemEl) ? fixItemEl : null;
 
     var fixItems=new Array();
-	$$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
+    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
     if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
 }
 
@@ -530,58 +530,58 @@ function fixUpdateControls(fixtureId) {
 }
 
 function fixGroupClick(event) {
-	var fixGroupEl = event.element();
-	fixSelectIndividual=fixToggleEl(fixGroupEl);
-	if (fixSelectIndividual) {
-		$$(".fixItem").each(function(f){f.removeClassName("fixSelect");});
-		if (fixLastFixSelectedEl!=null) { fixLastFixSelectedEl.addClassName("fixSelect"); }
-	}
+    var fixGroupEl = event.element();
+    fixSelectIndividual=fixToggleEl(fixGroupEl);
+    if (fixSelectIndividual) {
+        $$(".fixItem").each(function(f){f.removeClassName("fixSelect");});
+        if (fixLastFixSelectedEl!=null) { fixLastFixSelectedEl.addClassName("fixSelect"); }
+    }
 }
 
 function fixGetItemIds() {
-	var fixItems=new Array();
+    var fixItems=new Array();
     $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
     return fixItems.join(",");
 }
 
 function fixBlackout(event) {
-	sendRequest('fancyController.html?action=fixtureBlackout&fixtureIds=' + fixGetItemIds());
+    sendRequest('fancyController.html?action=fixtureBlackout&fixtureIds=' + fixGetItemIds());
 }
 
 // this is triggered far too many times
 var AjaxLimitter = Class.create({
-	// This limiter will limit submitted Ajax requests so that they 
-	// do not occur less than minRequestInterval milliseconds between the start of
-	// one request and the start of the next request. This is handy for
-	// controls that update frequently (the dimmer slider, the color control).
-	// 
-	// The finalRequestInterval is the timeout value used to send the
-	// final update through to the server. It should be greater than the
-	// minRequestInterval. This should be the maximum allowable time between
-	// the start of AJAX requests submitted by the browser.
-	//
-	// NB: this limitter does not ensure that one request finishes before
-	// the next is generated
-	initialize: function(minRequestInterval,finalRequestInterval) {
-		this.minRequestInterval=minRequestInterval;
-		this.finalRequestInterval=finalRequestInterval;
-	    this.newValue=null;
-		this.lastValueSetTime=-1;
-		this.newValueTimeoutId=-1;
-	},
-	sendRequest: function(url) {  // could pass in value here to prevent duplicate requests going through
-		var now=new Date().getTime();
-		if (now-this.lastValueSetTime>this.minRequestInterval) {
-			this.lastValueSetTime=now;
-			if (this.newValueTimeoutId!=-1) { window.clearTimeout(this.newValueTimeoutId); }
-			this.newValueTimeoutId=-1;
-			sendRequest(url);
-		} else {
-			if (this.newValueTimeoutId==-1) {
-				this.newValueTimeoutId=window.setTimeout(this.sendRequest.curry(url), this.finalRequestInterval);
-			}
-		}
-	}
+    // This limiter will limit submitted Ajax requests so that they 
+    // do not occur less than minRequestInterval milliseconds between the start of
+    // one request and the start of the next request. This is handy for
+    // controls that update frequently (the dimmer slider, the color control).
+    // 
+    // The finalRequestInterval is the timeout value used to send the
+    // final update through to the server. It should be greater than the
+    // minRequestInterval. This should be the maximum allowable time between
+    // the start of AJAX requests submitted by the browser.
+    //
+    // NB: this limitter does not ensure that one request finishes before
+    // the next is generated
+    initialize: function(minRequestInterval,finalRequestInterval) {
+        this.minRequestInterval=minRequestInterval;
+        this.finalRequestInterval=finalRequestInterval;
+        this.newValue=null;
+        this.lastValueSetTime=-1;
+        this.newValueTimeoutId=-1;
+    },
+    sendRequest: function(url) {  // could pass in value here to prevent duplicate requests going through
+        var now=new Date().getTime();
+        if (now-this.lastValueSetTime>this.minRequestInterval) {
+            this.lastValueSetTime=now;
+            if (this.newValueTimeoutId!=-1) { window.clearTimeout(this.newValueTimeoutId); }
+            this.newValueTimeoutId=-1;
+            sendRequest(url);
+        } else {
+            if (this.newValueTimeoutId==-1) {
+                this.newValueTimeoutId=window.setTimeout(this.sendRequest.curry(url), this.finalRequestInterval);
+            }
+        }
+    }
 })
 
 var fixDimLimitter = new AjaxLimitter(100, 200);
@@ -596,16 +596,16 @@ function fixDimChange(v) {
 
 var fixColorLimitter = new AjaxLimitter(100, 200);
 function fixColorChange(color) {
-	var fixItemIds=fixGetItemIds();
-	if (fixItemIds!="") {
-		fixColorLimitter.sendRequest( 
+    var fixItemIds=fixGetItemIds();
+    if (fixItemIds!="") {
+        fixColorLimitter.sendRequest( 
            'fancyController.html?action=fixtureColor&color=' + color.substring(1) + '&fixtureIds=' + fixItemIds);
-	}
+    }
 }
 
 var fixAimLimitter = new AjaxLimitter(100, 200);
 function fixAimDrag(x, y) {
-	var fixItemIds=fixGetItemIds();
+    var fixItemIds=fixGetItemIds();
     if (fixItemIds!="") {
        fixAimLimitter.sendRequest( 
            'fancyController.html?action=fixtureAim&x=' + (x*100) + '&y=' + (y*100) + '&fixtureIds=' + fixItemIds);
@@ -618,24 +618,24 @@ var lastColorSetTime=-1;
 var newColorTimeoutId=-1;
 function fixColorChange(color) {
     var now = new Date().getTime();
-	if (now-lastColorSetTime>100) {
-		lastColorSetTime=now;
-		if (newColorTimeoutId!=-1) { window.clearTimeout(newColorTimeoutId); }
-		newColorTimeoutId=-1;
-	    var fixItemIds=fixGetItemIds();
-	    if (fixItemIds!="") {
-	        sendRequest('fancyController.html?action=fixtureColor&color=' + color.substring(1) + '&fixtureIds=' + fixItemIds);
-	    }
-	} else {
-	    if (newColorTimeoutId==-1) {
-	    	newColorTimeoutId=window.setTimeout(fixColorChange.curry(color),200);
-	    }
-	}
+    if (now-lastColorSetTime>100) {
+        lastColorSetTime=now;
+        if (newColorTimeoutId!=-1) { window.clearTimeout(newColorTimeoutId); }
+        newColorTimeoutId=-1;
+        var fixItemIds=fixGetItemIds();
+        if (fixItemIds!="") {
+            sendRequest('fancyController.html?action=fixtureColor&color=' + color.substring(1) + '&fixtureIds=' + fixItemIds);
+        }
+    } else {
+        if (newColorTimeoutId==-1) {
+            newColorTimeoutId=window.setTimeout(fixColorChange.curry(color),200);
+        }
+    }
 }
 */
 
 function fixSetState(json) {
-	/* eventually 
+    /* eventually 
     var el = $("logExceptionContainer");
     el.innerHTML = ""; // reset any existing DIVs
     for (var i=0; i<json.exceptions.length; i++) {
@@ -648,16 +648,16 @@ function fixSetState(json) {
 }
 
 function fixUpdatePanel(json) {
-	/*
-	fixValues = json.fixValues;
-	for (var i=0; i<fixValues.length; i++) {
-		var fixValue = fixValues[i];
-		var el = $("fixItem[" + i + "]");
-		var divEls = el.getElementsByTagName("DIV");
-		divEls[1].style.backgroundColor=fixValue["c"];
-		divEls[2].innerHTML=twoDigits(fixValue["p"]);
-		divEls[3].innerHTML=twoDigits(fixValue["t"]);
-	}
+    /*
+    fixValues = json.fixValues;
+    for (var i=0; i<fixValues.length; i++) {
+        var fixValue = fixValues[i];
+        var el = $("fixItem[" + i + "]");
+        var divEls = el.getElementsByTagName("DIV");
+        divEls[1].style.backgroundColor=fixValue["c"];
+        divEls[2].innerHTML=twoDigits(fixValue["p"]);
+        divEls[3].innerHTML=twoDigits(fixValue["t"]);
+    }
     var fixItems=new Array();
     $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
     if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
@@ -668,32 +668,32 @@ function fixUpdatePanel(json) {
 /******************************* DMX PANEL ******************************/
 
 function dmxInitPanel() {
-	var x,y,el;
+    var x,y,el;
 
-	var dv=$("dmxValues");
+    var dv=$("dmxValues");
     for (var i=1; i<=255; i++) { 
-		x=20+((i-1)%16)*50; y=90+Math.floor((i-1)/16)*30;
-		var dmxEl=new Element("div", { "class" : "dmxValueContainer",
-		  "style" : "left:" + x + "px; top:" + y + "px" }).update(
-		  "<div class=\"dmxValue\" dmxChannel=\"" + i + "\">" +
-		  "<div class=\"dmxOffset\">" + i + "</div>" +
-		  "<div id=\"dmxValue[" + i + "]\">" + dmxValues[i-1] + "</div>" +
-		  "</div>");
-		dv.appendChild(dmxEl);
+        x=20+((i-1)%16)*50; y=90+Math.floor((i-1)/16)*30;
+        var dmxEl=new Element("div", { "class" : "dmxValueContainer",
+          "style" : "left:" + x + "px; top:" + y + "px" }).update(
+          "<div class=\"dmxValue\" dmxChannel=\"" + i + "\">" +
+          "<div class=\"dmxOffset\">" + i + "</div>" +
+          "<div id=\"dmxValue[" + i + "]\">" + dmxValues[i-1] + "</div>" +
+          "</div>");
+        dv.appendChild(dmxEl);
         Event.observe(dmxEl, 'click', dmxValueClick);
         Event.observe(dmxEl, 'mouseover', dmxValueOnMouseOver);
     }
-	Event.observe($("dmxHighlight"), 'mouseover', dmxShowHighlight);
-	Event.observe($("dmxHighlight2"), 'mouseover', dmxShowHighlight);
-	Event.observe($("dmxHighlight"), 'mouseout', dmxHideHighlight);
-	Event.observe($("dmxHighlight2"), 'mouseout', dmxHideHighlight);
+    Event.observe($("dmxHighlight"), 'mouseover', dmxShowHighlight);
+    Event.observe($("dmxHighlight2"), 'mouseover', dmxShowHighlight);
+    Event.observe($("dmxHighlight"), 'mouseout', dmxHideHighlight);
+    Event.observe($("dmxHighlight2"), 'mouseout', dmxHideHighlight);
 }
 function dmxShowHighlight(event) {
-	if (dmxHighlightTimeout!=-1) { window.clearTimeout(dmxHighlightTimeout); }
+    if (dmxHighlightTimeout!=-1) { window.clearTimeout(dmxHighlightTimeout); }
     dmxHighlightTimeout=-1;
 }
 function dmxHideHighlight(event) {
-	if (dmxHighlightTimeout==-1) { dmxHighlightTimeout=window.setTimeout(dmxHideHighlight2, 1000); }
+    if (dmxHighlightTimeout==-1) { dmxHighlightTimeout=window.setTimeout(dmxHideHighlight2, 1000); }
 }
 function dmxHideHighlight2() {
     $("dmxHighlight").style.display="none";
@@ -719,7 +719,7 @@ function dmxValueOnMouseOver(event) {
         h1x=20+((i-1)%16)*50; h1y=90+Math.floor((i-1)/16)*30;
         h1w=dc*50;
     } else {
-    	h1x=20+((i-1)%16)*50; h1y=90+Math.floor((i-1)/16)*30;
+        h1x=20+((i-1)%16)*50; h1y=90+Math.floor((i-1)/16)*30;
         h1w=(16-((i-1)%16))*50;
         h2x=20; h2y=90+(Math.floor((i-1)/16)+1)*30;
         h2w=(dc-16+((i-1)%16))*50;
@@ -736,7 +736,7 @@ function dmxValueOnMouseOver(event) {
 }
 
 function dmxUpdatePanel(json) {
-	var dmxValues = json.dmxValues.split(",");
+    var dmxValues = json.dmxValues.split(",");
     for (var i=1; i<=255; i++) {
         var el = $("dmxValue[" + i + "]");
         el.innerHTML = dmxValues[i-1];
@@ -747,18 +747,18 @@ function dmxUpdatePanel(json) {
 /******************************* LOG PANEL ******************************/
   
 function logInitPanel() {
-	
+    
 } 
 
 function logUpdatePanel(json) {
-	var el = $("logExceptionContainer");
-	el.innerHTML = ""; // reset any existing DIVs
-	for (var i=0; i<json.exceptions.length; i++) {
-		var e = json.exceptions[i];
-		var exEl = new Element("div", { "class" : "logException" }).update(e.message);
-		exEl.style.left=20+"px"; exEl.style.top=(20+(i*35))+"px";
-		el.appendChild(exEl);
-	}
+    var el = $("logExceptionContainer");
+    el.innerHTML = ""; // reset any existing DIVs
+    for (var i=0; i<json.exceptions.length; i++) {
+        var e = json.exceptions[i];
+        var exEl = new Element("div", { "class" : "logException" }).update(e.message);
+        exEl.style.left=20+"px"; exEl.style.top=(20+(i*35))+"px";
+        el.appendChild(exEl);
+    }
 }
 
 /******************************* CONFIG PANEL ******************************/
@@ -772,27 +772,27 @@ function cnfInitPanel() {
 }
 
 function cnfFixtureDefClick() {
-	document.location="maintainFixtureDef.html";
+    document.location="maintainFixtureDef.html";
 }
 function cnfFixtureClick() {
-	document.location="maintainFixture.html";
+    document.location="maintainFixture.html";
 }
 function cnfShowDefClick() {
-	document.location="maintainShowDef.html";
+    document.location="maintainShowDef.html";
 }
 function cnfShowClick() {
-	document.location="maintainShow.html";
+    document.location="maintainShow.html";
 }
 function cnfSimpleClick() {
-	document.location="controller.html";
+    document.location="controller.html";
 }
 
 /******************************* LONG POLLING ******************************/
 
 /*
 function initLongPolling() {
-	// this will block until there is UI data to send to the browser
-	longPollRequest=Ajax.Request('fancyController.html?action=longPoll', {
+    // this will block until there is UI data to send to the browser
+    longPollRequest=Ajax.Request('fancyController.html?action=longPoll', {
         method:'get', // evalJSON:true,
         onSuccess: function(transport) {
             if (transport.responseJSON.result=="success") {
@@ -807,8 +807,7 @@ function initLongPolling() {
 /******************************* INIT ******************************/
 
 function initWindow() {
-	//lhsFixtures();
-	lhsLogo();
+    lhsFixtures(); // need fixtures to be visible during init, or dimmer slider breaks (?)
     initLookups();
     initLhsMenu();
 
@@ -818,6 +817,7 @@ function initWindow() {
     fixInitPanel();
     logInitPanel();
     cnfInitPanel();
+    lhsLogo();
 }
 
 </script>
