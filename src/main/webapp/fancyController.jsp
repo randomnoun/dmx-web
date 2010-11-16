@@ -346,13 +346,18 @@ function updatePanel(json) {
   
 function shwInitPanel() {
 	var x, y, el;
+    var sp=$("shwPanel");
 	for (var i=0; i<shows.length; i++) {
 		var show = shows[i];
 		x=20+(i%4)*200; y=110+Math.floor(i/4)*90;
-		el=$("shwItem[" + show["id"] + "]");
-		el.style.left=x+"px"; el.style.top=y+"px";
-		el.setAttribute("showId", show["id"]);
-		Event.observe(el, 'click', shwItemClick);
+        var shwEl = new Element("div", { 
+            "id": "shwItem[" + show["id"] + "]", "showId": show["id"],
+            "class" : "shwItem" }).update(
+            show["name"] 
+            );
+        shwEl.style.left=x+"px"; shwEl.style.top=y+"px";
+        sp.appendChild(shwEl);
+		Event.observe(shwEl, 'click', shwItemClick);
 	}
 	Event.observe($("shwCancel"), 'click', shwCancel);
 } 
@@ -783,15 +788,6 @@ function initWindow() {
 <div class="rhsPanel">
 <div id="shwPanel" >
   <div id="shwCancel">Cancel</div>
-<% 
-    List shows = (List) request.getAttribute("shows");
-    for (int i=0; i<shows.size(); i++) {
-    	Map show = (Map) shows.get(i);
-%>
-  <div id="shwItem[<%= show.get("id") %>]" class="shwItem"><%= show.get("name") %></div>
-<%
-    }
-%>
 </div>
 
 
