@@ -3,7 +3,7 @@
 /* Define colors, fonts and other style attributes here to override the defaults */
 
 /* Page background color */
-body { background-color: #FFFFFF }
+body { background-color: #FFFFFF; font-family: Arial; font-size: 10pt; }
 
 /* Headings */
 h1 { font-size: 145% }
@@ -20,10 +20,26 @@ h1 { font-size: 145% }
   font-family: "Lucida Console";
 }
 
+TABLE {
+}
+TD {
+  
+}
+
+.TableHeadingColor, .TableSubHeadingColor, .TableRowColor {
+  border: solid 1px black;
+  border-collapse: collapse;
+}
+.TableRowColor TD {
+  border: solid 1px #AAAAAA;
+  border-collapse: collapse;
+
+}
+
 /* Table colors */
-.TableHeadingColor     { background: #CCCCFF } /* Dark mauve */
-.TableSubHeadingColor  { background: #EEEEFF } /* Light mauve */
-.TableRowColor         { background: #FFFFFF } /* White */
+.TableHeadingColor     { background: #CCCCFF; } /* Dark mauve */
+.TableSubHeadingColor  { background: #EEEEFF; } /* Light mauve */
+.TableRowColor         { background: #FFFFFF; } /* White */
 
 /* Font used in left-hand frame lists */
 .FrameTitleFont   { font-size: 100%; font-family: Helvetica, Arial, sans-serif }
