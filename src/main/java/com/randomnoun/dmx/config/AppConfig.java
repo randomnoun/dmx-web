@@ -515,6 +515,10 @@ public class AppConfig extends AppConfigBase {
 	
     public void startShow(long showId) {
     	ShowConfig showConfig = showConfigs.get(showId);
+    	if (showConfig==null) {
+    		logger.error("Not starting show " + showId + " - unknown show");
+    		return;
+    	}
     	ShowThread thread = showConfig.getThread();
     	if (thread.isAlive()) {
     		// @TODO cancel & restart show ?
@@ -526,6 +530,10 @@ public class AppConfig extends AppConfigBase {
     
     public void cancelShow(long showId) {
     	ShowConfig showConfig = showConfigs.get(showId);
+    	if (showConfig==null) {
+    		logger.error("Not cancelling show " + showId + " - unknown show");
+    		return;
+    	}
     	ShowThread thread = showConfig.getThread();
     	if (thread.isAlive()) {
     		// @TODO cancel & restart show ?
