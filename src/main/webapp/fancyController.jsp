@@ -74,8 +74,12 @@ BODY { font-size: 8pt; font-family: Arial; }
   text-align: center; color: #000044; font-size: 18pt; 
 }
 .shwRunning {
-  background-color: #DDDDFF;
+  background-color: #AAFFAA;
 }
+.shwException {
+  background-color: red;
+}
+
 
 /*** FIXTURE panel ***/
 .fixItem {
@@ -367,12 +371,17 @@ function shwCancel(event) {
 function shwUpdatePanel(json) {
 	var newShows = json.shows;
 	for (var i=0; i<newShows.length; i++) {
-		var showId = newShows["id"];
+		var showId = newShows[i]["id"];
 		var el = $("shwItem[" + showId + "]");
 		if (newShows[i]["state"]=="SHOW_RUNNING") {
 			el.addClassName("shwRunning");
-		} else {
+			el.removeClassName("shwException");
+		} else if (newShows[i]["state"]=="SHOW_STOPPED_WITH_EXCEPTION") {
+            el.removeClassName("shwRunning");
+            el.addClassName("shwException");
+		} else {			
 			el.removeClassName("shwRunning");
+			el.removeClassName("shwException");
 		}
 	}
 }
@@ -454,17 +463,20 @@ function fixItemClick(event) {
 
     var fixItems=new Array();
 	$$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
-    if (fixItems.length==1) {
-      var fixtureId=fixItems[0];
-      var f=fixtures[fixtureId];
-      var fd=fixtureDefs[f.type];
-      fixColorPicker.setColor(fixValues[fixtureId]["c"]);
-      var aimHandleEl=$("fixAimHandle");
-      var aimHandleDimensions=Element.getDimensions(aimHandleEl);
-      var aimParentDimensions=Element.getDimensions(aimHandleEl.parentNode);
-      aimHandleEl.style.left=(fixValues[fixtureId]["p"]*(aimParentDimensions.width-aimHandleDimensions.width)/fd["panRange"]) + "px";
-      aimHandleEl.style.top=(fixValues[fixtureId]["t"]*(aimParentDimensions.height-aimHandleDimensions.height)/fd["tiltRange"]) + "px";
-    }	
+    if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
+}
+
+// make the main fixture controls reflect the current state of the
+// supplied fixture
+function fixUpdateControls(fixtureId) {
+    var f=fixtures[fixtureId];
+    var fd=fixtureDefs[f.type];
+    fixColorPicker.setColor(fixValues[fixtureId]["c"]);
+    var aimHandleEl=$("fixAimHandle");
+    var aimHandleDimensions=Element.getDimensions(aimHandleEl);
+    var aimParentDimensions=Element.getDimensions(aimHandleEl.parentNode);
+    aimHandleEl.style.left=(fixValues[fixtureId]["p"]*(aimParentDimensions.width-aimHandleDimensions.width)/fd["panRange"]) + "px";
+    aimHandleEl.style.top=(fixValues[fixtureId]["t"]*(aimParentDimensions.height-aimHandleDimensions.height)/fd["tiltRange"]) + "px";
 }
 
 function fixGroupClick(event) {
@@ -595,6 +607,9 @@ function fixUpdatePanel(json) {
 		divEls[2].innerHTML=twoDigits(fixValue["p"]);
 		divEls[3].innerHTML=twoDigits(fixValue["t"]);
 	}
+    var fixItems=new Array();
+    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
+    if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
 }
 
 
