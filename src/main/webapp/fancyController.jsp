@@ -141,6 +141,13 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 185px; left: 550px; width: 160px; height: 20px;
   text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
 }
+#fixAimLeft, #fixAimRight, #fixAimTop, #fixAimBottom {
+  position: absolute; font-family: Lucida Console; font-size: 8pt; color: black;
+}
+#fixAimLeft { top:5px; left:550px; height: 15px; width:40px; }
+#fixAimRight { top:5px; left:670px; height: 15px; width:40px; text-align: right; }
+#fixAimTop { top:20px; left:715px; height: 30px; width:20px; vertical-align: top; }
+#fixAimBottom { top:150px; left:715px; height: 30px; width:20px; vertical-align: bottom; }
 .fixControl {
   text-align: center; color: #000044; font-size: 18pt;
   background-color: #AAAAFF;
@@ -641,6 +648,7 @@ function fixSetState(json) {
 }
 
 function fixUpdatePanel(json) {
+	/*
 	fixValues = json.fixValues;
 	for (var i=0; i<fixValues.length; i++) {
 		var fixValue = fixValues[i];
@@ -653,6 +661,7 @@ function fixUpdatePanel(json) {
     var fixItems=new Array();
     $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
     if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
+    */
 }
 
 
@@ -850,6 +859,11 @@ DMX-WEB
   <div id="fixColorPicker"></div>
   <div id="fixAim" class="fixControl"><div id="fixAimHandle"></div></div>
   <div id="fixAimLabel">Pan/Tilt control</div>
+  <div id="fixAimLeft">Left</div>
+  <div id="fixAimRight">Right</div>
+  <div id="fixAimTop">Top</div>
+  <div id="fixAimBottom">Bottom</div>
+  
   <div id="fixGroup" class="fixControl">Select individual</div>
   
 </div>
