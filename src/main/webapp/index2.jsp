@@ -4,6 +4,6 @@
 
   Hopefully using the .html extension here will trigger struts processing.
 --%>
-<jsp:include page="/index.html"/>
+<jsp:include page="/fancyController.html"/>
 
  

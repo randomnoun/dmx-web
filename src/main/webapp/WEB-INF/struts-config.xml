@@ -20,11 +20,12 @@
     <action-mappings>
         
         <!-- Note this action is not a PermissionMapping to allow non-authenticated users to use it -->
-	    <action path="/index" 
+	    <action path="/textMenu" 
 	      type="com.randomnoun.common.webapp.struts.NoAction"
 	    >
-	  	  <forward name="success" path="/index.jsp"/>
+	  	  <forward name="success" path="/textMenu.jsp"/>
 	    </action>
+
 
         <!-- Note this action is not a PermissionMapping to allow non-authenticated users to use it -->
         <action path="/manualController" 
@@ -45,6 +46,14 @@
           <forward name="success" path="/fancyController.jsp"/>
           <forward name="json" path="/misc/json.jsp"/>
         </action>
+
+        <action path="/index" 
+          type="com.randomnoun.dmx.web.action.FancyControllerAction"
+        >
+          <forward name="success" path="/fancyController.jsp"/>
+          <forward name="json" path="/misc/json.jsp"/>
+        </action>
+
 
 
         <action path="/debug" 
