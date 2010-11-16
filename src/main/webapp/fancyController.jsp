@@ -661,7 +661,7 @@ function dmxInitPanel() {
 		  "style" : "left:" + x + "px; top:" + y + "px" }).update(
 		  "<div class=\"dmxValue\" dmxChannel=\"" + i + "\">" +
 		  "<div class=\"dmxOffset\">" + i + "</div>" +
-		  "<div id=\"dmxValue[" + i + "]\">" + dmxValues[i] + "</div>" +
+		  "<div id=\"dmxValue[" + i + "]\">" + dmxValues[i-1] + "</div>" +
 		  "</div>");
 		dv.appendChild(dmxEl);
         Event.observe(dmxEl, 'click', dmxValueClick);
@@ -720,10 +720,10 @@ function dmxValueOnMouseOver(event) {
 }
 
 function dmxUpdatePanel(json) {
-    var dmxValues = json.dmxValues.split(",");
-    for (var i=1; i<255; i++) {
+	var dmxValues = json.dmxValues.split(",");
+    for (var i=1; i<=255; i++) {
         var el = $("dmxValue[" + i + "]");
-        el.innerHTML = i;
+        el.innerHTML = dmxValues[i-1];
     }
 }
 
