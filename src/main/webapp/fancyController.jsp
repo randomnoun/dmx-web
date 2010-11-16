@@ -47,6 +47,7 @@ BODY { font-size: 8pt; font-family: Arial; }
   text-align: left; color: white; font-size: 10pt; font-weight: bold;
   background-color: blue; border: solid 1px blue;
   padding: 2px 0px;
+  cursor: pointer;
 }
 .rhsPanel {
   position: absolute; top: 30px; left: 225px; width: 900px; height: 700px;
@@ -59,7 +60,8 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 .lhsMenuItem {
   width: 180px; height: 70px; background-color: #AAAAFF; margin: 10px;
-  text-align: center; color: #000044; font-size: 18pt; 
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
 }
 .lhsSelect {
   background-color: #6666FF;
@@ -87,7 +89,8 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 .shwItem {
   position: absolute; width: 180px; height: 70px; background-color: #AAAAFF; 
-  text-align: center; color: #000044; font-size: 18pt; 
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
 }
 .shwRunning {
   background-color: #AAFFAA;
@@ -100,7 +103,8 @@ BODY { font-size: 8pt; font-family: Arial; }
 /*** FIXTURE panel ***/
 .fixItem {
   position: absolute; width: 180px; height: 70px; background-color: #AAAAFF;  
-  text-align: center; color: #000044; font-size: 18pt; 
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
 }
 #fixBlackout {
   position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
@@ -139,7 +143,8 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 .fixControl {
   text-align: center; color: #000044; font-size: 18pt;
-  background-color: #AAAAFF; 
+  background-color: #AAAAFF;
+  cursor: pointer; 
 }
 .fixSelect {
   background-color: #6666FF;
@@ -172,7 +177,8 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 .dmxControl {
   text-align: center; color: #000044; font-size: 18pt;
-  background-color: #AAAAFF; 
+  background-color: #AAAAFF;
+  cursor: pointer; 
 }
 .dmxTimeSource {
   text-align: left; color: #000044; font-size: 10pt;
@@ -212,6 +218,7 @@ BODY { font-size: 8pt; font-family: Arial; }
   width: 360px; height: 70px; background-color: #AAAAFF; 
   text-align: center; color: #000044; font-size: 18pt; 
   margin: 10px;
+  cursor: pointer;
 }
 
 
