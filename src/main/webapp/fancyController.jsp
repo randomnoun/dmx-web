@@ -133,9 +133,14 @@ BODY { font-size: 8pt; font-family: Arial; }
 #fixAim {
   position: absolute; top: 20px; left: 550px; width: 160px; height: 160px; cursor: crosshair;
 }
+.fixAimVGrid1 { position: absolute; top: 0px; height:160px; width:0px; border-right: 1px dotted #7777FF; } 
+.fixAimVGrid2 { position: absolute; top: 0px; height:160px; width:0px; border-right: 1px solid #7777FF; }
+.fixAimHGrid1 { position: absolute; top: 0px; height:0px; width:160px; border-bottom: 1px dotted #7777FF; }
+.fixAimHGrid2 { position: absolute; top: 0px; height:0px; width:160px; border-bottom: 1px solid #7777FF; }
 #fixAimHandle {
   width: 20px; height: 20px;
   background-color: blue;
+  z-index: 10;
 }
 #fixAimLabel {
   position: absolute; top: 185px; left: 550px; width: 160px; height: 20px;
@@ -144,8 +149,8 @@ BODY { font-size: 8pt; font-family: Arial; }
 #fixAimLeft, #fixAimRight, #fixAimTop, #fixAimBottom {
   position: absolute; font-family: Lucida Console; font-size: 8pt; color: black;
 }
-#fixAimLeft { top:5px; left:550px; height: 15px; width:40px; }
-#fixAimRight { top:5px; left:670px; height: 15px; width:40px; text-align: right; }
+#fixAimLeft { top:5px; left:550px; height: 15px; width:60px; }
+#fixAimRight { top:5px; left:650px; height: 15px; width:60px; text-align: right; }
 #fixAimTop { top:20px; left:715px; height: 30px; width:20px; vertical-align: top; }
 #fixAimBottom { top:150px; left:715px; height: 30px; width:20px; vertical-align: bottom; }
 .fixControl {
@@ -164,6 +169,15 @@ BODY { font-size: 8pt; font-family: Arial; }
   display: inline-block;
   background-color: black; width: 15px; height: 15px;
   border: solid 1px black;
+}
+.fixOutputDim {
+  display: inline-block;
+  background-color: white; width: 15px; height: 15px;
+  border: solid 1px white;
+}
+.fixOutputDim2 {
+  display: absolute; top:0px; left:0px;
+  background-color: black; width: 15px; height: 15px;
 }
 .fixOutputPan, .fixOutputTilt {
   display: inline-block;
@@ -449,7 +463,7 @@ function fixInitPanel() {
         var fixEl = new Element("div", { 
             "id": "fixItem[" + i + "]", "fixtureId": i,
             "class" : "fixItem" }).update(
-            f.name + "<div class=\"fixOutput\"><div class=\"fixOutputColor\"></div>&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div></div>" 
+            f.name + "<div class=\"fixOutput\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div></div>" 
             );
         fixEl.style.left=x+"px"; fixEl.style.top=y+"px";
         fp.appendChild(fixEl);
@@ -473,15 +487,15 @@ function fixInitPanel() {
             }
             handleDimensions=Element.getDimensions(draggable.element);
             parentDimensions=Element.getDimensions(draggable.element.parentNode);
-            return[constrain(x, 0, parentDimensions.width - handleDimensions.width),
-                   constrain(y, 0, parentDimensions.height - handleDimensions.height)];
+            return[constrain(x, - handleDimensions.width/2, parentDimensions.width - handleDimensions.width/2),
+                   constrain(y, - handleDimensions.height/2, parentDimensions.height - handleDimensions.height/2)];
         },
         onDrag: function(draggable, event) {
             handleDimensions=Element.getDimensions(draggable.element);
             parentDimensions=Element.getDimensions(draggable.element.parentNode);
             handlePos=Position.positionedOffset(draggable.element);
-            fixAimDrag(handlePos[0]/(parentDimensions.width - handleDimensions.width),
-                       handlePos[1]/(parentDimensions.height - handleDimensions.height));
+            fixAimDrag((handlePos[0]+handleDimensions.width/2)/(parentDimensions.width),
+                       (handlePos[1]+handleDimensions.height/2)/(parentDimensions.height));
         },
         revert: false
     });
@@ -513,7 +527,41 @@ function fixItemClick(event) {
 
     var fixItems=new Array();
     $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
-    if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
+    if (fixItems.length==1) {
+    	var fd = fixtureDefs[fixtures[fixItems[0]].type];
+        fixLabelAim(0, fd["panRange"], 0, fd["tiltRange"]);
+    	fixUpdateControls(fixItems[0]); 
+    } else if (fixItems.length==0) {
+        $("fixAimLeft").update("");
+        $("fixAimRight").update("");
+        $("fixAimTop").update("");
+        $("fixAimBottom").update("");
+        var cn=$("fixAim").childNodes;
+        for (var i=cn.length-1; i>1; i--) {
+        	cn.item(i).parentNode.removeChild(cn.item(i));
+        }
+    }
+}
+
+function fixLabelAim(panMin, panMax, tiltMin, tiltMax) {
+    $("fixAimLeft").update("&#8592; " + panMin + "&deg;");
+    $("fixAimRight").update(panMax + "&deg; &#8594;");
+    $("fixAimTop").update("&#8593;<br/>" + tiltMin + "&deg;");
+    $("fixAimBottom").update("&#8595;<br/>" + tiltMax + "&deg;");
+    var fixAimEl = $("fixAim");
+    for (var x=0; x<panMax; x+=45) {
+    	var gridEl = new Element("div", { 
+            "class" : (x%180==0) ? "fixAimVGrid2" : "fixAimVGrid1",
+            "style" : "left: " + (x*160/panMax) + "px;" });
+        fixAimEl.appendChild(gridEl);
+    }
+    for (var y=0; y<tiltMax; y+=45) {
+        var gridEl = new Element("div", { 
+            "class" : (y%180==0) ? "fixAimHGrid2" : "fixAimHGrid1",
+            "style" : "top: " + (y*160/tiltMax) + "px;" });
+        fixAimEl.appendChild(gridEl);
+    }
+    
 }
 
 // make the main fixture controls reflect the current state of the
@@ -525,8 +573,8 @@ function fixUpdateControls(fixtureId) {
     var aimHandleEl=$("fixAimHandle");
     var aimHandleDimensions=Element.getDimensions(aimHandleEl);
     var aimParentDimensions=Element.getDimensions(aimHandleEl.parentNode);
-    aimHandleEl.style.left=(fixValues[fixtureId]["p"]*(aimParentDimensions.width-aimHandleDimensions.width)/fd["panRange"]) + "px";
-    aimHandleEl.style.top=(fixValues[fixtureId]["t"]*(aimParentDimensions.height-aimHandleDimensions.height)/fd["tiltRange"]) + "px";
+    aimHandleEl.style.left=(fixValues[fixtureId]["p"]*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
+    aimHandleEl.style.top=(fixValues[fixtureId]["t"]*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
 }
 
 function fixGroupClick(event) {
@@ -612,56 +660,21 @@ function fixAimDrag(x, y) {
     }
 }
 
-/*
-var newColor=null;
-var lastColorSetTime=-1;
-var newColorTimeoutId=-1;
-function fixColorChange(color) {
-    var now = new Date().getTime();
-    if (now-lastColorSetTime>100) {
-        lastColorSetTime=now;
-        if (newColorTimeoutId!=-1) { window.clearTimeout(newColorTimeoutId); }
-        newColorTimeoutId=-1;
-        var fixItemIds=fixGetItemIds();
-        if (fixItemIds!="") {
-            sendRequest('fancyController.html?action=fixtureColor&color=' + color.substring(1) + '&fixtureIds=' + fixItemIds);
-        }
-    } else {
-        if (newColorTimeoutId==-1) {
-            newColorTimeoutId=window.setTimeout(fixColorChange.curry(color),200);
-        }
-    }
-}
-*/
-
-function fixSetState(json) {
-    /* eventually 
-    var el = $("logExceptionContainer");
-    el.innerHTML = ""; // reset any existing DIVs
-    for (var i=0; i<json.exceptions.length; i++) {
-        var e = json.exceptions[i];
-        var exEl = new Element("div", { "class" : "logException" }).update(e.message);
-        exEl.style.left=20+"px"; exEl.style.top=(20+(i*30))+"px";
-        el.appendChild(exEl);
-    }
-    */
-}
 
 function fixUpdatePanel(json) {
-    /*
     fixValues = json.fixValues;
     for (var i=0; i<fixValues.length; i++) {
         var fixValue = fixValues[i];
         var el = $("fixItem[" + i + "]");
         var divEls = el.getElementsByTagName("DIV");
-        divEls[1].style.backgroundColor=fixValue["c"];
-        divEls[2].innerHTML=twoDigits(fixValue["p"]);
-        divEls[3].innerHTML=twoDigits(fixValue["t"]);
+        divEls[2].style.height=(1-fixValue["d"])*15 + "px";
+        divEls[3].style.backgroundColor=fixValue["c"];
+        divEls[4].innerHTML=twoDigits(fixValue["p"]);
+        divEls[5].innerHTML=twoDigits(fixValue["t"]);
     }
     var fixItems=new Array();
     $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
     if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
-    */
 }
 
 
