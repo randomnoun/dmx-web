@@ -92,6 +92,10 @@ BODY { font-size: 8pt; font-family: Arial; }
 #fixDimHandle {
   background-color: blue; width: 90px; height: 30px; cursor: move;
 }
+#fixDimLabel {
+  position: absolute; top: 185px; left: 220px; width: 90px; height: 20px;
+  text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
+}
 #fixGroup {
   position: absolute; top: 110px; left: 20px; width: 180px; height: 70px;
 }
@@ -108,6 +112,10 @@ BODY { font-size: 8pt; font-family: Arial; }
 #fixAimHandle {
   width: 20px; height: 20px;
   background-color: blue;
+}
+#fixAimLabel {
+  position: absolute; top: 185px; left: 550px; width: 160px; height: 20px;
+  text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
 }
 .fixControl {
   text-align: center; color: #000044; font-size: 18pt;
@@ -176,6 +184,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 .logException {
   position: absolute; width: 800px; height: 30px; 
   color: white; background-color: red; font-size:14pt;
+  margin-bottom: 5px;
 }
 
 /*** CONFIG panel ***/
@@ -192,6 +201,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 <r:setJavascriptVar name="fixtures" value="${fixtures}" />
 <r:setJavascriptVar name="fixtureDefs" value="${fixtureDefs}" />
 <r:setJavascriptVar name="dmxValues" value="${dmxValues}" />
+<r:setJavascriptVar name="fixValues" value="${fixValues}" />
 var dmxValues = dmxValues.split(",");
 var dmxToFixture=new Array();
 var dmxHighlightTimeout=-1;
@@ -213,7 +223,12 @@ function initLookups() {
         }
     }
 }
-
+// return value formatted as string with 2 decimal places
+function twoDigits(v) {
+  var t = Math.floor(v*100)/100;
+  //t.replace(/^(.*)\.([0-9]$/, "${1}\.${2}0");
+  return t;
+}
 // @TODO timeout this text or something
 function setRhsMessageHTML(text) {
 	$("rhsMessage").innerHTML = text;
@@ -316,6 +331,7 @@ function updatePanel(json) {
 		if (jsonPanel=="shwPanel") { shwUpdatePanel(json); }
 		else if (jsonPanel=="dmxPanel") { dmxUpdatePanel(json); }
 		else if (jsonPanel=="fixPanel") { fixUpdatePanel(json); }
+		else if (jsonPanel=="logPanel") { logUpdatePanel(json); }
 		if (!json.stopPollRequests) {
 		    window.setTimeout(startPollRequests, 500);
 	    }
@@ -363,13 +379,13 @@ function shwUpdatePanel(json) {
 
 /******************************* FIXTURE PANEL ******************************/
 
-// 
+var fixColorPicker = null;
 function fixInitPanel() {
 	var x,y,fixEl;
 	var fixDimSlider;
 	var fp=$("fixPanel");
 	for (var i=0; i<fixtures.length; i++) {
-		x=20+(i%4)*200; y=200+Math.floor(i/4)*90;
+		x=20+(i%4)*200; y=210+Math.floor(i/4)*90;
     	f=fixtures[i]; fd=fixtureDefs[f.type];
         var fixEl = new Element("div", { 
             "id": "fixItem[" + i + "]", "fixtureId": i,
@@ -412,8 +428,8 @@ function fixInitPanel() {
 	});
     Event.observe('fixDimScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // mozilla
     Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
-    jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
-    
+    //jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
+    fixColorPicker=jQuery.farbtastic(jQuery('#fixColorPicker'), fixColorChange);
 } 
 
 function fixToggleEl(el) {
@@ -435,6 +451,20 @@ function fixItemClick(event) {
 		}
 	}
 	fixLastFixSelectedEl = fixToggleEl(fixItemEl) ? fixItemEl : null;
+
+    var fixItems=new Array();
+	$$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
+    if (fixItems.length==1) {
+      var fixtureId=fixItems[0];
+      var f=fixtures[fixtureId];
+      var fd=fixtureDefs[f.type];
+      fixColorPicker.setColor(fixValues[fixtureId]["c"]);
+      var aimHandleEl=$("fixAimHandle");
+      var aimHandleDimensions=Element.getDimensions(aimHandleEl);
+      var aimParentDimensions=Element.getDimensions(aimHandleEl.parentNode);
+      aimHandleEl.style.left=(fixValues[fixtureId]["p"]*(aimParentDimensions.width-aimHandleDimensions.width)/fd["panRange"]) + "px";
+      aimHandleEl.style.top=(fixValues[fixtureId]["t"]*(aimParentDimensions.height-aimHandleDimensions.height)/fd["tiltRange"]) + "px";
+    }	
 }
 
 function fixGroupClick(event) {
@@ -556,14 +586,14 @@ function fixSetState(json) {
 }
 
 function fixUpdatePanel(json) {
-	var fixValues = json.fixValues;
+	fixValues = json.fixValues;
 	for (var i=0; i<fixValues.length; i++) {
 		var fixValue = fixValues[i];
 		var el = $("fixItem[" + i + "]");
 		var divEls = el.getElementsByTagName("DIV");
 		divEls[1].style.backgroundColor=fixValue["c"];
-		divEls[2].innerHTML=fixValue["p"];
-		divEls[3].innerHTML=fixValue["t"];
+		divEls[2].innerHTML=twoDigits(fixValue["p"]);
+		divEls[3].innerHTML=twoDigits(fixValue["t"]);
 	}
 }
 
@@ -653,13 +683,13 @@ function logInitPanel() {
 	
 } 
 
-function logSetExceptions(json) {
+function logUpdatePanel(json) {
 	var el = $("logExceptionContainer");
 	el.innerHTML = ""; // reset any existing DIVs
 	for (var i=0; i<json.exceptions.length; i++) {
 		var e = json.exceptions[i];
 		var exEl = new Element("div", { "class" : "logException" }).update(e.message);
-		exEl.style.left=20+"px"; exEl.style.top=(20+(i*30))+"px";
+		exEl.style.left=20+"px"; exEl.style.top=(20+(i*35))+"px";
 		el.appendChild(exEl);
 	}
 }
@@ -713,6 +743,7 @@ function initWindow() {
 	lhsFixtures();
     initLookups();
     initLhsMenu();
+
     dmxInitPanel();
     shwInitPanel();
     fixInitPanel();
@@ -754,10 +785,12 @@ function initWindow() {
   <div id="fixDimScrollArea">
   <div id="fixDim" class="fixControl"><div id="fixDimHandle"></div></div>
   </div>
+  <div id="fixDimLabel">Dimmer</div>
   <!--  <div id="fixColor" class="fixControl">Colour</div> -->
   <input type="text" id="fixColor" name="fixColor" value="#123456" />
   <div id="fixColorPicker"></div>
   <div id="fixAim" class="fixControl"><div id="fixAimHandle"></div></div>
+  <div id="fixAimLabel">Pan/Tilt control</div>
   <div id="fixGroup" class="fixControl">Select individual</div>
   
 </div>

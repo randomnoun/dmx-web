@@ -122,8 +122,21 @@ public class FancyControllerAction
     		for (int i=1; i<255; i++) {
     			dmxValues+=controller.getUniverse().getDmxChannelValue(i) + ",";
     		}
+			List fixValues = new ArrayList();
+		    for (Fixture f : controller.getFixtures()) {
+		    	ChannelMuxer cm = f.getChannelMuxer();
+		    	FixtureOutput fo = cm.getOutput();
+		    	HashMap m = new HashMap();
+		    	Color c = fo.getColor();
+		    	m.put("c", getColorHexString(c));
+		    	m.put("p", fo.getPan());
+		    	m.put("t", fo.getTilt());
+		    	fixValues.add(m);
+		    }
+
     		forward="success";
     		request.setAttribute("dmxValues", dmxValues);
+    		request.setAttribute("fixValues", fixValues);
     		request.setAttribute("fixtures", fixtures);
 	    	request.setAttribute("controller", controller);
 	    	request.setAttribute("universe", controller.getUniverse());
@@ -155,13 +168,6 @@ public class FancyControllerAction
     			}
     			result.put("shows", showResult);
 
-    		} else if (panel.equals("dmxPanel")) {
-        		String dmxValues = "";
-        		for (int i=1; i<255; i++) {
-        			dmxValues+=controller.getUniverse().getDmxChannelValue(i) + ",";
-        		}
-        		result.put("dmxValues", dmxValues);
-    		
     		} else if (panel.equals("fixPanel")) {
     			List fixValues = new ArrayList();
     		    for (Fixture f : controller.getFixtures()) {
@@ -175,7 +181,45 @@ public class FancyControllerAction
     		    	fixValues.add(m);
     		    }
     		    result.put("fixValues", fixValues);
-    		
+
+    		} else if (panel.equals("dmxPanel")) {
+        		String dmxValues = "";
+        		for (int i=1; i<255; i++) {
+        			dmxValues+=controller.getUniverse().getDmxChannelValue(i) + ",";
+        		}
+        		result.put("dmxValues", dmxValues);
+
+    		} else if (panel.equals("logPanel")) {
+        		List exceptions = new ArrayList();
+        		List<ExceptionContainer.TimestampedException> e1 = controller.getAudioController().getExceptions();
+        		synchronized(e1) {
+        			for (int i=0; i<e1.size(); i++) {
+        				ExceptionContainer.TimestampedException te = e1.get(i);
+        				Map m = new HashMap(); 
+        				m.put("message", te.getException().getMessage());
+        				exceptions.add(m);
+        			}
+        		}
+        		e1 = appConfig.getDmxDeviceExceptions();
+        		synchronized(e1) {
+        			for (int i=0; i<e1.size(); i++) {
+        				ExceptionContainer.TimestampedException te = e1.get(i);
+        				Map m = new HashMap(); 
+        				m.put("message", te.getException().getMessage());
+        				exceptions.add(m);
+        			}
+        		}
+        		List<AppConfig.TimestampedShowException> e2 = appConfig.getShowExceptions();
+        		synchronized(e2) {
+        			for (int i=0; i<e2.size(); i++) {
+        				ExceptionContainer.TimestampedException te = e2.get(i);
+        				Map m = new HashMap(); 
+        				m.put("message", te.getException().getMessage());
+        				exceptions.add(m);
+        			}
+        		}
+        		result.put("exceptions", exceptions);
+
     		} else if (panel.equals("cnfPanel")) {
     			result.put("stopPollRequests", Boolean.TRUE);
     		}
@@ -316,37 +360,6 @@ public class FancyControllerAction
 			result.put("message", c + " fixture(s) set to " +
 				"pan " + df.format(x) + "%" + (sameRange ? " " + df.format(fd.getPanRange()*x/100) + "&deg;" : "") +
 				", tilt " + df.format(y) + "%" + (sameRange ? " " + df.format(fd.getTiltRange()*y/100) + "&deg;" : ""));
-    		
-    	} else if (action.equals("getExceptions")) {
-    		List exceptions = new ArrayList();
-    		List<ExceptionContainer.TimestampedException> e1 = controller.getAudioController().getExceptions();
-    		synchronized(e1) {
-    			for (int i=0; i<e1.size(); i++) {
-    				ExceptionContainer.TimestampedException te = e1.get(i);
-    				Map m = new HashMap(); 
-    				m.put("message", te.getException().getMessage());
-    				exceptions.add(m);
-    			}
-    		}
-    		e1 = appConfig.getDmxDeviceExceptions();
-    		synchronized(e1) {
-    			for (int i=0; i<e1.size(); i++) {
-    				ExceptionContainer.TimestampedException te = e1.get(i);
-    				Map m = new HashMap(); 
-    				m.put("message", te.getException().getMessage());
-    				exceptions.add(m);
-    			}
-    		}
-    		List<AppConfig.TimestampedShowException> e2 = appConfig.getShowExceptions();
-    		synchronized(e2) {
-    			for (int i=0; i<e2.size(); i++) {
-    				ExceptionContainer.TimestampedException te = e1.get(i);
-    				Map m = new HashMap(); 
-    				m.put("message", te.getException().getMessage());
-    				exceptions.add(m);
-    			}
-    		}
-    		result.put("exceptions", exceptions);
     		
     	} else {
     		
