@@ -236,7 +236,7 @@ public class FancyControllerAction
         		}
         		result.put("exceptions", exceptions);
 
-    		} else if (panel.equals("cnfPanel")) {
+    		} else if (panel.equals("cnfPanel") || panel.equals("lgoPanel")) {
     			result.put("stopPollRequests", Boolean.TRUE);
     		}
     		
