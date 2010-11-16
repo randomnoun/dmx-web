@@ -30,7 +30,7 @@ public class MacroChannelMuxer extends ChannelMuxer {
 	
 	public MacroChannelMuxer(ChannelDef channelDef, ChannelMuxer inputMuxer, ChannelMuxer[] outputMuxers) {
 		super(inputMuxer.getFixture());
-		this.channelDef = (MacroChannelDef) channelDef;
+		//this.channelDef = (MacroChannelDef) channelDef;
 		this.inputMuxer = inputMuxer;
 		this.outputMuxers = outputMuxers;
 		
