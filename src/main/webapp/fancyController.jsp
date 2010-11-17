@@ -77,19 +77,24 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: relative; width: 900px; height: 700px; 
 }
 #lgoImage {
-  position: absolute; left: 20px; top:20px;
+  position: absolute; left: 20px; top:20px; width: 330px; height: 340px; 
+}
+#lgoClientImage {
+  position: absolute; 
+  left: 190px; top: 20px; width: 201px; height: 44px; 
+  background-image: url("image/albionComedy.png");
+  z-index: 10;
 }
 #lgoText1 {
-  position: absolute; left:370px; top:20px;
+  position: absolute; 
+  left:220px; top: 60px; 
+  font-family: Georgia,"Times New Roman",serif;
+  font-size: 9pt;
+  font-style: italic;
+  color: white;
 }
 #lgoText2 {
-  position: absolute; left:370px; top:200px; height: 50px;
-}
-.lgoBrand {
-  font-family: Georgia,"Times New Roman",serif;
-  font-size: 12pt;
-  color: black;
-  
+  position: absolute; left:370px; top:20px; height: 50px; 
 }
 
 
@@ -455,10 +460,7 @@ function updatePanel(json) {
 /******************************* CONFIG PANEL ******************************/
 
 function lgoInitPanel() {
-	$("lgoText1").update("<img src=\"image/albionComedy.png\"/><br/>" +
-		"<div class=\"lgoBrand\">Albion Comedy Bar and Restaurant</div>"
-		);
-			
+	$("lgoText1").update("Albion Comedy Bar<br/>and Restaurant");
     $("lgoText2").update("<b>DMX-WEB</b><br/><br/>" +
       "Release: " + version["release"] + "<br/>" +
       "Build number: " + version["buildNumber"] + "<br/><br/>" +
@@ -1015,6 +1017,7 @@ function initWindow() {
 
 <div id="lgoPanel" >
 <img id="lgoImage" src="image/dmx-web.png"/>
+<div id="lgoClientImage"></div>
 <div id="lgoText1" ></div>
 <div id="lgoText2" ></div>
 <div>
