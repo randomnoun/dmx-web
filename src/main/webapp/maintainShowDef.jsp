@@ -35,7 +35,6 @@
     <script src="js/codemirror/codemirror.js" type="text/javascript"></script>
     
 <style>
-<style>
 BODY { font-size: 8pt; font-family: Arial; }
 .lhsMenuContainer {
   position: absolute; top: 30px; left: 5px; width: 200px; height: 700px;
@@ -78,65 +77,6 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 
 
-.lhsSelect {
-  /*background-color: #6666FF; */ background-image: url("image/button-blue2.png");
-}
-.clickHighlight {
-  background-color: white;
-}
-
-/**** LOGO panel ***/
-#lgoPanel {
-  position: relative; width: 900px; height: 700px; 
-}
-#lgoImage {
-  position: absolute; left: 20px; top:20px; width: 330px; height: 340px; 
-}
-#lgoClientImage {
-  position: absolute; 
-  left: 190px; top: 20px; width: 201px; height: 44px; 
-  background-image: url("image/albionComedy.png");
-  z-index: 10;
-}
-#lgoText1 {
-  position: absolute; 
-  left:220px; top: 60px; 
-  font-family: Georgia,"Times New Roman",serif;
-  font-size: 9pt;
-  font-style: italic;
-  color: white;
-}
-#lgoText2 {
-  position: absolute; left:370px; top:20px; height: 50px; 
-}
-
-
-/*** SHOW panel ***/
-#shwCancel {
-  position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
-  /*background-color: red; */
-  background-image: url("image/button-red.png");
-  text-align: center; color: white; font-size: 18pt;
-}
-.shwItem {
-  position: absolute; width: 180px; height: 70px; /*background-color: #AAAAFF; */
-  background-image: url("image/button-blue.png"); 
-  text-align: center; color: #000044; font-size: 18pt;
-  cursor: pointer; 
-}
-.shwRunning {
-  /* background-color: #AAFFAA; */
-  background-image: url("image/button-green.png");
-}
-.shwException {
-  /* background-color: red; */
-  background-image: url("image/button-red.png");
-}
-
-
-
-
-BODY { font-size: 8pt; font-family: Arial; }
 .showDef { font-size: 8pt; font-family: Arial;}
 .showDef TD { font-size: 8pt; font-family: Arial;}
 .showDef INPUT { font-size: 8pt; }
@@ -244,7 +184,7 @@ function initWindow() {
 <body onload="initWindow()">
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show config</span></div>
 <div class="lhsMenuContainer">
-  <div id="lhsCancel" class="lhsMenuItem">Cancel</div>
+  <div id="lhsCancel" class="lhsMenuItem">Back</div>
   <div id="lhsOK" class="lhsMenuItemGreen">OK</div>
 </div>
 
@@ -290,5 +230,4 @@ function initWindow() {
 </div>
 </body>
 
-</body>
 </html>
