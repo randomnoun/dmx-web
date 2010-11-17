@@ -20,6 +20,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import com.randomnoun.common.ExceptionUtils;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
@@ -29,6 +30,7 @@ import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
+import com.randomnoun.dmx.config.AppConfig.TimestampedShowException;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
@@ -213,8 +215,12 @@ public class FancyControllerAction
         		synchronized(e1) {
         			for (int i=0; i<e1.size(); i++) {
         				ExceptionContainer.TimestampedException te = e1.get(i);
-        				Map m = new HashMap(); 
+        				Map m = new HashMap();
+        				m.put("type", "audio");
+        				m.put("timestamp", te.getTimestamp());
         				m.put("message", te.getException().getMessage());
+        				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
+        					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
         				exceptions.add(m);
         			}
         		}
@@ -222,21 +228,31 @@ public class FancyControllerAction
         		synchronized(e1) {
         			for (int i=0; i<e1.size(); i++) {
         				ExceptionContainer.TimestampedException te = e1.get(i);
-        				Map m = new HashMap(); 
+        				Map m = new HashMap();
+        				m.put("type", "dmx");
+        				m.put("timestamp", te.getTimestamp());
         				m.put("message", te.getException().getMessage());
+        				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
+            					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
         				exceptions.add(m);
         			}
         		}
         		List<AppConfig.TimestampedShowException> e2 = appConfig.getShowExceptions();
         		synchronized(e2) {
         			for (int i=0; i<e2.size(); i++) {
-        				ExceptionContainer.TimestampedException te = e2.get(i);
-        				Map m = new HashMap(); 
+        				TimestampedShowException te = e2.get(i);
+        				Map m = new HashMap();
+        				m.put("type", "show");
+        				m.put("timestamp", te.getTimestamp());
+        				m.put("showId", te.getShow().getId());
         				m.put("message", te.getException().getMessage());
+        				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
+            					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
         				exceptions.add(m);
         			}
         		}
         		result.put("exceptions", exceptions);
+        		result.put("stopPollRequests", Boolean.TRUE);
 
     		} else if (panel.equals("cnfPanel") || panel.equals("lgoPanel")) {
     			result.put("stopPollRequests", Boolean.TRUE);

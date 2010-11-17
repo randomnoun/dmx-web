@@ -249,11 +249,26 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 
 /*** LOG panel ***/
-.logException {
-  position: absolute; width: 800px; height: 30px; 
+.logTitle {
+  width: 800px; height: 30px; 
   color: white; background-color: red; font-size:14pt;
-  margin-bottom: 5px;
+  margin: 5px;
 }
+.logDetail {
+  width: 800px; color: black; border: solid 1px red; font-size:7pt;
+  margin: 5px; background-color: #FFFEBB; padding-left: 10px;
+}
+.logDetail PRE {
+  font-family: Lucida Console, Courier New;
+}
+
+.logExpandImg {
+  position: absolute; top: 10px; left: 10px; cursor: pointer;
+}
+.logMessage {
+  position: absolute; top: 5px; left: 30px;
+}
+
 
 /*** CONFIG panel ***/
 .cnfControl {
@@ -277,6 +292,7 @@ var dmxValues = dmxValues.split(",");
 var dmxModified = new Array();
 var dmxToFixture = new Array();
 var dmxHighlightTimeout = -1;
+var logExceptions = new Array();
 var lhsMenuPanels=new Array("lgoPanel", "shwPanel", "fixPanel", "dmxPanel", "logPanel", "cnfPanel");
 var longPollRequest=null;
 var currentPanelName=null;
@@ -377,7 +393,10 @@ function startPollRequests() {
     new Ajax.Request('fancyController.html?action=poll&panel=' + currentPanelName, {
         onSuccess: function(transport) {
             updatePanel(transport.responseJSON);
-        }       
+        },
+        onException: function(request, exception) {
+        	alert(exception);
+        }
     })
     /*
     if (currentPanelName=="shwPanel") {
@@ -803,14 +822,33 @@ function logInitPanel() {
     
 } 
 
+function logToggle(logId) {
+	var e = logExceptions[logId];
+	var logDetailEl = $("logDetail[" + logId + "]");
+	if (logDetailEl==null) {
+		var logTitleEl = $("logTitle[" + logId + "]");
+		logDetailEl = new Element("div",
+		  { "class" : "logDetail", "id" : "logDetail[" + logId + "]" }).update(
+			"<pre>" + e.trace + "</pre>");
+		logTitleEl.insert({'after' : logDetailEl});
+	} else {
+		logDetailEl.style.display = logDetailEl.style.display=='none' ? 'block' : 'none';
+	}
+}
+
 function logUpdatePanel(json) {
     var el = $("logExceptionContainer");
     el.innerHTML = ""; // reset any existing DIVs
-    for (var i=0; i<json.exceptions.length; i++) {
-        var e = json.exceptions[i];
-        var exEl = new Element("div", { "class" : "logException" }).update(e.message);
-        exEl.style.left=20+"px"; exEl.style.top=(20+(i*35))+"px";
-        el.appendChild(exEl);
+    logExceptions = json.exceptions;
+    for (var i=0; i<logExceptions.length; i++) {
+        var e = logExceptions[i];
+        var logTitleEl = new Element("div", 
+          { "class" : "logTitle", 
+        	"id" : "logTitle[" + i + "]" ,
+            "onclick" : "logToggle(" + i + ")"}).update(
+          "<img class=\"logExpandImg\" src=\"image/logExpand.png\"/> " + 
+          "<span class=\"logMessage\">" + e.message + "</span>");
+        el.insert({'bottom' : logTitleEl});
     }
 }
 
