@@ -160,6 +160,7 @@ public class FancyControllerAction
     		request.setAttribute("fixtureDefs", fixtureDefs);
     		request.setAttribute("shows", shows);
     		request.setAttribute("version", version);
+    		request.setAttribute("panel", request.getParameter("panel"));
     		forward="success";
 
     	} else if (action.equals("poll")) {
