@@ -222,15 +222,19 @@ BODY { font-size: 8pt; font-family: Arial; }
   background-color: #AAAAFF; 
 }
 .dmxOffset {
-  position: absolute; width: 20px; height: 11px; background-color: #DDDDFF;
+  position: absolute; width: 20px; height: 11px; /*background-color: #DDDDFF;*/
   text-align: right; color: #000044; font-weight: normal; font-size: 7pt; padding: 0px; 
 }
 .dmxValueContainer {
   position: absolute;
 }
 .dmxValue {
-  position: absolute; width: 44px; height: 26px; background-color: #AAAAFF;
-  text-align: right; color: #000044; font-weight: bold; font-size: 14pt; padding-right: 4px;
+  background-image: url("image/dmx-back.png");
+  position: absolute; width: 48px; height: 26px; /*background-color: #AAAAFF;*/
+  text-align: right; color: #000044; font-weight: bold; font-size: 14pt;
+}
+.dmxSelect {
+  background-image: url("image/dmx-back-green.png");
 }
 #dmxHighlight, #dmxHighlight2 {
   position: absolute; width: 0px; height: 60px;
@@ -268,8 +272,9 @@ BODY { font-size: 8pt; font-family: Arial; }
 <r:setJavascriptVar name="fixValues" value="${fixValues}" />
 <r:setJavascriptVar name="version" value="${version}" />
 var dmxValues = dmxValues.split(",");
-var dmxToFixture=new Array();
-var dmxHighlightTimeout=-1;
+var dmxModified = new Array();
+var dmxToFixture = new Array();
+var dmxHighlightTimeout = -1;
 var lhsMenuPanels=new Array("lgoPanel", "shwPanel", "fixPanel", "dmxPanel", "logPanel", "cnfPanel");
 var longPollRequest=null;
 var currentPanelName=null;
@@ -471,9 +476,10 @@ function shwUpdatePanel(json) {
 /******************************* FIXTURE PANEL ******************************/
 
 var fixColorPicker = null;
+var fixDimSlider = null;
+var fixUIUpdateOnly = false; // if true, only update UI, don't send AJAX requests
 function fixInitPanel() {
     var x,y,fixEl;
-    var fixDimSlider;
     var fp=$("fixPanel");
     for (var i=0; i<fixtures.length; i++) {
         x=20+(i%4)*200; y=210+Math.floor(i/4)*90;
@@ -588,12 +594,15 @@ function fixLabelAim(panMin, panMax, tiltMin, tiltMax) {
 function fixUpdateControls(fixtureId) {
     var f=fixtures[fixtureId];
     var fd=fixtureDefs[f.type];
+    fixUIUpdateOnly=true;
     fixColorPicker.setColor(fixValues[fixtureId]["c"]);
     var aimHandleEl=$("fixAimHandle");
     var aimHandleDimensions=Element.getDimensions(aimHandleEl);
     var aimParentDimensions=Element.getDimensions(aimHandleEl.parentNode);
     aimHandleEl.style.left=(fixValues[fixtureId]["p"]*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
     aimHandleEl.style.top=(fixValues[fixtureId]["t"]*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
+    fixDimSlider.setValue(1-fixValues[fixtureId]["d"]);
+    fixUIUpdateOnly=false
 }
 
 function fixGroupClick(event) {
@@ -663,6 +672,7 @@ function fixDimChange(v) {
 
 var fixColorLimitter = new AjaxLimitter(100, 200);
 function fixColorChange(color) {
+	if (fixUIUpdateOnly) { return; }
     var fixItemIds=fixGetItemIds();
     if (fixItemIds!="") {
         fixColorLimitter.sendRequest( 
@@ -769,10 +779,18 @@ function dmxValueOnMouseOver(event) {
 }
 
 function dmxUpdatePanel(json) {
-    var dmxValues = json.dmxValues.split(",");
+    var dmxValuesNew = json.dmxValues.split(",");
     for (var i=1; i<=255; i++) {
         var el = $("dmxValue[" + i + "]");
-        el.innerHTML = dmxValues[i-1];
+        if (dmxValues[i-1]!=dmxValuesNew[i-1]) {
+        	dmxValues[i-1]=dmxValuesNew[i-1];
+        	el.innerHTML=dmxValues[i-1];
+        	el.addClassName("dmxSelect");
+        	dmxModified[i-1] = true;
+        } else if (dmxModified[i-1]) {
+        	dmxModified[i-1] = false;
+        	el.removeClassName("dmxSelect");
+        }
     }
 }
 
