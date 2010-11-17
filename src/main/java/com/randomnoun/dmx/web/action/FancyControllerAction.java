@@ -1,7 +1,11 @@
 package com.randomnoun.dmx.web.action;
 
 
+import gnu.io.RXTXCommDriver;
+import gnu.io.RXTXVersion;
+
 import java.awt.Color;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -140,17 +144,7 @@ public class FancyControllerAction
 		    	fixValues.add(m);
 		    }
 
-		    InputStream is = FancyControllerAction.class.getClassLoader().getResourceAsStream("/build.properties");
-	    	Properties props = new Properties();
-	    	if (is==null) {
-	    		props.put("error", "Missing build.properties");
-	    	} else {
-		    	props.load(is);
-		    	is.close();
-	    	}
-	    	Map version = new HashMap();
-	    	version.put("release", props.get("maven.pom.version"));
-	    	version.put("buildNumber", props.get("bamboo.buildNumber"));
+		    Map version = getVersionData();
 
 	    	request.setAttribute("dmxValues", dmxValues);
     		request.setAttribute("fixValues", fixValues);
@@ -414,6 +408,36 @@ public class FancyControllerAction
     	return "#" + ((r.length()==1) ? "0" : "") + r +
     	  ((g.length()==1) ? "0" : "") + g +
     	  ((b.length()==1) ? "0" : "") + b;
+    }
+    
+    Map getVersionData() throws IOException {
+    	Map version = new HashMap();
+	    InputStream is = FancyControllerAction.class.getClassLoader().getResourceAsStream("/build.properties");
+    	Properties props = new Properties();
+    	if (is==null) {
+    		props.put("error", "Missing build.properties");
+    	} else {
+	    	props.load(is);
+	    	is.close();
+    	}
+    	version.put("release", props.get("maven.pom.version"));
+    	version.put("buildNumber", props.get("bamboo.buildNumber"));
+    	String jarVersion = RXTXVersion.getVersion();
+    	String dllVersion = "unknown";
+    	try {
+    		dllVersion = RXTXVersion.nativeGetVersion();
+    	} catch (Error e1) {
+    		try {
+    			dllVersion = RXTXCommDriver.nativeGetVersion();
+    		} catch (Exception e2) {
+    			logger.error("Exception 1 determining version: ", e1);
+    			logger.error("Exception 2 determining version: ", e2);
+    			dllVersion = "Exception determining version: " + e1.getMessage();
+    		}
+    	}
+    	version.put("rxtxJarVersion", jarVersion);
+    	version.put("rxtxDllVersion", dllVersion);
+    	return version;
     }
     
     

@@ -465,6 +465,9 @@ function lgoInitPanel() {
     $("lgoText2").update("<b>DMX-WEB</b><br/><br/>" +
       "Release: " + version["release"] + "<br/>" +
       "Build number: " + version["buildNumber"] + "<br/><br/>" +
+      "RXTX JAR version: " + version["rxtxJarVersion"] + "<br/>" + 
+      "RXTX DLL version: " + version["rxtxDllVersion"] + "<br/>" + 
+      "<br/><br/>" +
       "<ul>\n" +
       "<li><a href=\"javadoc/dmx/index.html\" target=\"_new\">Java API documentation</a>\n" +
       "</li>\n" +
