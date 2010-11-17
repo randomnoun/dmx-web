@@ -90,6 +90,7 @@ public class MaintainShowDefAction
     	long showDefId = -1;
     	String showDefIdString = request.getParameter("showDefId");
     	if (!Text.isBlank(showDefIdString)) { showDefId = Long.parseLong(showDefIdString); };
+    	request.setAttribute("showDefId", showDefIdString);
     	String action = request.getParameter("action");
     	if (action==null) { action = ""; }
     	 

@@ -94,6 +94,7 @@ public class MaintainFixtureDefAction
 
     	long fixtureDefId = -1;
     	String fixtureDefIdString = request.getParameter("fixtureDefId");
+    	request.setAttribute("fixtureDefId", fixtureDefIdString);
     	if (!Text.isBlank(fixtureDefIdString)) { fixtureDefId = Long.parseLong(fixtureDefIdString); };
     	String action = request.getParameter("action");
     	if (action==null) { action = ""; }
