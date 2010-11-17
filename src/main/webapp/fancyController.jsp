@@ -463,7 +463,7 @@ function lgoInitPanel() {
       "Release: " + version["release"] + "<br/>" +
       "Build number: " + version["buildNumber"] + "<br/><br/>" +
       "<ul>\n" +
-      "<li><a href=\"javadoc/dmx/index.html\">Java API documentation</a>\n" +
+      "<li><a href=\"javadoc/dmx/index.html\" target=\"_new\">Java API documentation</a>\n" +
       "</li>\n" +
       "</ul>");
 }
