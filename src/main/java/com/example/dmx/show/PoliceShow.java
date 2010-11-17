@@ -1,10 +1,10 @@
-package com.randomnoun.dmx.show.compiled;
+package com.example.dmx.show;
 
 import java.awt.Color;
 import java.util.Map;
 
+import com.example.dmx.fixture.MiniWashFixtureDef12.MiniWashFixtureController;
 import com.randomnoun.dmx.Controller;
-import com.randomnoun.dmx.fixture.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
 import com.randomnoun.dmx.show.Show;
 
 /** Sets the washes to red and blue, then pan them around, swapping

@@ -1,4 +1,4 @@
-package com.randomnoun.dmx.fixture.compiled;
+package com.example.dmx.fixture;
 
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.fixture.Fixture;

@@ -1,4 +1,4 @@
-package com.randomnoun.dmx.show.compiled;
+package com.example.dmx.show;
 
 import java.util.Map;
 

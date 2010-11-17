@@ -1,14 +1,14 @@
-package com.randomnoun.dmx.show.compiled;
+package com.example.dmx.show;
 
 import java.awt.Color;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.example.dmx.fixture.MiniWashFixtureDef12.MiniWashFixtureController;
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.fixture.FixtureController;
-import com.randomnoun.dmx.fixture.compiled.MiniWashFixtureDef12.MiniWashFixtureController;
 import com.randomnoun.dmx.show.Show;
 
 /** Throws all lights to 100% white, move them
