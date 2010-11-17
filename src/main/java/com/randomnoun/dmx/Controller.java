@@ -3,6 +3,7 @@ package com.randomnoun.dmx;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 
@@ -36,6 +37,10 @@ public class Controller {
 	
 	/* To be used during reloads */
 	public void removeAllFixtures() {
+		
+		if (AppConfig.getAppConfig().getAppConfigState()!=AppConfig.AppConfigState.STOPPED) {
+			throw new IllegalStateException("You cannot remove fixtures whilst the application is in " + AppConfig.getAppConfig().getAppConfigState() + " state");
+		}
 		fixtures.clear();
 	}
 
