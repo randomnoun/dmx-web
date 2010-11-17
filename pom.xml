@@ -10,7 +10,7 @@
   <artifactId>dmx-web</artifactId>
   <packaging>war</packaging>
   <version>0.0.1-SNAPSHOT</version>
-  <name>dmx-web Maven Webapp</name>
+  <name>dmx-web</name>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
@@ -131,9 +131,10 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <doctitle>randomnoun DMX API ${project.version}</doctitle>
+                    <version>testVersion</version>
                     <stylesheetfile>../../src/main/resources/javadoc/stylesheet.css</stylesheetfile>
                     <author>true</author>
-                    
                 </configuration>
             </plugin>
      
