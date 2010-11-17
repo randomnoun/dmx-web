@@ -29,6 +29,8 @@ public class ServletContextListener
 		System.out.println("dmx-web servletContext destroyed");
 		AppConfig appConfig = AppConfig.getAppConfig();
 		appConfig.shutdownThreads();
+		appConfig.shutdownListeners();
+		appConfig.shutdownDevices();
 	}
 
 }
