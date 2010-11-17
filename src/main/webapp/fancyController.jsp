@@ -43,10 +43,11 @@ BODY { font-size: 8pt; font-family: Arial; }
   background-color: #EEEEFF; border: solid 1px blue;
 }
 #lhsLogo {
-  position: absolute; top: 5px; left: 5px; width: 200px; height: 16px;
+  position: absolute; top: 5px; left: 5px; width: 202px; height: 22px;
   text-align: left; color: white; font-size: 10pt; font-weight: bold;
-  background-color: blue; border: solid 1px blue;
-  padding: 2px 0px;
+  /*background-color: blue; */
+  background-image: url("image/lhsLogo-back.png"); 
+  padding: 0px 0px;
   cursor: pointer;
 }
 .rhsPanel {
@@ -846,7 +847,7 @@ function initWindow() {
 </script>
 </head>
 <body onload="initWindow()">
-<div id="lhsLogo"><img src="image/favicon.png"/> DMX-WEB</div>
+<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB</span></div>
 <div class="lhsMenuContainer">
   <div id="lhsBlackout" class="lhsMenuItem">Blackout</div>
   <div id="lhsShows" class="lhsMenuItem">Shows</div>
