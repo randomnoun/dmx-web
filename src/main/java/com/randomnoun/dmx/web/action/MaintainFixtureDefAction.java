@@ -3,6 +3,7 @@ package com.randomnoun.dmx.web.action;
 
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,15 +120,27 @@ public class MaintainFixtureDefAction
     		String fixtureControllerScript = (String) fixtureDefMap.get("fixtureControllerScript");
     		String fixtureDefClassName = null;
     		String fixtureControllerClassName = null;
-    		errors.addErrors(validateScriptSyntax("fixture definition", fixtureDefScript));
-    		errors.addErrors(validateScriptSyntax("fixture controller", fixtureControllerScript));
+			List errorLines = getErrorLines(errors);
+    		
+    		ErrorList fixtureDefErrors = validateScriptSyntax("fixture definition", fixtureDefScript);
+    		ErrorList fixtureControllerErrors = validateScriptSyntax("fixture controller", fixtureControllerScript);
+    		List fixtureDefErrorLines = getErrorLines(fixtureDefErrors);
+    		List fixtureControllerErrorLines = getErrorLines(fixtureControllerErrors);
+    		
+    		errors.addErrors(fixtureDefErrors);
+    		errors.addErrors(fixtureControllerErrors);
+    		
     		if (!errors.hasErrors()) {
     			fixtureDefClassName = getClassName(fixtureDefScript);
     			fixtureControllerClassName = getClassName(fixtureControllerScript);
-    			errors.addErrors(validateScriptInstances(fixtureDefScript, fixtureDefClassName, fixtureControllerScript, fixtureControllerClassName));
+    			ErrorList instanceErrors = validateScriptInstances(fixtureDefScript, fixtureDefClassName, fixtureControllerScript, fixtureControllerClassName);
+    			fixtureDefErrorLines.addAll(getErrorLines(instanceErrors));
+    			errors.addErrors(instanceErrors);
     		}
     		if (errors.hasErrors()) {
     			Struct.setFromRequest(form, request);
+    			request.setAttribute("fixtureDefErrorLines", fixtureDefErrorLines);
+    			request.setAttribute("fixtureControllerErrorLines", fixtureControllerErrorLines);
     			request.setAttribute("fixtureDef", form.get("fixtureDef"));
     		} else {
     			fixtureDef = new FixtureDefTO();
@@ -244,16 +257,16 @@ public class MaintainFixtureDefAction
     }
     
     public static class ScriptLocationErrorData extends ErrorList.ErrorData {
-    	long rowNumber;
+    	long lineNumber;
     	long columnNumber;
 		public ScriptLocationErrorData(String errorField, String shortText, String longText,
-				int severity, long rowNumber, long columnNumber) 
+				int severity, long lineNumber, long columnNumber) 
 		{
 			super(shortText, longText, errorField, severity);
-			this.rowNumber = rowNumber;
+			this.lineNumber = lineNumber;
 			this.columnNumber = columnNumber;
 		}
-		public long getRowNumber() { return rowNumber; }
+		public long getLineNumber() { return lineNumber; }
 		public long getColumnNumber() { return columnNumber; }
     }
     
@@ -398,6 +411,17 @@ public class MaintainFixtureDefAction
     		e = e.getCause();
     	}
     	return summary;
+    }
+
+    public List getErrorLines(ErrorList errors) {
+    	List errorLines = new ArrayList();
+		for (int i=0; i<errors.size(); i++) {
+			if (errors.get(i) instanceof ScriptLocationErrorData) {
+				ScriptLocationErrorData sled = (ScriptLocationErrorData) errors.get(i);
+				errorLines.add(sled.getLineNumber());
+			}
+		}
+		return errorLines;
     }
 
     

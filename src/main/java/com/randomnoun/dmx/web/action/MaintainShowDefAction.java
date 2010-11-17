@@ -20,7 +20,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import bsh.BSHAmbiguousName;
@@ -28,10 +27,8 @@ import bsh.BSHClassDeclaration;
 import bsh.BSHPackageDeclaration;
 import bsh.Parser;
 import bsh.SimpleNode;
-// import bsh.SimpleNode; - package private. bastardos.
 
 import com.randomnoun.common.ErrorList;
-import com.randomnoun.common.ErrorList.ErrorData;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
@@ -40,7 +37,6 @@ import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.to.ShowDefTO;
-import com.randomnoun.dmx.web.action.MaintainFixtureDefAction.ScriptLocationErrorData;
 
 /**
  * Show definition maintenance action
@@ -122,14 +118,7 @@ public class MaintainShowDefAction
     		}
     		if (errors.hasErrors()) {
     			Struct.setFromRequest(form, request);
-    			List errorLines = new ArrayList();
-    			for (int i=0; i<errors.size(); i++) {
-    				if (errors.get(i) instanceof ScriptLocationErrorData) {
-    					ScriptLocationErrorData sled = (ScriptLocationErrorData) errors.get(i);
-    					errorLines.add(sled.getLineNumber());
-    				}
-    				
-    			}
+    			List errorLines = getErrorLines(errors);
     			request.setAttribute("showDef", form.get("showDef"));
     			request.setAttribute("errorLines", errorLines);
     		} else {
@@ -394,6 +383,17 @@ public class MaintainShowDefAction
     		e = e.getCause();
     	}
     	return summary;
+    }
+    
+    public List getErrorLines(ErrorList errors) {
+    	List errorLines = new ArrayList();
+		for (int i=0; i<errors.size(); i++) {
+			if (errors.get(i) instanceof ScriptLocationErrorData) {
+				ScriptLocationErrorData sled = (ScriptLocationErrorData) errors.get(i);
+				errorLines.add(sled.getLineNumber());
+			}
+		}
+		return errorLines;
     }
 }
 

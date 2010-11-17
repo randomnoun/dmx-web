@@ -32,36 +32,79 @@
 
     <!-- JavaScript -->
     <script src="mjs?js=prototype" type="text/javascript"></script>
-    <!--  <script src="mjs?js=prototype,scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover" type="text/javascript"></script> -->
-    <script src="js/dmx.js" type="text/javascript"></script>
     <script src="js/codemirror/codemirror.js" type="text/javascript"></script>
-    <!--  <link href="css/codemirror/docs.css" media="all" rel="stylesheet" type="text/css" /> --> 
 
 <style>
 BODY { font-size: 8pt; font-family: Arial; }
+.lhsMenuContainer {
+  position: absolute; top: 30px; left: 5px; width: 200px; height: 1000px;
+  background-color: #EEEEFF; border: solid 1px blue;
+}
+#lhsLogo {
+  position: absolute; top: 5px; left: 5px; width: 202px; height: 22px;
+  text-align: left; color: white; font-size: 10pt; font-weight: bold;
+  /*background-color: blue; */
+  background-image: url("image/lhsLogo-back.png"); 
+  padding: 0px 0px;
+  cursor: pointer;
+}
+.rhsPanel {
+  position: absolute; top: 30px; left: 210px; width: 900px; height: 1000px;
+  background-color: #EEEEFF; border: solid 1px blue; 
+}
+#rhsMessage {
+  position: absolute; top: 5px; left: 210px; width: 896px; height: 16px;
+  text-align: left; color: #000044; font-size: 10pt; font-weight: bold;
+  background-color: #EEEEFF; border: solid 1px blue; padding: 2px;
+}
+.lhsMenuItem {
+  width: 180px; height: 70px; background-image: url("image/button-blue.png");
+  /*background-color: #AAAAFF; */ ; margin: 10px;
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
+}
+.lhsMenuItemGreen {
+  width: 180px; height: 70px; background-image: url("image/button-green.png");
+  /*background-color: #AAAAFF; */ ; margin: 10px;
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
+}
+.edtSubmit {
+  width: 180px; height: 70px; background-image: url("image/button-green.png");
+  /*background-color: #AAAAFF; */ ; margin-top: 10px;
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
+}
+
 .fixtureDef { font-size: 8pt; font-family: Arial;}
 .fixtureDef TD { font-size: 8pt; font-family: Arial;}
 .fixtureDef INPUT { font-size: 8pt; }
 .fixtureDef TEXTAREA { font-family: Lucida Console, Courier New; font-size: 8pt; }
 .label { width: 25px; height: 16px; text-align: right; background-color: lightblue; padding-top: 3px; margin-left: 3px; margin-bottom: 1px;}
-      .CodeMirror-line-numbers {
-        width: 2.2em;
-        color: #aaa;
-        background-color: #eee;
-        text-align: right;
-        padding-right: .3em;
-        font-size: 10pt;
-        font-family: monospace;
-        padding-top: .4em;
-        line-height: normal;
-      }
+.CodeMirror-line-numbers {
+	width: 2.2em;
+	color: #aaa;
+	background-color: #eee;
+	text-align: right;
+	padding-right: .3em;
+	font-size: 10pt;
+	font-family: monospace;
+	padding-top: .4em;
+	line-height: normal;
+}
 .lineNumberError {
     background-image: url("image/lineError.png");
     background-repeat: no-repeat;
 }
 </style>
 <script>
-function getFixtureDef() {
+<r:setJavascriptVar name="fixtureDefErrorLines" value="${fixtureDefErrorLines}" />
+<r:setJavascriptVar name="fixtureControllerErrorLines" value="${fixtureControllerErrorLines}" />
+<r:setJavascriptVar name="fixtureDefId" value="${fixtureDef.id}" />
+var edtFixtureDefEditor;
+var edtFixtureControllerEditor;
+
+function edtGetFixtureDef() {
 	var fixtureDefIdEl = document.getElementById("fixtureDefId");
 	var fixtureDefId = fixtureDefIdEl.value;
 	if (fixtureDefId != '') {
@@ -69,110 +112,154 @@ function getFixtureDef() {
 	    document.location = "maintainFixtureDef.html?action=getFixtureDef&fixtureDefId=" + fixtureDefId;
 	}
 }
-function newFixtureDef() {
+function edtGewFixtureDef() {
     document.location = "maintainFixtureDef.html?action=newFixtureDef";
+}
+
+function edtEditorInitialisationCallback(editor) {
+	if (editor==edtFixtureDefEditor) {
+	    if (edtFixtureDefEditor && fixtureDefErrorLines > 0) {
+	    	edtFixtureDefEditor.jumpToLine(fixtureDefErrorLines[0]);
+	        var lineNumberContainerDiv = $("fixtureDef.fixtureDefScript").nextSibling.childNodes[2];
+	        setTimeout(edtHighlightRow.curry(new Date().getTime(), lineNumberContainerDiv, fixtureDefErrorLines), 100);
+	    }
+	} else {
+        if (edtFixtureControllerEditor && fixtureDefErrorLines > 0) {
+        	edtFixtureControllerEditor.jumpToLine(fixtureDefErrorLines[0]);
+            var lineNumberContainerDiv = $("fixtureDef.fixtureControllerScript").nextSibling.childNodes[2];
+            setTimeout(edtHighlightRow.curry(new Date().getTime(), lineNumberContainerDiv, fixtureControllerErrorLines), 100);
+        }
+	}
+}
+
+// line numbers aren't visible at editor initialisation time, try for 2 seconds...
+function edtHighlightRow(startTime, lineNumberContainerDiv, errorLines) {
+    var allFound = true;
+    var divTags = lineNumberContainerDiv.getElementsByTagName("DIV");
+    var offset = 0; // for gaps in line numbering DIVs due to word-wrap 
+    for (var i=0; allFound && i<errorLines.length; i++) {
+        var lineNumberEl = divTags[errorLines[i]+offset];
+        if (lineNumberEl) {
+            while (lineNumberEl && lineNumberEl.innerHTML!=errorLines[i]) {
+                offset++; lineNumberEl = divTags[errorLines[i]+offset];
+            }
+            if (lineNumberEl) {
+               lineNumberEl.addClassName("lineNumberError");
+            }
+        } else {
+            allFound = false;
+            if (new Date().getTime()-startTime < 2000) {
+              setTimeout(edtHighlightRow.curry(startTime, lineNumberContainerDiv, errorLines), 100);
+            }
+        }
+    }
+}
+
+function edtInitPanel() {
+    <c:if test="${fixtureDef!=null}" >
+    edtFixtureDefEditor = CodeMirror.fromTextArea('fixtureDef.fixtureDefScript', {
+        lineNumbers: true,
+        height: "340px", width: "750px",
+        parserfile: ["tokenizejava.js","parsejava.js"],
+        stylesheet: "css/codemirror/javacolors.css",
+        path: "js/codemirror/",
+        tabMode : "shift",
+        initCallback : edtEditorInitialisationCallback
+    });
+    edtFixtureControllerEditor = CodeMirror.fromTextArea('fixtureDef.fixtureControllerScript', {
+        lineNumbers: true,
+        height: "340px", width: "750px",
+        parserfile: ["tokenizejava.js","parsejava.js"],
+        stylesheet: "css/codemirror/javacolors.css",
+        path: "js/codemirror/",
+        tabMode : "shift",
+        initCallback : edtEditorInitialisationCallback
+    });
+
+    var edtSubmitEl = $("edtSubmit");
+    edtSubmitEl.update(fixtureDefId==-1 ? "Create" : "Update");
+    Event.observe(edtSubmitEl, 'click', edtSubmitClick);
+    </c:if>
+    
+    Event.observe($("lhsCancel"), 'click', lhsCancelClick);
+    Event.observe($("lhsOK"), 'click', lhsOKClick);
+}
+
+function edtSubmitClick() { document.forms[0].submit(); }
+function lhsCancelClick() { document.location = "index.html?panel=cnfPanel"; }
+function lhsOKClick() { document.forms[0].submit(); };
+
+function initWindow() {
+    edtInitPanel();
 }
 
 
 </script>
 </head>
 
-<html>
-<body>
-<h2>DMX Web</h2>
-<h3>Fixture definitions</h3>
-<c:if test="${message!=null}">
-<b><c:out value="${message}" /></b><br/>
-</c:if>
+
+
+<body onload="initWindow()">
+<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Fixture config</span></div>
+<div class="lhsMenuContainer">
+  <div id="lhsCancel" class="lhsMenuItem">Back</div>
+  <div id="lhsOK" class="lhsMenuItemGreen">OK</div>
+</div>
+
+<div id="rhsMessage">Messages</div>
+
+<div class="rhsPanel">
+
+<div id="edtPanel" >
 <jsp:include page="misc/errorHeader.jsp" />
-<table>
+
+<form action="maintainFixtureDef.html" method="post">
+<table class="fixtureDef" width="900px;">
+<col width="100px;"/>
+<col width="100px;"/>
+<col width="700px;"/>
 <tr><td>Select fixture definition:</td>
     <td><r:select name="fixtureDefId" value="${fixtureDefId}" data="${fixtureDefs}" 
   displayColumn="name" valueColumn="id"  /></td>
-    <td><input type="button" name="getFixtureDef" value="Get fixture definition" onclick="getFixtureDef()" /></td>
+    <td><input type="button" name="getFixtureDef" value="Get fixture definition" onclick="edtGetFixtureDef()" /></td>
 </tr><tr>    
     <td></td>
     <td></td>
-    <td><input type="button" name="createFixtureDef" value="Create new fixture definition" onclick="newFixtureDef()" /></td>
+    <td><input type="button" name="createFixtureDef" value="Create new fixture definition" onclick="edtNewFixtureDef()" /></td>
 </tr>
-<p>
+
 <c:if test="${fixtureDef!=null}" >
-<form action="maintainFixtureDef.html" method="post">
-<%-- <r:setForm bundle="${generalBundle}" htmlFormat="${0}" labelFormat="${0}" data="${fixtureDef}" /> --%>
 <input type="hidden" name="fixtureDef.id" value="${fixtureDef.id}" />
-<table class="fixtureDef">
+<input type="hidden" name="updateFixtureDef" value="Y" />
 <tr><td>Name:</td>
-    <td><r:input type="text" name="fixtureDef.name" value="${fixtureDef.name}"/></td></tr>
+    <td colspan="2"><r:input type="text" name="fixtureDef.name" value="${fixtureDef.name}"/></td></tr>
+
 <c:if test="${fixtureDef.fixtureDefClassName != null}" >    
 <tr><td valign="top">Fixture class:</td>
     <td><c:out value="${fixtureDef.fixtureDefClassName}"/></td></tr>    
 </c:if>    
 <tr><td valign="top">Fixture script:</td>
-    <td><r:input type="textarea" name="fixtureDef.fixtureDefScript" value="${fixtureDef.fixtureDefScript}" rows="25" cols="100"/></td></tr>
+    <td colspan="2"><r:input type="textarea" name="fixtureDef.fixtureDefScript" value="${fixtureDef.fixtureDefScript}" rows="25" cols="100"/></td></tr>
+
 <c:if test="${fixtureDef.fixtureControllerClassName != null}" >    
 <tr><td valign="top">Controller class:</td>
     <td><c:out value="${fixtureDef.fixtureControllerClassName}"/></td></tr>    
 </c:if>    
 <tr><td valign="top">Controller script:</td>
-    <td><r:input type="textarea" name="fixtureDef.fixtureControllerScript" value="${fixtureDef.fixtureControllerScript}" rows="25" cols="100"/></td></tr>
+    <td colspan="2"><r:input type="textarea" name="fixtureDef.fixtureControllerScript" value="${fixtureDef.fixtureControllerScript}" rows="25" cols="100"/></td></tr>
+
 <tr><td></td>
     <td>
-    <c:if test="${fixtureDef.id==-1}">
-    <input type="submit" name="updateFixtureDef" value="Create" />
-    </c:if>
-    <c:if test="${fixtureDef.id!=-1}">
-    <input type="submit" name="updateFixtureDef" value="Update" />
-    </c:if>
-      
+    <div id="edtSubmit" class="edtSubmit"></div>
     </td>
 </tr>
+</c:if>
 </table>
 </form>
 
-<script type="text/javascript">
-function initEditorFunc(editor) {
-    editor.jumpToLine(34);
-    var textAreaEl = document.getElementById("fixtureDef.fixtureDefScript");
-    var codeMirrorWrappingEl = textAreaEl.nextSibling;
-    lineNumberContainerDiv = codeMirrorWrappingEl.childNodes[2];
-    setTimeout(highlightRow.curry(new Date().getTime(), lineNumberContainerDiv, 34), 100);
-    // these DIVs don't exist yet....
-    //var div34 = lineNumberContainerDiv.getElementsByTagName("DIV")[34];
-    //div34.innerHTML="***";
-    // alert("style is " + lineNumberContainerDiv.style);
-}
 
-function highlightRow(startTime, lineNumberContainerDiv, lineNumber) {
-	var div34 = lineNumberContainerDiv.getElementsByTagName("DIV")[lineNumber];
-	if (div34) {
-		div34.addClassName("lineNumberError");
-	} else {
-		// give the editor 2 seconds to create line numbers
-		if (new Date().getTime()-startTime < 2000) {
-		  setTimeout(highlightRow.curry(startTime, lineNumberContainerDiv, 34), 100);
-		}
-	}
-}
-
-  var editor = CodeMirror.fromTextArea('fixtureDef.fixtureDefScript', {
-    	lineNumbers: true,
-        height: "340px",
-        parserfile: ["tokenizejava.js","parsejava.js"],
-        stylesheet: "css/codemirror/javacolors.css",
-        path: "js/codemirror/",
-        tabMode : "shift",
-        initCallback : initEditorFunc
-    });
-    
-    
-</script>
-
-
-</c:if>
-<hr/>
-<%--
-<jsp:include page="misc/debugAttributes.jsp" />
- --%>
-
+</div>
+</div>
 </body>
+
 </html>
