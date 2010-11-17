@@ -229,8 +229,8 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute;
 }
 .dmxValue {
-  background-image: url("image/dmx-back.png");
   position: absolute; width: 48px; height: 26px; /*background-color: #AAAAFF;*/
+  background-image: url("image/dmx-back.png");
   text-align: right; color: #000044; font-weight: bold; font-size: 14pt;
 }
 .dmxSelect {
@@ -256,7 +256,8 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 /*** CONFIG panel ***/
 .cnfControl {
-  width: 360px; height: 70px; background-color: #AAAAFF; 
+  width: 360px; height: 70px; /*background-color: #AAAAFF; */
+  background-image: url("image/cnfControlBack.png");   
   text-align: center; color: #000044; font-size: 18pt; 
   margin: 10px;
   cursor: pointer;
