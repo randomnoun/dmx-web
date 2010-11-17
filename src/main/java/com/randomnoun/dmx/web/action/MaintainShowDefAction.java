@@ -2,6 +2,7 @@ package com.randomnoun.dmx.web.action;
 
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import bsh.SimpleNode;
 // import bsh.SimpleNode; - package private. bastardos.
 
 import com.randomnoun.common.ErrorList;
+import com.randomnoun.common.ErrorList.ErrorData;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
@@ -119,7 +121,16 @@ public class MaintainShowDefAction
     		}
     		if (errors.hasErrors()) {
     			Struct.setFromRequest(form, request);
+    			List errorLines = new ArrayList();
+    			for (int i=0; i<errors.size(); i++) {
+    				if (errors.get(i) instanceof ScriptLocationErrorData) {
+    					ScriptLocationErrorData sled = (ScriptLocationErrorData) errors.get(i);
+    					errorLines.add(sled.getLineNumber());
+    				}
+    				
+    			}
     			request.setAttribute("showDef", form.get("showDef"));
+    			request.setAttribute("errorLines", errorLines);
     		} else {
     			showDef = new ShowDefTO();
     			Struct.setFromMap(showDef, showDefMap, false, true, false);
@@ -264,16 +275,16 @@ public class MaintainShowDefAction
     	
     
     public static class ScriptLocationErrorData extends ErrorList.ErrorData {
-    	long rowNumber;
+    	long lineNumber;
     	long columnNumber;
 		public ScriptLocationErrorData(String errorField, String shortText, String longText,
-				int severity, long rowNumber, long columnNumber) 
+				int severity, long lineNumber, long columnNumber) 
 		{
 			super(shortText, longText, errorField, severity);
-			this.rowNumber = rowNumber;
+			this.lineNumber = lineNumber;
 			this.columnNumber = columnNumber;
 		}
-		public long getRowNumber() { return rowNumber; }
+		public long getLineNumber() { return lineNumber; }
 		public long getColumnNumber() { return columnNumber; }
     }
     
@@ -286,7 +297,7 @@ public class MaintainShowDefAction
 			}
 		} catch (bsh.ParseException e) {
 			// ParseException.getErrorLineNumber() raises NPEs
-			Pattern p = Pattern.compile("Parse error at line ([0-9]+), column ([0-9]+)");
+			Pattern p = Pattern.compile("Parse error at line ([0-9]+), column ([0-9]+).*");
 			Matcher m = p.matcher(e.getMessage());
 			if (m.matches()) {
 				errors.add(new ScriptLocationErrorData("script", "Parse error", 
