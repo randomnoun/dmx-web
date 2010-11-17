@@ -214,7 +214,8 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 .dmxControl {
   text-align: center; color: #000044; font-size: 18pt;
-  background-color: #AAAAFF;
+  background-image: url("image/button-blue.png");
+  /*background-color: #AAAAFF;*/
   cursor: pointer; 
 }
 .dmxTimeSource {
