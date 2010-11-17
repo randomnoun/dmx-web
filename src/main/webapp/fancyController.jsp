@@ -77,11 +77,21 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: relative; width: 900px; height: 700px; 
 }
 #lgoImage {
-  position: absolute; left:20px; top:20px;
+  position: absolute; left: 20px; top:20px;
 }
-#lgoText {
+#lgoText1 {
   position: absolute; left:370px; top:20px;
 }
+#lgoText2 {
+  position: absolute; left:370px; top:200px; height: 50px;
+}
+.lgoBrand {
+  font-family: Georgia,"Times New Roman",serif;
+  font-size: 12pt;
+  color: black;
+  
+}
+
 
 /*** SHOW panel ***/
 #shwCancel {
@@ -445,10 +455,17 @@ function updatePanel(json) {
 /******************************* CONFIG PANEL ******************************/
 
 function lgoInitPanel() {
-    $("lgoText").update("<b>DMX-WEB</b><br/><br/>" +
+	$("lgoText1").update("<img src=\"image/albionComedy.png\"/><br/>" +
+		"<div class=\"lgoBrand\">Albion Comedy Bar and Restaurant</div>"
+		);
+			
+    $("lgoText2").update("<b>DMX-WEB</b><br/><br/>" +
       "Release: " + version["release"] + "<br/>" +
-      "Build number: " + version["buildNumber"]
-    );
+      "Build number: " + version["buildNumber"] + "<br/><br/>" +
+      "<ul>\n" +
+      "<li><a href=\"javadoc/index.html\">Java API documentation</a>\n" +
+      "</li>\n" +
+      "</ul>");
 }
 
 
@@ -923,6 +940,7 @@ function cnfInitPanel() {
     Event.observe($("cnfShowDef"), 'click', cnfShowDefClick);
     Event.observe($("cnfShow"), 'click', cnfShowClick);
     Event.observe($("cnfSimple"), 'click', cnfSimpleClick);
+    Event.observe($("cnfVideo"), 'click', cnfSimpleClick);
 }
 
 function cnfFixtureDefClick() {
@@ -940,6 +958,10 @@ function cnfShowClick() {
 function cnfSimpleClick() {
     document.location="controller.html";
 }
+function cnfVideoClick() {
+    window.open("streaming.html", "streamingWindow");
+}
+
 
 /******************************* LONG POLLING ******************************/
 
@@ -990,10 +1012,13 @@ function initWindow() {
 <div id="rhsMessage">Messages</div>
 
 <div class="rhsPanel">
+
 <div id="lgoPanel" >
 <img id="lgoImage" src="image/dmx-web.png"/>
-<div id="lgoText" >
-DMX-WEB
+<div id="lgoText1" ></div>
+<div id="lgoText2" ></div>
+<div>
+
 </div>
 </div>
 
@@ -1044,7 +1069,14 @@ DMX-WEB
   <div id="cnfShowDef" class="cnfControl">Show definitions</div>
   <div id="cnfShow" class="cnfControl">Shows</div>
   <div id="cnfSimple" class="cnfControl">Simple controller</div>
-  
+<% 
+    if (appConfig.getProperty("dev.vlc.streamingUrl")!=null &&
+	  !appConfig.getProperty("dev.vlc.streamingUrl").equals("")) {
+%>  
+  <div id="cnfVideo" class="cnfControl">Video stream</div>
+<%
+    }
+%>  
 </div>
 
 
