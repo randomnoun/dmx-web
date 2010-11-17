@@ -237,6 +237,13 @@ BODY { font-size: 8pt; font-family: Arial; }
 .dmxSelect {
   background-image: url("image/dmx-back-green.png");
 }
+.dmxModified {
+  background-image: url("image/dmx-back-lit.png");
+}
+.dmxSelectGroup {
+  background-image: url("image/dmx-back-lit.png");
+}
+
 #dmxHighlight, #dmxHighlight2 {
   position: absolute; width: 0px; height: 60px;
   border: 5px solid #000044;
@@ -356,7 +363,7 @@ function clickFx(el) {
 
 function lhsShowPanel(panelName) {
     if (currentPanelName==panelName) { return; }
-    if (currentPanelName=="dmxPanel") { dmxHideHighlight2(); }
+    //if (currentPanelName=="dmxPanel") { dmxHideHighlight2(); }
     for (var i=0; i<lhsMenuPanels.length; i++) {
         if (panelName!=lhsMenuPanels[i]) {
             $(lhsMenuPanels[i]).style.display = "none";
@@ -729,14 +736,14 @@ function fixUpdatePanel(json) {
 
 
 /******************************* DMX PANEL ******************************/
-
+var dmxSelectedFixture=null;
 function dmxInitPanel() {
     var x,y,el;
-
     var dv=$("dmxValues");
     for (var i=1; i<=255; i++) { 
         x=20+((i-1)%16)*50; y=90+Math.floor((i-1)/16)*30;
         var dmxEl=new Element("div", { "class" : "dmxValue",
+          "id" : "dmxBox[" + i + "]", 
           "style" : "left:" + x + "px; top:" + y + "px",
           "dmxChannel" : i}).update(
           "<div class=\"dmxOffset\">" + i + "</div>" +
@@ -745,12 +752,16 @@ function dmxInitPanel() {
         dv.appendChild(dmxEl);
         Event.observe(dmxEl, 'click', dmxValueClick);
         Event.observe(dmxEl, 'mouseover', dmxValueOnMouseOver);
+        Event.observe(dmxEl, 'mouseout', dmxValueOnMouseOut);
     }
+    /*
     Event.observe($("dmxHighlight"), 'mouseover', dmxShowHighlight);
     Event.observe($("dmxHighlight2"), 'mouseover', dmxShowHighlight);
     Event.observe($("dmxHighlight"), 'mouseout', dmxHideHighlight);
     Event.observe($("dmxHighlight2"), 'mouseout', dmxHideHighlight);
+    */
 }
+/*
 function dmxShowHighlight(event) {
     if (dmxHighlightTimeout!=-1) { window.clearTimeout(dmxHighlightTimeout); }
     dmxHighlightTimeout=-1;
@@ -764,20 +775,69 @@ function dmxHideHighlight2() {
     if (dmxHighlightTimeout!=-1) { window.clearTimeout(dmxHighlightTimeout); }
     dmxHighlightTimeout=-1;
 }
+*/
+
 function dmxValueClick(event) {
 }
 function dmxValueOnMouseOver(event) {
+	var dmxValueEl, el, ch, f, off, dc, j;
+    dmxValueEl = event.element();
+    ch=$(dmxValueEl).readAttribute("dmxChannel");
+    while (!ch && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; ch=$(dmxValueEl).readAttribute("dmxChannel"); }
+    f=dmxToFixture[ch]; 
+    if (dmxSelectedFixture!=f && dmxSelectedFixture!=null) {
+        off=dmxSelectedFixture["dmxOffset"];
+        dc=fixtureDefs[dmxSelectedFixture.type]["dmxChannels"];
+    	for (j=off; j<off+dc; j++) {
+    		el = $("dmxBox[" + j + "]");
+    		el.removeClassName("dmxSelectGroup");
+    		el.removeClassName("dmxSelect");
+    	}
+    }
+    el=$("dmxTimeSource");
+    if (!f) { 
+    	el.update("<%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %>");
+    	dmxSelectedFixture=null;
+    	return;
+    };
+    off=f["dmxOffset"];
+    fd=fixtureDefs[f.type];
+    dc=fd["dmxChannels"];
+    if (dmxSelectedFixture!=f) {
+        el.update("Name: <b>" + f["name"] + "</b><br/>" +
+        	"Type:" + f["type"] + "<br/>" + 
+        	"Offset: " + f["dmxOffset"] + "<br/>");
+    }
+    for (j=off; j<off+dc; j++) {
+    	el = $("dmxBox[" + j + "]");
+    	if (j==ch) {
+    		el.removeClassName("dmxSelectGroup");
+    		el.addClassName("dmxSelect");
+    	} else {
+    		el.addClassName("dmxSelectGroup");
+    	}
+    }
+    dmxSelectedFixture=f;
+}
+function dmxValueOnMouseOut(event) {
     var dmxValueEl = event.element();
-    var h1=$("dmxHighlight"), h2=$("dmxHighlight2");
-    //alert(el.id + " - " + $(el).readAttribute("dmxChannel"));
-    //alert(dmxToFixture[$(el).readAttribute("dmxChannel")]['name']);
-    var i=$(dmxValueEl).readAttribute("dmxChannel");
-    while (!i && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; i=$(dmxValueEl).readAttribute("dmxChannel"); }
-    var f=dmxToFixture[i]; 
+    var ch=$(dmxValueEl).readAttribute("dmxChannel");
+    while (!ch && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; ch=$(dmxValueEl).readAttribute("dmxChannel"); }
+    //var f=dmxToFixture[ch];
+    //if (!f) { return; }
+    f=dmxSelectedFixture;  // current selected fixture
     if (!f) { return; }
-    var i=f["dmxOffset"];
-    var fd=fixtureDefs[f.type];
-    var dc=fd["dmxChannels"];
+    var off=f["dmxOffset"];
+    var dc=fixtureDefs[f.type]["dmxChannels"];
+    dmxValueEl.removeClassName("dmxSelect");
+    if (ch>=off && ch<off+dc) {
+    	dmxValueEl.addClassName("dmxSelectGroup");
+    }
+}
+
+
+    /*
+    var h1=$("dmxHighlight"), h2=$("dmxHighlight2");
     var h1x, h1y, h1w, h2x, h2y, h2w;
     if (Math.floor((i-1)/16)==Math.floor(((i+dc-2)/16))) {
         h1x=20+((i-1)%16)*50; h1y=90+Math.floor((i-1)/16)*30;
@@ -788,6 +848,7 @@ function dmxValueOnMouseOver(event) {
         h2x=20; h2y=90+(Math.floor((i-1)/16)+1)*30;
         h2w=(dc-16+((i-1)%16))*50;
     }
+    
     dmxHideHighlight2(); 
     h1.style.left=(h1x-10)+"px"; h1.style.top=(h1y-10)+"px";
     h1.style.width=(h1w+20)+"px"; h1.style.display="block";
@@ -797,7 +858,8 @@ function dmxValueOnMouseOver(event) {
     }
     h1.innerHTML="<div class=\"dmxHighlightFooter\">" + f["name"] + "</div>";
     h2.innerHTML="<div class=\"dmxHighlightFooter\">" + f["name"] + "</div>";
-}
+    */
+
 
 function dmxUpdatePanel(json) {
     var dmxValuesNew = json.dmxValues.split(",");
@@ -806,11 +868,11 @@ function dmxUpdatePanel(json) {
         if (dmxValues[i-1]!=dmxValuesNew[i-1]) {
         	dmxValues[i-1]=dmxValuesNew[i-1];
         	el.innerHTML=dmxValues[i-1];
-        	el.addClassName("dmxSelect");
+        	el.addClassName("dmxModified");
         	dmxModified[i-1] = true;
         } else if (dmxModified[i-1]) {
         	dmxModified[i-1] = false;
-        	el.removeClassName("dmxSelect");
+        	el.removeClassName("dmxModified");
         }
     }
 }
@@ -962,11 +1024,13 @@ DMX-WEB
 <div id="dmxPanel" style="display: none;">
   <div id="dmxImmediate" class="dmxControl">Immediate ON</div>
   <div id="dmxUpdateAll" class="dmxControl">Update all</div> 
-  <div id="dmxTimeSource" class="dmxTimeSource"><%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %></div>
+  <div id="dmxTimeSource" class="dmxTimeSource"></div>
   <div id="dmxValues">
   </div>
+  <!-- 
   <div id="dmxHighlight" style="display:none;"></div>
   <div id="dmxHighlight2" style="display:none;"></div>
+   -->
 </div>
 
 <div id="logPanel" style="display: none;">
