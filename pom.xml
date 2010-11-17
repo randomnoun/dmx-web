@@ -130,6 +130,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <stylesheetfile>../../src/main/resources/javadoc/stylesheet.css</stylesheetfile>
+                    <author>true</author>
+                    
+                </configuration>
             </plugin>
      
      
