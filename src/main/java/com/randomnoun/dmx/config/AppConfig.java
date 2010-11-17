@@ -169,10 +169,12 @@ public class AppConfig extends AppConfigBase {
      * @throws SecurityException */
     public synchronized static void initialise() {
         logger.info("Initialising dmx-web...");
+
         AppConfig newInstance = new AppConfig();
     	try {
 	        newInstance.initHostname();
 	        newInstance.loadProperties();  // properties depends on hostname
+	        newInstance.initSecurityManager();
 	        newInstance.initLogger();      // logger depends on properties
 	        newInstance.initDatabase();    // db settings also depend on properties
 	        newInstance.initSecurityContext();
@@ -191,6 +193,16 @@ public class AppConfig extends AppConfigBase {
 
         // assign this to the singleton instance, even if initialisation failed
         instance = newInstance;
+    }
+
+    private void initSecurityManager() {
+        if ("true".equals(getProperty("dev.customSecurityManager"))) {
+	        java.lang.SecurityManager sm = System.getSecurityManager();
+	    	if (sm==null || !(sm instanceof com.randomnoun.dmx.config.SecurityManager)) {
+	    		logger.info("Creating new security manager");
+	    		System.setSecurityManager(new SecurityManager(sm));
+	    	}
+        }
     }
     
     /** Call this after any fixture definitions, fixtures, show definitions
