@@ -690,6 +690,7 @@ var AjaxLimitter = Class.create({
 
 var fixDimLimitter = new AjaxLimitter(100, 200);
 function fixDimChange(v) {
+	if (fixUIUpdateOnly) { return; }
     v=Math.floor(255*(1-v));
     var fixItemIds=fixGetItemIds();
     if (fixItemIds!="") {
