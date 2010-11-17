@@ -177,7 +177,11 @@ public class FancyControllerAction
     				HashMap m = new HashMap();
     				m.put("id", show.getId());
     				m.put("state", show.getState().toString());
-    				m.put("time", show.getShowTime());
+    				if (show.getState()!=Show.State.SHOW_STOPPED) { 
+	    				m.put("time", show.getShowTime());
+	    				m.put("label", show.getLabel());
+	    				m.put("length", show.getLength());
+    				}
     				showResult.add(m);
     			}
     			result.put("shows", showResult);

@@ -29,6 +29,7 @@ public abstract class Show {
 	long startTime;
 	Object sleepMonitor;
 	Map properties;
+	String label = null;
 	long onCancelShowId = -1;
 	long onCompleteShowId = -1;
 	Exception lastException;
@@ -42,6 +43,7 @@ public abstract class Show {
 		this.cancelled = false;
 		this.lastException = null;
 		this.properties = properties;
+		this.label = null;
 		this.state = State.SHOW_STOPPED;
 		sleepMonitor = new Object();
 	}
@@ -66,7 +68,6 @@ public abstract class Show {
 	public long getOnCancelShowId() { return onCancelShowId; }
 	public long getOnCompleteShowId() { return onCompleteShowId; }
 	public String getName() { return name; }
-	
 	public State getState() { return state; }
 	public Controller getController() { return controller; }
 	
@@ -83,6 +84,9 @@ public abstract class Show {
 	protected void reset() { 
 		
 	}
+
+	public void setLabel(String label) { this.label = label; }
+	public String getLabel() { return label; }
 	
 	public abstract void play();
 	public abstract void pause();

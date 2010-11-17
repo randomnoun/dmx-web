@@ -119,10 +119,25 @@ BODY { font-size: 8pt; font-family: Arial; }
   /* background-color: red; */
   background-image: url("image/button-red.png");
 }
+/** overlay includes label and time divs*/ 
+.shwOverlay {
+  position: absolute; height: 21px; top: 49px; left: 5px; width: 170px;
+}
+.shwLabel {
+  position: absolute; height: 16px; top: 5px; left: 0px;
+  font-family: Lucida Console, Courier New; font-size: 8pt;
+}
 .shwTime {
-  position: absolute; height:16px; top:54px; left: 5px;
-  font-family: Lucida Console, Courier New;
-  font-size: 8pt;
+  position: absolute; height: 16px; top: 5px; right: 5px; width: 40px;
+  font-family: Lucida Console, Courier New; font-size: 8pt;
+  text-align: right;
+}
+.shwLenOuter {
+  position: absolute; height: 2px; right: 5px; width: 40px;
+  border: solid black 1px;
+}
+.shwLenInner {
+  position: absolute; top: 0px; left:0px; height: 2px; background-color: black;
 }
 
 
@@ -324,6 +339,7 @@ var logExceptions = new Array();
 var lhsMenuPanels=new Array("lgoPanel", "shwPanel", "fixPanel", "dmxPanel", "logPanel", "cnfPanel");
 var longPollRequest=null;
 var currentPanelName=null;
+var MAX_LENGTH=9223372036854775807;
 function startShow(showId) {
     document.location = "controller.html?action=startShow&showId=" + showId;
 }
@@ -423,7 +439,7 @@ function startPollRequests() {
             updatePanel(transport.responseJSON);
         },
         onException: function(request, exception) {
-        	alert(exception);
+        	//alert(exception);
         }
     })
 }
@@ -469,7 +485,7 @@ function shwInitPanel() {
         var shwEl = new Element("div", { 
             "id": "shwItem[" + show["id"] + "]", "showId": show["id"],
             "class" : "shwItem" }).update(
-            show["name"] 
+            show["name"] + "<div class=\"shwOverlay\"></div>" 
             );
         shwEl.style.left=x+"px"; shwEl.style.top=y+"px";
         sp.appendChild(shwEl);
@@ -489,6 +505,7 @@ function shwCancel(event) {
     sendRequest('fancyController.html?action=cancelShow');
 }
 
+// this could be cleaned up a bit
 function shwUpdatePanel(json) {
     var newShows = json.shows;
     var now = new Date().getTime();
@@ -498,14 +515,37 @@ function shwUpdatePanel(json) {
         if (newShows[i]["state"]=="SHOW_RUNNING") {
             el.addClassName("shwRunning");
             el.removeClassName("shwException");
-            if (el.childNodes.length==1) {
+            var overlayEl = el.firstDescendant();
+            var shwTimeEls = overlayEl.select(".shwTime");
+            if (shwTimeEls.length==0) {
                 var shwTimeEl = new Element("div",
 	               { "class" : "shwTime", 
                 	 "value" : newShows[i]["time"], "setAt" : now }).update(
 	                 twoDigits(newShows[i]["time"]/1000));
-                el.insert({'bottom' : shwTimeEl});
+                overlayEl.insert({'top' : shwTimeEl});
             } else {
-            	el.childNodes[1].innerHTML = twoDigits(newShows[i]["time"]/1000);
+            	shwTimeEls[0].innerHTML = twoDigits(newShows[i]["time"]/1000);
+            }
+            if (newShows[i]["label"]) {
+            	var shwLabelEls = overlayEl.select(".shwLabel");
+            	if (shwLabelEls==0) {
+            		var shwLabelEl = new Element("div",
+                            { "class" : "shwLabel" }).update(newShows[i]["label"]);
+                    overlayEl.insert({'top' : shwLabelEl});
+            	} else {
+            		shwLabelEls[0].innerHTML = newShows[i]["label"];
+            	}
+            }
+            if (newShows[i]["length"]!=MAX_LENGTH) {
+            	var shwLenEls = overlayEl.select(".shwLenOuter");
+            	if (shwLenEls==0) {
+                    var shwLenEl = new Element("div",
+                        { "class" : "shwLenOuter" }).update(
+                        "<div class=\"shwLenInner\" style=\"width:" + Math.min((newShows[i]["time"]*40/newShows[i]["length"]),40) + "px;\"></div>");
+                    overlayEl.insert({'top' : shwLenEl});
+            	} else {
+            		shwLenEls[0].firstDescendant().style.width = Math.min((newShows[i]["time"]*40/newShows[i]["length"]),40) + "px";
+            	}
             }
         } else if (newShows[i]["state"]=="SHOW_STOPPED_WITH_EXCEPTION") {
             el.removeClassName("shwRunning");
@@ -513,9 +553,8 @@ function shwUpdatePanel(json) {
         } else {            
             el.removeClassName("shwRunning");
             el.removeClassName("shwException");
-            if (el.childNodes.length==2) {
-            	el.removeChild(el.childNodes[1]);
-            }
+            var overlayEl = el.firstDescendant();
+            overlayEl.innerHTML="";
         }
     }
 }
