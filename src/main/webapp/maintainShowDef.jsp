@@ -30,34 +30,141 @@
 
     <link rel="shortcut icon" href="image/favicon.png" />
 
-    <!-- CSS -->
-    <link href="stylesheets/stocktake-site.css" media="all" rel="stylesheet" type="text/css" />
-    <link href="stylesheets/stocktake-print.css" media="print" rel="stylesheet" type="text/css" />
-    <!--[if IE]><link href="/stylesheets/ie.css" rel="stylesheet" type="text/css" media="screen" /><![endif]-->
-    <!--[if lt IE 8]><link href="/stylesheets/ie7.css" rel="stylesheet" type="text/css" media="screen" /><![endif]-->
-    <!--[if lt IE 7]><link href="/stylesheets/ie6.css" rel="stylesheet" type="text/css" media="screen" /><![endif]-->
-    
     <!-- JavaScript -->
-    <script src="../mjs?js=prototype,scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover" type="text/javascript"></script>
-    <script src="js/dmx.js" type="text/javascript"></script>
+    <script src="mjs?js=prototype" type="text/javascript"></script>
+    <script src="js/codemirror/codemirror.js" type="text/javascript"></script>
     
-    <!--[if IE 6]>
-    <script type="text/javascript" src="/javascripts/DD_belatedPNG_0.0.8a.js"></script>
-    <script type="text/javascript">
-      DD_belatedPNG.fix('#button_login, #button_start_an_auction_now,   #button_feedback,   #feedback_panel, #feedback_panel .head, #feedback_panel .body,  .btn_generic_clear, .btn_generic_clear span, .more, #process span, .button, .button span');
-    </script>
-    <![endif]-->
-
 <style>
+<style>
+BODY { font-size: 8pt; font-family: Arial; }
+.lhsMenuContainer {
+  position: absolute; top: 30px; left: 5px; width: 200px; height: 700px;
+  background-color: #EEEEFF; border: solid 1px blue;
+}
+#lhsLogo {
+  position: absolute; top: 5px; left: 5px; width: 202px; height: 22px;
+  text-align: left; color: white; font-size: 10pt; font-weight: bold;
+  /*background-color: blue; */
+  background-image: url("image/lhsLogo-back.png"); 
+  padding: 0px 0px;
+  cursor: pointer;
+}
+.rhsPanel {
+  position: absolute; top: 30px; left: 210px; width: 900px; height: 700px;
+  background-color: #EEEEFF; border: solid 1px blue; 
+}
+#rhsMessage {
+  position: absolute; top: 5px; left: 210px; width: 896px; height: 16px;
+  text-align: left; color: #000044; font-size: 10pt; font-weight: bold;
+  background-color: #EEEEFF; border: solid 1px blue; padding: 2px;
+}
+.lhsMenuItem {
+  width: 180px; height: 70px; background-image: url("image/button-blue.png");
+  /*background-color: #AAAAFF; */ ; margin: 10px;
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
+}
+.lhsMenuItemGreen {
+  width: 180px; height: 70px; background-image: url("image/button-green.png");
+  /*background-color: #AAAAFF; */ ; margin: 10px;
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
+}
+.edtSubmit {
+  width: 180px; height: 70px; background-image: url("image/button-green.png");
+  /*background-color: #AAAAFF; */ ; margin-top: 10px;
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
+}
+
+
+.lhsSelect {
+  /*background-color: #6666FF; */ background-image: url("image/button-blue2.png");
+}
+.clickHighlight {
+  background-color: white;
+}
+
+/**** LOGO panel ***/
+#lgoPanel {
+  position: relative; width: 900px; height: 700px; 
+}
+#lgoImage {
+  position: absolute; left: 20px; top:20px; width: 330px; height: 340px; 
+}
+#lgoClientImage {
+  position: absolute; 
+  left: 190px; top: 20px; width: 201px; height: 44px; 
+  background-image: url("image/albionComedy.png");
+  z-index: 10;
+}
+#lgoText1 {
+  position: absolute; 
+  left:220px; top: 60px; 
+  font-family: Georgia,"Times New Roman",serif;
+  font-size: 9pt;
+  font-style: italic;
+  color: white;
+}
+#lgoText2 {
+  position: absolute; left:370px; top:20px; height: 50px; 
+}
+
+
+/*** SHOW panel ***/
+#shwCancel {
+  position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
+  /*background-color: red; */
+  background-image: url("image/button-red.png");
+  text-align: center; color: white; font-size: 18pt;
+}
+.shwItem {
+  position: absolute; width: 180px; height: 70px; /*background-color: #AAAAFF; */
+  background-image: url("image/button-blue.png"); 
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
+}
+.shwRunning {
+  /* background-color: #AAFFAA; */
+  background-image: url("image/button-green.png");
+}
+.shwException {
+  /* background-color: red; */
+  background-image: url("image/button-red.png");
+}
+
+
+
+
 BODY { font-size: 8pt; font-family: Arial; }
 .showDef { font-size: 8pt; font-family: Arial;}
 .showDef TD { font-size: 8pt; font-family: Arial;}
 .showDef INPUT { font-size: 8pt; }
 .showDef TEXTAREA { font-family: Lucida Console, Courier New; font-size: 8pt; }
 .label { width: 25px; height: 16px; text-align: right; background-color: lightblue; padding-top: 3px; margin-left: 3px; margin-bottom: 1px;}
+.CodeMirror-line-numbers {
+    width: 2.2em;
+    color: #aaa;
+    background-color: #eee;
+    text-align: right;
+    padding-right: .3em;
+    font-size: 10pt;
+    font-family: monospace;
+    padding-top: .4em;
+    line-height: normal;
+}
+.lineNumberError {
+    background-image: url("image/lineError.png");
+    background-repeat: no-repeat;
+}
+
 </style>
 <script>
-function getShowDef() {
+<r:setJavascriptVar name="errorLines" value="${errorLines}" />
+<r:setJavascriptVar name="showDefId" value="${showDef.id}" />
+var edtScriptEditor;
+
+function edtGetShowDef() {
 	var showDefIdEl = document.getElementById("showDefId");
 	var showDefId = showDefIdEl.value;
 	if (showDefId != '') {
@@ -65,60 +172,123 @@ function getShowDef() {
 	    document.location = "maintainShowDef.html?action=getShowDef&showDefId=" + showDefId;
 	}
 }
-function newShowDef() {
+function edtNewShowDef() {
     document.location = "maintainShowDef.html?action=newShowDef";
 }
 
 
+function edtEditorInitialisationCallback(editor) {
+	if (errorLines && errorLines.length > 0) {
+		edtScriptEditor.jumpToLine(errorLines[0]);
+	    var lineNumberContainerDiv = $("showDef.script").nextSibling.childNodes[2];
+	    setTimeout(edtHighlightRow.curry(new Date().getTime(), lineNumberContainerDiv, errorLines), 100);
+	}
+}
+
+// line numbers aren't visible at editor initialisation time, try for 2 seconds...
+function edtHighlightRow(startTime, lineNumberContainerDiv, errorLines) {
+	var allFound = true;
+	var divTags = lineNumberContainerDiv.getElementsByTagName("DIV");
+	var offset = 0; // for gaps in line numbering DIVs due to word-wrap 
+	for (var i=0; allFound && i<errorLines.length; i++) {
+	    var lineNumberEl = divTags[errorLines[i]+offset];
+	    if (lineNumberEl) {
+	    	while (lineNumberEl && lineNumberEl.innerHTML!=errorLines[i]) {
+	    		offset++; lineNumberEl = divTags[errorLines[i]+offset];
+	    	}
+	    	if (lineNumberEl) {
+	    	   lineNumberEl.addClassName("lineNumberError");
+	        }
+	    } else {
+	    	allFound = false;
+	        if (new Date().getTime()-startTime < 2000) {
+	          setTimeout(edtHighlightRow.curry(startTime, lineNumberContainerDiv, errorLines), 100);
+	        }
+	    }
+	}
+}
+
+function edtInitPanel() {
+	<c:if test="${showDef!=null}" >
+    edtScriptEditor = CodeMirror.fromTextArea('showDef.script', {
+        lineNumbers: true,
+        height: "340px", width: "750px",
+        parserfile: ["tokenizejava.js","parsejava.js"],
+        stylesheet: "css/codemirror/javacolors.css",
+        path: "js/codemirror/",
+        tabMode : "shift",
+        initCallback : edtEditorInitialisationCallback
+    });
+    var edtSubmitEl = $("edtSubmit");
+    edtSubmitEl.update(showDefId==-1 ? "Create" : "Update");
+    Event.observe(edtSubmitEl, 'click', edtSubmitClick);
+    </c:if>
+    
+    Event.observe($("lhsCancel"), 'click', lhsCancelClick);
+    Event.observe($("lhsOK"), 'click', lhsOKClick);
+}
+
+function edtSubmitClick() { document.forms[0].submit(); }
+function lhsCancelClick() { document.location = "index.html?panel=cnfPanel"; }
+function lhsOKClick() { document.forms[0].submit(); };
+
+function initWindow() {
+	edtInitPanel();
+}
+
 </script>
 </head>
-
 <html>
-<body>
-<h2>DMX Web</h2>
-<h3>Show definitions</h3>
-<c:if test="${message!=null}">
-<b><c:out value="${message}" /></b><br/>
-</c:if>
+
+
+<body onload="initWindow()">
+<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show config</span></div>
+<div class="lhsMenuContainer">
+  <div id="lhsCancel" class="lhsMenuItem">Cancel</div>
+  <div id="lhsOK" class="lhsMenuItemGreen">OK</div>
+</div>
+
+<div id="rhsMessage">Messages</div>
+
+<div class="rhsPanel">
+
+<div id="edtPanel" >
 <jsp:include page="misc/errorHeader.jsp" />
-<table>
+
+<form action="maintainShowDef.html" method="post">
+<table class="showDef" width="900px;">
+<col width="100px;"/>
+<col width="100px;"/>
+<col width="700px;"/>
 <tr><td>Select show definition:</td>
     <td><r:select name="showDefId" value="${showDefId}" data="${showDefs}" 
   displayColumn="name" valueColumn="id"  /></td>
-    <td><input type="button" name="getShowDef" value="Get show definition" onclick="getShowDef()" /></td>
+    <td><input type="button" name="getShowDef" value="Get show definition" onclick="edtGetShowDef()" /></td>
 </tr><tr>    
     <td></td>
     <td></td>
-    <td><input type="button" name="createShowDef" value="Create new show definition" onclick="newShowDef()" /></td>
+    <td><input type="button" name="createShowDef" value="Create new show definition" onclick="edtNewShowDef()" /></td>
 </tr>
-<p>
 <c:if test="${showDef!=null}" >
-<form action="maintainShowDef.html" method="post">
-<%-- <r:setForm bundle="${generalBundle}" htmlFormat="${0}" labelFormat="${0}" data="${showDef}" /> --%>
 <input type="hidden" name="showDef.id" value="${showDef.id}" />
-<table class="showDef">
+<input type="hidden" name="updateShowDef" value="Y" />
 <tr><td>Name:</td>
-    <td><r:input type="text" name="showDef.name" value="${showDef.name}"/></td></tr>
+    <td colspan="2"><r:input type="text" name="showDef.name" value="${showDef.name}"/></td></tr>
 <tr><td valign="top">Script:</td>
-    <td><r:input type="textarea" name="showDef.script" value="${showDef.script}" rows="25" cols="100"/></td></tr>
+    <td colspan="2"><r:input type="textarea" name="showDef.script" value="${showDef.script}" rows="25" cols="100"/></td></tr>
 <tr><td></td>
     <td>
-    <c:if test="${showDef.id==-1}">
-    <input type="submit" name="updateShowDef" value="Create" />
-    </c:if>
-    <c:if test="${showDef.id!=-1}">
-    <input type="submit" name="updateShowDef" value="Update" />
-    </c:if>
-      
+    <div id="edtSubmit" class="edtSubmit"></div>
     </td>
 </tr>
+</c:if>
 </table>
 </form>
-</c:if>
-<hr/>
-<%--
-<jsp:include page="misc/debugAttributes.jsp" />
- --%>
+
+
+</div>
+</div>
+</body>
 
 </body>
 </html>

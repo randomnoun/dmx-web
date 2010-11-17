@@ -310,6 +310,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 <r:setJavascriptVar name="dmxValues" value="${dmxValues}" />
 <r:setJavascriptVar name="fixValues" value="${fixValues}" />
 <r:setJavascriptVar name="version" value="${version}" />
+<r:setJavascriptVar name="origPanel" value="${panel}" />
 var dmxValues = dmxValues.split(",");
 var dmxModified = new Array();
 var dmxToFixture = new Array();
@@ -995,7 +996,11 @@ function initWindow() {
     fixInitPanel();
     logInitPanel();
     cnfInitPanel();
-    lhsLogo();
+    if (origPanel=='cnfPanel') {  // from cancel buttons in editor pages
+    	lhsConfig();
+    } else {
+        lhsLogo();
+    }
 }
 
 </script>
