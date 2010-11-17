@@ -59,12 +59,13 @@ BODY { font-size: 8pt; font-family: Arial; }
   background-color: #EEEEFF; border: solid 1px blue; padding: 2px;
 }
 .lhsMenuItem {
-  width: 180px; height: 70px; background-color: #AAAAFF; margin: 10px;
+  width: 180px; height: 70px; background-image: url("image/button-blue.png");
+  /*background-color: #AAAAFF; */ ; margin: 10px;
   text-align: center; color: #000044; font-size: 18pt;
   cursor: pointer; 
 }
 .lhsSelect {
-  background-color: #6666FF;
+  /*background-color: #6666FF; */ background-image: url("image/button-blue2.png");
 }
 .clickHighlight {
   background-color: white;
@@ -84,25 +85,30 @@ BODY { font-size: 8pt; font-family: Arial; }
 /*** SHOW panel ***/
 #shwCancel {
   position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
-  background-color: red;
+  /*background-color: red; */
+  background-image: url("image/button-red.png");
   text-align: center; color: white; font-size: 18pt;
 }
 .shwItem {
-  position: absolute; width: 180px; height: 70px; background-color: #AAAAFF; 
+  position: absolute; width: 180px; height: 70px; /*background-color: #AAAAFF; */
+  background-image: url("image/button-blue.png"); 
   text-align: center; color: #000044; font-size: 18pt;
   cursor: pointer; 
 }
 .shwRunning {
-  background-color: #AAFFAA;
+  /* background-color: #AAFFAA; */
+  background-image: url("image/button-green.png");
 }
 .shwException {
-  background-color: red;
+  /* background-color: red; */
+  background-image: url("image/button-red.png");
 }
 
 
 /*** FIXTURE panel ***/
 .fixItem {
-  position: absolute; width: 180px; height: 70px; background-color: #AAAAFF;  
+  position: absolute; width: 180px; height: 70px; /*background-color: #AAAAFF; */
+  background-image: url("image/button-blue.png");  
   text-align: center; color: #000044; font-size: 18pt;
   cursor: pointer; 
 }
@@ -159,7 +165,8 @@ BODY { font-size: 8pt; font-family: Arial; }
   cursor: pointer; 
 }
 .fixSelect {
-  background-color: #6666FF;
+  /*background-color: #6666FF; */
+  background-image: url("image/button-blue2.png");
 }
 .fixOutput {
   position: absolute; top:40px; left: 5px; height: 20px; width: 170px;
@@ -333,14 +340,16 @@ function lhsShowPanel(panelName) {
 }
 function lhsSelect(el) {
     $$(".lhsMenuItem").each(function(s){s.removeClassName("lhsSelect");});
-    el.addClassName("lhsSelect");
+    if (el!=null) {
+        el.addClassName("lhsSelect");
+    }
 }
 function lhsBlackout() { 
     clickFx($("lhsBlackout"));
     sendRequest('fancyController.html?action=blackOut');
 }
 
-function lhsLogo() { lhsSelect($("lhsLogo")); lhsShowPanel("lgoPanel"); }
+function lhsLogo() { lhsSelect(null); lhsShowPanel("lgoPanel"); }
 function lhsShows() { lhsSelect($("lhsShows")); lhsShowPanel("shwPanel"); startPollRequests(); }
 function lhsFixtures() { lhsSelect($("lhsFixtures"));lhsShowPanel("fixPanel"); startPollRequests(); }
 function lhsDMX() { lhsSelect($("lhsDMX")); lhsShowPanel("dmxPanel"); startPollRequests(); }
