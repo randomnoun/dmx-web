@@ -51,11 +51,11 @@ BODY { font-size: 8pt; font-family: Arial; }
   cursor: pointer;
 }
 .rhsPanel {
-  position: absolute; top: 30px; left: 225px; width: 900px; height: 700px;
+  position: absolute; top: 30px; left: 210px; width: 900px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue; 
 }
 #rhsMessage {
-  position: absolute; top: 5px; left: 225px; width: 896px; height: 16px;
+  position: absolute; top: 5px; left: 210px; width: 896px; height: 16px;
   text-align: left; color: #000044; font-size: 10pt; font-weight: bold;
   background-color: #EEEEFF; border: solid 1px blue; padding: 2px;
 }
