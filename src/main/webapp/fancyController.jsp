@@ -940,7 +940,7 @@ function cnfInitPanel() {
     Event.observe($("cnfShowDef"), 'click', cnfShowDefClick);
     Event.observe($("cnfShow"), 'click', cnfShowClick);
     Event.observe($("cnfSimple"), 'click', cnfSimpleClick);
-    Event.observe($("cnfVideo"), 'click', cnfSimpleClick);
+    Event.observe($("cnfVideo"), 'click', cnfVideoClick);
 }
 
 function cnfFixtureDefClick() {
