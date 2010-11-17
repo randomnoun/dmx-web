@@ -119,6 +119,11 @@ BODY { font-size: 8pt; font-family: Arial; }
   /* background-color: red; */
   background-image: url("image/button-red.png");
 }
+.shwTime {
+  position: absolute; height:16px; top:54px; left: 5px;
+  font-family: Lucida Console, Courier New;
+  font-size: 8pt;
+}
 
 
 /*** FIXTURE panel ***/
@@ -421,28 +426,6 @@ function startPollRequests() {
         	alert(exception);
         }
     })
-    /*
-    if (currentPanelName=="shwPanel") {
-        new Ajax.Request('fancyController.html?action=poll&panel=show', {
-            method:'post',
-            onSuccess: function(transport) {
-                shwUpdatePanel(transport.responseJSON);
-            },
-            onFailure: function(transport) {
-                // mark comms as down ?        
-            },
-            onComplete: function(transport) {
-                // catch-all called after all other event lifecycle handlers
-            } });
-    }
-    if (currentPanelName=="logPanel") {
-        new Ajax.Request('fancyController.html?action=getExceptions', {
-            method:'get', // evalJSON:true,
-            onSuccess: function(transport) {
-                logSetExceptions(transport.responseJSON);
-            } });
-    }
-    */
 }
 
 function updatePanel(json) {
@@ -508,18 +491,31 @@ function shwCancel(event) {
 
 function shwUpdatePanel(json) {
     var newShows = json.shows;
+    var now = new Date().getTime();
     for (var i=0; i<newShows.length; i++) {
         var showId = newShows[i]["id"];
         var el = $("shwItem[" + showId + "]");
         if (newShows[i]["state"]=="SHOW_RUNNING") {
             el.addClassName("shwRunning");
             el.removeClassName("shwException");
+            if (el.childNodes.length==1) {
+                var shwTimeEl = new Element("div",
+	               { "class" : "shwTime", 
+                	 "value" : newShows[i]["time"], "setAt" : now }).update(
+	                 twoDigits(newShows[i]["time"]/1000));
+                el.insert({'bottom' : shwTimeEl});
+            } else {
+            	el.childNodes[1].innerHTML = twoDigits(newShows[i]["time"]/1000);
+            }
         } else if (newShows[i]["state"]=="SHOW_STOPPED_WITH_EXCEPTION") {
             el.removeClassName("shwRunning");
             el.addClassName("shwException");
         } else {            
             el.removeClassName("shwRunning");
             el.removeClassName("shwException");
+            if (el.childNodes.length==2) {
+            	el.removeChild(el.childNodes[1]);
+            }
         }
     }
 }
