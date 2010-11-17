@@ -40,6 +40,7 @@ import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.to.ShowDefTO;
+import com.randomnoun.dmx.web.action.MaintainFixtureDefAction.ScriptLocationErrorData;
 
 /**
  * Show definition maintenance action
@@ -308,8 +309,23 @@ public class MaintainShowDefAction
 				errors.addError("script", "Parse error", "There was an error parsing the script: " +
 					e.getMessage());
 			}
-			e.printStackTrace();
+			logger.debug("Script validation error", e);
+		} catch (bsh.TokenMgrError e) {
+			Pattern p = Pattern.compile("Lexical error at line ([0-9]+), column ([0-9]+).*");
+			Matcher m = p.matcher(e.getMessage());
+			if (m.matches()) {
+				errors.add(new ScriptLocationErrorData("script", "Parse error", 
+					"There was an error parsing the script: " + e.getMessage(), 
+					ErrorList.SEVERITY_ERROR,
+					Long.parseLong(m.group(1)), Long.parseLong(m.group(2))));
+			} else {
+				errors.addError("script", "Parse error", "There was an error parsing the script: " +
+					e.getMessage());
+			}
+			logger.debug("Script validation error", e);
+			
 		}
+
 		
         //ScriptEngineManager factory = new ScriptEngineManager();
         //factory.registerEngineName("Beanshell", new BshScriptEngineFactory());
