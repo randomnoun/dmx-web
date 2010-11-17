@@ -115,13 +115,17 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 #fixBlackout {
   position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
-  background-color: red; color: white;
+  /*background-color: red; */
+  background-image: url("image/button-red.png");
+  color: white;
 }
 #fixDim {
   position: absolute; top: 20px; left: 220px; width: 90px; height: 160px;
+  background-image: url("image/dimBack.png");
 }
 #fixDimHandle {
-  background-color: blue; width: 90px; height: 30px; cursor: move;
+  /*background-color: blue; */ width: 90px; height: 30px; cursor: move;
+  background-image: url("image/dimHandleBlack.png");
 }
 #fixDimLabel {
   position: absolute; top: 185px; left: 220px; width: 90px; height: 20px;
@@ -129,6 +133,9 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 #fixGroup {
   position: absolute; top: 110px; left: 20px; width: 180px; height: 70px;
+}
+.fixGroup {
+  background-image: url("image/button-blue.png");
 }
 #fixColorPicker {
   /* 195x195 pixels */
@@ -146,7 +153,8 @@ BODY { font-size: 8pt; font-family: Arial; }
 .fixAimHGrid2 { position: absolute; top: 0px; height:0px; width:160px; border-bottom: 1px solid #7777FF; }
 #fixAimHandle {
   width: 20px; height: 20px;
-  background-color: blue;
+  /*background-color: blue; */
+  background-image: url("image/aimHandleBlack.png");
   z-index: 10;
 }
 #fixAimLabel {
@@ -513,6 +521,7 @@ function fixInitPanel() {
     Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
     //jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
     fixColorPicker=jQuery.farbtastic(jQuery('#fixColorPicker'), fixColorChange);
+    fixUpdateControls(0);
 } 
 
 function fixToggleEl(el) {
@@ -875,7 +884,7 @@ DMX-WEB
 <div id="fixPanel" style="display: none;">
   <div id="fixBlackout" class="fixControl">Blackout</div>
   <div id="fixDimScrollArea">
-  <div id="fixDim" class="fixControl"><div id="fixDimHandle"></div></div>
+  <div id="fixDim"><div id="fixDimHandle"></div></div>
   </div>
   <div id="fixDimLabel">Dimmer</div>
   <!--  <div id="fixColor" class="fixControl">Colour</div> -->
@@ -888,7 +897,7 @@ DMX-WEB
   <div id="fixAimTop">Top</div>
   <div id="fixAimBottom">Bottom</div>
   
-  <div id="fixGroup" class="fixControl">Select individual</div>
+  <div id="fixGroup" class="fixControl fixGroup">Select individual</div>
   
 </div>
 
