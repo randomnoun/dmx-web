@@ -30,23 +30,12 @@
 
     <link rel="shortcut icon" href="image/favicon.png" />
 
-    <!-- CSS -->
-    <link href="stylesheets/stocktake-site.css" media="all" rel="stylesheet" type="text/css" />
-    <link href="stylesheets/stocktake-print.css" media="print" rel="stylesheet" type="text/css" />
-    <!--[if IE]><link href="/stylesheets/ie.css" rel="stylesheet" type="text/css" media="screen" /><![endif]-->
-    <!--[if lt IE 8]><link href="/stylesheets/ie7.css" rel="stylesheet" type="text/css" media="screen" /><![endif]-->
-    <!--[if lt IE 7]><link href="/stylesheets/ie6.css" rel="stylesheet" type="text/css" media="screen" /><![endif]-->
-    
     <!-- JavaScript -->
-    <script src="../mjs?js=prototype,scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover" type="text/javascript"></script>
+    <script src="mjs?js=prototype" type="text/javascript"></script>
+    <!--  <script src="mjs?js=prototype,scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover" type="text/javascript"></script> -->
     <script src="js/dmx.js" type="text/javascript"></script>
-    
-    <!--[if IE 6]>
-    <script type="text/javascript" src="/javascripts/DD_belatedPNG_0.0.8a.js"></script>
-    <script type="text/javascript">
-      DD_belatedPNG.fix('#button_login, #button_start_an_auction_now,   #button_feedback,   #feedback_panel, #feedback_panel .head, #feedback_panel .body,  .btn_generic_clear, .btn_generic_clear span, .more, #process span, .button, .button span');
-    </script>
-    <![endif]-->
+    <script src="js/codemirror/codemirror.js" type="text/javascript"></script>
+    <!--  <link href="css/codemirror/docs.css" media="all" rel="stylesheet" type="text/css" /> --> 
 
 <style>
 BODY { font-size: 8pt; font-family: Arial; }
@@ -55,6 +44,21 @@ BODY { font-size: 8pt; font-family: Arial; }
 .fixtureDef INPUT { font-size: 8pt; }
 .fixtureDef TEXTAREA { font-family: Lucida Console, Courier New; font-size: 8pt; }
 .label { width: 25px; height: 16px; text-align: right; background-color: lightblue; padding-top: 3px; margin-left: 3px; margin-bottom: 1px;}
+      .CodeMirror-line-numbers {
+        width: 2.2em;
+        color: #aaa;
+        background-color: #eee;
+        text-align: right;
+        padding-right: .3em;
+        font-size: 10pt;
+        font-family: monospace;
+        padding-top: .4em;
+        line-height: normal;
+      }
+.lineNumberError {
+    background-image: url("image/lineError.png");
+    background-repeat: no-repeat;
+}
 </style>
 <script>
 function getFixtureDef() {
@@ -124,6 +128,46 @@ function newFixtureDef() {
 </tr>
 </table>
 </form>
+
+<script type="text/javascript">
+function initEditorFunc(editor) {
+    editor.jumpToLine(34);
+    var textAreaEl = document.getElementById("fixtureDef.fixtureDefScript");
+    var codeMirrorWrappingEl = textAreaEl.nextSibling;
+    lineNumberContainerDiv = codeMirrorWrappingEl.childNodes[2];
+    setTimeout(highlightRow.curry(new Date().getTime(), lineNumberContainerDiv, 34), 100);
+    // these DIVs don't exist yet....
+    //var div34 = lineNumberContainerDiv.getElementsByTagName("DIV")[34];
+    //div34.innerHTML="***";
+    // alert("style is " + lineNumberContainerDiv.style);
+}
+
+function highlightRow(startTime, lineNumberContainerDiv, lineNumber) {
+	var div34 = lineNumberContainerDiv.getElementsByTagName("DIV")[lineNumber];
+	if (div34) {
+		div34.addClassName("lineNumberError");
+	} else {
+		// give the editor 2 seconds to create line numbers
+		if (new Date().getTime()-startTime < 2000) {
+		  setTimeout(highlightRow.curry(startTime, lineNumberContainerDiv, 34), 100);
+		}
+	}
+}
+
+  var editor = CodeMirror.fromTextArea('fixtureDef.fixtureDefScript', {
+    	lineNumbers: true,
+        height: "340px",
+        parserfile: ["tokenizejava.js","parsejava.js"],
+        stylesheet: "css/codemirror/javacolors.css",
+        path: "js/codemirror/",
+        tabMode : "shift",
+        initCallback : initEditorFunc
+    });
+    
+    
+</script>
+
+
 </c:if>
 <hr/>
 <%--
