@@ -193,6 +193,56 @@ public class AppConfig extends AppConfigBase {
         instance = newInstance;
     }
     
+    /** Call this after any fixture definitions, fixtures, show definitions
+     * or shows have been modified. 
+     * 
+     * <p>This method will kill all show threads, reset the controller,
+     * stop any audio that's playing, and reload the fixture/show definitions.
+     */
+    public void reloadFixturesAndShows() {
+    	logger.info("reloadFixturesAndShows(): shutting down show threads");
+    	shutdownThreads();
+    	if (appConfigState!=AppConfigState.STOPPED) {
+    		throw new IllegalStateException("Expected appConfig in STOPPED state; found " + appConfigState);
+    	}
+    	
+    	logger.info("reloadFixturesAndShows(): resetting controller");
+    	controller.blackOut();
+    	
+    	logger.info("reloadFixturesAndShows(): stopping audio");
+    	controller.getAudioController().stopAudio();
+    	
+    	// give the listeners 200 msec to actually do something
+    	try { Thread.sleep(200); } catch (InterruptedException ie) { }
+    	
+    	logger.info("reloadFixturesAndShows(): shutting down listeners");
+    	shutdownListeners();
+
+    	controller.removeAllFixtures();
+    	
+    	// reset scriptContext classloader 
+    	// see http://www.beanshell.org/manual/classpath.html#Reloading_Classes
+    	//String script = "importCommands(\"/bsh/commands\");\n" +
+		//	"reloadClasses();\n";
+    	//getScriptEngine().eval(script, getScriptContext());
+    	
+    	// chronic thread safety problems here
+    	logger.info("reloadFixturesAndShows(): reloading scriptContext");
+        initScriptContext();
+        try {
+	        loadFixtures(getScriptContext(), getController());
+	        loadShowConfigs(getScriptContext(), true);
+	        loadListeners();
+        } catch (Throwable t) {
+    		initialisationFailure = new RuntimeException("Could not initialise application", t);
+    	}
+        
+        // @TODO should signal to all the fancyControllers out there that the
+        // config has changed from underneath them
+        appConfigState = AppConfigState.RUNNING;
+    	
+    }
+    
     /** Return a configuration instance 
      *
      * @throws IllegalStateException if the application did not initialise successfully. 
@@ -328,7 +378,7 @@ public class AppConfig extends AppConfigBase {
 					if (instance instanceof FixtureDef) {
 						scriptedFixtureDefs.put(fixtureDef.getId(), instance);
 					} else {
-						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureDefClassName() + "' does not extend com.randomnoun.dmx.FixtureDef"); 
+						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureDefClassName() + "' does not extend com.randomnoun.dmx.fixture.FixtureDef"); 
 					}
 					String testScript2 =
 						"import com.randomnoun.dmx.fixture.FixtureController;\n" +
@@ -339,7 +389,7 @@ public class AppConfig extends AppConfigBase {
 					if (instance2 instanceof FixtureController) {
 						scriptedFixtureDefs.put(fixtureDef.getId(), instance);
 					} else {
-						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureControllerClassName() + "' does not extend com.randomnoun.dmx.FixtureController"); 
+						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureControllerClassName() + "' does not extend com.randomnoun.dmx.fixture.FixtureController"); 
 					}
 
 				
@@ -551,7 +601,8 @@ public class AppConfig extends AppConfigBase {
     	return appConfigState;
     }
     
-    /** Invoked by servletContextListener to stop any running threads in this application */
+    /** Invoked by servletContextListener to stop any show threads or
+     * universe listeners registered in this application */
     public void shutdownThreads() {
     	
     	appConfigState = AppConfigState.STOPPING;
@@ -580,20 +631,28 @@ public class AppConfig extends AppConfigBase {
         		}
         	}
     	}
-    	
+    	appConfigState = AppConfigState.STOPPED;
+    }
+
+    /** Invoked by servletContextListener to stop any 
+     * universe listeners registered in this application */
+    public void shutdownListeners() {
+    	controller.getUniverse().stopListeners();
+    	controller.getUniverse().removeListeners();
+    }
+
+    /** Invoked by servletContextListener to Shuts down the 
+     * audio controller and dmxDevices */
+    public void shutdownDevices() {
     	AudioController audioController = controller.getAudioController();
     	if (audioController!=null) { audioController.close(); }
     	
     	// @TODO could possibly even reset the controller before doing this
     	// will also stop listener threads
-    	controller.getUniverse().stopListeners();
-    	controller.getUniverse().removeListeners();
     	if (dmxDevice!=null) {
 			dmxDevice.close();
 			// @TODO dump any exceptions in the device's ExceptionContainer interface
     	}
-    	
-    	appConfigState = AppConfigState.STOPPED;
     }
 
     

@@ -154,6 +154,7 @@ public class MaintainFixtureDefAction
 	    			fixtureDefDAO.updateFixtureDef(fixtureDef);
 	    			errors.addError("Fixture updated", "Fixture definition updated", ErrorList.SEVERITY_OK);
 	    		}
+	    		appConfig.reloadFixturesAndShows();
     		} 
     		
     	} else if (action.equals("")) {

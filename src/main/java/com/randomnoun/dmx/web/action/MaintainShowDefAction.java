@@ -132,6 +132,7 @@ public class MaintainShowDefAction
 	    			showDefDAO.updateShowDef(showDef);
 	    			errors.addError("Show updated", "Show definition updated", ErrorList.SEVERITY_OK);
 	    		}
+	    		appConfig.reloadFixturesAndShows();
     		} 
     		
     	} else if (action.equals("")) {
