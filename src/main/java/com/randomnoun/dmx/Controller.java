@@ -33,6 +33,11 @@ public class Controller {
 	public void addFixture(Fixture f) {
 		fixtures.add(f);
 	}
+	
+	/* To be used during reloads */
+	public void removeAllFixtures() {
+		fixtures.clear();
+	}
 
 	public void blackOut() {
 		for (int i=1; i<Universe.MAX_CHANNELS; i++){
