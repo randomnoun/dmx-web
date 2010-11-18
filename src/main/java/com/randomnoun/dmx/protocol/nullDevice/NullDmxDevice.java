@@ -38,6 +38,10 @@ public class NullDmxDevice extends DmxDevice {
 		exceptionContainer = new ExceptionContainerImpl();
 	}
 
+	@Override
+	public void open() {
+	}
+	
 	/** Closes any streams/resources held by this class.
 	 * 
 	 * @throws IOException
@@ -65,6 +69,7 @@ public class NullDmxDevice extends DmxDevice {
 			}
 		};
 	}
+
 	
 }
 	

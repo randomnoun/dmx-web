@@ -50,6 +50,7 @@ public class UsbProWidget extends DmxDevice {
 
 	String portName;
 	boolean portFound = false;
+	boolean connected = false;
 	SerialPort serialPort = null;
 	OutputStream outputStream = null;
 	InputStream inputStream = null;
@@ -69,10 +70,15 @@ public class UsbProWidget extends DmxDevice {
 	 */
 	public UsbProWidget(Map properties) {
 		super(properties);
-		exceptionContainer = new ExceptionContainerImpl();
 		this.portName = (String) properties.get("portName");
+		exceptionContainer = new ExceptionContainerImpl();
+		connected = false;
+	}
+	
+	public void open() {
 		try {
 			javaWidgetTranslator = openPort();
+			connected = true;
 		} catch (Exception e) {
 			logger.error("Error opening port '" + portName + "'", e);
 			exceptionContainer.addException(e);
@@ -150,6 +156,7 @@ public class UsbProWidget extends DmxDevice {
 			try { serialPort.close(); } catch (Exception e2) { logger.error(e2); exceptionContainer.addException(e2); } 
 			serialPort = null; 
 		}
+		connected = false;
 	}
 	
 	public static class JavaWidgetSerialPortEventListener implements SerialPortEventListener {

@@ -116,11 +116,11 @@ public class AppConfig extends AppConfigBase {
     				throw new IllegalStateException("Cannot create thread when appConfigState=" + appConfig.appConfigState);
     			}
     			showThread = new ShowThread(show);
-    			showThread.setName("show-" + showId);
+    			showThread.setName("show-" + showId + "-" + showThread.getId());
     		}
     		if (showThread.getState()==State.TERMINATED) {
     			showThread = new ShowThread(show);
-    			showThread.setName("show-" + showId);
+    			showThread.setName("show-" + showId + "-" + showThread.getId());
     		}
     		return showThread;
     	}
@@ -320,6 +320,7 @@ public class AppConfig extends AppConfigBase {
 		Class dmxClass = Class.forName(dmxClassname);
 		Constructor dmxConstructor = dmxClass.getConstructor(Map.class);
 		dmxDevice = (DmxDevice) dmxConstructor.newInstance(dmxProperties);
+    	dmxDevice.open();
     	
 		String acClassname = (String) this.get("audioController.class");
 		if (acClassname==null) {
@@ -329,6 +330,7 @@ public class AppConfig extends AppConfigBase {
 		Class acClass = Class.forName(acClassname);
 		Constructor acConstructor = acClass.getConstructor(Map.class);
 		AudioController audioController = (AudioController) acConstructor.newInstance(acProperties);
+		audioController.open();
 		
 		controller = new Controller();
 		controller.setUniverse(universe);
