@@ -92,6 +92,11 @@ BODY { font-size: 8pt; font-family: Arial; }
 	padding-top: .4em;
 	line-height: normal;
 }
+.CodeMirror-wrapping {
+    background-color: #fff;
+    border: solid #7b9ebd 1px; 
+}
+
 .lineNumberError {
     background-image: url("image/lineError.png");
     background-repeat: no-repeat;
