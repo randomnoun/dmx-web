@@ -52,9 +52,9 @@ public class Universe {
 		}
 	}
 	
-	public int[] getAllDmxChannelValues() {
-		return dmxValues; // @TODO clone this
-	}
+	//public int[] getAllDmxChannelValues() {
+	//	return dmxValues; // @TODO clone this
+	//}
 	
 	public void setTimeSource(TimeSource timeSource) {
 		this.timeSource = timeSource;
