@@ -164,11 +164,19 @@ public class FancyControllerAction
     		result.put("panel", panel);
     		if (panel.equals("dmxPanel")) {
     			Universe u = appConfig.getController().getUniverse();
+        		String dmxValues = "";
+        		for (int i=1; i<=255; i++) {
+        			dmxValues+=u.getDmxChannelValue(i) + ",";
+        		}
+        		result.put("dmxValues", dmxValues);
+
+    			/*
     			int[] d = u.getAllDmxChannelValues();
     			String j = "";
     			for (int i=1; i<=255; i++) { j += d[i] + ","; }; 
     			j += "";
-    			result.put("dmxValues", j); 
+    			result.put("dmxValues", j);
+    			*/ 
     			
     		} else if (panel.equals("shwPanel")) {
     			List<Show> shows = appConfig.getShows();
@@ -203,9 +211,10 @@ public class FancyControllerAction
     		    result.put("fixValues", fixValues);
 
     		} else if (panel.equals("dmxPanel")) {
+    			Universe u = appConfig.getController().getUniverse();
         		String dmxValues = "";
         		for (int i=1; i<=255; i++) {
-        			dmxValues+=controller.getUniverse().getDmxChannelValue(i) + ",";
+        			dmxValues+=u.getDmxChannelValue(i) + ",";
         		}
         		result.put("dmxValues", dmxValues);
 
