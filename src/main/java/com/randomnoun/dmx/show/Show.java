@@ -1,6 +1,8 @@
 package com.randomnoun.dmx.show;
 
 import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -27,7 +29,7 @@ public abstract class Show {
 	String name;
 	boolean cancelled;
 	long startTime;
-	Object sleepMonitor;
+	Semaphore sleepSemaphore;
 	Map properties;
 	String label = null;
 	long onCancelShowId = -1;
@@ -45,7 +47,7 @@ public abstract class Show {
 		this.properties = properties;
 		this.label = null;
 		this.state = State.SHOW_STOPPED;
-		sleepMonitor = new Object();
+		sleepSemaphore = new Semaphore(0);
 	}
 	
 	public void setName(String name) { this.name = name; }
@@ -79,6 +81,7 @@ public abstract class Show {
 		startTime = System.currentTimeMillis();
 		cancelled = false;
 		lastException = null;
+		sleepSemaphore.drainPermits();
 	}
 	
 	protected void reset() { 
@@ -93,11 +96,7 @@ public abstract class Show {
 	public abstract void stop();
 	public void cancel() { 
 		cancelled = true; 
-		try {
-			sleepMonitor.notify();
-		} catch (IllegalMonitorStateException imse) {
-			// don't really care if the monitor wasn't being held.
-		}
+		sleepSemaphore.release(); // @TODO don't allow >1 permits on this semaphore
 	}
 	public boolean isCancelled() { return cancelled; }
 	public void setLastException(Exception e) {
@@ -118,9 +117,8 @@ public abstract class Show {
 		try { 
 			long timeout = millisecondsIntoShow-(System.currentTimeMillis() - startTime);
 			if (timeout > 0) {
-				synchronized (sleepMonitor) {
-					sleepMonitor.wait(timeout);
-				}
+				boolean acquired = sleepSemaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+				if (acquired) { sleepSemaphore.release(); }
 			}
 			// Thread.sleep(millisecondsIntoShow-(System.currentTimeMillis() - startTime));
 		} catch (InterruptedException ie) {
@@ -135,9 +133,8 @@ public abstract class Show {
 		
 		try { 
 			if (milliseconds > 0) {
-				synchronized (sleepMonitor) {
-					sleepMonitor.wait(milliseconds);
-				}
+				boolean acquired = sleepSemaphore.tryAcquire(milliseconds, TimeUnit.MILLISECONDS);
+				if (acquired) { sleepSemaphore.release(); }
 			}
 			// Thread.sleep(millisecondsIntoShow-(System.currentTimeMillis() - startTime));
 		} catch (InterruptedException ie) {
