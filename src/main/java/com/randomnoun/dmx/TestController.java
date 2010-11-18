@@ -5,13 +5,13 @@ import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import com.example.dmx.fixture.MiniWashFixtureDef12;
+import com.example.dmx.fixture.X0177FixtureDef;
 import com.randomnoun.dmx.event.DmxValueDumper;
 import com.randomnoun.dmx.event.MuxValueDumper;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
-import com.randomnoun.dmx.fixture.compiled.MiniWashFixtureDef12;
-import com.randomnoun.dmx.fixture.compiled.X0177FixtureDef;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
 
 public class TestController {
