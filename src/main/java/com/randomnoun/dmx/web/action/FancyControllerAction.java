@@ -33,6 +33,7 @@ import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.Universe;
+import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.config.AppConfig.TimestampedShowException;
@@ -118,6 +119,15 @@ public class FancyControllerAction
     				m2.put("dmxChannels", fd.getNumDmxChannels());
     				m2.put("panRange", fd.getPanRange());
     				m2.put("tiltRange", fd.getTiltRange());
+    				List cds = new ArrayList();
+    				for (int i=0; i<fd.getChannelDefs().size(); i++) {
+    					ChannelDef cd = fd.getChannelDefs().get(i);
+    					Map m3 = new HashMap();
+    					m3.put("type", cd.getClass().getName());
+    					m3.put("dmxOffset", cd.getOffset());
+    					cds.add(m3);
+    				}
+    				m2.put("channelDefs", cds);
     				fixtureDefs.put(fdName, m2);
     			}
     		}
@@ -295,6 +305,14 @@ public class FancyControllerAction
 	    		}
 	    	}
 	    	request.setAttribute("message", "DMX values set");
+	    	
+    	} else if (action.equals("setDmxValue")) {
+    		int channel = Integer.parseInt(request.getParameter("channel"));
+    		int value = Integer.parseInt(request.getParameter("value"));
+    		controller.getUniverse().setDmxChannelValue(channel, value);
+    		request.setAttribute("message", "DMX channel " + channel + " set to " + value);
+    		
+    		
 	    	
     	} else if (action.equals("blackOut")) {
     		if (fixtureId == -1) {

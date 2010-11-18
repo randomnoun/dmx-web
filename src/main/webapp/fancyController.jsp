@@ -245,7 +245,7 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 5px; left: 220px; width: 180px; height: 70px;
 }
 #dmxTimeSource {
-  position: absolute; top: 5px; left: 420px; width: 300px; height: 70px;
+  position: absolute; top: 5px; left: 420px; width: 400px; height: 70px;
 }
 .dmxControl {
   text-align: center; color: #000044; font-size: 18pt;
@@ -277,6 +277,9 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 .dmxSelectGroup {
   background-image: url("image/dmx-back-lit.png");
+}
+.dmxSelectedValue {
+  background-color: yellow; border: solid black 1px;
 }
 
 #dmxHighlight, #dmxHighlight2 {
@@ -796,7 +799,9 @@ function fixUpdatePanel(json) {
 
 
 /******************************* DMX PANEL ******************************/
-var dmxSelectedFixture=null;
+var dmxSelectedFixture=null;  // fixture being highlighted
+var dmxSelectedChannel=null;  // fixture being editted
+var dmxSelectedValue=null;
 function dmxInitPanel() {
     var x,y,el;
     var dv=$("dmxValues");
@@ -838,9 +843,84 @@ function dmxHideHighlight2() {
 */
 
 function dmxValueClick(event) {
+	// TODO: deselect any previously selected value
+    var dmxValueEl, el, el2, ch, f, off, dc, j, cds, cd = null;
+    dmxValueEl = event.element();
+    ch=$(dmxValueEl).readAttribute("dmxChannel");
+    while (!ch && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; ch=$(dmxValueEl).readAttribute("dmxChannel"); }
+    f=dmxToFixture[ch]; 
+    if (dmxSelectedFixture!=f && dmxSelectedFixture!=null) {
+        off=dmxSelectedFixture["dmxOffset"];
+        dc=fixtureDefs[dmxSelectedFixture.type]["dmxChannels"];
+        for (j=off; j<off+dc; j++) {
+            el = $("dmxBox[" + j + "]");
+            el.removeClassName("dmxSelectGroup");
+            el.removeClassName("dmxSelect");
+        }
+    }
+    el = $("dmxBox[" + ch + "]"); dmxSelectedChannel = ch;
+    el2 = $("dmxValue[" + ch + "]"); dmxSelectedValue = el2;
+	el2.addClassName("dmxSelectedValue");
+	// capture keystrokes from here on
+	Event.observe(document, 'keypress', dmxKeypress);
 }
+
+var dmxTest=0;
+function dmxKeypress(event) {
+	dmxTest++;
+	//alert(event.keyCode);
+	//window.status="keystroke received " + dmxTest;
+	var v = dmxSelectedValue.innerHTML;
+	
+	switch (event.charCode) {
+    case 48:
+    case 49:
+    case 50:
+    case 51:
+    case 52:
+    case 53:
+    case 54:
+    case 55:
+    case 56:
+    case 57:
+        v = (v=="0"?"":v) + (event.charCode-48);
+        if (v.length>3) { v = v.substring(1); }; // TODO: check not >255
+        dmxSelectedValue.innerHTML = v;
+        event.stop();
+        break;
+	};
+	
+    switch (event.keyCode) {
+    case Event.KEY_BACKSPACE:
+        v.substring(0, v.length-1); if (v=="") { v = "0"; }
+        dmxSelectedValue.innerHTML = v;
+        event.stop();
+        break;
+    case Event.KEY_ESC:
+    	//dmxSelectedValue.innerHTML = "0";
+    	dmxValues[dmxSelectedChannel]=v;
+        dmxSelectedValue.removeClassName("dmxSelectedValue");
+        Event.stopObserving(document, 'keypress', dmxKeypress);
+        event.stop();
+    	break;
+    case Event.KEY_RETURN:
+    	dmxSelectedValue.removeClassName("dmxSelectedValue");
+    	sendRequest("fancyController.html?action=setDmxValue&channel=" + dmxSelectedChannel + "&value=" + v);	
+    	Event.stopObserving(document, 'keypress', dmxKeypress);
+    	
+    	break;
+    	
+    case Event.KEY_LEFT:
+    case Event.KEY_RIGHT:
+    case Event.KEY_UP:
+    case Event.KEY_DOWN:
+    case Event.TAB:
+    }
+
+}
+
 function dmxValueOnMouseOver(event) {
-	var dmxValueEl, el, ch, f, off, dc, j;
+	var dmxValueEl, el, ch, f, off, dc, j, cds, cd = null;
     dmxValueEl = event.element();
     ch=$(dmxValueEl).readAttribute("dmxChannel");
     while (!ch && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; ch=$(dmxValueEl).readAttribute("dmxChannel"); }
@@ -863,11 +943,18 @@ function dmxValueOnMouseOver(event) {
     off=f["dmxOffset"];
     fd=fixtureDefs[f.type];
     dc=fd["dmxChannels"];
-    if (dmxSelectedFixture!=f) {
-        el.update("Name: <b>" + f["name"] + "</b><br/>" +
-        	"Type:" + f["type"] + "<br/>" + 
-        	"Offset: " + f["dmxOffset"] + "<br/>");
+    cds=fd["channelDefs"];
+    for (var j=0; j<cds.length; j++) {
+    	if (cds[j]["dmxOffset"]==ch-off) {
+    		cd=cds[j];
+    	}
     }
+    //if (dmxSelectedFixture!=f) {
+    el.update("Name: <b>" + f["name"] + "</b><br/>" +
+    	"Type:" + f["type"] + "<br/>" + 
+    	"Offset: " + f["dmxOffset"] + "<br/>" +
+    	"Channel: " + (ch-off) + (cd==null?"" : " (" + cd["type"] + ")"));
+    //}
     for (j=off; j<off+dc; j++) {
     	el = $("dmxBox[" + j + "]");
     	if (j==ch) {
