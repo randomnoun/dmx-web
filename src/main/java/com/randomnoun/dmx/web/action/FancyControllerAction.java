@@ -29,6 +29,7 @@ import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
 import com.randomnoun.common.servlet.VersionServlet;
+import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.Universe;
@@ -393,7 +394,23 @@ public class FancyControllerAction
 			result.put("message", c + " fixture(s) set to " +
 				"pan " + (sameRange ? " " + df.format(fd.getPanRange()*x/100) + "&deg;" : "") + "(" + df.format(x) + "%)" + 
 				", tilt " + (sameRange ? " " + df.format(fd.getTiltRange()*y/100) + "&deg;" : "") + "(" + df.format(y) + "%)");
+    	
+    	} else if (action.equals("resetAudio")) {
+    		AudioController audioController = appConfig.getController().getAudioController();
+    		audioController.close();
+    		audioController.open();
+    		result.put("message", "Audio controller re-initialised");
+
+    		/*
+    	} else if (action.equals("resetDMX")) {
+    		DmxDevice dmxDevice = appConfig.get(key) audioController = appConfig.getController().getAudioController();
+    		audioController.close();
+    		audioController.open();
+    		result.put("message", "Audio controller re-initialised");
+    		*/
     		
+    	} else if (action.equals("resetDMX")) {
+			
     	} else {
     		
     		throw new IllegalArgumentException("Unknown action '" + action + "'");

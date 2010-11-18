@@ -294,7 +294,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 .logTitle {
   width: 800px; height: 30px; 
   color: white; background-color: red; font-size:14pt;
-  margin: 5px;
+  margin: 5px; cursor: pointer;
 }
 .logDetail {
   width: 800px; color: black; border: solid 1px red; font-size:7pt;
@@ -305,7 +305,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 
 .logExpandImg {
-  position: absolute; top: 10px; left: 10px; cursor: pointer;
+  position: absolute; top: 10px; left: 10px; 
 }
 .logMessage {
   position: absolute; top: 5px; left: 30px;
@@ -314,10 +314,11 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 /*** CONFIG panel ***/
 .cnfControl {
+  display: inline-block;
   width: 360px; height: 70px; /*background-color: #AAAAFF; */
   background-image: url("image/cnfControlBack.png");   
   text-align: center; color: #000044; font-size: 18pt; 
-  margin: 10px;
+  margin: 10px 10px 0px 10px;
   cursor: pointer;
 }
 
@@ -980,8 +981,11 @@ function cnfInitPanel() {
     Event.observe($("cnfFixture"), 'click', cnfFixtureClick);
     Event.observe($("cnfShowDef"), 'click', cnfShowDefClick);
     Event.observe($("cnfShow"), 'click', cnfShowClick);
+    Event.observe($("cnfResetAudio"), 'click', cnfResetAudioClick);
+    //Event.observe($("cnfResetDMX"), 'click', cnfResetDMXClick);
     Event.observe($("cnfSimple"), 'click', cnfSimpleClick);
     Event.observe($("cnfVideo"), 'click', cnfVideoClick);
+    
 }
 
 function cnfFixtureDefClick() {
@@ -996,12 +1000,22 @@ function cnfShowDefClick() {
 function cnfShowClick() {
     document.location="maintainShow.html";
 }
+function cnfResetAudioClick() {
+	sendRequest("fancyController.html?action=resetAudio");
+}
+function cnfResetDMXClick() {
+	sendRequest("fancyController.html?action=resetDMX");
+}
 function cnfSimpleClick() {
     document.location="controller.html";
 }
 function cnfVideoClick() {
     window.open("streaming.html", "streamingWindow");
 }
+function cnfVideoClick() {
+    window.open("streaming.html", "streamingWindow");
+}
+
 
 
 /******************************* LONG POLLING ******************************/
@@ -1114,6 +1128,9 @@ function initWindow() {
   <div id="cnfFixture" class="cnfControl">Fixtures</div>
   <div id="cnfShowDef" class="cnfControl">Show definitions</div>
   <div id="cnfShow" class="cnfControl">Shows</div>
+<%--  <div id="cnfResetDMX" class="cnfControl">Reset DMX device</div>  --%>
+  <div id="cnfResetAudio" class="cnfControl">Reset audio controller</div>
+  
   <div id="cnfSimple" class="cnfControl">Simple controller</div>
 <% 
     if (appConfig.getProperty("dev.vlc.streamingUrl")!=null &&

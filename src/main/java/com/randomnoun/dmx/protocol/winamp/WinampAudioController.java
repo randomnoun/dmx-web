@@ -45,6 +45,9 @@ public class WinampAudioController extends AudioController
 		}
 		connected = false;
 		exceptionContainer = new ExceptionContainerImpl();
+	}
+	
+	public void open() {
 		winamp = new NGWinAmp(host, port, timeout, true);
 		try {
 			winamp.connect();
@@ -190,8 +193,11 @@ public class WinampAudioController extends AudioController
 			} catch (IOException ioe) {
 				logger.error("Exception closing NGWinAmp audioController", ioe);
 			}
+			connected = false;
 		}
 	}
+	
+	
 
 	
 }

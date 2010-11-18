@@ -9,15 +9,20 @@ import java.util.Map;
  */
 public abstract class AudioController implements ExceptionContainer {
 
-	/** Create a new AudioController. Any resources requires to operate
-	 * the controller should be obtained during construction, using
-	 * the properties supplied.
+	/** Create a new AudioController. 
 	 * 
 	 * @param properties
 	 */
 	public AudioController(Map properties) {
 		
 	}
+
+	/** Open any resources associated with this audioController */
+	public abstract void open();
+	
+	/** Close any resources associated with this audioController */
+	public abstract void close();
+
 	
 	/** Play the supplied file at 100% volume level. Any existing
 	 * audio will be stopped.
@@ -31,7 +36,5 @@ public abstract class AudioController implements ExceptionContainer {
 	
 	/** Sets the audio volume, in percent (0.0 - 100.0) */
 	public abstract void setVolume(double volumePercent);
-	
-	/** Close any resources associated with this audioController */
-	public abstract void close();
+
 }

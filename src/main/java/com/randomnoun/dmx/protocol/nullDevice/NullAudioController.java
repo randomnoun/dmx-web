@@ -52,7 +52,12 @@ public class NullAudioController extends AudioController
 	}
 
 	@Override
+	public void open() {
+	}
+
+	@Override
 	public void close() {
 	}
+
 
 }
