@@ -309,8 +309,13 @@ public class FancyControllerAction
     	} else if (action.equals("setDmxValue")) {
     		int channel = Integer.parseInt(request.getParameter("channel"));
     		int value = Integer.parseInt(request.getParameter("value"));
-    		controller.getUniverse().setDmxChannelValue(channel, value);
-    		request.setAttribute("message", "DMX channel " + channel + " set to " + value);
+    		if (value>=0 && value<=255) {
+    			controller.getUniverse().setDmxChannelValue(channel, value);
+    			request.setAttribute("message", "DMX channel " + channel + " set to " + value);
+    		} else {
+    			request.setAttribute("message", "Value out of range");
+    		}
+    		
     		
     		
 	    	
