@@ -84,6 +84,13 @@
            	<type>jar</type>
            	<scope>compile</scope>
            </dependency>
+           <dependency>
+           	<groupId>commons-httpclient</groupId>
+           	<artifactId>commons-httpclient</artifactId>
+           	<version>3.1</version>
+           	<type>jar</type>
+           	<scope>compile</scope>
+           </dependency>
   </dependencies>
   <build>
     <finalName>dmx-web</finalName>
