@@ -75,7 +75,10 @@ public class DmxWebWinAmp {
 				} catch (IOException e) {
 					e.printStackTrace();
 					winamp.exceptionContainer.addException(e);
-				} // eurgh
+				} catch (Exception e) {
+					e.printStackTrace();
+					winamp.exceptionContainer.addException(e);
+				}
 			}
 		}
 		
