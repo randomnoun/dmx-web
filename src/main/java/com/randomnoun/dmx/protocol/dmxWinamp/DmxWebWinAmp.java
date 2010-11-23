@@ -55,10 +55,9 @@ public class DmxWebWinAmp {
 					winamp.httpClient.executeMethod(method);
 					int status = method.getStatusCode();
 					if (status==200) {
-						byte[] body = method.getResponseBody();
-						ByteArrayInputStream bais = new ByteArrayInputStream(body);
+						InputStream is = method.getResponseBodyAsStream();
 						Properties props = new Properties();
-						props.load(bais);
+						props.load(is);
 						winamp.isBeat="1".equals(props.get("m_is_beat"));
 						for (int i=0; i<3; i++) {
 							winamp.avg[i] = Float.parseFloat(props.getProperty("avg[" + i + "]"));
