@@ -54,8 +54,8 @@ public class WinampAudioController extends AudioController
 			winamp.authenticate(password);
 			connected = true;
 		} catch (Exception e) {
-			logger.error("Exception connecting to Winamp", e);
-			exceptionContainer.addException(new RuntimeException("Exception connecting to Winamp"));			
+			logger.error("Exception connecting to Winamp audio controller", e);
+			exceptionContainer.addException(new RuntimeException("Exception connecting to Winamp audio controller"));			
 		}
 	}
 
