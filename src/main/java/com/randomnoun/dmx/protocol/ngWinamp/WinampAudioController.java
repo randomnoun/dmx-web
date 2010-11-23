@@ -1,4 +1,4 @@
-package com.randomnoun.dmx.protocol.winamp;
+package com.randomnoun.dmx.protocol.ngWinamp;
 
 import java.io.File;
 import java.io.IOException;

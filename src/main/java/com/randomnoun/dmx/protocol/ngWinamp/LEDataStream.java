@@ -25,7 +25,7 @@
  *  1.8 2007-05-24 - add pad, icon, pass Intellij inspector.
  */
 
-package com.randomnoun.dmx.protocol.winamp;
+package com.randomnoun.dmx.protocol.ngWinamp;
 
 /**
  * Little-endian versions of DataInputStream and DataOutputSTreoam.

@@ -16,7 +16,7 @@
  * Version History:
  *  1.8 2007-05-24
  */
-package com.randomnoun.dmx.protocol.winamp;
+package com.randomnoun.dmx.protocol.ngWinamp;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
