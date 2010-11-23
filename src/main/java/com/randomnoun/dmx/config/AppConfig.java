@@ -23,6 +23,7 @@ import com.randomnoun.common.PropertyParser;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.webapp.struts.AppConfigBase;
 import com.randomnoun.dmx.AudioController;
+import com.randomnoun.dmx.AudioSource;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.DmxDevice;
 import com.randomnoun.dmx.ExceptionContainer;
@@ -331,10 +332,22 @@ public class AppConfig extends AppConfigBase {
 		Constructor acConstructor = acClass.getConstructor(Map.class);
 		AudioController audioController = (AudioController) acConstructor.newInstance(acProperties);
 		audioController.open();
+
+		String asClassname = (String) this.get("audioSource.class");
+		if (asClassname==null) {
+			asClassname = "com.randomnoun.dmx.protocol.nullDevice.NullAudioSource";
+		}
+		Map asProperties = PropertyParser.restrict(this, "audioSource", true);
+		Class asClass = Class.forName(asClassname);
+		Constructor asConstructor = asClass.getConstructor(Map.class);
+		AudioSource audioSource = (AudioSource) acConstructor.newInstance(asProperties);
+		audioSource.open();
+
 		
 		controller = new Controller();
 		controller.setUniverse(universe);
 		controller.setAudioController(audioController);
+		controller.setAudioSource(audioSource);
 		
     }
     
@@ -661,6 +674,9 @@ public class AppConfig extends AppConfigBase {
     	AudioController audioController = controller.getAudioController();
     	if (audioController!=null) { audioController.close(); }
     	
+    	AudioSource audioSource = controller.getAudioSource();
+    	if (audioSource!=null) { audioSource.close(); }
+    	
     	// @TODO could possibly even reset the controller before doing this
     	// will also stop listener threads
     	if (dmxDevice!=null) {
@@ -691,7 +707,7 @@ public class AppConfig extends AppConfigBase {
 	public List<TimestampedShowException> getShowExceptions() {
 		return showExceptions;
 	}
-
+	
 
 }
 
