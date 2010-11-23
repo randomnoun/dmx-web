@@ -52,6 +52,7 @@ public class DmxWebWinAmp {
 			GetMethod method = new GetMethod(url);
 			while (!done) {
 				try {
+					logger.debug("httpClient loop");
 					winamp.httpClient.executeMethod(method);
 					int status = method.getStatusCode();
 					if (status==200) {
