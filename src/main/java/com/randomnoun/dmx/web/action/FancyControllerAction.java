@@ -243,6 +243,21 @@ public class FancyControllerAction
         				exceptions.add(m);
         			}
         		}
+
+        		e1 = controller.getAudioSource().getExceptions();
+        		synchronized(e1) {
+        			for (int i=0; i<e1.size(); i++) {
+        				ExceptionContainer.TimestampedException te = e1.get(i);
+        				Map m = new HashMap();
+        				m.put("type", "audioSource");
+        				m.put("timestamp", te.getTimestamp());
+        				m.put("message", te.getException().getMessage());
+        				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
+        					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
+        				exceptions.add(m);
+        			}
+        		}
+        		
         		e1 = appConfig.getDmxDeviceExceptions();
         		synchronized(e1) {
         			for (int i=0; i<e1.size(); i++) {
