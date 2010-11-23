@@ -340,7 +340,7 @@ public class AppConfig extends AppConfigBase {
 		Map asProperties = PropertyParser.restrict(this, "audioSource", true);
 		Class asClass = Class.forName(asClassname);
 		Constructor asConstructor = asClass.getConstructor(Map.class);
-		AudioSource audioSource = (AudioSource) acConstructor.newInstance(asProperties);
+		AudioSource audioSource = (AudioSource) asConstructor.newInstance(asProperties);
 		audioSource.open();
 
 		
