@@ -30,6 +30,7 @@ import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
 import com.randomnoun.common.servlet.VersionServlet;
 import com.randomnoun.dmx.AudioController;
+import com.randomnoun.dmx.AudioSource;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.Universe;
@@ -203,6 +204,13 @@ public class FancyControllerAction
     				}
     				showResult.add(m);
     			}
+    			AudioSource audioSource = controller.getAudioSource();
+    			float[] bmt = audioSource.getBassMidTreble();
+    			HashMap m = new HashMap();
+    			m.put("b", bmt[0]);
+    			m.put("m", bmt[1]);
+    			m.put("t", bmt[2]);
+    			result.put("audio", m);
     			result.put("shows", showResult);
 
     		} else if (panel.equals("fixPanel")) {

@@ -139,6 +139,26 @@ BODY { font-size: 8pt; font-family: Arial; }
 .shwLenInner {
   position: absolute; top: 0px; left:0px; height: 2px; background-color: black;
 }
+/** maybe layout this vertically, or render as an image on the server
+ *  (which will make freq spectrum a bit more interesting) */
+#shwAudio {
+  position: absolute; top: 20px; left: 220px; width: 180px; height: 70px;
+  border: solid #262482 1px;
+  text-align: center; color: white; font-size: 18pt;
+}
+.shwAudioOuter {
+  position: absolute; height: 4px; right: 5px; width: 100px;
+  border: solid #262482 1px;
+}
+.shwAudioInner {
+  position: absolute; top: 0px; left: 0px; height: 4px; 
+}
+#shwAudioBassOuter   { top: 5px; }
+#shwAudioMidOuter    { top: 15px; }
+#shwAudioTrebleOuter { top: 25px; }
+#shwAudioBassInner   { background-color: #7769b2; }
+#shwAudioMidInner    { background-color: #b3a5ee; }
+#shwAudioTrebleInner { background-color: #dbcdff; }
 
 
 /*** FIXTURE panel ***/
@@ -295,6 +315,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 /*** LOG panel ***/
 .logTitle {
+  position: relative;
   width: 800px; height: 30px; 
   color: white; background-color: red; font-size:14pt;
   margin: 5px; cursor: pointer;
@@ -561,6 +582,17 @@ function shwUpdatePanel(json) {
             overlayEl.innerHTML="";
         }
     }
+
+    var bmt = json.audio;
+    /*
+    $("shwAudioBassInner").style.width = Math.min(bmt["b"]*40,40) + "px";    
+    $("shwAudioMidInner").style.width = Math.min(bmt["m"]*40,40) + "px";
+    $("shwAudioTrebleInner").style.width = Math.min(bmt["t"]*40,40) + "px";
+    */
+    $("shwAudioBassInner").style.width = (bmt["b"]*40) + "px";    
+    $("shwAudioMidInner").style.width = (bmt["m"]*40) + "px";
+    $("shwAudioTrebleInner").style.width = (bmt["t"]*40) + "px";
+    
 }
 
 /******************************* FIXTURE PANEL ******************************/
@@ -1171,6 +1203,11 @@ function initWindow() {
 
 <div id="shwPanel" >
   <div id="shwCancel">Cancel</div>
+  <div id="shwAudio">
+    <div id="shwAudioBassOuter" class="shwAudioOuter" /><div id="shwAudioBassInner" class="shwAudioInner"></div></div>
+    <div id="shwAudioMidOuter" class="shwAudioOuter" /><div id="shwAudioMidInner" class="shwAudioInner"></div></div>
+    <div id="shwAudioTrebleOuter" class="shwAudioOuter" /><div id="shwAudioTrebleInner" class="shwAudioInner"></div></div>
+  </div>
 </div>
 
 
