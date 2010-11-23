@@ -11,6 +11,7 @@ public class Controller {
 	Universe universe;
 	List<Fixture> fixtures;
 	AudioController audioController;
+	AudioSource audioSource;
 	
 	public Controller() {
 		this.fixtures = new ArrayList<Fixture>();
@@ -29,6 +30,12 @@ public class Controller {
 	}
 	public AudioController getAudioController() {
 		return audioController;
+	}
+	public void setAudioSource(AudioSource audioSource) {
+		this.audioSource = audioSource;
+	}
+	public AudioSource getAudioSource() {
+		return audioSource;
 	}
 	
 	public void addFixture(Fixture f) {
