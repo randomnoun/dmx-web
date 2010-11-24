@@ -25,15 +25,13 @@ public class DmxWebWinAmp {
 	
 	private PollingThread pollingThread;
 	private HttpClient httpClient;
-
+	private WinampAudioSource audioSource;
 	private ExceptionContainerImpl exceptionContainer;
 	
 	// received data
 	private boolean isBeat = false;
 	private float avg[] = new float[3];
 	private float spectrum[][] = new float[2][256];
-
-	private WinampAudioSource audioSource;
 	
 	public static class PollingThread extends Thread {
 		
