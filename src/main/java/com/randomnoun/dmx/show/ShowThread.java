@@ -27,6 +27,7 @@ public class ShowThread extends Thread {
 		boolean onWithTheShow = true;
 		while (onWithTheShow) {
 			try {
+				showAudioSource.open(); // listen for the beat
 				show.state = Show.State.SHOW_RUNNING;
 				logger.debug("Playing show '" + show.getName() + "'");
 				show.internalReset();
@@ -61,6 +62,8 @@ public class ShowThread extends Thread {
 					logger.debug("Show '" + show.getName() + "' requesting onCancelShowId " + onCancelShowId + " to start due to exception");
 					AppConfig.getAppConfig().startShow(onCancelShowId);
 				}
+			} finally {
+				showAudioSource.close();
 			}
 		}
 	}

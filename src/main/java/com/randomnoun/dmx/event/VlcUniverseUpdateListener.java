@@ -162,7 +162,7 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 					pw.println("@topleft marq-marquee " + dmxOutput);
 					pw.println("@bottomleft marq-marquee " + muxOutput);
 					pw.println("@bottomright marq-marquee " + sdf.format(new Date()));
-					if (pw.checkError()) {
+					if (pw.checkError()) { // this can block until the socket is forcibly closed
 						logger.debug("Error in VLC printWriter");
 						reconnect();
 					}
@@ -212,6 +212,7 @@ public class VlcUniverseUpdateListener implements UniverseUpdateListener {
 	}
 	
 	public void stopThread() {
+		logger.debug("stopThread()");
 		if (t!=null) { t.done(); }
 	}
 	

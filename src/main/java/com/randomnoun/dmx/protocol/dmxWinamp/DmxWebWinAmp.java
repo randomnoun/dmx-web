@@ -137,6 +137,7 @@ public class DmxWebWinAmp {
 	private void setBeat(boolean beat) {
 		this.isBeat = beat;
 		if (beat) {
+			logger.info("beat");
 			audioSource.setBeat();
 		}
 	}
