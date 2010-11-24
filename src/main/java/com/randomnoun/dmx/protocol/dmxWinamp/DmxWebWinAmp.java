@@ -12,6 +12,7 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 
+import com.randomnoun.dmx.AudioSource;
 import com.randomnoun.dmx.ExceptionContainer.TimestampedException;
 import com.randomnoun.dmx.ExceptionContainerImpl;
 import com.randomnoun.dmx.web.action.FancyControllerAction;
@@ -31,6 +32,8 @@ public class DmxWebWinAmp {
 	private boolean isBeat = false;
 	private float avg[] = new float[3];
 	private float spectrum[][] = new float[2][256];
+
+	private WinampAudioSource audioSource;
 	
 	public static class PollingThread extends Thread {
 		
@@ -60,7 +63,7 @@ public class DmxWebWinAmp {
 						InputStream is = method.getResponseBodyAsStream();
 						Properties props = new Properties();
 						props.load(is);
-						winamp.isBeat="1".equals(props.get("m_is_beat"));
+						winamp.setBeat("1".equals(props.get("m_is_beat")));
 						for (int i=0; i<3; i++) {
 							winamp.avg[i] = Float.parseFloat(props.getProperty("avg[" + i + "]"));
 						}
@@ -91,8 +94,9 @@ public class DmxWebWinAmp {
 		}
 	}
 	
-	public DmxWebWinAmp(String host, int port, int timeout, boolean retryEnabled) {
+	public DmxWebWinAmp(WinampAudioSource audioSource, String host, int port, int timeout, boolean retryEnabled) {
 
+		this.audioSource = audioSource;
 		exceptionContainer = new ExceptionContainerImpl();
 		
 		Properties props = new Properties();
@@ -130,6 +134,13 @@ public class DmxWebWinAmp {
 
 	public boolean getBeat() {
 		return isBeat;  // @TODO cache beats
+	}
+	
+	private void setBeat(boolean beat) {
+		this.isBeat = beat;
+		if (beat) {
+			audioSource.setBeat();
+		}
 	}
 
 	public float[] getBassMidTreble() {

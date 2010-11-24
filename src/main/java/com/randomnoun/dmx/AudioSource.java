@@ -1,13 +1,22 @@
 package com.randomnoun.dmx;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-/** Class to generate events from audio data
+import com.randomnoun.dmx.event.BeatListener;
+
+/** Class to generate events from audio data. 
+ * 
+ * <p>Other classes that are interested in being notified of beats
+ * within the music can register with this class.
  * 
  * @author knoxg
  */
 public abstract class AudioSource implements ExceptionContainer {
 
+	private List<BeatListener> listeners = new ArrayList<BeatListener>();
+	
 	/** Create a new AudioController. 
 	 * 
 	 * @param properties
@@ -23,7 +32,8 @@ public abstract class AudioSource implements ExceptionContainer {
 	public abstract void close();
 
 
-	/** Returns true if currently on beat, false otherwise */
+	/** Returns true if a beat has occurred since the last time
+	 * this method was called, false otherwise */
 	public abstract boolean getBeat();
 	
 	/** Returns an averaged bass, mid and treble spectrum value 
@@ -46,4 +56,23 @@ public abstract class AudioSource implements ExceptionContainer {
 	public abstract float[][] getSpectrum();
 	
 
+	public void addListener(BeatListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeListener(BeatListener listener) {
+		listeners.remove(listener);
+	}
+	
+	public void removeListeners() {
+		listeners.clear();
+	}
+	
+	/** Informs all BeatListeners that a beat has occurred */
+	public void setBeat() {
+		for (BeatListener listener : listeners) {
+			listener.setBeat();
+		}
+	}
+	
 }

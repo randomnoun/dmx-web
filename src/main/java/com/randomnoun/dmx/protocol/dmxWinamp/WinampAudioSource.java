@@ -36,7 +36,7 @@ public class WinampAudioSource extends AudioSource {
 
 	@Override
 	public void open() {
-		winamp = new DmxWebWinAmp(host, port, 1000, true);
+		winamp = new DmxWebWinAmp(this, host, port, 1000, true);
 		winamp.connect();
 		connected = true;
 	}
