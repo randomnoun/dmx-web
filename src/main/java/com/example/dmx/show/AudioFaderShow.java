@@ -41,7 +41,7 @@ public class AudioFaderShow extends Show {
 	
 	public void play() {
 		logger.debug("play()");
-		AudioSource audioSource = getController().getAudioSource();
+		AudioSource audioSource = getAudioSource();
 		while (!isCancelled()) {
 			int fade = (int) Math.min(audioSource.getBassMidTreble()[0]*102, 255);
 			setLabel("level " + fade);
