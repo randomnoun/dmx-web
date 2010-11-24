@@ -20,7 +20,7 @@ import com.randomnoun.dmx.web.action.FancyControllerAction;
 
 public class DmxWebWinAmp {
 	
-	public static Logger logger = Logger.getLogger(DmxWebWinAmp.class);
+	public Logger logger = Logger.getLogger(DmxWebWinAmp.class);
 	
 	private String host;
 	private int port;
@@ -37,9 +37,12 @@ public class DmxWebWinAmp {
 	private float spectrum[][] = new float[2][256];
 	
 	public static class PollingThread extends Thread {
+		
 		private DmxWebWinAmp winamp;
 		private boolean done = false;
 		private String url;
+		
+		public Logger logger = Logger.getLogger(PollingThread.class);
 		
 		public PollingThread(DmxWebWinAmp winamp, String url) {
 			this.setName("dmxWebPollingThread-" + this.getId());
@@ -124,7 +127,7 @@ public class DmxWebWinAmp {
 	}
 	
 	public void disconnect() {
-		pollingThread.stop();
+		pollingThread.done();
 		
 	}
 
