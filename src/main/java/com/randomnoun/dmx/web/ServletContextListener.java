@@ -26,11 +26,12 @@ public class ServletContextListener
 	 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
 	 */
 	public void contextDestroyed(ServletContextEvent event) {
-		System.out.println("dmx-web servletContext destroyed");
+		System.out.println("dmx-web servletContext destroy start");
 		AppConfig appConfig = AppConfig.getAppConfig();
 		appConfig.shutdownThreads();
 		appConfig.shutdownListeners();
 		appConfig.shutdownDevices();
+		System.out.println("dmx-web servletContext destroy complete");
 	}
 
 }
