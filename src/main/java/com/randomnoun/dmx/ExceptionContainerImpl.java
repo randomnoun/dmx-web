@@ -3,6 +3,8 @@ package com.randomnoun.dmx;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.randomnoun.common.ExceptionUtils;
+
 /** An object which implements this method can return a list of 
  * exceptions that have occurred within it 
  */
@@ -21,6 +23,13 @@ public class ExceptionContainerImpl implements ExceptionContainer {
 		exceptionList.clear();
 	}
 	public void addException(Exception e) {
+		if (exceptionList.size()>0) {
+			TimestampedException le = exceptionList.get(exceptionList.size()-1);
+			if (ExceptionUtils.getStackTrace(le.getException()).equals(ExceptionUtils.getStackTrace(e))) {
+				le.recur(System.currentTimeMillis());
+				return;
+			}
+		}
 		TimestampedException te = new TimestampedException(System.currentTimeMillis(), e);
 		exceptionList.add(te);
 	}

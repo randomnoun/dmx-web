@@ -1068,9 +1068,17 @@ function logToggle(logId) {
 	var logDetailEl = $("logDetail[" + logId + "]");
 	if (logDetailEl==null) {
 		var logTitleEl = $("logTitle[" + logId + "]");
+		var text;
+		if (e["count"]>1) {
+			text = "This exception has occurred " + e["count"] + " times.<br/>" +
+			  "First occurrence: " + new Date(e["firstTimestamp"]) + "<br/>" +
+			  "Last occurrence: " + new Date(e["timestamp"]) + "<br/>";
+		} else {
+			text = "Time of exception: " + new Date(e["timestamp"]) + "<br/>";
+		}
 		logDetailEl = new Element("div",
 		  { "class" : "logDetail", "id" : "logDetail[" + logId + "]" }).update(
-			"<pre>" + e.trace + "</pre>");
+			"<pre>" + text + e.trace + "</pre>");
 		logTitleEl.insert({'after' : logDetailEl});
 	} else {
 		logDetailEl.style.display = logDetailEl.style.display=='none' ? 'block' : 'none';
@@ -1079,16 +1087,18 @@ function logToggle(logId) {
 
 function logUpdatePanel(json) {
     var el = $("logExceptionContainer");
+    var text;
     el.innerHTML = ""; // reset any existing DIVs
     logExceptions = json.exceptions;
     for (var i=0; i<logExceptions.length; i++) {
         var e = logExceptions[i];
+        text = (e["count"]>1 ? "[" + e["count"] + "] " : "") + e.message;
         var logTitleEl = new Element("div", 
           { "class" : "logTitle", 
         	"id" : "logTitle[" + i + "]" ,
             "onclick" : "logToggle(" + i + ")"}).update(
           "<img class=\"logExpandImg\" src=\"image/logExpand.png\"/> " + 
-          "<span class=\"logMessage\">" + e.message + "</span>");
+          "<span class=\"logMessage\">" + text + "</span>");
         el.insert({'bottom' : logTitleEl});
     }
 }

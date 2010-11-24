@@ -8,14 +8,24 @@ import java.util.List;
 public interface ExceptionContainer {
 
 	public static class TimestampedException {
-		long timestamp;
+		long firstTimestamp;
+		long lastTimestamp;
+		long count;
 		Exception exception;
 		public TimestampedException(long timestamp, Exception exception) {
-			this.timestamp = timestamp;
+			this.lastTimestamp = timestamp;
+			this.firstTimestamp = timestamp;
 			this.exception = exception;
+			this.count = 1;
 		}
-		public long getTimestamp() { return timestamp; }
+		public long getTimestamp() { return lastTimestamp; }
+		public long getFirstTimestamp() { return firstTimestamp; }
+		public long getCount() { return count ;}
 		public Exception getException() { return exception; }
+		public void recur(long timestamp) {
+			this.lastTimestamp = timestamp;
+			this.count++;
+		}
 	}
 	
 	public List<TimestampedException> getExceptions();

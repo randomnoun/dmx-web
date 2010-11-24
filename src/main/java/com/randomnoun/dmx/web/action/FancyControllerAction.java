@@ -245,6 +245,8 @@ public class FancyControllerAction
         				Map m = new HashMap();
         				m.put("type", "audio");
         				m.put("timestamp", te.getTimestamp());
+        				m.put("count", te.getCount());
+        				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
         				m.put("message", te.getException().getMessage());
         				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
         					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
@@ -259,6 +261,8 @@ public class FancyControllerAction
         				Map m = new HashMap();
         				m.put("type", "audioSource");
         				m.put("timestamp", te.getTimestamp());
+        				m.put("count", te.getCount());
+        				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
         				m.put("message", te.getException().getMessage());
         				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
         					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
@@ -273,6 +277,8 @@ public class FancyControllerAction
         				Map m = new HashMap();
         				m.put("type", "dmx");
         				m.put("timestamp", te.getTimestamp());
+        				m.put("count", te.getCount());
+        				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
         				m.put("message", te.getException().getMessage());
         				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
             					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
@@ -286,6 +292,8 @@ public class FancyControllerAction
         				Map m = new HashMap();
         				m.put("type", "show");
         				m.put("timestamp", te.getTimestamp());
+        				m.put("count", te.getCount());
+        				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
         				m.put("showId", te.getShow().getId());
         				m.put("message", te.getException().getMessage());
         				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
