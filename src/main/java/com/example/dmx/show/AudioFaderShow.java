@@ -45,6 +45,7 @@ public class AudioFaderShow extends Show {
 		while (!isCancelled()) {
 			int fade = (int) Math.min(audioSource.getBassMidTreble()[0]*102, 255);
 			setLabel("level " + fade);
+			logger.debug("loop fade " + fade);
 			Color color = new Color(fade, fade, fade);
 			fix1.setColor(color);
 			fix2.setColor(color);
