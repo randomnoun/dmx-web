@@ -31,12 +31,6 @@ public class Controller {
 	public AudioController getAudioController() {
 		return audioController;
 	}
-	public void setAudioSource(AudioSource audioSource) {
-		this.audioSource = audioSource;
-	}
-	public AudioSource getAudioSource() {
-		return audioSource;
-	}
 	
 	public void addFixture(Fixture f) {
 		fixtures.add(f);

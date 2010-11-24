@@ -204,7 +204,7 @@ public class FancyControllerAction
     				}
     				showResult.add(m);
     			}
-    			AudioSource audioSource = controller.getAudioSource();
+    			AudioSource audioSource = appConfig.getAudioSource();
     			float[] bmt = audioSource.getBassMidTreble();
     			HashMap m = new HashMap();
     			m.put("b", bmt[0]);
@@ -254,7 +254,7 @@ public class FancyControllerAction
         			}
         		}
 
-        		e1 = controller.getAudioSource().getExceptions();
+        		e1 = appConfig.getAudioSourceExceptions();
         		synchronized(e1) {
         			for (int i=0; i<e1.size(); i++) {
         				ExceptionContainer.TimestampedException te = e1.get(i);

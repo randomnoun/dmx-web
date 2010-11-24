@@ -38,6 +38,7 @@ import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.show.Show;
+import com.randomnoun.dmx.show.ShowAudioSource;
 import com.randomnoun.dmx.show.ShowThread;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
 import com.randomnoun.dmx.to.FixtureDefTO;
@@ -81,6 +82,9 @@ public class AppConfig extends AppConfigBase {
     
     /** DMX device reference */
     private DmxDevice dmxDevice;
+
+    /** DMX device reference */
+    private AudioSource audioSource;
     
     public enum AppConfigState { UNINITIALISED, RUNNING, STOPPING, STOPPED };
     
@@ -112,15 +116,18 @@ public class AppConfig extends AppConfigBase {
     	synchronized public ShowThread getThread() {
     		// @TODO possibly use thread pools here
     		// @TODO threadIds
+    		boolean newThread = false;
     		if (showThread==null) {
     			if (appConfig.appConfigState != AppConfigState.RUNNING) { 
     				throw new IllegalStateException("Cannot create thread when appConfigState=" + appConfig.appConfigState);
     			}
-    			showThread = new ShowThread(show);
-    			showThread.setName("show-" + showId + "-" + showThread.getId());
+    			newThread = true;
+    		} else if (showThread.getState()==State.TERMINATED) {
+    			newThread = true;
     		}
-    		if (showThread.getState()==State.TERMINATED) {
-    			showThread = new ShowThread(show);
+    		if (newThread) {
+    			ShowAudioSource showAudioSource = new ShowAudioSource(appConfig.getAudioSource());
+    			showThread = new ShowThread(show, showAudioSource);
     			showThread.setName("show-" + showId + "-" + showThread.getId());
     		}
     		return showThread;
@@ -340,14 +347,13 @@ public class AppConfig extends AppConfigBase {
 		Map asProperties = PropertyParser.restrict(this, "audioSource", true);
 		Class asClass = Class.forName(asClassname);
 		Constructor asConstructor = asClass.getConstructor(Map.class);
-		AudioSource audioSource = (AudioSource) asConstructor.newInstance(asProperties);
+		audioSource = (AudioSource) asConstructor.newInstance(asProperties);
 		audioSource.open();
 
 		
 		controller = new Controller();
 		controller.setUniverse(universe);
 		controller.setAudioController(audioController);
-		controller.setAudioSource(audioSource);
 		
     }
     
@@ -674,8 +680,9 @@ public class AppConfig extends AppConfigBase {
     	AudioController audioController = controller.getAudioController();
     	if (audioController!=null) { audioController.close(); }
     	
-    	AudioSource audioSource = controller.getAudioSource();
-    	if (audioSource!=null) { audioSource.close(); }
+    	if (audioSource!=null) { 
+    		audioSource.close(); 
+    	}
     	
     	// @TODO could possibly even reset the controller before doing this
     	// will also stop listener threads
@@ -700,6 +707,11 @@ public class AppConfig extends AppConfigBase {
 		return controller;
 	}
 	
+	// don't get beat information from this audioSource, 'cos it'll be wrong
+	public AudioSource getAudioSource() { 
+		return audioSource; 
+	}
+	
 	public List<ExceptionContainer.TimestampedException> getDmxDeviceExceptions() {
 		return dmxDevice.getExceptions();
 	}
@@ -707,6 +719,15 @@ public class AppConfig extends AppConfigBase {
 	public List<TimestampedShowException> getShowExceptions() {
 		return showExceptions;
 	}
+	
+	public List<ExceptionContainer.TimestampedException> getAudioSourceExceptions() {
+		return audioSource.getExceptions();
+	}
+
+
+	
+	
+	
 	
 
 }

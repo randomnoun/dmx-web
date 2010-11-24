@@ -10,13 +10,16 @@ public class ShowThread extends Thread {
 	static Logger logger = Logger.getLogger(ShowThread.class);
 	
 	private Show show;
+	private ShowAudioSource showAudioSource;
 	
-	public ShowThread(Show show) {
+	public ShowThread(Show show, ShowAudioSource showAudioSource) {
 		this.show = show;
+		this.showAudioSource = showAudioSource;
 	}
 	
 
 	public void run() {
+		show.audioSource = showAudioSource;
 		show.state = Show.State.SHOW_RUNNING;
 		AppConfig appConfig = AppConfig.getAppConfig();
 		long onCancelShowId = show.getOnCancelShowId();

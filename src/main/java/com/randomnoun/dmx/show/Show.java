@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.randomnoun.common.Text;
+import com.randomnoun.dmx.AudioSource;
 import com.randomnoun.dmx.Controller;
 
 /** either this thing is going to invoke methods on the controller
@@ -29,13 +30,16 @@ public abstract class Show {
 	String name;
 	boolean cancelled;
 	long startTime;
-	Semaphore sleepSemaphore;
+	Semaphore sleepSemaphore; // this'll be fun if >1 Show runs at the same time. Should this go into the ShowConfig object ?
 	Map properties;
 	String label = null;
 	long onCancelShowId = -1;
 	long onCompleteShowId = -1;
+	AudioSource audioSource;
+	
 	Exception lastException;
 	State state;
+	
 	
 	protected Show(long id, Controller controller, String name, long length, Map properties) {
 		this.id = id;
@@ -53,6 +57,7 @@ public abstract class Show {
 	public void setName(String name) { this.name = name; }
 	public void setOnCancelShowId(long onCancelShowId) { this.onCancelShowId = onCancelShowId; }
 	public void setOnCompleteShowId(long onCompleteShowId) { this.onCompleteShowId = onCompleteShowId; }
+	public void setAudioSource(AudioSource audioSource) { this.audioSource = audioSource; }
 	
 	private long parsePropertyLong(Map properties, String key) {
 		String value = (String) properties.get(key);
@@ -72,6 +77,7 @@ public abstract class Show {
 	public String getName() { return name; }
 	public State getState() { return state; }
 	public Controller getController() { return controller; }
+	public AudioSource getAudioSource() { return audioSource; }
 	
 	/** Resets the show's startTime, cancellation status and 'last
 	 * exception' local variable. Show only be called by the ShowThread 
