@@ -22,10 +22,6 @@ public class DmxWebWinAmp {
 	
 	public Logger logger = Logger.getLogger(DmxWebWinAmp.class);
 	
-	private String host;
-	private int port;
-	private int timeout;
-	private boolean retryEnabled;
 	private PollingThread pollingThread;
 	private HttpClient httpClient;
 
@@ -39,16 +35,18 @@ public class DmxWebWinAmp {
 	public static class PollingThread extends Thread {
 		
 		private DmxWebWinAmp winamp;
+		private boolean retryEnabled = false;
 		private boolean done = false;
 		private String url;
 		
 		public Logger logger = Logger.getLogger(PollingThread.class);
 		
-		public PollingThread(DmxWebWinAmp winamp, String url) {
+		public PollingThread(DmxWebWinAmp winamp, String url, boolean retryEnabled) {
 			this.setName("dmxWebPollingThread-" + this.getId());
 			this.winamp = winamp;
 			this.done = false;
 			this.url = url;
+			this.retryEnabled = retryEnabled;
 		}
 		
 		public void run() {
@@ -75,12 +73,15 @@ public class DmxWebWinAmp {
 					// shove it into a container, say.
 					e.printStackTrace();
 					winamp.exceptionContainer.addException(e);
+					if (!retryEnabled) { done = true; }
 				} catch (IOException e) {
 					e.printStackTrace();
 					winamp.exceptionContainer.addException(e);
+					if (!retryEnabled) { done = true; }
 				} catch (Exception e) {
 					e.printStackTrace();
 					winamp.exceptionContainer.addException(e);
+					if (!retryEnabled) { done = true; }
 				}
 			}
 		}
@@ -91,10 +92,6 @@ public class DmxWebWinAmp {
 	}
 	
 	public DmxWebWinAmp(String host, int port, int timeout, boolean retryEnabled) {
-		this.host = host;
-		this.port = port;
-		this.timeout = timeout;
-		this.retryEnabled = retryEnabled;
 
 		exceptionContainer = new ExceptionContainerImpl();
 		
@@ -117,7 +114,7 @@ public class DmxWebWinAmp {
 		httpClient.getParams().setParameter("http.useragent", "User-Agent: dmx-web/" + version.get("maven.pom.version") + " (" + version.get("bamboo.buildNumber") + ")");
 		httpClient.getParams().setParameter("http.protocol.single-cookie-header", new Boolean(true));
 		httpClient.getParams().setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
-		this.pollingThread = new PollingThread(this, "http://" + host + ":" + port + "/");
+		this.pollingThread = new PollingThread(this, "http://" + host + ":" + port + "/", retryEnabled);
 
 	
 	}
