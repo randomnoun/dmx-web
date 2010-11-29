@@ -111,9 +111,11 @@ public class MaintainShowDefAction
     		String txtName = (String) showDefMap.get("name");
     		String txtScript = (String) showDefMap.get("script");
     		String className = null;
+    		String javadoc = null;
     		errors.addErrors(validateScriptSyntax(txtScript));
     		if (!errors.hasErrors()) {
     			className = getClassName(txtScript);
+    			javadoc = getJavadoc(txtScript);
     			errors.addErrors(validateScriptInstance(txtScript, className));
     		}
     		if (errors.hasErrors()) {
@@ -125,6 +127,7 @@ public class MaintainShowDefAction
     			showDef = new ShowDefTO();
     			Struct.setFromMap(showDef, showDefMap, false, true, false);
     			showDef.setClassName(className);
+    			showDef.setJavadoc(javadoc);
 	    		if (lngId==-1) {
 	    			showDefDAO.createShowDef(showDef);
 	    			errors.addError("Show created", "Show definition created", ErrorList.SEVERITY_OK);
@@ -346,6 +349,33 @@ public class MaintainShowDefAction
 		if (packageName == null) { return className; }
 		return packageName + "." + className;
     }
+
+    /** Return the first comment in the script. This should probably
+     * return the first slash-asterisk-asterisk comment prior to the class declaration,
+     * but that would require slightly more effort.
+     * 
+     * @param script script to parse
+     * 
+     * @return the class javadoc, hopefully
+     */
+    public String getJavadoc(String script) {
+    	Parser parser = new Parser(new StringReader(script));
+    	parser.setRetainComments(true);
+    	String javadoc = null;
+    	try {
+			while( ! parser.Line() /* eof */ ) {
+				SimpleNode node = parser.popNode(); // (See the bsh.BSH* classes)
+				if (node instanceof bsh.BSHFormalComment) {
+					javadoc = ((bsh.BSHFormalComment) node).text;
+					break;
+				}
+			}
+		} catch (bsh.ParseException e) {
+			throw new IllegalArgumentException("Invalid script", e);
+		}
+		return javadoc;
+    }
+
     
     public ErrorList validateScriptInstance(String script, String className) {
     	ErrorList errors = new ErrorList();

@@ -6,6 +6,7 @@ public class ShowDefTO {
     private String name;
     private String className;
     private String script;
+    private String javadoc;
 
     /** Returns the id
      * @return the id
@@ -63,5 +64,20 @@ public class ShowDefTO {
         this.script = script;
     }
 
+    /** Returns the javadoc
+     * @return the javadoc
+     */
+    public String getJavadoc() {
+        return javadoc;
+    }
+
+    /** Set the javadoc
+     * @param javadoc
+     */
+    public void setJavadoc(String javadoc) {
+        this.javadoc = javadoc;
+    }
+    
+    
 }
 
