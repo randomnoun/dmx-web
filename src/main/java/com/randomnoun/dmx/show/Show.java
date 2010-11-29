@@ -35,7 +35,9 @@ public abstract class Show {
 	String label = null;
 	long onCancelShowId = -1;
 	long onCompleteShowId = -1;
+	long showGroupId = -1;
 	AudioSource audioSource;
+	String description;
 	
 	Exception lastException;
 	State state;
@@ -57,7 +59,9 @@ public abstract class Show {
 	public void setName(String name) { this.name = name; }
 	public void setOnCancelShowId(long onCancelShowId) { this.onCancelShowId = onCancelShowId; }
 	public void setOnCompleteShowId(long onCompleteShowId) { this.onCompleteShowId = onCompleteShowId; }
+	public void setShowGroupId(long showGroupId) { this.showGroupId = showGroupId; }
 	public void setAudioSource(AudioSource audioSource) { this.audioSource = audioSource; }
+	public void setDescription(String description) { this.description = description; }
 	
 	private long parsePropertyLong(Map properties, String key) {
 		String value = (String) properties.get(key);
@@ -71,13 +75,21 @@ public abstract class Show {
 	}
 	
 	public long getId() { return id; }
+	public long getShowGroupId() { return showGroupId; }
 	public long getLength() { return length; }
 	public long getOnCancelShowId() { return onCancelShowId; }
 	public long getOnCompleteShowId() { return onCompleteShowId; }
+	
 	public String getName() { return name; }
 	public State getState() { return state; }
 	public Controller getController() { return controller; }
 	public AudioSource getAudioSource() { return audioSource; }
+
+	/** Returns the description for this show. If this method is not overriden, will return
+	 * the javadoc of the Show object.
+	 * @return a description of the show.
+	 */
+	public String getDescription() { return description; }
 	
 	/** Resets the show's startTime, cancellation status and 'last
 	 * exception' local variable. Show only be called by the ShowThread 
