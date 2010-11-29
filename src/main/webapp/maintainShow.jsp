@@ -111,7 +111,7 @@ var tblObj = new rnTable(
   'mainForm',                                 // enclosing clientside form id
   'Are you sure you wish to delete this show ?',
     new Array(
-      'id', 'showDefId', 'name', 'dmxOffset')
+      'id', 'showDefId', 'name', 'onCancelShowId', 'onCompleteShowId', 'showGroupId')
 );
 
 
@@ -166,6 +166,7 @@ function initWindow() {
      <td class="formHeader">&nbsp;</td>
      <td class="formHeader" style="background-color: #000052">Show type</td>
     <td class="formHeader" style="background-color: #000052">Name</td>
+    <td class="formHeader" style="background-color: #000052">Show group</td>
     <td class="formHeader" style="background-color: #000052">On complete goto</td>
     <td class="formHeader" style="background-color: #000052">On cancel goto</td>
 </tr>
@@ -176,7 +177,7 @@ function initWindow() {
                             <input type="hidden" name="shows[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>">   
                             <input type="hidden" name="shows[<c:out value='${rowStatus.index}'/>].cmdDelete" value="Y"> 
                         </td>
-                        <td colspan="6" bgcolor="#FFAAAA"><div style="margin:5px; color: black;"><i>This row has been marked for deletion. 
+                        <td colspan="7" bgcolor="#FFAAAA"><div style="margin:5px; color: black;"><i>This row has been marked for deletion. 
                         Correct the other validation errors on this page to delete.</i></div></td>
                     </tr>
                 </c:when>
@@ -195,6 +196,9 @@ function initWindow() {
                            </td>
                            <td class="<r:onError name='shows[${rowStatus.index}].name' text='errorBg' />"> 
                                <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="30">
+                           </td>
+                           <td class="<r:onError name='shows[${rowStatus.index}].showGroupId' text='errorBg' />"> 
+                               <r:select style="width: 70px;" name="shows[${rowStatus.index}].showGroupId" data="${form.showGroups}" value="${rowData.showGroupId}" displayColumn="name" valueColumn="id" firstOption="" />
                            </td>
                            <td class="<r:onError name='shows[${rowStatus.index}].onCompleteShowId' text='errorBg' />"> 
                                <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCompleteShowId" data="${form.followupShows}" value="${rowData.onCompleteShowId}" displayColumn="name" valueColumn="id" firstOption="" />
@@ -219,6 +223,9 @@ function initWindow() {
                            <td class="<r:onError name='shows[${rowStatus.index}].name' text='errorBg' />"> 
                                <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="30">
                            </td>
+                           <td class="<r:onError name='shows[${rowStatus.index}].showGroupId' text='errorBg' />"> 
+                               <r:select style="width: 70px;" name="shows[${rowStatus.index}].showGroupId" data="${form.showGroups}" value="${rowData.showGroupId}" displayColumn="name" valueColumn="id" firstOption="" />
+                           </td>
                            <td class="<r:onError name='shows[${rowStatus.index}].onCompleteShowId' text='errorBg' />"> 
                                <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCompleteShowId" data="${form.followupShows}" value="${rowData.onCompleteShowId}" displayColumn="name" valueColumn="id" firstOption="" />
                            </td>
@@ -236,6 +243,7 @@ function initWindow() {
                 </td>
                 <td><r:select name="shows[${form.shows_size}].showDefId" data="${form.showDefs}" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)" /></td>
                 <td><input type="text" class="formfield" name="shows[<c:out value='${form.shows_size}' />].name" value="" size="30"></td>
+                <td><r:select style="width: 70px;" name="shows[${form.shows_size}].showGroupId" data="${form.showGroups}" value="" displayColumn="name" valueColumn="id" firstOption="" /></td>
                 <td><r:select style="width: 150px;" name="shows[${form.shows_size}].onCompleteShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" /></td>
                 <td><r:select style="width: 150px;" name="shows[${form.shows_size}].onCancelShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" /></td>
             </tr>
