@@ -134,12 +134,13 @@ public class ShowDAO {
     }
     
     /** Returns the highest numbered show group, or null if no show groups exist */
-    public Long getLastShowGroup() {
-    	List result = jt.queryForList("SELECT MAX(showGroup) AS lastShow FROM show");
+    public Long getLastShowGroupId() {
+    	List result = jt.queryForList("SELECT MAX(showGroupId) AS lastShow FROM `show`");
     	if (result.size()==0) {
     		return null;
     	} else {
-    		return new Long(((Number) ((Map)result.get(0)).get("lastShow")).longValue());
+    		Number number = (Number) ((Map)result.get(0)).get("lastShow");
+    		return number == null ? null : new Long(number.longValue()); 
     	}
     }
     
