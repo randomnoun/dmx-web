@@ -330,6 +330,7 @@ public class FancyControllerAction
     		*/
     		
     	} else if (action.equals("setDmxValues")) {
+			// old method (one parameter per value)
     		List dmxValues = (List) form.get("dmx");
     		byte[] dmxData = new byte[512];
 	    	for (int i=1; i<=255; i++) {
@@ -339,7 +340,18 @@ public class FancyControllerAction
 	    		}
 	    	}
 	    	request.setAttribute("message", "DMX values set");
-	    	
+
+    	} else if (action.equals("setDmxValues2")) {
+			String dmxValuesString = (String) form.get("values");
+			String[] dmxValues = dmxValuesString.split(",");
+			for (int i=1; i<=255; i++) {
+				int value = Integer.parseInt(dmxValues[i-1]);
+				if (value>=0 && value <=255) {
+					controller.getUniverse().setDmxChannelValue(i, value);
+				}
+			}
+			result.put("message", "DMX channels set");
+			
     	} else if (action.equals("setDmxValue")) {
     		int channel = Integer.parseInt(request.getParameter("channel"));
     		int value = Integer.parseInt(request.getParameter("value"));

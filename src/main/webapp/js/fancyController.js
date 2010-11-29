@@ -2,6 +2,7 @@ var dmxValues = dmxValues.split(",");
 var dmxModified = new Array();
 var dmxToFixture = new Array();
 var dmxHighlightTimeout = -1;
+var dmxImmediate = true;
 var logExceptions = new Array();
 var lhsMenuPanels=new Array("lgoPanel", "shwPanel", "fixPanel", "dmxPanel", "logPanel", "cnfPanel");
 var longPollRequest=null;
@@ -37,6 +38,18 @@ function setRhsMessageHTML(text) {
 function sendRequest(url,completedFunction) {
     new Ajax.Request(url, {
         method:'get', // evalJSON:true,
+        onSuccess: function(transport) {
+            setRhsMessageHTML(transport.responseJSON.message);
+        },
+        onComplete: function(transport) {
+            completedFunction();
+        }});
+}
+
+function sendPostRequest(url,parameters,completedFunction) {
+    new Ajax.Request(url, {
+        method:'post', // evalJSON:true,
+        parameters:parameters,
         onSuccess: function(transport) {
             setRhsMessageHTML(transport.responseJSON.message);
         },
@@ -511,6 +524,7 @@ function dmxInitPanel() {
         Event.observe(dmxEl, 'mouseover', dmxValueOnMouseOver);
         Event.observe(dmxEl, 'mouseout', dmxValueOnMouseOut);
     }
+    Event.observe($("dmxImmediate"), 'click', dmxImmediateClick);
     /*
     Event.observe($("dmxHighlight"), 'mouseover', dmxShowHighlight);
     Event.observe($("dmxHighlight2"), 'mouseover', dmxShowHighlight);
@@ -534,8 +548,31 @@ function dmxHideHighlight2() {
 }
 */
 
+function dmxImmediateClick(event) {
+	dmxImmediate = !dmxImmediate;
+	if (dmxImmediate) {
+		$("dmxImmediate").update("Immediate ON");
+		$("dmxUpdateAll").addClassName("dmxControlDisabled");
+		Event.stopObserving($("dmxUpdateAll"), 'click', dmxUpdateAllClick);
+		dmxUpdateAllClick
+	} else {
+		$("dmxImmediate").update("Immediate OFF");
+		$("dmxUpdateAll").removeClassName("dmxControlDisabled");
+		Event.observe($("dmxUpdateAll"), 'click', dmxUpdateAllClick);
+	}
+}
+
+function dmxUpdateAllClick(event) {
+	var dmxValueString="";
+	for (var i=1; i<=255; i++) {
+		dmxValueString += dmxValues[i-1] + ","; 
+	}
+	// might be hitting some GET limits here
+	sendPostRequest("fancyController.html?action=setDmxValues2", { "values" : dmxValueString } );
+	
+}
+
 function dmxValueClick(event) {
-	// TODO: deselect any previously selected value
     var dmxValueEl, el, el2, ch, f, off, dc, j, cds, cd = null;
     dmxValueEl = event.element();
     ch=$(dmxValueEl).readAttribute("dmxChannel");
@@ -549,6 +586,12 @@ function dmxValueClick(event) {
             el.removeClassName("dmxSelectGroup");
             el.removeClassName("dmxSelect");
         }
+    }
+    if (dmxSelectedValue) {
+    	if (dmxImmediate) {
+    		sendRequest("fancyController.html?action=setDmxValue&channel=" + dmxSelectedChannel + "&value=" + dmxSelectedValue.innerHTML);
+    	}
+    	dmxSelectedValue.removeClassName("dmxSelectedValue");
     }
     el = $("dmxBox[" + ch + "]"); dmxSelectedChannel = ch;
     el2 = $("dmxValue[" + ch + "]"); dmxSelectedValue = el2;
@@ -584,7 +627,7 @@ function dmxKeypress(event) {
 	
     switch (event.keyCode) {
     case Event.KEY_BACKSPACE:
-        v.substring(0, v.length-1); if (v=="") { v = "0"; }
+        v = v.substring(0, v.length-1); if (v=="") { v = "0"; }
         dmxSelectedValue.innerHTML = v;
         event.stop();
         break;
@@ -597,9 +640,10 @@ function dmxKeypress(event) {
     	break;
     case Event.KEY_RETURN:
     	dmxSelectedValue.removeClassName("dmxSelectedValue");
-    	sendRequest("fancyController.html?action=setDmxValue&channel=" + dmxSelectedChannel + "&value=" + v);	
+    	if (dmxImmediate) {
+    		sendRequest("fancyController.html?action=setDmxValue&channel=" + dmxSelectedChannel + "&value=" + v);
+    	}
     	Event.stopObserving(document, 'keypress', dmxKeypress);
-    	
     	break;
     	
     case Event.KEY_LEFT:
@@ -628,7 +672,7 @@ function dmxValueOnMouseOver(event) {
     }
     el=$("dmxTimeSource");
     if (!f) { 
-    	el.update("<%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %>");
+    	el.update(dmxTimeSourceText);
     	dmxSelectedFixture=null;
     	return;
     };

@@ -45,6 +45,7 @@
 <r:setJavascriptVar name="fixValues" value="${fixValues}" />
 <r:setJavascriptVar name="version" value="${version}" />
 <r:setJavascriptVar name="origPanel" value="${panel}" />
+var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %>";
 <%-- this will be a client-side include eventually --%>
 <jsp:include page="js/fancyController.js" />
 </script>
@@ -106,7 +107,7 @@
 
 <div id="dmxPanel" style="display: none;">
   <div id="dmxImmediate" class="dmxControl">Immediate ON</div>
-  <div id="dmxUpdateAll" class="dmxControl">Update all</div> 
+  <div id="dmxUpdateAll" class="dmxControl dmxControlDisabled">Update all</div> 
   <div id="dmxTimeSource" class="dmxTimeSource"></div>
   <div id="dmxValues">
   </div>

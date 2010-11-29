@@ -239,6 +239,11 @@ BODY { font-size: 8pt; font-family: Arial; }
   /*background-color: #AAAAFF;*/
   cursor: pointer; 
 }
+.dmxControlDisabled {
+  background-image: url("../image/button-grey.png");
+  /*background-color: #AAAAFF;*/
+  cursor: default; 
+}
 .dmxTimeSource {
   text-align: left; color: #000044; font-size: 10pt;
   background-color: #AAAAFF; 
