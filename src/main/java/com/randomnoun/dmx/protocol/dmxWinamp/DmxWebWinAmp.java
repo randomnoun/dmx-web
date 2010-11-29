@@ -126,12 +126,15 @@ public class DmxWebWinAmp {
 	}
 	
 	public void disconnect() {
+		logger.debug("Disconnecting from DmxWebWinamp plugin");
 		pollingThread.done();
+		// @TODO use shutdown() in newer HttpClients
+		httpClient.getHttpConnectionManager().closeIdleConnections(0); 
 		
 	}
 
 	public boolean getBeat() {
-		return isBeat;  // @TODO cache beats
+		return isBeat;  
 	}
 	
 	private void setBeat(boolean beat) {
