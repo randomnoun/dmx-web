@@ -1,6 +1,8 @@
 package com.randomnoun.dmx.config;
 
 import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.StringReader;
 import java.lang.Thread.State;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -494,6 +496,7 @@ public class AppConfig extends AppConfigBase {
 		// I'm assuming all this needs to go into a separate classLoader eventually
 		// @TODO see all the comments above for fixture defs
 		Map scriptedShowDefs = new HashMap(); // id -> scripted show class object
+		Map scriptedShowDescriptions = new HashMap(); // id -> scripted show javadoc
 		ShowDefDAO showDefDAO = new ShowDefDAO(getJdbcTemplate());
 		List showDefsFromDatabase = showDefDAO.getShowDefs(null);
 		if (showDefsFromDatabase == null || showDefsFromDatabase.size()==0) {
@@ -511,6 +514,7 @@ public class AppConfig extends AppConfigBase {
 					Class clazz = (Class) getScriptEngine().eval(testScript, showScriptContext);
 					if (Show.class.isAssignableFrom(clazz)) {
 						scriptedShowDefs.put(showDef.getId(), clazz);
+						scriptedShowDescriptions.put(showDef.getId(), showDef.getJavadoc());
 					} else {
 						logger.error("Error processing show " + showDef.getId() + ": '" + showDef.getName() + "'; className='" + showDef.getClassName() + "' does not extend com.randomnoun.dmx.Show"); 
 					}
@@ -528,11 +532,13 @@ public class AppConfig extends AppConfigBase {
 				ShowTO showTO = (ShowTO) showsFromDatabase.get(i);
 				long showDefId = showTO.getShowDefId();
 				Class showClass = (Class) scriptedShowDefs.get(showDefId);
+				String javadoc = (String) scriptedShowDescriptions.get(showDefId);
 				if (showClass==null) {
 					logger.error("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no show found with id '" + showDefId + "'");
 				} else {
 					logger.debug("Creating scripted show '" + showTO.getName() + "' from database");
 					Constructor constructor = showClass.getConstructor(long.class, Controller.class, Map.class);
+					
 					Map showProperties = new HashMap();
 					//if (showTO.getOnCompleteShowId()!=null) { showProperties.put("onCompleteShowId", showTO.getOnCompleteShowId().toString()); }
 					//if (showTO.getOnCancelShowId()!=null) { showProperties.put("onCancelShowId", showTO.getOnCancelShowId().toString()); }
@@ -544,7 +550,9 @@ public class AppConfig extends AppConfigBase {
 							showObj = (Show) constructor.newInstance(showTO.getId(), controller, showProperties);
 							if (showTO.getOnCompleteShowId()!=null) { showObj.setOnCompleteShowId(showTO.getOnCompleteShowId().longValue()); }
 							if (showTO.getOnCancelShowId()!=null) { showObj.setOnCancelShowId(showTO.getOnCancelShowId().longValue()); }
+							if (showTO.getShowGroupId()!=null) { showObj.setShowGroupId(showTO.getShowGroupId().longValue()); }
 							if (!Text.isBlank(showTO.getName())) { showObj.setName(showTO.getName()); }
+							if (!Text.isBlank(javadoc)) { showObj.setDescription(removeCommentTokens(javadoc)); }
 							showConfigs.put(showTO.getId(), new ShowConfig(this, showTO.getId(), showObj));
 							shows.add(showObj);
 						}
@@ -602,6 +610,20 @@ public class AppConfig extends AppConfigBase {
     		logger.error("Not starting show " + showId + " - unknown show");
     		return;
     	}
+    	// cancel all shows with the same showGroupId
+    	if (showConfig.getShow().getShowGroupId()!=-1) {
+	    	for (ShowConfig showConfig2 : showConfigs.values()) {
+	    		if (showConfig2.getShow().getShowGroupId()==showConfig.getShow().getShowGroupId()) {
+	    			ShowThread thread2 = showConfig2.getThread();
+	    	    	if (thread2.isAlive()) {
+	    	    		thread2.cancel();
+	    	    	}
+	    		}
+	    	}
+    	}
+    	// should probably wait a small amount of time for shows to cancel properly,
+    	// then forcibly terminate them
+    	
     	ShowThread thread = showConfig.getThread();
     	if (thread.isAlive()) {
     		// @TODO cancel & restart show ?
@@ -724,7 +746,35 @@ public class AppConfig extends AppConfigBase {
 		return audioSource.getExceptions();
 	}
 
-
+	/** Removes the leading block and line comment markers from a piece of javadoc comment.
+	 * 
+	 * @param comment The comment to clean for display
+	 * 
+	 * @return
+	 */
+	private String removeCommentTokens(String comment) {
+		try {
+			LineNumberReader lnr = new LineNumberReader(new StringReader(comment));
+			String line = lnr.readLine();
+			String cleanComment = "";
+			while (line!=null) {
+				line = line.trim();
+				if (line.startsWith("/**")) { line = line.substring(3); }
+				else if (line.startsWith("*")) { line = line.substring(1); }
+				
+				// remove @author (etc) tags
+				if (line.trim().startsWith("@")) { line=""; }
+				
+				cleanComment += line;
+				line = lnr.readLine();
+			}
+			cleanComment = cleanComment.trim();
+			if (cleanComment.endsWith("/")) { cleanComment = cleanComment.substring(0, cleanComment.length()-1); }
+			return cleanComment;
+		} catch (IOException ioe) {
+			throw new IllegalStateException("IOException in StringReader", ioe);
+		}
+	}
 	
 	
 	
