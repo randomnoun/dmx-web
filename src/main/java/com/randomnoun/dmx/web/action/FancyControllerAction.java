@@ -137,8 +137,11 @@ public class FancyControllerAction
     			Map m = new HashMap();
     			m.put("id", new Long(s.getId()));
     			m.put("name", s.getName());
+    			m.put("description", s.getDescription());
+    			m.put("showGroupId", s.getShowGroupId());
     			shows.add(m);
     		}
+    		Struct.sortStructuredList(shows, "showGroupId");
     		String dmxValues = "";
     		for (int i=1; i<=255; i++) {
     			dmxValues+=controller.getUniverse().getDmxChannelValue(i) + ",";

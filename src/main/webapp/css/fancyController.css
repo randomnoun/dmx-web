@@ -1,0 +1,315 @@
+BODY { font-size: 8pt; font-family: Arial; }
+.lhsMenuContainer {
+  position: absolute; top: 30px; left: 5px; width: 200px; height: 700px;
+  background-color: #EEEEFF; border: solid 1px blue;
+}
+#lhsLogo {
+  position: absolute; top: 5px; left: 5px; width: 202px; height: 22px;
+  text-align: left; color: white; font-size: 10pt; font-weight: bold;
+  /*background-color: blue; */
+  background-image: url("../image/lhsLogo-back.png"); 
+  padding: 0px 0px;
+  cursor: pointer;
+}
+.rhsPanel {
+  position: absolute; top: 30px; left: 210px; width: 900px; height: 700px;
+  background-color: #EEEEFF; border: solid 1px blue; 
+}
+#rhsMessage {
+  position: absolute; top: 5px; left: 210px; width: 896px; height: 16px;
+  text-align: left; color: #000044; font-size: 10pt; font-weight: bold;
+  background-color: #EEEEFF; border: solid 1px blue; padding: 2px;
+}
+.lhsMenuItem {
+  width: 180px; height: 70px; background-image: url("../image/button-blue.png");
+  /*background-color: #AAAAFF; */ ; margin: 10px;
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
+}
+.lhsSelect {
+  /*background-color: #6666FF; */ background-image: url("../image/button-blue2.png");
+}
+.clickHighlight {
+  background-color: white;
+}
+
+/**** LOGO panel ***/
+#lgoPanel {
+  position: relative; width: 900px; height: 700px; 
+}
+#lgoImage {
+  position: absolute; left: 20px; top:20px; width: 330px; height: 340px; 
+}
+#lgoClientImage {
+  position: absolute; 
+  left: 190px; top: 20px; width: 201px; height: 44px; 
+  background-image: url("../image/albionComedy.png");
+  z-index: 10;
+}
+#lgoText1 {
+  position: absolute; 
+  left:220px; top: 60px; 
+  font-family: Georgia,"Times New Roman",serif;
+  font-size: 9pt;
+  font-style: italic;
+  color: white;
+}
+#lgoText2 {
+  position: absolute; left:370px; top:20px; height: 50px; 
+}
+
+
+/*** SHOW panel ***/
+#shwCancel {
+  position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
+  /*background-color: red; */
+  background-image: url("../image/button-red.png");
+  text-align: center; color: white; font-size: 18pt;
+}
+.shwItem {
+  position: absolute; width: 180px; height: 70px; /*background-color: #AAAAFF; */
+  background-image: url("../image/button-blue.png"); 
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
+}
+.shwItemSeparator {
+  position: absolute; width: 780px; height: 2px; /*background-color: #AAAAFF; */
+  text-align: center; background-color: #AAAAFF; font-size: 4pt;
+}
+
+.shwRunning {
+  /* background-color: #AAFFAA; */
+  background-image: url("../image/button-green.png");
+}
+.shwException {
+  /* background-color: red; */
+  background-image: url("../image/button-red.png");
+}
+/** overlay includes label and time divs*/ 
+.shwOverlay {
+  position: absolute; height: 21px; top: 49px; left: 5px; width: 170px;
+}
+.shwLabel {
+  position: absolute; height: 16px; top: 5px; left: 0px;
+  font-family: Lucida Console, Courier New; font-size: 8pt;
+}
+.shwTime {
+  position: absolute; height: 16px; top: 5px; right: 5px; width: 40px;
+  font-family: Lucida Console, Courier New; font-size: 8pt;
+  text-align: right;
+}
+.shwLenOuter {
+  position: absolute; height: 2px; right: 5px; width: 40px;
+  border: solid black 1px;
+}
+.shwLenInner {
+  position: absolute; top: 0px; left:0px; height: 2px; background-color: black;
+}
+/** maybe layout this vertically, or render as an image on the server
+ *  (which will make freq spectrum a bit more interesting) */
+#shwAudio {
+  position: absolute; top: 20px; left: 220px; width: 180px; height: 70px;
+  border: solid #262482 1px;
+  text-align: center; color: white; font-size: 18pt;
+}
+.shwAudioOuter {
+  position: absolute; height: 4px; right: 5px; width: 100px;
+  border: solid #262482 1px;
+}
+.shwAudioInner {
+  position: absolute; top: 0px; left: 0px; height: 4px; 
+}
+#shwAudioBassOuter   { top: 5px; }
+#shwAudioMidOuter    { top: 15px; }
+#shwAudioTrebleOuter { top: 25px; }
+#shwAudioBassInner   { background-color: #7769b2; }
+#shwAudioMidInner    { background-color: #b3a5ee; }
+#shwAudioTrebleInner { background-color: #dbcdff; }
+
+
+/*** FIXTURE panel ***/
+.fixItem {
+  position: absolute; width: 180px; height: 70px; /*background-color: #AAAAFF; */
+  background-image: url("../image/button-blue.png");  
+  text-align: center; color: #000044; font-size: 18pt;
+  cursor: pointer; 
+}
+#fixBlackout {
+  position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
+  /*background-color: red; */
+  background-image: url("../image/button-red.png");
+  color: white;
+}
+#fixDim {
+  position: absolute; top: 20px; left: 220px; width: 90px; height: 160px;
+  background-image: url("../image/dimBack.png");
+}
+#fixDimHandle {
+  /*background-color: blue; */ width: 90px; height: 30px; cursor: move;
+  background-image: url("../image/dimHandleBlack.png");
+}
+#fixDimLabel {
+  position: absolute; top: 185px; left: 220px; width: 90px; height: 20px;
+  text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
+}
+#fixGroup {
+  position: absolute; top: 110px; left: 20px; width: 180px; height: 70px;
+}
+.fixGroup {
+  background-image: url("../image/button-blue.png");
+}
+#fixColorPicker {
+  /* 195x195 pixels */
+  position: absolute; top: 0px; left: 330px; /*width: 160px; height: 160px;*/
+}
+#fixColor {
+  display: none;
+}
+#fixAim {
+  position: absolute; top: 20px; left: 550px; width: 160px; height: 160px; cursor: crosshair;
+}
+.fixAimVGrid1 { position: absolute; top: 0px; height:160px; width:0px; border-right: 1px dotted #7777FF; } 
+.fixAimVGrid2 { position: absolute; top: 0px; height:160px; width:0px; border-right: 1px solid #7777FF; }
+.fixAimHGrid1 { position: absolute; top: 0px; height:0px; width:160px; border-bottom: 1px dotted #7777FF; }
+.fixAimHGrid2 { position: absolute; top: 0px; height:0px; width:160px; border-bottom: 1px solid #7777FF; }
+#fixAimHandle {
+  width: 20px; height: 20px;
+  /*background-color: blue; */
+  background-image: url("../image/aimHandleBlack.png");
+  z-index: 10;
+}
+#fixAimLabel {
+  position: absolute; top: 185px; left: 550px; width: 160px; height: 20px;
+  text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
+}
+#fixAimLeft, #fixAimRight, #fixAimTop, #fixAimBottom {
+  position: absolute; font-family: Lucida Console; font-size: 8pt; color: black;
+}
+#fixAimLeft { top:5px; left:550px; height: 15px; width:60px; }
+#fixAimRight { top:5px; left:650px; height: 15px; width:60px; text-align: right; }
+#fixAimTop { top:20px; left:715px; height: 30px; width:20px; vertical-align: top; }
+#fixAimBottom { top:150px; left:715px; height: 30px; width:20px; vertical-align: bottom; }
+.fixControl {
+  text-align: center; color: #000044; font-size: 18pt;
+  background-color: #AAAAFF;
+  cursor: pointer; 
+}
+.fixSelect {
+  /*background-color: #6666FF; */
+  background-image: url("../image/button-blue2.png");
+}
+.fixOutput {
+  position: absolute; top:40px; left: 5px; height: 20px; width: 170px;
+  font-size: 16pt;
+}
+.fixOutputColor {
+  display: inline-block;
+  background-color: black; width: 15px; height: 15px;
+  border: solid 1px black;
+}
+.fixOutputDim {
+  display: inline-block;
+  background-color: white; width: 15px; height: 15px;
+  border: solid 1px white;
+}
+.fixOutputDim2 {
+  display: absolute; top:0px; left:0px;
+  background-color: black; width: 15px; height: 15px;
+}
+.fixOutputPan, .fixOutputTilt {
+  display: inline-block;
+  color: #000044; font-family: Arial; font-size: 10pt; 
+}
+
+
+/*** DMX panel ***/
+#dmxPanel { position: relative; }
+#dmxImmediate {
+  position: absolute; top: 5px; left: 20px; width: 180px; height: 70px;
+}
+#dmxUpdateAll {
+  position: absolute; top: 5px; left: 220px; width: 180px; height: 70px;
+}
+#dmxTimeSource {
+  position: absolute; top: 5px; left: 420px; width: 400px; height: 70px;
+}
+.dmxControl {
+  text-align: center; color: #000044; font-size: 18pt;
+  background-image: url("../image/button-blue.png");
+  /*background-color: #AAAAFF;*/
+  cursor: pointer; 
+}
+.dmxTimeSource {
+  text-align: left; color: #000044; font-size: 10pt;
+  background-color: #AAAAFF; 
+}
+.dmxOffset {
+  position: absolute; width: 20px; height: 11px; /*background-color: #DDDDFF;*/
+  text-align: right; color: #000044; font-weight: normal; font-size: 7pt; padding: 0px; 
+}
+.dmxValueContainer {
+  position: absolute;
+}
+.dmxValue {
+  position: absolute; width: 48px; height: 26px; /*background-color: #AAAAFF;*/
+  background-image: url("../image/dmx-back.png");
+  text-align: right; color: #000044; font-weight: bold; font-size: 14pt;
+}
+.dmxSelect {
+  background-image: url("../image/dmx-back-green.png");
+}
+.dmxModified {
+  background-image: url("../image/dmx-back-lit.png");
+}
+.dmxSelectGroup {
+  background-image: url("../image/dmx-back-lit.png");
+}
+.dmxSelectedValue {
+  background-color: yellow; border: solid black 1px;
+}
+
+#dmxHighlight, #dmxHighlight2 {
+  position: absolute; width: 0px; height: 60px;
+  border: 5px solid #000044;
+  background-color: transparent;
+}
+.dmxHighlightFooter {
+  position: absolute; top: 40px; height: 20px; width: 100%; 
+  color: white; background-color: #000044;
+}
+
+
+/*** LOG panel ***/
+.logTitle {
+  position: relative;
+  width: 800px; height: 30px; 
+  color: white; background-color: red; font-size:14pt;
+  margin: 5px; cursor: pointer;
+}
+.logDetail {
+  width: 800px; color: black; border: solid 1px red; font-size:7pt;
+  margin: 5px; background-color: #FFFEBB; padding-left: 10px;
+}
+.logDetail PRE {
+  font-family: Lucida Console, Courier New;
+}
+
+.logExpandImg {
+  position: absolute; top: 10px; left: 10px; 
+}
+.logMessage {
+  position: absolute; top: 5px; left: 30px;
+}
+
+
+/*** CONFIG panel ***/
+.cnfControl {
+  display: inline-block;
+  width: 360px; height: 70px; /*background-color: #AAAAFF; */
+  background-image: url("../image/cnfControlBack.png");   
+  text-align: center; color: #000044; font-size: 18pt; 
+  margin: 10px 10px 0px 10px;
+  cursor: pointer;
+}
+
+
