@@ -25,6 +25,9 @@ public class ShowDAO {
             if (rs.wasNull()) { s.setOnCancelShowId(null); }
             s.setOnCompleteShowId(rs.getLong("onCompleteShowId"));
             if (rs.wasNull()) { s.setOnCompleteShowId(null); }
+            s.setShowGroup(rs.getLong("showGroup"));
+            if (rs.wasNull()) { s.setShowGroup(null); }
+            
             return s;
         }
     }
@@ -42,7 +45,7 @@ public class ShowDAO {
      */
     public List<ShowTO> getShows(String sqlWhereClause) {
         String sql =
-            "SELECT id, showDefId, name, onCancelShowId, onCompleteShowId " +
+            "SELECT id, showDefId, name, onCancelShowId, onCompleteShowId, showGroup " +
             " FROM `show` " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<ShowTO>) jt.query(sql, new ShowDAORowMapper());
@@ -56,7 +59,7 @@ public class ShowDAO {
      */
     public ShowTO getShow(long showId) {
         return (ShowTO) jt.queryForObject(
-            "SELECT id, showDefId, name, onCancelShowId, onCompleteShowId " +
+            "SELECT id, showDefId, name, onCancelShowId, onCompleteShowId, showGroup " +
             " FROM `show` " +
             " WHERE id = ?",
             new Object[] { new Long(showId) }, 
@@ -70,7 +73,7 @@ public class ShowDAO {
     public void updateShow(ShowTO show) {
         String sql =
             "UPDATE `show` " +
-            " SET showDefId=?, name=?, onCancelShowId=?, onCompleteShowId=? " + 
+            " SET showDefId=?, name=?, onCancelShowId=?, onCompleteShowId=?, showGroup=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
@@ -78,6 +81,7 @@ public class ShowDAO {
                 show.getName(),
                 show.getOnCancelShowId(),
                 show.getOnCompleteShowId(),
+                show.getShowGroup(),
                 show.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("show update failed (" + updated + " rows updated)");
@@ -111,14 +115,15 @@ public class ShowDAO {
     public long createShow(ShowTO show) {
         String sql =
             "INSERT INTO `show` " + 
-            " (showDefId, name, onCancelShowId, onCompleteShowId) " +
+            " (showDefId, name, onCancelShowId, onCompleteShowId, showGroup) " +
             " VALUES (?, ?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] { 
                 show.getShowDefId(),
                 show.getName(),
                 show.getOnCancelShowId(),
-                show.getOnCompleteShowId()});
+                show.getOnCompleteShowId(),
+                show.getShowGroup()});
         if (updated!=1) {
             throw new DataIntegrityViolationException("show insert failed (" + updated + " rows updated)");
         }
