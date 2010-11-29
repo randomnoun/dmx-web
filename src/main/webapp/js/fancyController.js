@@ -264,7 +264,10 @@ function fixInitPanel() {
         var fixEl = new Element("div", { 
             "id": "fixItem[" + i + "]", "fixtureId": i,
             "class" : "fixItem" }).update(
-            f.name + "<div class=\"fixOutput\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div></div>" 
+            f.name + "<div class=\"fixOutput\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
+            (fd.panRange==0 ? "" : "&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>") +
+            (fd.tiltRange==0 ? "" : "&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div>") +
+            "</div>" 
             );
         fixEl.style.left=x+"px"; fixEl.style.top=y+"px";
         fp.appendChild(fixEl);
@@ -401,7 +404,6 @@ function fixBlackout(event) {
     sendRequest('fancyController.html?action=fixtureBlackout&fixtureIds=' + fixGetItemIds());
 }
 
-// this is triggered far too many times
 var AjaxLimitter = Class.create({
     // This limiter will limit submitted Ajax requests so that they 
     // do not occur less than minRequestInterval milliseconds between the start of
@@ -476,8 +478,11 @@ function fixUpdatePanel(json) {
         var divEls = el.getElementsByTagName("DIV");
         divEls[2].style.height=(1-fixValue["d"])*15 + "px";
         divEls[3].style.backgroundColor=fixValue["c"];
-        divEls[4].innerHTML=twoDigits(fixValue["p"]);
-        divEls[5].innerHTML=twoDigits(fixValue["t"]);
+        // TODO: fixtures with only pan or tilt (but not both)
+        if (divEls.length > 4) {
+	        divEls[4].innerHTML=twoDigits(fixValue["p"]);
+	        divEls[5].innerHTML=twoDigits(fixValue["t"]);
+        }
     }
     var fixItems=new Array();
     $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
