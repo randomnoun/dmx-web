@@ -24,6 +24,7 @@ CREATE TABLE `showDef` (
   `name` VARCHAR(100) NOT NULL,
   `className` VARCHAR(100) NOT NULL,
   `script` MEDIUMTEXT NOT NULL,
+  `javadoc` MEDIUMTEXT DEFAULT NULL,
   PRIMARY KEY (`Id`)
 )
 ENGINE = InnoDB;
