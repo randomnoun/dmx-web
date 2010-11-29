@@ -1,12 +1,10 @@
 package com.randomnoun.dmx.channel.rotation;
 
+import com.randomnoun.dmx.channel.BitResolution;
 import com.randomnoun.dmx.channel.ChannelDef;
 
 public abstract class AngularPositionChannelDef extends ChannelDef {
 
-	public enum AngularPositionType { PAN, TILT }
-	public enum BitResolution { BYTE, WORDHIGH, WORDLOW }
-	
 	private AngularPositionType angularPositionType;
 	private BitResolution bitResolution;
 	

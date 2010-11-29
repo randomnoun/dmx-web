@@ -1,5 +1,7 @@
 package com.randomnoun.dmx.channel.rotation;
 
+import com.randomnoun.dmx.channel.BitResolution;
+
 public class TiltPositionChannelDef extends AngularPositionChannelDef {
 	
 	public TiltPositionChannelDef(int offset, 
@@ -8,7 +10,7 @@ public class TiltPositionChannelDef extends AngularPositionChannelDef {
 	}
 
 	
-	public TiltPositionChannelDef(int offset, AngularPositionChannelDef.BitResolution bitResolution,
+	public TiltPositionChannelDef(int offset, BitResolution bitResolution,
 			double minAngle, double maxAngle) {
 		super(offset, bitResolution, AngularPositionType.TILT, minAngle, maxAngle);
 	}

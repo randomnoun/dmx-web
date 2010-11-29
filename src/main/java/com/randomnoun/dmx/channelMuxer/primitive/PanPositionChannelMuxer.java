@@ -4,9 +4,9 @@ import java.awt.Color;
 
 import org.apache.log4j.Logger;
 
+import com.randomnoun.dmx.channel.BitResolution;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
-import com.randomnoun.dmx.channel.rotation.AngularPositionChannelDef.BitResolution;
 import com.randomnoun.dmx.channel.rotation.PanPositionChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.fixture.Fixture;
