@@ -7,7 +7,7 @@ public class ShowTO {
     private String name;
     private Long onCancelShowId;
     private Long onCompleteShowId;
-    private Long showGroup;
+    private Long showGroupId;
 
     /** Returns the id
      * @return the id
@@ -79,18 +79,18 @@ public class ShowTO {
         this.onCompleteShowId = onCompleteShowId;
     }
 
-    /** Returns the showGroup
-     * @return the showGroup
+    /** Returns the showGroupId
+     * @return the showGroupId
      */
-    public Long getShowGroup() {
-        return showGroup;
+    public Long getShowGroupId() {
+        return showGroupId;
     }
 
     /** Set the showGroup
      * @param showGroup
      */
-    public void setShowGroup(Long showGroup) {
-        this.showGroup = showGroup;
+    public void setShowGroupId(Long showGroupId) {
+        this.showGroupId = showGroupId;
     }
     
     

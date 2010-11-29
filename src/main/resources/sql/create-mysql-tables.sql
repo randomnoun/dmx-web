@@ -34,9 +34,11 @@ CREATE TABLE `show` (
   `name` VARCHAR(100) NOT NULL,
   `onCancelShowId` INTEGER UNSIGNED,
   `onCompleteShowId` INTEGER UNSIGNED,
+  `showGroupId` INTEGER UNSIGNED DEFAULT NULL, 
   PRIMARY KEY (`Id`)
 )
 ENGINE = InnoDB;
+
 
 CREATE TABLE `showProperty` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -44,6 +46,14 @@ CREATE TABLE `showProperty` (
   `key` VARCHAR(100) NOT NULL,
   `value` VARCHAR(255),
   PRIMARY KEY (`Id`)
+)
+ENGINE = InnoDB;
+
+CREATE TABLE `fixtureDefImage` (
+  `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+  `fixtureDefId` INTEGER UNSIGNED NOT NULL,
+  `image` BLOB NOT NULL,
+  PRIMARY KEY (`id`)
 )
 ENGINE = InnoDB;
 
