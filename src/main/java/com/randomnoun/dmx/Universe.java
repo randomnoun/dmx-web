@@ -13,6 +13,9 @@ import com.randomnoun.dmx.timeSource.TimeSource;
  */
 public class Universe {
 
+	/** The maximum number of channels. Although woe betide you
+	 * if you go over 255.
+	 */
 	public static int MAX_CHANNELS=512;
 	
 	// the 0th element of this array is DMX channel one.
@@ -20,11 +23,11 @@ public class Universe {
 	private List<UniverseUpdateListener> listeners = new ArrayList<UniverseUpdateListener>();
 	private TimeSource timeSource;
 	
-	/** Returns the DMX value of one channel in this universe
+	/** Returns the DMX value of one channel in this universe.
 	 *  
-	 * @param offset
+	 * @param offset DMX channel number (1-based)
 	 * 
-	 * @return
+	 * @return DMX value
 	 */
 	public int getDmxChannelValue(int dmxChannelNumber) {
 		if (dmxChannelNumber < 1 || dmxChannelNumber > 512) {
@@ -33,12 +36,11 @@ public class Universe {
 		return dmxValues[dmxChannelNumber-1];
 	}
 	
-	/** Sets the DMX value of a channel in this universe
+	/** Sets the DMX value of a channel in this universe.
 	 * 
-	 * @param dmxChannelNumber
-	 * @param value
+	 * @param dmxChannelNumber DMX channel number (1-based)
+	 * @param value The new DMX value
 	 * 
-	 * @return
 	 */
 	public void setDmxChannelValue(int dmxChannelNumber, int value) {
 		if (dmxChannelNumber < 1 || dmxChannelNumber > 512) {
@@ -56,36 +58,69 @@ public class Universe {
 	//	return dmxValues; // @TODO clone this
 	//}
 	
+	/** Sets the timeSource used in this Universe (timed effects
+	 * and macros of Fixtures in this Universe 
+	 * should reference this timeSource).
+	 * 
+	 * @param timeSource the new timeSource
+	 */
 	public void setTimeSource(TimeSource timeSource) {
 		this.timeSource = timeSource;
 	}
-	
+
+	/** Returns the timeSource used in this Universe.
+	 * 
+	 * @return The current timeSource.
+	 */
 	public TimeSource getTimeSource() { 
 		return timeSource; 
 	}
-	
+
+	/** Returns the time in this timeSource. Equivalent to
+	 * calling <code>getTimeSource().getTime()</code>
+	 * 
+	 * @return the current time, in msec.
+	 */
 	public long getTime() {
 		return timeSource.getTime();
 	}
 	
-	
+
+	/** Adds an event listener to this Universe. Any updates
+	 * to DMX values in this Universe will be sent to the
+	 * supplied listener.
+	 * 
+	 * @param listener An object interested in receiving 
+	 *   DmxUpdateEvents.
+	 *   
+	 * @see #stopListeners()  
+	 * @see #removeListener(UniverseUpdateListener)
+	 * @see #removeListeners()
+	 */
 	public void addListener(UniverseUpdateListener listener) {
 		listeners.add(listener);
 	}
 	
+	/** Removes an event listener from this Universe. 
+	 * 
+	 * @param listener Listener to remove
+	 * 
+	 * @see #stopListeners()
+	 */
 	public void removeListener(UniverseUpdateListener listener) {
 		listeners.remove(listener);
 	}
 	
+	/** Stops all listener threads */
 	public void stopListeners() {
 		for (UniverseUpdateListener listener : listeners) {
 			listener.stopThread();
 		}
 	}
 	
+	/** Removes all listeners from this Universe. */
 	public void removeListeners() {
 		listeners.clear();
 	}
-	// @TODO remove and stop all listeners method
 	
 }
