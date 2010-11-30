@@ -150,7 +150,11 @@ function lgoInitPanel() {
       "<ul>\n" +
       "<li><a href=\"javadoc/dmx/index.html\" target=\"_new\">Java API documentation</a>\n" +
       "</li>\n" +
-      "</ul>");
+      "</ul>" +
+      "<br/><br/>" +
+      "Browser: " + BrowserDetect.browser + " " + BrowserDetect.version + " on " + BrowserDetect.OS + "<br/><br/>" +
+      (BrowserDetect.browser=="Chrome" ? "" : "You'd be astonished how much more responsive this user interface appears if you try using <a href=\"www.google.com/chrome\">Chrome</a>")
+    );
 }
 
 
@@ -624,6 +628,15 @@ function dmxValueClick(event) {
 	el2.addClassName("dmxSelectedValue");
 	// capture keystrokes from here on
 	Event.observe(document, 'keypress', dmxKeypress);
+	if (BrowserDetect.browser=="Chrome") { 
+		Event.observe(document, 'keydown', dmxKeydown); 
+	}
+}
+
+// only required for chrome, which doesn't pass backspaces through to dmxKeypress
+function dmxKeydown(event) {
+	if (event.keyCode==8) { dmxKeypress(event); event.stop(); }
+	if (event.keyCode==27) { dmxKeypress(event); event.stop(); }
 }
 
 var dmxTest=0;
@@ -632,8 +645,13 @@ function dmxKeypress(event) {
 	//alert(event.keyCode);
 	//window.status="keystroke received " + dmxTest;
 	var v = dmxSelectedValue.innerHTML;
-	
 	switch (event.charCode) {
+	case 8:
+		event.keyCode = Event.KEY_BACKSPACE;
+		break;
+	case 27:
+		event.keyCode = Event.KEY_ESC;
+		break;
     case 48:
     case 49:
     case 50:
@@ -662,6 +680,7 @@ function dmxKeypress(event) {
     	dmxValues[dmxSelectedChannel]=v;
         dmxSelectedValue.removeClassName("dmxSelectedValue");
         Event.stopObserving(document, 'keypress', dmxKeypress);
+        Event.stopObserving(document, 'keydown', dmxKeydown);
         event.stop();
     	break;
     case Event.KEY_RETURN:
@@ -670,6 +689,7 @@ function dmxKeypress(event) {
     		sendRequest("fancyController.html?action=setDmxValue&channel=" + dmxSelectedChannel + "&value=" + v);
     	}
     	Event.stopObserving(document, 'keypress', dmxKeypress);
+    	Event.stopObserving(document, 'keydown', dmxKeydown);
     	break;
     	
     case Event.KEY_LEFT:
