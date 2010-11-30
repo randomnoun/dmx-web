@@ -59,7 +59,7 @@ public class MasterDimmerChannelMuxer extends ChannelMuxer {
 		if (dmxLowValue<dmxHighValue) {
 			dimValue = masterValue < dmxLowValue ? 0 : 
 				((masterValue > dmxHighValue) ? 1 :
-				 (masterValue-dmxLowValue)/(dmxHighValue-dmxLowValue));	
+				 (masterValue-dmxLowValue)/(double) (dmxHighValue-dmxLowValue));	
 		} else {
 			dimValue = masterValue > dmxLowValue ? 1 : 
 				((masterValue < dmxHighValue) ? 0 :
@@ -80,6 +80,7 @@ public class MasterDimmerChannelMuxer extends ChannelMuxer {
 			public Double getPan() { return input.getPan(); }
 			public Double getTilt() { return input.getTilt(); }
 			public Double getDim() { return dimValue; }
+			public Double getStrobe() { return input.getStrobe(); }
 		};
 	}
 }

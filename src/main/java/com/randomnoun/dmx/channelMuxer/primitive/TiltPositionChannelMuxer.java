@@ -89,6 +89,7 @@ public class TiltPositionChannelMuxer extends ChannelMuxer {
 			}
 			public Double getPan() { return null; }
 			public Double getDim() { return null; }
+			public Double getStrobe() { return null; }
 		};
 	}
 }

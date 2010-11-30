@@ -14,6 +14,9 @@ import com.randomnoun.dmx.timeSource.TimeSource;
 /** A muxer which takes a single strobe channel and applies it to another
  * muxer's output
  * 
+ * @TODO this impl assumes all strobes are structured with the slowest setting
+ *   having the lowest DMX value
+ * 
  * @author knoxg
  */
 public class StrobeChannelMuxer extends CyclingTimeBasedChannelMuxer {
@@ -43,40 +46,48 @@ public class StrobeChannelMuxer extends CyclingTimeBasedChannelMuxer {
 			return 0;
 		}
 		int dmxValueRange = (channelDef.getMaximumStrobeValue()-channelDef.getMinimumStrobeValue());
-		int hertz = channelDef.getMinimumStrobeHertz() +
+		double hertz = channelDef.getMinimumStrobeHertz() +
 		    (channelDef.getMaximumStrobeHertz() - channelDef.getMinimumStrobeHertz()) *
-		    (strobeValue - channelDef.getMinimumStrobeValue()) / dmxValueRange; 
-		return 1000/hertz;
+		    (strobeValue - channelDef.getMinimumStrobeValue()) / (double) dmxValueRange; 
+		return (long) (1000/hertz);
 	}
 	
 	@Override
 	public FixtureOutput getOutput() {
 		final FixtureOutput input = inputMuxer.getOutput();
 		final int strobeValue = fixture.getDmxChannelValue(channelDef.getOffset());
-		logger.debug("fixture=" + fixture.getName() + ", mux input " + input + ", strobeValue=" + strobeValue);
+		final double hertz;
+		final boolean strobeEnabled = 
+			(strobeValue >= channelDef.getMinimumStrobeValue() &&
+			 strobeValue <= channelDef.getMaximumStrobeValue());
+		if (strobeEnabled) {
+			int dmxValueRange = (channelDef.getMaximumStrobeValue()-channelDef.getMinimumStrobeValue());
+			hertz = channelDef.getMinimumStrobeHertz() +
+			    (channelDef.getMaximumStrobeHertz() - channelDef.getMinimumStrobeHertz()) *
+			    (strobeValue - channelDef.getMinimumStrobeValue()) / dmxValueRange; 
+		} else {
+			hertz = -1;
+		}
+		logger.debug("fixture=" + fixture.getName() + ", mux input " + input + ", strobeValue=" + strobeValue + ", strobeEnabled=" + strobeEnabled);
 		return new FixtureOutput() {
 			public Color getColor() {
 				Color inputColor = input.getColor();
-				int strobeValue = fixture.getDmxChannelValue(channelDef.getOffset());
-				if (strobeValue < channelDef.getMinimumStrobeValue() ||
-					strobeValue > channelDef.getMaximumStrobeValue()) {
-					return inputColor;
-				}
-				int dmxValueRange = (channelDef.getMaximumStrobeValue()-channelDef.getMinimumStrobeValue());
-				int hertz = channelDef.getMinimumStrobeHertz() +
-				    (channelDef.getMaximumStrobeHertz() - channelDef.getMinimumStrobeHertz()) *
-				    (strobeValue - channelDef.getMinimumStrobeValue()) / dmxValueRange; 
-				
-				if (getCycleOffset() > hertz/2) {
-					return inputColor;
+				if (strobeEnabled) { 
+					if (getCycleOffset() > hertz/2) {
+						return inputColor;
+					} else {
+						return Color.BLACK;
+					}
 				} else {
-					return Color.BLACK;
+					return inputColor;
 				}
 			}
 			public long getTime() { return input.getTime(); }
 			public Double getPan() { return input.getPan(); }
 			public Double getTilt() { return input.getTilt(); }
-			public Double getDim() { return null; }
+			public Double getDim() { return input.getDim(); }
+			public Double getStrobe() { return strobeEnabled ? hertz : null; } 
+				
 		};
 	}
 }

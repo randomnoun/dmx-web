@@ -100,6 +100,7 @@ public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer
 				public Double getPan() { return null; }
 				public Double getTilt() { return null; }
 				public Double getDim() { return (double) 1; }
+				public Double getStrobe() { return null; }
 			};
 		}
 		
@@ -120,6 +121,7 @@ public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer
 			public Double getPan() { return null; }
 			public Double getTilt() { return null; }
 			public Double getDim() { return (double) 1; }
+			public Double getStrobe() { return null; }
 		};
 	}
 

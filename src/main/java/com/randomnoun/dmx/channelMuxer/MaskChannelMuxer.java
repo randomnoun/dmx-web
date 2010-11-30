@@ -61,12 +61,14 @@ public class MaskChannelMuxer extends ChannelMuxer {
 		private Double pan;
 		private Double tilt;
 		private Double dim;
+		private Double strobe;
 		private long time;
 		
 		public void addFixtureOutput(int mask, ChannelMuxer muxer) {
 			FixtureOutput f = muxer.getOutput();
 			if ((mask & FixtureOutput.MASK_COLOR) > 0) { color = f.getColor(); }
 			if ((mask & FixtureOutput.MASK_COLOR) > 0) { dim = f.getDim(); }
+			if ((mask & FixtureOutput.MASK_COLOR) > 0) { strobe = f.getStrobe(); }
 			if ((mask & FixtureOutput.MASK_PAN) > 0) { pan = f.getPan(); }
 			if ((mask & FixtureOutput.MASK_TILT) > 0) { tilt = f.getTilt(); }
 			if ((mask & FixtureOutput.MASK_TIME) > 0) { time = f.getTime(); }
@@ -86,6 +88,9 @@ public class MaskChannelMuxer extends ChannelMuxer {
 		
 		@Override
 		public Double getDim() { return dim; }
+		
+		@Override
+		public Double getStrobe() { return strobe; }
 		
 	}
 	

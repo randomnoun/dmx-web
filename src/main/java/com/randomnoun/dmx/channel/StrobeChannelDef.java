@@ -16,19 +16,19 @@ public class StrobeChannelDef extends ChannelDef {
 	int disableStrobeValue;
 	
 	/** The slowest strobe speed in hertz (cycles per second) */
-	int minimumStrobeHertz;
+	double minimumStrobeHertz;
 	
 	/** The DMX value which will give the slowest strobe speed */
 	int minimumStrobeValue;
 
 	/** The fastest strobe speed in hertz (cycles per second) */
-	int maximumStrobeHertz;
+	double maximumStrobeHertz;
 	
 	/** The DMX value which will give the fastest strobe speed */
 	int maximumStrobeValue;
 
-	public StrobeChannelDef(int offset, int disableStrobeValue, int minimumStrobeHertz,
-		int minimumStrobeValue, int maximumStrobeHertz, int maximumStrobeValue) 
+	public StrobeChannelDef(int offset, int disableStrobeValue, double minimumStrobeHertz,
+		int minimumStrobeValue, double maximumStrobeHertz, int maximumStrobeValue) 
 	{
 		super(offset, minimumStrobeValue, maximumStrobeValue);
 		this.disableStrobeValue = disableStrobeValue;
@@ -39,9 +39,9 @@ public class StrobeChannelDef extends ChannelDef {
 	}
 	
 	public int getDisableStrobeValue() { return disableStrobeValue; }
-	public int getMinimumStrobeHertz() { return minimumStrobeHertz; }
+	public double getMinimumStrobeHertz() { return minimumStrobeHertz; }
 	public int getMinimumStrobeValue() { return minimumStrobeValue; }
-	public int getMaximumStrobeHertz() { return maximumStrobeHertz; }
+	public double getMaximumStrobeHertz() { return maximumStrobeHertz; }
 	public int getMaximumStrobeValue() { return maximumStrobeValue; }
 	
 	public String getHtmlImg() { 

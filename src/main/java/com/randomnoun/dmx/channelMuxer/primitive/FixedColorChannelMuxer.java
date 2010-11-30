@@ -31,6 +31,7 @@ public class FixedColorChannelMuxer extends ChannelMuxer {
 			public Double getPan() { return null; }
 			public Double getTilt() { return null; }
 			public Double getDim() { return (double) 1; }
+			public Double getStrobe() { return null; }
 		};
 	}
 }
