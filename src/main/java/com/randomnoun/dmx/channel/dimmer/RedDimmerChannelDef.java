@@ -5,4 +5,11 @@ public class RedDimmerChannelDef extends DimmerChannelDef {
 		super(offset, DimmerType.RED);
 	}
 	
+	public String getHtmlImg() { 
+		return "image/channel/placeholder.gif";
+		
+	}
+	public String getHtmlText() {
+		return "Red dimmer";
+	}
 }

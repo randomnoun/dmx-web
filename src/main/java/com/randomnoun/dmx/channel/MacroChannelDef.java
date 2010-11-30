@@ -54,4 +54,13 @@ public class MacroChannelDef extends ChannelDef {
 		super(offset, 0, 255);
 	}
 	
+	public String getHtmlImg() { 
+		return "image/channel/placeholder.gif";
+		
+	}
+	public String getHtmlText() {
+		return "Macro channel";
+	}
+
+	
 }

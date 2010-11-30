@@ -29,4 +29,13 @@ public class SpeedChannelDef extends ChannelDef {
 	public double getSpeedUpFactorWhenSlow() { return speedUpFactorWhenSlow; }
 	public double getSpeedUpFactorWhenFast() { return speedUpFactorWhenFast; }
 	
+	public String getHtmlImg() { 
+		return "image/channel/placeholder.gif";
+		
+	}
+	public String getHtmlText() {
+		return "Speed channel";
+	}
+
+	
 }

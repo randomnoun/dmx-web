@@ -5,4 +5,11 @@ public class MasterDimmerChannelDef extends DimmerChannelDef {
 		super(offset, DimmerType.MASTER);
 	}
 	
+	public String getHtmlImg() { 
+		return "image/channel/placeholder.gif";
+		
+	}
+	public String getHtmlText() {
+		return "Master dimmer";
+	}
 }

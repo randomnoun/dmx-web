@@ -14,5 +14,13 @@ public class TiltPositionChannelDef extends AngularPositionChannelDef {
 			double minAngle, double maxAngle) {
 		super(offset, bitResolution, AngularPositionType.TILT, minAngle, maxAngle);
 	}
+	
+	public String getHtmlImg() { 
+		return "image/channel/placeholder.gif";
+		
+	}
+	public String getHtmlText() {
+		return "Tilt position" + (getBitResolution()==BitResolution.BYTE ? "" : " " + getBitResolution());
+	}
 
 }

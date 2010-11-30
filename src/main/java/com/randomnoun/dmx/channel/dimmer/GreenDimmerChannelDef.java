@@ -4,5 +4,13 @@ public class GreenDimmerChannelDef extends DimmerChannelDef {
 	public GreenDimmerChannelDef(int offset) {
 		super(offset, DimmerType.GREEN);
 	}
+
+	public String getHtmlImg() { 
+		return "image/channel/placeholder.gif";
+		
+	}
+	public String getHtmlText() {
+		return "Green dimmer";
+	}
 	
 }

@@ -31,4 +31,12 @@ public abstract class ChannelDef {
 		this.highDmxValue = highDmxValue;
 	}
 	
+	public String getHtmlImg() { 
+		return "image/channel/placeholder.gif";
+		
+	}
+	public String getHtmlText() {
+		return this.getClass().getName();
+	}
+	
 }
