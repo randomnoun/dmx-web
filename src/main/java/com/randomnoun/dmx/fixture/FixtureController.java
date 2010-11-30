@@ -186,17 +186,31 @@ public abstract class FixtureController {
 	}
 	
 	/** Enables this fixture's strobe setting, where value is normalised from
-	 * 0 (slowest strobe setting) to 255 (highest strobe setting)
+	 * 0 (slowest strobe setting) to 255 (highest strobe setting).
+	 * 
+	 * <p>Use unsetStrobe() to disable strobe.
 	 * 
 	 * @param value
 	 */
 	public void setStrobe(int value) {
-		
+		FixtureDef fixtureDef = fixture.getFixtureDef();
+		StrobeChannelDef strobeChannelDef = (StrobeChannelDef) fixtureDef.getChannelDefByClass(StrobeChannelDef.class);
+		if (strobeChannelDef==null) {
+			throw new UnsupportedOperationException("Default setStrobe implementation requires a strobe channel for this fixture");
+		}
+		fixture.setDmxChannelValue(strobeChannelDef.getOffset(),
+			strobeChannelDef.getLowDmxValue() + 
+			(strobeChannelDef.getHighDmxValue()-strobeChannelDef.getLowDmxValue()) * value / 255); 	
 	}
 	
 	/** Disable's this fixture's strobe setting */
 	public void unsetStrobe() {
-		
+		FixtureDef fixtureDef = fixture.getFixtureDef();
+		StrobeChannelDef strobeChannelDef = (StrobeChannelDef) fixtureDef.getChannelDefByClass(StrobeChannelDef.class);
+		if (strobeChannelDef==null) {
+			throw new UnsupportedOperationException("Default setStrobe implementation requires a strobe channel for this fixture");
+		}
+		fixture.setDmxChannelValue(strobeChannelDef.getOffset(), strobeChannelDef.getDisableStrobeValue());
 	}
 	
 	
