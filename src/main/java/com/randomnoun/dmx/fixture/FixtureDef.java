@@ -105,7 +105,7 @@ public abstract class FixtureDef {
 	
 
 	public String getHtmlImg() {
-		return "image/fixture/placeholder.gif";
+		return "image/fixture/placeholder.png";
 	}
 
 	public String getHtmlLabel() {

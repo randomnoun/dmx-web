@@ -13,7 +13,7 @@ public class LabelChannelDef extends ChannelDef {
 	public LabelChannelDef(int offset, String htmlImg, String htmlText) 
 	{
 		super(offset, 0, 255);
-		htmlImg = "image/channel/placeholder.gif";
+		htmlImg = "image/channel/placeholder.png";
 		htmlText = "Unknown channel";
 		if (htmlImg!=null) { this.htmlImg = htmlImg; }
 		if (htmlText!=null) { this.htmlText = htmlText; }

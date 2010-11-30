@@ -45,7 +45,7 @@ public class StrobeChannelDef extends ChannelDef {
 	public int getMaximumStrobeValue() { return maximumStrobeValue; }
 	
 	public String getHtmlImg() { 
-		return "image/channel/placeholder.gif";
+		return "image/channel/placeholder.png";
 		
 	}
 	public String getHtmlLabel() {
