@@ -118,13 +118,17 @@ public class FancyControllerAction
     			if (!fixtureDefs.containsKey(fdName)) {
     				Map m2 = new HashMap();
     				m2.put("dmxChannels", fd.getNumDmxChannels());
+        			m2.put("img", fd.getHtmlImg());
+        			m2.put("label", fd.getHtmlLabel());
     				m2.put("panRange", fd.getPanRange());
     				m2.put("tiltRange", fd.getTiltRange());
     				List cds = new ArrayList();
     				for (int i=0; i<fd.getChannelDefs().size(); i++) {
     					ChannelDef cd = fd.getChannelDefs().get(i);
     					Map m3 = new HashMap();
-    					m3.put("type", cd.getClass().getName());
+    					//m3.put("type", cd.getClass().getName());
+    					m3.put("img", cd.getHtmlImg());
+    					m3.put("label", cd.getHtmlLabel());
     					m3.put("dmxOffset", cd.getOffset());
     					cds.add(m3);
     				}

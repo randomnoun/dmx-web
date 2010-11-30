@@ -687,9 +687,9 @@ function dmxValueOnMouseOver(event) {
     }
     //if (dmxSelectedFixture!=f) {
     el.update("Name: <b>" + f["name"] + "</b><br/>" +
-    	"Type:" + f["type"] + "<br/>" + 
+    	"Type: <img src=\"" + fd["img"] + "\">" + fd["label"] + "<br/>" + 
     	"Offset: " + f["dmxOffset"] + "<br/>" +
-    	"Channel: " + (ch-off) + (cd==null?"" : " (" + cd["type"] + ")"));
+    	"Channel: " + (ch-off) + (cd==null ? "" : " (<img src=\"" + cd["img"] + "\">" + cd["label"] + ")"));
     //}
     for (j=off; j<off+dc; j++) {
     	el = $("dmxBox[" + j + "]");
