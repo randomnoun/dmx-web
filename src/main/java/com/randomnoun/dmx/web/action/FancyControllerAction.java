@@ -157,9 +157,10 @@ public class FancyControllerAction
 		    	HashMap m = new HashMap();
 		    	Color c = fo.getColor();
 		    	m.put("c", getColorHexString(c));
-		    	m.put("p", fo.getPan());
-		    	m.put("t", fo.getTilt());
 		    	m.put("d", fo.getDim());
+		    	Double pan = fo.getPan(); if (pan!=null) { m.put("p", twoDigits(fo.getPan())); }
+		    	Double tilt = fo.getTilt(); if (tilt!=null) { m.put("t", twoDigits(fo.getTilt())); }
+		    	Double strobe = fo.getStrobe(); if (strobe!=null) { m.put("s", twoDigits(strobe)); }
 		    	fixValues.add(m);
 		    }
 
@@ -228,9 +229,10 @@ public class FancyControllerAction
     		    	HashMap m = new HashMap();
     		    	Color c = fo.getColor();
     		    	m.put("c", getColorHexString(c));
-    		    	m.put("p", fo.getPan());
-    		    	m.put("t", fo.getTilt());
     		    	m.put("d", fo.getDim());
+    		    	Double pan = fo.getPan(); if (pan!=null) { m.put("p", twoDigits(fo.getPan())); }
+    		    	Double tilt = fo.getTilt(); if (tilt!=null) { m.put("t", twoDigits(fo.getTilt())); }
+    		    	Double strobe = fo.getStrobe(); if (strobe!=null) { m.put("s", twoDigits(strobe)); }
     		    	fixValues.add(m);
     		    }
     		    result.put("fixValues", fixValues);
@@ -439,23 +441,27 @@ public class FancyControllerAction
     		result.put("message", c + " fixture(s) set to " + (100*v/255) + "%");
 
     	} else if (action.equals("fixtureStrobe")) {
-    		int c=0;
+    		int c=0, failed=0;
     		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
     		int v = Integer.parseInt(request.getParameter("v"));
     		if (v==0) {
         		for (String iterationId : fixtureIdStrings) {
         			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
-        			f.getFixtureController().unsetStrobe();
-        			c++;
+        			try {
+        				f.getFixtureController().unsetStrobe();
+        				c++;
+        			} catch (Exception e) { failed++; }
         		}
-        		result.put("message", c + " fixture(s) strobe disabled");
+        		result.put("message", c + " fixture(s) strobe disabled" + (failed==0 ? "" : " (" + failed + " unsupported)"));
     		} else {
         		for (String iterationId : fixtureIdStrings) {
         			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
-        			f.getFixtureController().setStrobe(v);
-        			c++;
+        			try {
+        				f.getFixtureController().setStrobe(v);
+        				c++;
+        			} catch (Exception e) { failed++; }
         		}
-        		result.put("message", c + " fixture(s) strobe set to " + (100*v/255) + "%");
+        		result.put("message", c + " fixture(s) strobe set to " + (100*v/255) + "%" + (failed==0 ? "" : " (" + failed + " unsupported)"));
     		}
     		
     	} else if (action.equals("fixtureColor")) {
@@ -561,6 +567,10 @@ public class FancyControllerAction
     	version.put("rxtxJarVersion", jarVersion);
     	version.put("rxtxDllVersion", dllVersion);
     	return version;
+    }
+    
+    Double twoDigits(Double input) {
+    	return new Double(Math.floor(input.doubleValue()*100)/100);
     }
     
     
