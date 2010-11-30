@@ -9,7 +9,7 @@ public class RedDimmerChannelDef extends DimmerChannelDef {
 		return "image/channel/placeholder.gif";
 		
 	}
-	public String getHtmlText() {
+	public String getHtmlLabel() {
 		return "Red dimmer";
 	}
 }

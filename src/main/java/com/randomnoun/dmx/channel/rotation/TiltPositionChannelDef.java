@@ -19,7 +19,7 @@ public class TiltPositionChannelDef extends AngularPositionChannelDef {
 		return "image/channel/placeholder.gif";
 		
 	}
-	public String getHtmlText() {
+	public String getHtmlLabel() {
 		return "Tilt position" + (getBitResolution()==BitResolution.BYTE ? "" : " " + getBitResolution());
 	}
 

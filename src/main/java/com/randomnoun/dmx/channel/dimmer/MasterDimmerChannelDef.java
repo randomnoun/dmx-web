@@ -9,7 +9,7 @@ public class MasterDimmerChannelDef extends DimmerChannelDef {
 		return "image/channel/placeholder.gif";
 		
 	}
-	public String getHtmlText() {
+	public String getHtmlLabel() {
 		return "Master dimmer";
 	}
 }

@@ -23,7 +23,7 @@ public class LabelChannelDef extends ChannelDef {
 		return htmlImg;
 		
 	}
-	public String getHtmlText() {
+	public String getHtmlLabel() {
 		return htmlText;
 	}
 

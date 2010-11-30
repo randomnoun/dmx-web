@@ -48,7 +48,7 @@ public class StrobeChannelDef extends ChannelDef {
 		return "image/channel/placeholder.gif";
 		
 	}
-	public String getHtmlText() {
+	public String getHtmlLabel() {
 		return "Strobe";
 	}
 

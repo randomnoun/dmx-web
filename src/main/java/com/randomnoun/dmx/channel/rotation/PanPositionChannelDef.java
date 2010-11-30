@@ -16,7 +16,7 @@ public class PanPositionChannelDef extends AngularPositionChannelDef {
 		return "image/channel/placeholder.gif";
 		
 	}
-	public String getHtmlText() {
+	public String getHtmlLabel() {
 		return "Pan position" + (getBitResolution()==BitResolution.BYTE ? "" : " " + getBitResolution());
 	}
 

@@ -35,7 +35,7 @@ public abstract class ChannelDef {
 		return "image/channel/placeholder.gif";
 		
 	}
-	public String getHtmlText() {
+	public String getHtmlLabel() {
 		return this.getClass().getName();
 	}
 	
