@@ -281,6 +281,7 @@ function fixInitPanel() {
             f.name + "<div class=\"fixOutput\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
             (fd.panRange==0 ? "" : "&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>") +
             (fd.tiltRange==0 ? "" : "&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div>") +
+            "&nbsp;<div class=\"fixOutputStrobe\"></div>" + 
             "</div>" 
             );
         fixEl.style.left=x+"px"; fixEl.style.top=y+"px";
@@ -508,14 +509,18 @@ function fixUpdatePanel(json) {
     fixValues = json.fixValues;
     for (var i=0; i<fixValues.length; i++) {
         var fixValue = fixValues[i];
+        var fd=fixtureDefs[fixtures[i].type];
         var el = $("fixItem[" + i + "]");
         var divEls = el.getElementsByTagName("DIV");
-        divEls[2].style.height=(1-fixValue["d"])*15 + "px";
-        divEls[3].style.backgroundColor=fixValue["c"];
-        // TODO: fixtures with only pan or tilt (but not both)
-        if (divEls.length > 4) {
-	        divEls[4].innerHTML=twoDigits(fixValue["p"]);
-	        divEls[5].innerHTML=twoDigits(fixValue["t"]);
+        var divElIdx = 2;
+        divEls[divElIdx++].style.height=(1-fixValue["d"])*15 + "px";
+        divEls[divElIdx++].style.backgroundColor=fixValue["c"];
+        if (fd.panRange!=0) { divEls[divElIdx++].innerHTML=twoDigits(fixValue["p"]); }
+        if (fd.tiltRange!=0) { divEls[divElIdx++].innerHTML=twoDigits(fixValue["t"]); }
+        if (fixValue["s"]) {
+        	divEls[divElIdx++].innerHTML=twoDigits(fixValue["s"]);
+        } else {
+        	divEls[divElIdx++].innerHTML="";
         }
     }
     var fixItems=new Array();

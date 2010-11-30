@@ -231,7 +231,7 @@ BODY { font-size: 8pt; font-family: Arial; }
   display: absolute; top:0px; left:0px;
   background-color: black; width: 15px; height: 15px;
 }
-.fixOutputPan, .fixOutputTilt {
+.fixOutputPan, .fixOutputTilt, .fixOutputStrobe {
   display: inline-block;
   color: #000044; font-family: Arial; font-size: 10pt; 
 }
