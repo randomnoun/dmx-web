@@ -188,11 +188,21 @@ function edtInitPanel() {
     
     Event.observe($("lhsCancel"), 'click', lhsCancelClick);
     Event.observe($("lhsOK"), 'click', lhsOKClick);
+    Event.observe($("addFile"), 'click', edtAddFile);
 }
 
-function edtSubmitClick() { document.forms[0].submit(); }
+function edtSubmitClick() { edtSubmit(); }
 function lhsCancelClick() { document.location = "index.html?panel=cnfPanel"; }
-function lhsOKClick() { document.forms[0].submit(); };
+function lhsOKClick() { edtSubmit(); };
+
+function edtSubmit() {
+	document.forms[1].elements["fixtureDef.name"].value=$("fixtureDef.name").value;
+	document.forms[1].submit();
+}
+
+function edtAddFile() {
+    alert("AJAX away");
+}
 
 function initWindow() {
     edtInitPanel();
@@ -218,11 +228,14 @@ function initWindow() {
 <div id="edtPanel" >
 <jsp:include page="misc/errorHeader.jsp" />
 
-<form action="maintainFixtureDef.html" method="post">
+
 <table class="fixtureDef" width="900px;">
 <col width="100px;"/>
 <col width="100px;"/>
 <col width="700px;"/>
+
+<c:if test="${fixtureDef==null}" >
+<form action="maintainFixtureDef.html" method="post">
 <tr><td>Select fixture definition:</td>
     <td><r:select name="fixtureDefId" value="${fixtureDefId}" data="${fixtureDefs}" 
   displayColumn="name" valueColumn="id"  /></td>
@@ -232,13 +245,30 @@ function initWindow() {
     <td></td>
     <td><input type="button" name="createFixtureDef" value="Create new fixture definition" onclick="edtNewFixtureDef()" /></td>
 </tr>
+</form>
+</c:if>
 
 <c:if test="${fixtureDef!=null}" >
-<input type="hidden" name="fixtureDef.id" value="${fixtureDef.id}" />
-<input type="hidden" name="updateFixtureDef" value="Y" />
 <tr><td>Name:</td>
     <td colspan="2"><r:input type="text" name="fixtureDef.name" value="${fixtureDef.name}"/></td></tr>
 
+<form action="maintainFixtureDef.html" method="post">
+<input type="hidden" name="updateFiles" value="Y" />
+<tr><td valign="top">Image attachments:</td>
+    <td><input type="file" name="image" />
+        <input id="addFile", type="button" name="addFile" value="Add" />
+    </td></tr>
+<tr><td valign="top"></td>
+    <td><input type="checkbox" name="image1" checked> image1 49K<br/>
+        <input type="checkbox" name="image2" checked> image2 100K<br/>
+    </td>    
+</tr>
+</form>
+
+<form action="maintainFixtureDef.html" method="post">
+<input type="hidden" name="fixtureDef.id" value="${fixtureDef.id}" />
+<input type="hidden" name="updateFixtureDef" value="Y" />
+<input type="hidden" name="fixtureDef.name" value="${fixtureDef.name}" />
 <c:if test="${fixtureDef.fixtureDefClassName != null}" >    
 <tr><td valign="top">Fixture class:</td>
     <td><c:out value="${fixtureDef.fixtureDefClassName}"/></td></tr>    

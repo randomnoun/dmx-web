@@ -152,21 +152,36 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 185px; left: 220px; width: 90px; height: 20px;
   text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
 }
+
+#fixStrobe {
+  position: absolute; top: 20px; left: 330px; width: 90px; height: 160px;
+  background-image: url("../image/strobeBack.png");
+}
+#fixStrobeHandle {
+  /*background-color: blue; */ width: 90px; height: 30px; cursor: move;
+  background-image: url("../image/dimHandleBlack.png");
+}
+#fixStrobeLabel {
+  position: absolute; top: 185px; left: 330px; width: 90px; height: 20px;
+  text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
+}
+
 #fixGroup {
   position: absolute; top: 110px; left: 20px; width: 180px; height: 70px;
 }
 .fixGroup {
   background-image: url("../image/button-blue.png");
 }
+
 #fixColorPicker {
   /* 195x195 pixels */
-  position: absolute; top: 0px; left: 330px; /*width: 160px; height: 160px;*/
+  position: absolute; top: 0px; left: 440px; /*width: 160px; height: 160px;*/
 }
 #fixColor {
   display: none;
 }
 #fixAim {
-  position: absolute; top: 20px; left: 550px; width: 160px; height: 160px; cursor: crosshair;
+  position: absolute; top: 20px; left: 660px; width: 160px; height: 160px; cursor: crosshair;
 }
 .fixAimVGrid1 { position: absolute; top: 0px; height:160px; width:0px; border-right: 1px dotted #7777FF; } 
 .fixAimVGrid2 { position: absolute; top: 0px; height:160px; width:0px; border-right: 1px solid #7777FF; }
@@ -179,16 +194,16 @@ BODY { font-size: 8pt; font-family: Arial; }
   z-index: 10;
 }
 #fixAimLabel {
-  position: absolute; top: 185px; left: 550px; width: 160px; height: 20px;
+  position: absolute; top: 185px; left: 660px; width: 160px; height: 20px;
   text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
 }
 #fixAimLeft, #fixAimRight, #fixAimTop, #fixAimBottom {
   position: absolute; font-family: Lucida Console; font-size: 8pt; color: black;
 }
-#fixAimLeft { top:5px; left:550px; height: 15px; width:60px; }
-#fixAimRight { top:5px; left:650px; height: 15px; width:60px; text-align: right; }
-#fixAimTop { top:20px; left:715px; height: 30px; width:20px; vertical-align: top; }
-#fixAimBottom { top:150px; left:715px; height: 30px; width:20px; vertical-align: bottom; }
+#fixAimLeft { top:5px; left:660px; height: 15px; width:60px; }
+#fixAimRight { top:5px; left:760px; height: 15px; width:60px; text-align: right; }
+#fixAimTop { top:20px; left:825px; height: 30px; width:20px; vertical-align: top; }
+#fixAimBottom { top:150px; left:825px; height: 30px; width:20px; vertical-align: bottom; }
 .fixControl {
   text-align: center; color: #000044; font-size: 18pt;
   background-color: #AAAAFF;

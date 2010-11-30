@@ -91,6 +91,10 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="fixDim"><div id="fixDimHandle"></div></div>
   </div>
   <div id="fixDimLabel">Dimmer</div>
+  <div id="fixStrobeScrollArea">
+  <div id="fixStrobe"><div id="fixStrobeHandle"></div></div>
+  </div>
+  <div id="fixStrobeLabel">Strobe</div>
   <!--  <div id="fixColor" class="fixControl">Colour</div> -->
   <input type="text" id="fixColor" name="fixColor" value="#123456" />
   <div id="fixColorPicker"></div>

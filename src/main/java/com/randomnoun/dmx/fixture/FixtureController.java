@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.randomnoun.dmx.channel.BitResolution;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
@@ -82,43 +83,79 @@ public abstract class FixtureController {
 	 */
 	public void panTo(double panPosition) {
 		FixtureDef fixtureDef = fixture.getFixtureDef();
-		PanPositionChannelDef ppcd = (PanPositionChannelDef) fixtureDef.getChannelDefByClass(PanPositionChannelDef.class);
-		
-		if (ppcd==null) {
+		PanPositionChannelDef pcdHigh=null, pcdLow=null;
+		for (ChannelDef cd : fixtureDef.getChannelDefs()) {
+			if (cd instanceof PanPositionChannelDef) {
+				BitResolution br = ((PanPositionChannelDef)cd).getBitResolution(); 
+				if (br==BitResolution.BYTE || br==BitResolution.WORDHIGH) {
+					pcdHigh = (PanPositionChannelDef)cd;
+				} else if (br==BitResolution.WORDLOW){
+					pcdLow = (PanPositionChannelDef)cd;
+				}
+				if (pcdHigh!=null && pcdLow!=null) { break; }
+			}
+		}
+		// @TODO sanity checks
+		if (pcdHigh==null) {
 			throw new UnsupportedOperationException("Default setPan implementation requires pan position channel definition for this fixture");
 		}
-		if (panPosition < ppcd.getMinAngle()) { throw new IllegalArgumentException("panPosition must be equal or greater than " + ppcd.getMinAngle()); }
-		if (panPosition > ppcd.getMaxAngle()) { throw new IllegalArgumentException("panPosition must be equal or less than " + ppcd.getMaxAngle()); }
-		fixture.setDmxChannelValue(ppcd.getOffset(),
-			ppcd.getLowDmxValue() + 
-			(int) ((panPosition - ppcd.getMinAngle()) *
-			(ppcd.getHighDmxValue() - ppcd.getLowDmxValue()) /
-			(ppcd.getMaxAngle() - ppcd.getMinAngle())));
+		if (panPosition < pcdHigh.getMinAngle()) { throw new IllegalArgumentException("panPosition must be equal or greater than " + pcdHigh.getMinAngle()); }
+		if (panPosition > pcdHigh.getMaxAngle()) { throw new IllegalArgumentException("panPosition must be equal or less than " + pcdHigh.getMaxAngle()); }
+		if (pcdLow!=null) {
+			int value = (int) ((panPosition - pcdHigh.getMinAngle()) *
+					(65535) / (pcdHigh.getMaxAngle() - pcdHigh.getMinAngle()));
+			fixture.setDmxChannelValue(pcdHigh.getOffset(), value >> 8);
+			fixture.setDmxChannelValue(pcdLow.getOffset(), value & 255);
+		} else {
+			fixture.setDmxChannelValue(pcdHigh.getOffset(),
+				pcdHigh.getLowDmxValue() + 
+				(int) ((panPosition - pcdHigh.getMinAngle()) *
+				(pcdHigh.getHighDmxValue() - pcdHigh.getLowDmxValue()) /
+				(pcdHigh.getMaxAngle() - pcdHigh.getMinAngle())));
+		}
 	}
 	
 
 	
-	/** Sets the pan position of this fixture.
+	/** Sets the tilt position of this fixture.
 	 * 
-	 * By default, this sets the major pan position to the 
+	 * By default, this sets the major tilt position to the 
 	 * closest setting to the desired angle. 
 	 * 
-	 * @param pan The pan position, in degrees.
+	 * @param tiltPosition The tilt position, in degrees.
 	 */
 	public void tiltTo(double tiltPosition) {
 		FixtureDef fixtureDef = fixture.getFixtureDef();
-		TiltPositionChannelDef tpcd = (TiltPositionChannelDef) fixtureDef.getChannelDefByClass(TiltPositionChannelDef.class);
-		
-		if (tpcd==null) {
-			throw new UnsupportedOperationException("Default setPan implementation requires pan position channel definition for this fixture");
+		TiltPositionChannelDef pcdHigh=null, pcdLow=null;
+		for (ChannelDef cd : fixtureDef.getChannelDefs()) {
+			if (cd instanceof TiltPositionChannelDef) {
+				BitResolution br = ((TiltPositionChannelDef)cd).getBitResolution(); 
+				if (br==BitResolution.BYTE || br==BitResolution.WORDHIGH) {
+					pcdHigh = (TiltPositionChannelDef)cd;
+				} else if (br==BitResolution.WORDLOW){
+					pcdLow = (TiltPositionChannelDef)cd;
+				}
+				if (pcdHigh!=null && pcdLow!=null) { break; }
+			}
 		}
-		if (tiltPosition < tpcd.getMinAngle()) { throw new IllegalArgumentException("tiltPosition must be equal or greater than " + tpcd.getMinAngle()); }
-		if (tiltPosition > tpcd.getMaxAngle()) { throw new IllegalArgumentException("tiltPosition must be equal or less than " + tpcd.getMaxAngle()); }
-		fixture.setDmxChannelValue(tpcd.getOffset(),
-			tpcd.getLowDmxValue() + 
-			(int) ((tiltPosition - tpcd.getMinAngle()) *
-			(tpcd.getHighDmxValue() - tpcd.getLowDmxValue()) /
-			(tpcd.getMaxAngle() - tpcd.getMinAngle()) ));
+		// @TODO sanity checks
+		if (pcdHigh==null) {
+			throw new UnsupportedOperationException("Default setTilt implementation requires tilt position channel definition for this fixture");
+		}
+		if (tiltPosition < pcdHigh.getMinAngle()) { throw new IllegalArgumentException("tiltPosition must be equal or greater than " + pcdHigh.getMinAngle()); }
+		if (tiltPosition > pcdHigh.getMaxAngle()) { throw new IllegalArgumentException("tiltPosition must be equal or less than " + pcdHigh.getMaxAngle()); }
+		if (pcdLow!=null) {
+			int value = (int) ((tiltPosition - pcdHigh.getMinAngle()) *
+					(65535) / (pcdHigh.getMaxAngle() - pcdHigh.getMinAngle()));
+			fixture.setDmxChannelValue(pcdHigh.getOffset(), value >> 8);
+			fixture.setDmxChannelValue(pcdLow.getOffset(), value & 255);
+		} else {
+			fixture.setDmxChannelValue(pcdHigh.getOffset(),
+				pcdHigh.getLowDmxValue() + 
+				(int) ((tiltPosition - pcdHigh.getMinAngle()) *
+				(pcdHigh.getHighDmxValue() - pcdHigh.getLowDmxValue()) /
+				(pcdHigh.getMaxAngle() - pcdHigh.getMinAngle())));
+		}
 	}
 
 	
@@ -146,6 +183,20 @@ public abstract class FixtureController {
 			throw new UnsupportedOperationException("Default setMasterDimmer implementation requires a master dimmer channel for this fixture");
 		}
 		fixture.setDmxChannelValue(masterDimmerChannelDef.getOffset(), value);
+	}
+	
+	/** Enables this fixture's strobe setting, where value is normalised from
+	 * 0 (slowest strobe setting) to 255 (highest strobe setting)
+	 * 
+	 * @param value
+	 */
+	public void setStrobe(int value) {
+		
+	}
+	
+	/** Disable's this fixture's strobe setting */
+	public void unsetStrobe() {
+		
 	}
 	
 	

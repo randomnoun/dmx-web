@@ -267,6 +267,7 @@ function shwUpdatePanel(json) {
 
 var fixColorPicker = null;
 var fixDimSlider = null;
+var fixStrobeSlider = null;
 var fixUIUpdateOnly = false; // if true, only update UI, don't send AJAX requests
 function fixInitPanel() {
     var x,y,fixEl;
@@ -294,6 +295,13 @@ function fixInitPanel() {
         onSlide: function(v) { fixDimChange(v); },
         onChange: function(v) { fixDimChange(v); }
     });
+    fixStrobeSlider = new Control.Slider("fixStrobeHandle", "fixStrobe", {
+        axis: "vertical",
+        onSlide: function(v) { fixStrobeChange(v); },
+        onChange: function(v) { fixStrobeChange(v); }
+    });
+    fixStrobeSlider.setValue(1);
+
     new Draggable("fixAimHandle", {
         // constain code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
         snap: function(x,y,draggable) {
@@ -318,6 +326,8 @@ function fixInitPanel() {
     });
     Event.observe('fixDimScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // mozilla
     Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
+    Event.observe('fixStrobeScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // mozilla
+    Event.observe('fixStrobeScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // IE/Opera
     //jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
     fixColorPicker=jQuery.farbtastic(jQuery('#fixColorPicker'), fixColorChange);
     fixUpdateControls(0);
@@ -460,6 +470,17 @@ function fixDimChange(v) {
     if (fixItemIds!="") {
         fixDimLimitter.sendRequest( 
            'fancyController.html?action=fixtureDim&v=' + v + '&fixtureIds=' + fixItemIds);
+    }
+}
+
+var fixStrobeLimitter = new AjaxLimitter(100, 200);
+function fixStrobeChange(v) {
+	if (fixUIUpdateOnly) { return; }
+    v=Math.floor(255*(1-v));
+    var fixItemIds=fixGetItemIds();
+    if (fixItemIds!="") {
+        fixDimLimitter.sendRequest( 
+           'fancyController.html?action=fixtureStrobe&v=' + v + '&fixtureIds=' + fixItemIds);
     }
 }
 

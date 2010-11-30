@@ -438,6 +438,26 @@ public class FancyControllerAction
     		}
     		result.put("message", c + " fixture(s) set to " + (100*v/255) + "%");
 
+    	} else if (action.equals("fixtureStrobe")) {
+    		int c=0;
+    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		int v = Integer.parseInt(request.getParameter("v"));
+    		if (v==0) {
+        		for (String iterationId : fixtureIdStrings) {
+        			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
+        			f.getFixtureController().unsetStrobe();
+        			c++;
+        		}
+        		result.put("message", c + " fixture(s) strobe disabled");
+    		} else {
+        		for (String iterationId : fixtureIdStrings) {
+        			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
+        			f.getFixtureController().setStrobe(v);
+        			c++;
+        		}
+        		result.put("message", c + " fixture(s) strobe set to " + (100*v/255) + "%");
+    		}
+    		
     	} else if (action.equals("fixtureColor")) {
     		int c=0;
     		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
