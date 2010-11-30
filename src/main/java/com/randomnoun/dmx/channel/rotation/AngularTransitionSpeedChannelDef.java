@@ -1,5 +1,6 @@
 package com.randomnoun.dmx.channel.rotation;
 
+import com.randomnoun.dmx.channel.BitResolution;
 import com.randomnoun.dmx.channel.ChannelDef;
 
 /** An angular speed channel, which controls how fast a rotating head
@@ -48,5 +49,13 @@ public class AngularTransitionSpeedChannelDef extends ChannelDef {
 	public double getTiltDegreesPerSecondWhenSlow() { return tiltDegreesPerSecondWhenSlow; }
 	public double getPanDegreesPerSecondWhenFast() { return panDegreesPerSecondWhenFast; }
 	public double getTiltDegreesPerSecondWhenFast() { return tiltDegreesPerSecondWhenFast; }
+
+	public String getHtmlImg() { 
+		return "image/channel/placeholder.png";
+		
+	}
+	public String getHtmlLabel() {
+		return "Angular speed";
+	}
 	
 }
