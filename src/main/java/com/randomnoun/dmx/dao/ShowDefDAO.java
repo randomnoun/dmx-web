@@ -93,7 +93,7 @@ public class ShowDefDAO {
         String sql =
             "INSERT INTO showDef " + 
             " (name, className, script, javadoc) " +
-            " VALUES (?, ?, ? )";
+            " VALUES (?, ?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] { 
                 showDef.getName(),
