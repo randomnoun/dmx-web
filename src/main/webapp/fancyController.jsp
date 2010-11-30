@@ -34,7 +34,7 @@
     <script src="mjs?js=prototype" type="text/javascript"></script>
     <script src="mjs?js=jquery-1.4.4.min,farbtastic"></script> 
     <script>jQuery.noConflict();</script> 
-    <script src="mjs?js=scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,johnford" type="text/javascript"></script> 
+    <script src="mjs?js=scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,johnford,browserDetect" type="text/javascript"></script> 
     
     <%-- <script src="mjs?js=prototype,slider" type="text/javascript"></script>  --%>
 <script>
