@@ -103,6 +103,18 @@ public abstract class FixtureDef {
 	public abstract ChannelMuxer getChannelMuxer(Fixture fixture);
 	public abstract FixtureController getFixtureController(Fixture fixture);
 	
+
+	public String getHtmlImg() {
+		return "image/fixture/placeholder.gif";
+	}
+
+	public String getHtmlLabel() {
+		return this.getClass().getName();
+	}
+	
+	
+	
+	
 	
 	
 }
