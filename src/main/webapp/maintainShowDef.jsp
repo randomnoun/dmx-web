@@ -156,6 +156,7 @@ function edtInitPanel() {
 	<c:if test="${showDef!=null}" >
     edtScriptEditor = CodeMirror.fromTextArea('showDef.script', {
         lineNumbers: true,
+        disableSpellcheck: true,
         height: "340px", width: "750px",
         parserfile: ["tokenizejava.js","parsejava.js"],
         stylesheet: "css/codemirror/javacolors.css",
