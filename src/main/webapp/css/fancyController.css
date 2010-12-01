@@ -193,6 +193,12 @@ BODY { font-size: 8pt; font-family: Arial; }
   background-image: url("../image/aimHandleBlack.png");
   z-index: 10;
 }
+#fixAimActual {
+  width: 20px; height: 20px;
+  /*background-color: blue; */
+  background-image: url("../image/aimHandleActual.png");
+  z-index: 5;
+}
 #fixAimLabel {
   position: absolute; top: 185px; left: 660px; width: 160px; height: 20px;
   text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;

@@ -98,7 +98,7 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <!--  <div id="fixColor" class="fixControl">Colour</div> -->
   <input type="text" id="fixColor" name="fixColor" value="#123456" />
   <div id="fixColorPicker"></div>
-  <div id="fixAim" class="fixControl"><div id="fixAimHandle"></div></div>
+  <div id="fixAim" class="fixControl"><div id="fixAimHandle"></div><div id="fixAimActual"></div></div>
   <div id="fixAimLabel">Pan/Tilt control</div>
   <div id="fixAimLeft">Left</div>
   <div id="fixAimRight">Right</div>

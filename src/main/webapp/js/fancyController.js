@@ -306,7 +306,7 @@ function fixInitPanel() {
         onChange: function(v) { fixStrobeChange(v); }
     });
     fixStrobeSlider.setValue(1);
-
+    $("fixAimActual").absolutize();
     new Draggable("fixAimHandle", {
         // constain code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
         snap: function(x,y,draggable) {
@@ -404,12 +404,15 @@ function fixUpdateControls(fixtureId) {
     var fd=fixtureDefs[f.type];
     fixUIUpdateOnly=true;
     fixColorPicker.setColor(fixValues[fixtureId]["c"]);
+    fixDimSlider.setValue(1-fixValues[fixtureId]["d"]);
     var aimHandleEl=$("fixAimHandle");
+    var aimActualEl=$("fixAimActual");
     var aimHandleDimensions=Element.getDimensions(aimHandleEl);
     var aimParentDimensions=Element.getDimensions(aimHandleEl.parentNode);
     aimHandleEl.style.left=(fixValues[fixtureId]["p"]*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
     aimHandleEl.style.top=(fixValues[fixtureId]["t"]*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
-    fixDimSlider.setValue(1-fixValues[fixtureId]["d"]);
+    aimActualEl.style.left=(fixValues[fixtureId]["ap"]*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
+    aimActualEl.style.top=(fixValues[fixtureId]["at"]*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
     fixUIUpdateOnly=false
 }
 
