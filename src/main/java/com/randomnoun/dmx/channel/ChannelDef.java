@@ -20,6 +20,9 @@ public abstract class ChannelDef {
 	/** The highest dmx value that will be taken as input to this channelDef (normally 255) */
 	protected int highDmxValue;
 	
+	protected String htmlImg;
+	protected String htmlLabel;
+	
 	public int getOffset() { return offset; }
 	public int getLowDmxValue() { return lowDmxValue; }
 	public int getHighDmxValue() { return highDmxValue; } 
@@ -29,14 +32,19 @@ public abstract class ChannelDef {
 		this.offset = offset;
 		this.lowDmxValue = lowDmxValue;
 		this.highDmxValue = highDmxValue;
+		this.htmlImg = "image/channel/placeholder.png";
+		this.htmlLabel = this.getClass().getName();
 	}
 	
 	public String getHtmlImg() { 
-		return "image/channel/placeholder.png";
+		return htmlImg;
 		
 	}
 	public String getHtmlLabel() {
-		return this.getClass().getName();
+		return htmlLabel;
 	}
+	
+	public void setHtmlImg(String htmlImg) { this.htmlImg = htmlImg; }
+	public void setHtmlLabel(String htmlLabel) { this.htmlLabel = htmlLabel; }
 	
 }

@@ -7,26 +7,11 @@ package com.randomnoun.dmx.channel;
  */
 public class LabelChannelDef extends ChannelDef {
 
-	private String htmlImg;
-	private String htmlText;
-	
-	public LabelChannelDef(int offset, String htmlImg, String htmlText) 
+	public LabelChannelDef(int offset, String htmlImg, String htmlLabel) 
 	{
 		super(offset, 0, 255);
-		htmlImg = "image/channel/placeholder.png";
-		htmlText = "Unknown channel";
-		if (htmlImg!=null) { this.htmlImg = htmlImg; }
-		if (htmlText!=null) { this.htmlText = htmlText; }
+		if (htmlImg!=null) { setHtmlImg(htmlImg); }
+		if (htmlLabel!=null) { setHtmlLabel(htmlLabel); }
 	}
-	
-	public String getHtmlImg() { 
-		return htmlImg;
-		
-	}
-	public String getHtmlLabel() {
-		return htmlText;
-	}
-
-	
 	
 }

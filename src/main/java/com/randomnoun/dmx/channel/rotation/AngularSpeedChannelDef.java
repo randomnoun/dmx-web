@@ -32,17 +32,12 @@ public class AngularSpeedChannelDef extends ChannelDef {
 		this.dmxValues = dmxValues;
 		this.panSpeedValues = panSpeedValues;
 		this.tiltSpeedValues = tiltSpeedValues;
+		setHtmlImg("image/channel/placeholder.png");
+		setHtmlLabel("Angular speed");
 	}
 
 	public int[] getDmxValues() { return dmxValues; }
 	public double[] getPanSpeedValues() { return panSpeedValues; }
 	public double[] getTiltSpeedValues() { return tiltSpeedValues; }
 	
-	public String getHtmlImg() { 
-		return "image/channel/placeholder.png";
-		
-	}
-	public String getHtmlLabel() {
-		return "Angular speed";
-	}
 }

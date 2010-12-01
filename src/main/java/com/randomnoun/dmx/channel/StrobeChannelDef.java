@@ -36,6 +36,8 @@ public class StrobeChannelDef extends ChannelDef {
 		this.minimumStrobeValue = minimumStrobeValue;
 		this.maximumStrobeHertz = maximumStrobeHertz;
 		this.maximumStrobeValue = maximumStrobeValue;
+		setHtmlImg("image/channel/placeholder.png");
+		setHtmlLabel("Strobe");
 	}
 	
 	public int getDisableStrobeValue() { return disableStrobeValue; }
@@ -43,15 +45,5 @@ public class StrobeChannelDef extends ChannelDef {
 	public int getMinimumStrobeValue() { return minimumStrobeValue; }
 	public double getMaximumStrobeHertz() { return maximumStrobeHertz; }
 	public int getMaximumStrobeValue() { return maximumStrobeValue; }
-	
-	public String getHtmlImg() { 
-		return "image/channel/placeholder.png";
-		
-	}
-	public String getHtmlLabel() {
-		return "Strobe";
-	}
-
-	
 	
 }

@@ -22,6 +22,8 @@ public class SpeedChannelDef extends ChannelDef {
 		this.fastValue = fastValue;
 		this.speedUpFactorWhenSlow = speedUpFactorWhenSlow;
 		this.speedUpFactorWhenFast = speedUpFactorWhenFast;
+		setHtmlImg("image/channel/placeholder.png");
+		setHtmlLabel("Speed dimmer");
 	}
 	
 	public int getSlowValue() { return slowValue; }

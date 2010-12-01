@@ -17,6 +17,9 @@ public class MacroChannelDef extends ChannelDef {
 
 	public List<Macro> macros = new ArrayList<Macro>();
 	
+	String htmlLabel;
+	String htmlImg;
+	
 	public static class Macro {
 		String name;
 		int lowValue;
@@ -33,15 +36,7 @@ public class MacroChannelDef extends ChannelDef {
 		
 		
 	}
-	
-	public void addMacro(Macro macro) {
-		this.macros.add(macro);
-	}
-	
-	public List<Macro> getMacros() {
-		return this.macros;
-	}
-	
+
 	/** Create a new macro channel definition. Use 
 	 * {@link MacroChannelDef#addMacro(Macro)} to
 	 * add macros to this channel after construction.
@@ -52,14 +47,25 @@ public class MacroChannelDef extends ChannelDef {
 	 */
 	public MacroChannelDef(int offset) {
 		super(offset, 0, 255);
+		setHtmlImg("image/channel/placeholder.png");
+		setHtmlLabel("Macro channel");
+	}
+
+	public void addMacro(Macro macro) {
+		this.macros.add(macro);
 	}
 	
+	public List<Macro> getMacros() {
+		return this.macros;
+	}
+	
+	
 	public String getHtmlImg() { 
-		return "image/channel/placeholder.png";
+		return htmlImg;
 		
 	}
 	public String getHtmlLabel() {
-		return "Macro channel";
+		return htmlLabel;
 	}
 
 	
