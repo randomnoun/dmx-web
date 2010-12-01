@@ -25,29 +25,6 @@ public class TimedColorGradientChannelMuxer extends CyclingTimeBasedChannelMuxer
 	
 	private long cycleTime;
 	private ColorGradientDef[] colorGradientDefs;
-	public static enum ColorGradientTransition { SHARP, FADE }
-	
-	public static class ColorGradientDef {
-		/** the time this colour is displayed, in msec from cycle start */
-		long startTime;
-		long duration; 
-		Color color;
-		/** last ColorGradientDef will transition to first ColorGradientDef */ 
-		ColorGradientTransition transitionToNextColor;
-		
-		public ColorGradientDef(long startTime, Color color, long duration, ColorGradientTransition transitionToNextColor) {
-			this.startTime = startTime;
-			this.color = color;
-			this.duration = duration;
-			this.transitionToNextColor = transitionToNextColor;
-		}
-		
-		public String toString() {
-			return "startTime=" + startTime + ", color=[r=" + color.getRed() + ",g=" + 
-				color.getGreen() + ",b=" + color.getBlue() + "], duration=" + duration + 
-				", transitionToNextColor=" + transitionToNextColor.toString();
-		}
-	}
 	
 	@Override
 	public long getCycleTime() {
