@@ -1,6 +1,6 @@
 package com.randomnoun.dmx.channel;
 
-/** A speed channel. Ranges go from 'slow' to 'fast'. Must be used
+/** A (time-varying) speed channel. Ranges go from 'slow' to 'fast'. Must be used
  * in conjunction with another channel to be useful.
  * 
  * <p>When the value of this channel==slowValue

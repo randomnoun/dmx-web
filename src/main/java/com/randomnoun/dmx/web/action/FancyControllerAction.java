@@ -158,8 +158,16 @@ public class FancyControllerAction
 		    	Color c = fo.getColor();
 		    	m.put("c", getColorHexString(c));
 		    	m.put("d", fo.getDim());
-		    	Double pan = fo.getPan(); if (pan!=null) { m.put("p", twoDigits(fo.getPan())); }
-		    	Double tilt = fo.getTilt(); if (tilt!=null) { m.put("t", twoDigits(fo.getTilt())); }
+		    	Double pan = fo.getPan(); 
+		    	if (pan!=null) { 
+		    		m.put("p", twoDigits(fo.getPan())); 
+		    		m.put("ap", twoDigits(fo.getActualPan()));
+		    	}
+		    	Double tilt = fo.getTilt(); 
+		    	if (tilt!=null) { 
+		    		m.put("t", twoDigits(fo.getTilt()));
+		    		m.put("at", twoDigits(fo.getActualTilt()));
+		    	}
 		    	Double strobe = fo.getStrobe(); if (strobe!=null) { m.put("s", twoDigits(strobe)); }
 		    	fixValues.add(m);
 		    }
@@ -230,8 +238,16 @@ public class FancyControllerAction
     		    	Color c = fo.getColor();
     		    	m.put("c", getColorHexString(c));
     		    	m.put("d", fo.getDim());
-    		    	Double pan = fo.getPan(); if (pan!=null) { m.put("p", twoDigits(fo.getPan())); }
-    		    	Double tilt = fo.getTilt(); if (tilt!=null) { m.put("t", twoDigits(fo.getTilt())); }
+    		    	Double pan = fo.getPan(); 
+    		    	if (pan!=null) { 
+    		    		m.put("p", twoDigits(fo.getPan())); 
+    		    		m.put("ap", twoDigits(fo.getActualPan()));
+    		    	}
+    		    	Double tilt = fo.getTilt(); 
+    		    	if (tilt!=null) { 
+    		    		m.put("t", twoDigits(fo.getTilt()));
+    		    		m.put("at", twoDigits(fo.getActualTilt()));
+    		    	}
     		    	Double strobe = fo.getStrobe(); if (strobe!=null) { m.put("s", twoDigits(strobe)); }
     		    	fixValues.add(m);
     		    }

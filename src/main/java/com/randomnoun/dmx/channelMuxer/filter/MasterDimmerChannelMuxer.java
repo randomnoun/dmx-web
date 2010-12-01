@@ -79,6 +79,8 @@ public class MasterDimmerChannelMuxer extends ChannelMuxer {
 			public long getTime() { return input.getTime(); }
 			public Double getPan() { return input.getPan(); }
 			public Double getTilt() { return input.getTilt(); }
+			public Double getActualPan() { return input.getActualPan(); }
+			public Double getActualTilt() { return input.getActualTilt(); }
 			public Double getDim() { return dimValue; }
 			public Double getStrobe() { return input.getStrobe(); }
 		};

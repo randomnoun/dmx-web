@@ -5,17 +5,11 @@ import java.awt.Color;
 import com.randomnoun.dmx.channel.MacroChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
 import com.randomnoun.dmx.channel.dimmer.BlueDimmerChannelDef;
-import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
-import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef.DimmerType;
 import com.randomnoun.dmx.channel.dimmer.GreenDimmerChannelDef;
-import com.randomnoun.dmx.channel.dimmer.MasterDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.RedDimmerChannelDef;
-import com.randomnoun.dmx.channel.rotation.AngularPanSpeedChannelDef;
-import com.randomnoun.dmx.channel.rotation.AngularTiltSpeedChannelDef;
-import com.randomnoun.dmx.channel.rotation.AngularTransitionSpeedChannelDef;
+import com.randomnoun.dmx.channel.rotation.AngularSpeedChannelDef;
 import com.randomnoun.dmx.channel.rotation.PanPositionChannelDef;
 import com.randomnoun.dmx.channel.rotation.TiltPositionChannelDef;
-import com.randomnoun.dmx.channel.SpeedChannelDef;
 import com.randomnoun.dmx.channel.StrobeChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.MacroChannelMuxer;
@@ -26,13 +20,10 @@ import com.randomnoun.dmx.channelMuxer.primitive.ColorChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.primitive.FixedColorChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.primitive.PanPositionChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.primitive.TiltPositionChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.timed.StrobeChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.timed.TimedColorGradientChannelMuxer;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.fixture.FixtureOutput;
-import com.randomnoun.dmx.timeSource.DistortedTimeSource;
 import com.randomnoun.dmx.timeSource.TimeSource;
 import com.randomnoun.dmx.timeSource.UniverseTimeSource;
 
@@ -125,7 +116,32 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 		//this.addChannelDef(new TiltPositionChannelDef(3, 0, majorTiltStep));  // 0->255 == 0->180/255 degrees
 		
 		// channel 4 affects speed at which target pan/tilt position is reached
-		this.addChannelDef(new AngularTransitionSpeedChannelDef(4, 0, 255, 2, 2, 10, 10));  // 0->255 == slow->fast; (2 degrees/second->10 degrees/second)
+		//this.addChannelDef(new AngularTransitionSpeedChannelDef(4, 0, 255, 2, 2, 10, 10));  // 0->255 == slow->fast; (2 degrees/second->10 degrees/second)
+		// channel 4 affects speed at which target pan/tilt position is reached
+	    // pan speeds:
+	    // DMX values:           0    64   128   192   224   255   
+	    // Time to pan 360deg:   2100 2500 3500  5600  ?     27200
+	    // 
+	    // tilt speeds:
+	    // DMX values:           0    64   128   292   224   255
+	    // Time to tilt 180deg:  1700 1700 1700  2200  3200  29500
+	  
+	    double msecPer360Deg=1/(double)360;
+	    double msecPer180Deg=1/(double)180;
+	    this.addChannelDef(new AngularSpeedChannelDef(4, 
+	      new int[] { 0, 64, 128, 292, 224, 255 }, 
+	      new double[] { 2100 * msecPer360Deg, 
+	        2500 * msecPer360Deg, 
+	        3500 * msecPer360Deg,  
+	        5600 * msecPer360Deg, 
+	        9500 * msecPer360Deg, 
+	        27200 * msecPer360Deg },
+	      new double[] { 1700 * msecPer180Deg,
+	        1700 * msecPer180Deg,
+	        1700 * msecPer180Deg,
+	        2200 * msecPer180Deg,
+	        3200 * msecPer180Deg,
+	        29500 * msecPer180Deg }));
 
 		MacroChannelDef dimmerStrobeChannelDef = new MacroChannelDef(5);
 		dimmerStrobeChannelDef.addMacro(new Macro("closed", 0, 7));

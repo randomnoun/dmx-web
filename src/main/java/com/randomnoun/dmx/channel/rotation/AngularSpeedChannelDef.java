@@ -4,39 +4,38 @@ import com.randomnoun.dmx.channel.ChannelDef;
 
 /** An angular speed channel, controlling pan or tilt speed, presumably.
  * 
- * <p>When the value of this channel==slowValue, 
- * the fixture is moving at degreesPerSecondWhenSlow (presumably zero).
- * When the value of this channel==fastValue,
- * the fixture is moving at degreesPerSecondWhenFast.
+ * <p>Speeds are measured in terms of degrees per second. 
+ * A speed ramp can be supplied to
+ * specify speeds per DMX input value. The ramp is interpolated linearly.
  * 
- * <p>Outside of this range, the fixture is considered not moving.
+ * <p>It is assumed that the fixture always moves at a constant speed. 
  * 
- * <p>Turns out this channel definition isn't used, so it's therefore
- * probably broken
+ * <p>The list of DMX input values should include 0 and 255, at a minimum.
  * 
  */
-public abstract class AngularSpeedChannelDef extends ChannelDef {
+public class AngularSpeedChannelDef extends ChannelDef {
 
 	public enum AngularSpeedType { PAN, TILT }
 	
-	public AngularSpeedType angularSpeedType;
-	public int slowValue;
-	public int fastValue;
-	public double degreesPerSecondWhenSlow;
-	public double degreesPerSecondWhenFast;
+	// public AngularSpeedType angularSpeedType;
 	
-	public AngularSpeedChannelDef(int offset, AngularSpeedType angularSpeedType, int slowValue, int fastValue, double degreesPerSecondWhenSlow, double degreesPerSecondWhenFast) {
+	int[] dmxValues;
+	double[] panSpeedValues;
+	double[] tiltSpeedValues;
+	
+	public AngularSpeedChannelDef(int offset,  
+			int[] dmxValues,
+			double[] panSpeedValues,
+			double[] tiltSpeedValues) {
 		super(offset, 0, 255);
-		this.angularSpeedType = angularSpeedType;
-		this.slowValue = slowValue;
-		this.fastValue = fastValue;
-		this.degreesPerSecondWhenSlow = degreesPerSecondWhenSlow;
-		this.degreesPerSecondWhenFast = degreesPerSecondWhenFast;
+		// this.angularSpeedType = angularSpeedType;
+		this.dmxValues = dmxValues;
+		this.panSpeedValues = panSpeedValues;
+		this.tiltSpeedValues = tiltSpeedValues;
 	}
-	
-	public int getSlowValue() { return slowValue; }
-	public int getFastValue() { return fastValue; }
-	public double getDegreesPerSecondWhenSlow() { return degreesPerSecondWhenSlow; }
-	public double getDegreesPerSecondWhenFast() { return degreesPerSecondWhenFast; }
+
+	public int[] getDmxValues() { return dmxValues; }
+	public double[] getPanSpeedValues() { return panSpeedValues; }
+	public double[] getTiltSpeedValues() { return tiltSpeedValues; }
 	
 }

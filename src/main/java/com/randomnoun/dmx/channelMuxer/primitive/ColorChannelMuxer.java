@@ -47,6 +47,8 @@ public class ColorChannelMuxer extends ChannelMuxer {
 			public long getTime() { return fixture.getUniverse().getTime(); }
 			public Double getPan() { return null; }
 			public Double getTilt() { return null; }
+			public Double getActualPan() { return null; }
+			public Double getActualTilt() { return null; }
 			public Double getDim() { return (double) 1; }
 			public Double getStrobe() { return null; }
 		};

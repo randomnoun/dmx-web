@@ -16,6 +16,26 @@ public class Fixture {
 	String name;
 	int startDmxChannel;
 	
+	/*
+	long timeSinceLastPanUpdate;
+	long timeSInceLastTiltUpdate;
+	
+	/ ** Tilt position of this fixture * /
+	double tilt;
+	
+	/** Pan position of this fixture * /
+	double pan;
+	*/
+	
+	/** X position of this fixture */
+	float x;
+	
+	/** Y position of this fixture */
+	float y;
+	
+	/** X position of this fixture */
+	float z;
+	
 	// could generate these on demand, perhaps
 	FixtureController fixtureController;
 	ChannelMuxer muxer;
@@ -26,6 +46,34 @@ public class Fixture {
 		this.universe = universe;
 		this.startDmxChannel = startDmxChannel;
 	}
+	
+	/** Sets this fixture's position
+	 * 
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
+	public void setPosition(float x, float y, float z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+	
+	/** Returns this fixture's position in a three-element float array 
+	 * (x, y, z)
+	 * 
+	 * @return
+	 */
+	public float[] getPosition() {
+		return new float[]{x, y, z};
+	}
+	
+	/*
+	public void setPan(double pan) { this.pan = pan; timeSinceLastPanUpdate = System.currentTimeMillis(); }
+	public double getPan() { return pan; }
+	public void setTilt(double tilt) { this.tilt = tilt; timeSinceLastTiltUpdate = System.currentTimeMillis(); }
+	public double getTilt() { return tilt; }
+	*/
 	
 	public String getName() { 
 		return name;

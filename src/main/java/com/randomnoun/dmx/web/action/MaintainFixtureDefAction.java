@@ -379,7 +379,8 @@ public class MaintainFixtureDefAction
     }
 
     
-    /** Returns the *first* class defined in the script */
+
+    /** Returns the name of the first class defined in the script */
     public String getClassName(String script) {
     	Parser parser = new Parser(new StringReader(script));
     	String packageName = null;
@@ -403,6 +404,33 @@ public class MaintainFixtureDefAction
 		if (className == null) { throw new IllegalArgumentException("No script defined"); }
 		throw new IllegalStateException("Internal error (non-null className)");  // This codepath can't execute
     }
+    
+    /** Returns the javadoc of the first class defined in the script */
+    public String getJavadoc(String script) {
+    	Parser parser = new Parser(new StringReader(script));
+    	String packageName = null;
+    	String className = null;
+    	try {
+			while( ! parser.Line() /* eof */ ) {
+				SimpleNode node = parser.popNode(); // (See the bsh.BSH* classes)
+				if (node instanceof BSHPackageDeclaration) {
+					BSHPackageDeclaration packageNode = (BSHPackageDeclaration) node;
+					packageName = ((BSHAmbiguousName) packageNode.getChild(0)).text;
+				} else if (node instanceof BSHClassDeclaration) {
+					BSHClassDeclaration classNode = (BSHClassDeclaration) node;
+					className = classNode.getName();
+					if (packageName == null) { return className; }
+					return packageName + "." + className;
+				}
+			}
+		} catch (bsh.ParseException e) {
+			throw new IllegalArgumentException("Invalid script", e);
+		}
+		if (className == null) { throw new IllegalArgumentException("No script defined"); }
+		throw new IllegalStateException("Internal error (non-null className)");  // This codepath can't execute
+    }
+
+    
     
     public String getStackSummary(Throwable e) {
     	String summary = "";

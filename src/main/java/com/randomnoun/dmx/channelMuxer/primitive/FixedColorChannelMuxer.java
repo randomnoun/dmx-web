@@ -4,8 +4,6 @@ import java.awt.Color;
 
 import org.apache.log4j.Logger;
 
-import com.randomnoun.dmx.channel.ChannelDef;
-import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureOutput;
@@ -30,6 +28,8 @@ public class FixedColorChannelMuxer extends ChannelMuxer {
 			public long getTime() { return fixture.getUniverse().getTime(); }
 			public Double getPan() { return null; }
 			public Double getTilt() { return null; }
+			public Double getActualPan() { return null; }
+			public Double getActualTilt() { return null; }
 			public Double getDim() { return (double) 1; }
 			public Double getStrobe() { return null; }
 		};

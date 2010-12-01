@@ -14,7 +14,6 @@ import com.randomnoun.dmx.channel.dimmer.DimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.GreenDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.MasterDimmerChannelDef;
 import com.randomnoun.dmx.channel.dimmer.RedDimmerChannelDef;
-import com.randomnoun.dmx.channel.rotation.AngularTransitionSpeedChannelDef;
 import com.randomnoun.dmx.channel.rotation.PanPositionChannelDef;
 import com.randomnoun.dmx.channel.rotation.TiltPositionChannelDef;
 

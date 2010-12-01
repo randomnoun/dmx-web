@@ -4,6 +4,9 @@ import java.awt.Color;
 
 /** Things you might be interested to know that your fixture is doing.
  * 
+ * In regards to 'actual' colors, pans and tilt positions, 
+ * grains of salt all round.
+ * 
  * @author knoxg
  */
 public abstract class FixtureOutput {
@@ -26,10 +29,12 @@ public abstract class FixtureOutput {
 	/** A mask containing all fixture attributes (color, dim, strobe, time, pan and tilt) */
 	public static int MASK_ALL=MASK_COLOR | MASK_TIME | MASK_PAN | MASK_TILT;
 	
-	public abstract Color getColor();  /* post-dim color */
+	public abstract Color getColor();  /* post-dim/strobe color */
 	public abstract long getTime();
-	public abstract Double getPan();   /* pan value, in degrees */
-	public abstract Double getTilt();  /* pan value, in degrees */
+	public abstract Double getPan();   /* desired pan value, in degrees */
+	public abstract Double getTilt();  /* desired pan value, in degrees */
+	public abstract Double getActualPan();  /* actual pan (taking in account the time to change pan position) */
+	public abstract Double getActualTilt(); /* actual tilt (taking in account the time to change tilt position) */
 	public abstract Double getDim();   /* master dimmer value (0.0-1.0 : closed-open)*/
 	public abstract Double getStrobe(); /* strobe value, in Hertz (null==no strobe) */
 	
