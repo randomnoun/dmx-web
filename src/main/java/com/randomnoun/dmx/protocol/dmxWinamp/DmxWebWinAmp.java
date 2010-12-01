@@ -38,6 +38,7 @@ public class DmxWebWinAmp {
 		private DmxWebWinAmp winamp;
 		private boolean retryEnabled = false;
 		private boolean done = false;
+		private boolean exceptionOnLastConnection = false; // to suppress hundreds of exceptions
 		private String url;
 		
 		public Logger logger = Logger.getLogger(PollingThread.class);
@@ -48,6 +49,7 @@ public class DmxWebWinAmp {
 			this.done = false;
 			this.url = url;
 			this.retryEnabled = retryEnabled;
+			this.exceptionOnLastConnection = false;
 		}
 		
 		public void run() {
@@ -70,17 +72,20 @@ public class DmxWebWinAmp {
 							winamp.spectrum[1][i] = Float.parseFloat(props.getProperty("f[1][" + i + "]"));
 						}
 					}
+					exceptionOnLastConnection = false;
 				} catch (HttpException e) {
-					// shove it into a container, say.
-					e.printStackTrace();
+					if (!exceptionOnLastConnection) { e.printStackTrace(); }
+					exceptionOnLastConnection = true;
 					winamp.exceptionContainer.addException(e);
 					if (!retryEnabled) { done = true; }
 				} catch (IOException e) {
-					e.printStackTrace();
+					if (!exceptionOnLastConnection) { e.printStackTrace(); }
+					exceptionOnLastConnection = true;
 					winamp.exceptionContainer.addException(e);
 					if (!retryEnabled) { done = true; }
 				} catch (Exception e) {
-					e.printStackTrace();
+					if (!exceptionOnLastConnection) { e.printStackTrace(); }
+					exceptionOnLastConnection = true;
 					winamp.exceptionContainer.addException(e);
 					if (!retryEnabled) { done = true; }
 				}
@@ -128,6 +133,12 @@ public class DmxWebWinAmp {
 	public void disconnect() {
 		logger.debug("Disconnecting from DmxWebWinamp plugin");
 		pollingThread.done();
+		// TODO: should actually wait for the polling thread to die.
+		//  This is causing socket leaks in the plugin as the thread can't
+		//  close the connection without a log4j LogManager, which isn't around
+		//  when the servletContext is reloaded. 
+		//  Probably only an issue during development though.
+		
 		// @TODO use shutdown() in newer HttpClients
 		httpClient.getHttpConnectionManager().closeIdleConnections(0); 
 		
