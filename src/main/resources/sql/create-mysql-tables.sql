@@ -53,12 +53,13 @@ ENGINE = InnoDB;
 CREATE TABLE `fixtureDefImage` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `fixtureDefId` INTEGER UNSIGNED NOT NULL,
-  `image` BLOB NOT NULL,
+  `name` VARCHAR(200) NOT NULL,
+  `size` INTEGER UNSIGNED NOT NULL,
+  `contentType` VARCHAR(200) NOT NULL,
+  `fileLocation` VARCHAR(200) NOT NULL COMMENT 'relative to app base specified in appConfig',
   PRIMARY KEY (`id`)
 )
 ENGINE = InnoDB;
-
-
 
 
 
