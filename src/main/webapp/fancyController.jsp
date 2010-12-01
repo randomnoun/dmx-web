@@ -106,6 +106,7 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="fixAimBottom">Bottom</div>
   
   <div id="fixGroup" class="fixControl fixGroup">Select individual</div>
+  <div id="fixAllNone" class="fixControl fixAllNone">All/None</div>
   
 </div>
 

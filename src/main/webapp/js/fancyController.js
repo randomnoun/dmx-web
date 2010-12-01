@@ -293,6 +293,7 @@ function fixInitPanel() {
         
         Event.observe(fixEl, 'click', fixItemClick);
     }
+    Event.observe($("fixAllNone"), 'click', fixAllNoneClick);
     Event.observe($("fixGroup"), 'click', fixGroupClick);
     Event.observe($("fixBlackout"), 'click', fixBlackout);
     fixDimSlider = new Control.Slider("fixDimHandle", "fixDim", {
@@ -363,7 +364,8 @@ function fixItemClick(event) {
     if (fixItems.length==1) {
     	var fd = fixtureDefs[fixtures[fixItems[0]].type];
         fixLabelAim(0, fd["panRange"], 0, fd["tiltRange"]);
-    	fixUpdateControls(fixItems[0]); 
+    	fixUpdateControls(fixItems[0]);
+    	$("fixAllNone").removeClassName("fixSmallSelect");
     } else if (fixItems.length==0) {
         $("fixAimLeft").update("");
         $("fixAimRight").update("");
@@ -373,6 +375,11 @@ function fixItemClick(event) {
         for (var i=cn.length-1; i>1; i--) {
         	cn.item(i).parentNode.removeChild(cn.item(i));
         }
+        $("fixAllNone").removeClassName("fixSmallSelect");
+    } else if (fixItems.length==fixtures.length) {
+    	$("fixAllNone").addClassName("fixSmallSelect");
+    } else {
+    	$("fixAllNone").removeClassName("fixSmallSelect");
     }
 }
 
@@ -418,12 +425,35 @@ function fixUpdateControls(fixtureId) {
 
 function fixGroupClick(event) {
     var fixGroupEl = event.element();
-    fixSelectIndividual=fixToggleEl(fixGroupEl);
+    fixSelectIndividual=!fixSelectIndividual;
+    if (fixSelectIndividual) {
+    	fixGroupEl.addClassName("fixSmallSelect"); 
+    } else {
+    	fixGroupEl.removeClassName("fixSmallSelect"); 
+    }
     if (fixSelectIndividual) {
         $$(".fixItem").each(function(f){f.removeClassName("fixSelect");});
         if (fixLastFixSelectedEl!=null) { fixLastFixSelectedEl.addClassName("fixSelect"); }
     }
 }
+
+function fixAllNoneClick(event) {
+    var fixAllNoneEl = event.element();
+    var countFixSelected=0;
+    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){countFixSelected++;};});
+    if (countFixSelected==fixtures.length) {
+    	fixAllNoneEl.removeClassName("fixSmallSelect");
+    	$$(".fixItem").each(function(f){f.removeClassName("fixSelect");});
+    } else {
+    	fixAllNoneEl.addClassName("fixSmallSelect");
+    	$$(".fixItem").each(function(f){f.addClassName("fixSelect");});
+    	if (fixSelectIndividual) {
+    		fixSelectIndividual=false;
+    		$("fixGroup").removeClassName("fixSmallSelect"); 
+    	}
+    }
+}
+
 
 function fixGetItemIds() {
     var fixItems=new Array();

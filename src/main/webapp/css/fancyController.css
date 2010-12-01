@@ -135,10 +135,9 @@ BODY { font-size: 8pt; font-family: Arial; }
   cursor: pointer; 
 }
 #fixBlackout {
-  position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
-  /*background-color: red; */
-  background-image: url("../image/button-red.png");
-  color: white;
+  position: absolute; top: 20px; left: 20px; width: 80px; height: 70px;
+  background-image: url("../image/sbutton-red.png");
+  color: white; font-size: 14pt;
 }
 #fixDim {
   position: absolute; top: 20px; left: 220px; width: 90px; height: 160px;
@@ -167,11 +166,21 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 
 #fixGroup {
-  position: absolute; top: 110px; left: 20px; width: 180px; height: 70px;
+  position: absolute; top: 20px; left: 120px; width: 80px; height: 70px;
+  font-size: 14pt;
 }
 .fixGroup {
-  background-image: url("../image/button-blue.png");
+  background-image: url("../image/sbutton-blue.png");
 }
+#fixAllNone {
+  position: absolute; top: 110px; left: 20px; width: 80px; height: 70px;
+  font-size: 14pt;
+}
+.fixAllNone {
+  background-image: url("../image/sbutton-blue.png");
+}
+
+
 
 #fixColorPicker {
   /* 195x195 pixels */
@@ -216,9 +225,12 @@ BODY { font-size: 8pt; font-family: Arial; }
   cursor: pointer; 
 }
 .fixSelect {
-  /*background-color: #6666FF; */
   background-image: url("../image/button-blue2.png");
 }
+.fixSmallSelect {
+  background-image: url("../image/sbutton-blue2.png");
+}
+
 .fixOutput {
   position: absolute; top:40px; left: 5px; height: 20px; width: 170px;
   font-size: 16pt;
