@@ -33,6 +33,13 @@ public class StrobeChannelMuxer extends CyclingTimeBasedChannelMuxer {
 		}
 	}
 	
+	public StrobeChannelMuxer(ChannelMuxer inputMuxer, TimeSource timeSource, StrobeChannelDef channelDef) {
+		super(inputMuxer.getFixture(), timeSource);
+		this.inputMuxer = inputMuxer;
+		this.channelDef = channelDef;
+	}
+	
+	
 	@Override
 	/** Return the cycle time of this strobe
 	 *
