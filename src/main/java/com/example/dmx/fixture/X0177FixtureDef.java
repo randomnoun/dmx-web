@@ -31,28 +31,6 @@ import com.randomnoun.dmx.timeSource.UniverseTimeSource;
 public class X0177FixtureDef extends FixtureDef {
 
 
-	/** The X0177FixtureController can have it's color and strobe controlled
-	 * by the default FixtureController. 
-	 * 
-	 * <p>It adds additional methods for macros, but these could be generalised
-	 * to the superclass.
-	 * 
-	 * @author knoxg
-	 */
-	public static class X0177FixtureController extends FixtureController {
-		public X0177FixtureController(Fixture fixture) {
-			super(fixture);
-		}
-		
-		public void setMacro(int index) {
-			// we know this is on channel 5 for this fixture
-			MacroChannelDef mcd = (MacroChannelDef) fixture.getFixtureDef().getChannelDefByOffset(5);
-			Macro m = mcd.getMacros().get(index);
-			fixture.setDmxChannelValue(5, (m.getLowValue() + m.getHighValue()) / 2);
-		}
-	}
-
-	
 	public X0177FixtureDef() {
 		this.vendor = "Chinese sweatshop workers";
 		this.model = "X0177";

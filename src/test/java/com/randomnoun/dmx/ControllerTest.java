@@ -12,7 +12,9 @@ import org.apache.log4j.PropertyConfigurator;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
+import com.example.dmx.fixture.MiniWashFixtureController;
 import com.example.dmx.fixture.MiniWashFixtureDef12;
+import com.example.dmx.fixture.X0177FixtureController;
 import com.example.dmx.fixture.X0177FixtureDef;
 import com.randomnoun.dmx.event.DmxValueDumper;
 import com.randomnoun.dmx.event.MuxValueDumper;
@@ -103,8 +105,8 @@ public class ControllerTest extends TestCase {
 			sleep(1);
 			
 			// set dmx values using controller cast to this fixture type
-			X0177FixtureDef.X0177FixtureController fc2 = 
-				(X0177FixtureDef.X0177FixtureController) fc;
+			X0177FixtureController fc2 = 
+				(X0177FixtureController) fc;
 			fc2.blackOut();
 			fc2.setMasterDimmer(255);
 			fc2.setMacro(0);			// start 1st macro on left fixture (rainbow color change, fade transition)
@@ -167,8 +169,8 @@ public class ControllerTest extends TestCase {
 			sleep(4);
 			
 			// set dmx values using controller cast to this fixture type
-			MiniWashFixtureDef12.MiniWashFixtureController lfc2 = 
-				(MiniWashFixtureDef12.MiniWashFixtureController) lfc;
+			MiniWashFixtureController lfc2 = 
+				(MiniWashFixtureController) lfc;
 			lfc2.blackOut();
 			lfc2.setMasterDimmer(255);
 			lfc2.setColorMacro(17);			// start 17th macro on left fixture (color-changemacro1)
