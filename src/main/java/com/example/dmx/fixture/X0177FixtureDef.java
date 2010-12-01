@@ -14,18 +14,16 @@ import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.MacroChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.filter.MasterDimmerChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.primitive.ColorChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.timed.ColorGradientDef;
 import com.randomnoun.dmx.channelMuxer.timed.StrobeChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.timed.TimedColorGradientChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.timed.ColorGradientTransition;
+import com.randomnoun.dmx.channelMuxer.timed.ColorGradientDef;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.timeSource.DistortedTimeSource;
 import com.randomnoun.dmx.timeSource.TimeSource;
 import com.randomnoun.dmx.timeSource.UniverseTimeSource;
-
-import static com.randomnoun.dmx.channelMuxer.timed.ColorGradientTransition.FADE;
-import static com.randomnoun.dmx.channelMuxer.timed.ColorGradientTransition.SHARP;
   
 /** Fixture definition for the (newer) PAR-64 spotlights at Albion 
  * (purchased 2010-10-21)
@@ -62,7 +60,11 @@ public class X0177FixtureDef extends FixtureDef {
   public ChannelMuxer getChannelMuxer(Fixture fixture) {
     TimeSource universeTimeSource = new UniverseTimeSource(fixture.getUniverse());
     TimeSource distortedTimeSource = new DistortedTimeSource(fixture, universeTimeSource);
-    
+
+    // these would be import static in Java  
+    ColorGradientTransition FADE = ColorGradientTransition.FADE;  
+    ColorGradientTransition SHARP = ColorGradientTransition.SHARP;
+  
     // output is determined by
     //   color DMX values + strobe DMX value
     // which may be overridden by one of the macro DMX values, if set

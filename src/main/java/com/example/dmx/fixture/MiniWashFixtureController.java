@@ -3,7 +3,6 @@ package com.example.dmx.fixture;
 import java.awt.Color;
 
 import com.randomnoun.dmx.channel.MacroChannelDef;
-import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 
@@ -19,13 +18,6 @@ public class MiniWashFixtureController extends FixtureController {
 
 	public MiniWashFixtureController(Fixture fixture) {
 		super(fixture);
-	}
-	
-	public void setMacro(int index) {
-		// we know this is on channel 5 for this fixture
-		MacroChannelDef mcd = (MacroChannelDef) fixture.getFixtureDef().getChannelDefByOffset(5);
-		Macro m = mcd.getMacros().get(index);
-		fixture.setDmxChannelValue(5, (m.getLowValue() + m.getHighValue()) / 2);
 	}
 	
 	/** Sets the color of this fixture.
