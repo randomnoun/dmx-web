@@ -81,11 +81,13 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 		}
 
 		public void setColorMacro(int i) {
-			throw new UnsupportedOperationException("setColorMacro not implemented");
+			MacroChannelDef mcd = (MacroChannelDef) fixture.getFixtureDef().getChannelDefByOffset(9);
+			fixture.setDmxChannelValue(9, mcd.getMacros().get(9).getLowValue());
 		}
 
 		public void setMovementMacro(int i) {
-			throw new UnsupportedOperationException("setMovementMacro not implemented");		
+			MacroChannelDef mcd = (MacroChannelDef) fixture.getFixtureDef().getChannelDefByOffset(11);
+			fixture.setDmxChannelValue(11, mcd.getMacros().get(11).getLowValue());
 		}
 		
 	}
@@ -177,7 +179,7 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 		// channel 10 is a vectorspeed (color) channel. Hue?
 		
 		// channel 11 is movement macros
-		mcd = new MacroChannelDef(9);
+		mcd = new MacroChannelDef(11);
 		mcd.addMacro(new Macro("Auto Program 1", 8, 22));
 		mcd.addMacro(new Macro("Auto Program 2", 23, 37));
 		mcd.addMacro(new Macro("Auto Program 3", 38, 52));
@@ -194,6 +196,7 @@ public class MiniWashFixtureDef12 extends MiniWashFixtureDefBase {
 		mcd.addMacro(new Macro("Sound Active 6", 203, 217));
 		mcd.addMacro(new Macro("Sound Active 7", 218, 232));
 		mcd.addMacro(new Macro("Sound Active 8", 133, 127));
+		this.addChannelDef(mcd);
 	}
 	
 	
