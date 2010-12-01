@@ -577,7 +577,7 @@ public class AppConfig extends AppConfigBase {
 		universe.addListener(updateListener);
 		updateListener.startThread();
 		
-		if (getProperty("dev.vlc.host")!=null) {
+		if (!Text.isBlank((String) getProperty("dev.vlc.host"))) {
 			// hard-coding fixture name in for debugging
 			try {
 				updateListener = new VlcUniverseUpdateListener(
