@@ -38,4 +38,11 @@ public class AngularSpeedChannelDef extends ChannelDef {
 	public double[] getPanSpeedValues() { return panSpeedValues; }
 	public double[] getTiltSpeedValues() { return tiltSpeedValues; }
 	
+	public String getHtmlImg() { 
+		return "image/channel/placeholder.png";
+		
+	}
+	public String getHtmlLabel() {
+		return "Angular speed";
+	}
 }
