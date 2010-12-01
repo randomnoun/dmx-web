@@ -1,9 +1,16 @@
 package com.randomnoun.dmx;
 
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
+import junit.framework.TestCase;
+
 import org.apache.log4j.PropertyConfigurator;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import com.example.dmx.fixture.MiniWashFixtureDef12;
 import com.example.dmx.fixture.X0177FixtureDef;
@@ -14,8 +21,19 @@ import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
 
-public class TestController {
+public class ControllerTest extends TestCase {
 
+	public void setUp() throws ClassNotFoundException, SQLException {
+		Properties props = new Properties();
+		props.put("log4j.rootCategory", "INFO, CONSOLE");
+		props.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
+		props.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
+		props.put("log4j.appender.CONSOLE.layout.ConversionPattern", "[TestController] %d{ABSOLUTE} %-5p %c - %m %n");
+		props.put("log4j.logger.com.randomnoun.dmx","DEBUG");
+		PropertyConfigurator.configure(props);
+	}
+
+	
 	public void sleep(int seconds) {
 		try { 
 			Thread.sleep(seconds * 1000); 
@@ -167,20 +185,5 @@ public class TestController {
 		
 	}
 	
-	public static void main(String args[]) {
-		
-		Properties props = new Properties();
-		props.put("log4j.rootCategory", "INFO, CONSOLE");
-		props.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
-		props.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
-		props.put("log4j.appender.CONSOLE.layout.ConversionPattern", "[TestController] %d{ABSOLUTE} %-5p %c - %m %n");
-		props.put("log4j.logger.com.randomnoun.dmx","DEBUG");
-		PropertyConfigurator.configure(props);
-		
-		TestController t = new TestController();
-		t.testX1077Controllers();
-		t.testMiniWashControllers();
-		
-	}
 	
 }
