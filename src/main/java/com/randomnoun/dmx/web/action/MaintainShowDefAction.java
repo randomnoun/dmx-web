@@ -156,8 +156,11 @@ public class MaintainShowDefAction
     }
     
     private String getScriptTemplate() {
+    	String defaultPackage = AppConfig.getAppConfig().getProperty("show.defaultPackage");
+    	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.show.script"; }
+
     	return
-    	"package com.randomnoun.dmx.show.script;\n" + 
+    	"package " + defaultPackage + ";\n" + 
     	"\n" + 
     	"import java.awt.Color;\n" + 
     	"import java.util.Map;\n" + 
