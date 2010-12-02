@@ -146,7 +146,6 @@ BODY { font-size: 8pt; font-family: Arial; }
 .fixCustom {
   background-image: url("../image/sbutton-blue.png");
 }
-
 #fixGroup {
   position: absolute; top: 110px; left: 120px; width: 80px; height: 70px;
   font-size: 14pt;
@@ -163,13 +162,18 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 
 #fixStandardControls {
-  position: absolute; top:20px; left: 220px; width: 900px;
+  position: absolute; top:0px; left: 220px; width: 900px; height: 210px;
+}
+#fixCustomControls {
+  position: absolute; top:0px; left: 220px; width: 900px; height: 210px;
+  padding-top: 20px;
+  visibility: hidden;
 }
 
 
 
 #fixDim {
-  position: absolute; top: 20px; left: 220px; width: 90px; height: 160px;
+  position: absolute; top: 20px; left: 0px; width: 90px; height: 160px;
   background-image: url("../image/dimBack.png");
 }
 #fixDimHandle {
@@ -177,12 +181,12 @@ BODY { font-size: 8pt; font-family: Arial; }
   background-image: url("../image/dimHandleBlack.png");
 }
 #fixDimLabel {
-  position: absolute; top: 185px; left: 220px; width: 90px; height: 20px;
+  position: absolute; top: 185px; left: 0px; width: 90px; height: 20px;
   text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
 }
 
 #fixStrobe {
-  position: absolute; top: 20px; left: 330px; width: 90px; height: 160px;
+  position: absolute; top: 20px; left: 110px; width: 90px; height: 160px;
   background-image: url("../image/strobeBack.png");
 }
 #fixStrobeHandle {
@@ -190,18 +194,18 @@ BODY { font-size: 8pt; font-family: Arial; }
   background-image: url("../image/dimHandleBlack.png");
 }
 #fixStrobeLabel {
-  position: absolute; top: 185px; left: 330px; width: 90px; height: 20px;
+  position: absolute; top: 185px; left: 110px; width: 90px; height: 20px;
   text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
 }
 #fixColorPicker {
   /* 195x195 pixels */
-  position: absolute; top: 0px; left: 440px; /*width: 160px; height: 160px;*/
+  position: absolute; top: 0px; left: 220px; /*width: 160px; height: 160px;*/
 }
 #fixColor {
   display: none;
 }
 #fixAim {
-  position: absolute; top: 20px; left: 660px; width: 160px; height: 160px; cursor: crosshair;
+  position: absolute; top: 20px; left: 440px; width: 160px; height: 160px; cursor: crosshair;
 }
 .fixAimVGrid1 { position: absolute; top: 0px; height:160px; width:0px; border-right: 1px dotted #7777FF; } 
 .fixAimVGrid2 { position: absolute; top: 0px; height:160px; width:0px; border-right: 1px solid #7777FF; }
@@ -220,16 +224,16 @@ BODY { font-size: 8pt; font-family: Arial; }
   z-index: 5;
 }
 #fixAimLabel {
-  position: absolute; top: 185px; left: 660px; width: 160px; height: 20px;
+  position: absolute; top: 185px; left: 440px; width: 160px; height: 20px;
   text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
 }
 #fixAimLeft, #fixAimRight, #fixAimTop, #fixAimBottom {
   position: absolute; font-family: Lucida Console; font-size: 8pt; color: black;
 }
-#fixAimLeft { top:5px; left:660px; height: 15px; width:60px; }
-#fixAimRight { top:5px; left:760px; height: 15px; width:60px; text-align: right; }
-#fixAimTop { top:20px; left:825px; height: 30px; width:20px; vertical-align: top; }
-#fixAimBottom { top:150px; left:825px; height: 30px; width:20px; vertical-align: bottom; }
+#fixAimLeft { top:5px; left:440px; height: 15px; width:60px; }
+#fixAimRight { top:5px; left:540px; height: 15px; width:60px; text-align: right; }
+#fixAimTop { top:20px; left:605px; height: 30px; width:20px; vertical-align: top; }
+#fixAimBottom { top:150px; left:605px; height: 30px; width:20px; vertical-align: bottom; }
 .fixControl {
   text-align: center; color: #000044; font-size: 18pt;
   background-color: #AAAAFF;
@@ -238,10 +242,10 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 
 .fixSelect {
-  background-image: url("../image/button-blue2.png");
+  background-image: url("../image/button-blue2.png") !important;
 }
 .fixSmallSelect {
-  background-image: url("../image/sbutton-blue2.png");
+  background-image: url("../image/sbutton-blue2.png") !important;
 }
 .fixOutput {
   position: absolute; top:40px; left: 5px; height: 20px; width: 170px;
@@ -265,6 +269,15 @@ BODY { font-size: 8pt; font-family: Arial; }
   display: inline-block;
   color: #000044; font-family: Arial; font-size: 10pt; 
 }
+
+.fixCustomToggle {
+  display: inline-block;
+  position: relative; width: 80px; height: 70px;
+  margin-right: 20px; margin-bottom: 20px;
+  font-size: 14pt;
+  background-image: url("../image/sbutton-blue.png");
+}
+
 
 
 /*** DMX panel ***/

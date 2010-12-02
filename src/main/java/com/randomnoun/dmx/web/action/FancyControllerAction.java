@@ -38,6 +38,7 @@ import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.config.AppConfig.TimestampedShowException;
+import com.randomnoun.dmx.fixture.CustomControl;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
@@ -109,6 +110,7 @@ public class FancyControllerAction
     		Map fixtureDefs = new HashMap();
     		for (Fixture f : controller.getFixtures()) {
     			FixtureDef fd = f.getFixtureDef();
+    			FixtureController fc = f.getFixtureController();
     			String fdName = fd.getClass().getName();
     			Map m = new HashMap();
     			m.put("dmxOffset", f.getStartDmxChannel());
@@ -135,6 +137,18 @@ public class FancyControllerAction
     					cds.add(m3);
     				}
     				m2.put("channelDefs", cds);
+    				if (fc.getCustomControls()!=null) {
+	    				List ccs = new ArrayList();
+	    				for (int i=0; i<fc.getCustomControls().size(); i++) {
+	    					CustomControl cc = fc.getCustomControls().get(i);
+	    					Map m4 = new HashMap();
+	    					m4.put("uiType", cc.getUIType().toString());
+	    					m4.put("label", cc.getLabel());
+	    					ccs.add(m4);
+	    				}
+	    				m2.put("customControls", ccs);
+    				}
+    				
     				fixtureDefs.put(fdName, m2);
     			}
     		}
@@ -154,6 +168,7 @@ public class FancyControllerAction
     		}
 			List fixValues = new ArrayList();
 		    for (Fixture f : controller.getFixtures()) {
+    			FixtureController fc = f.getFixtureController();
 		    	ChannelMuxer cm = f.getChannelMuxer();
 		    	FixtureOutput fo = cm.getOutput();
 		    	HashMap m = new HashMap();
@@ -173,6 +188,13 @@ public class FancyControllerAction
 		    	Double strobe = fo.getStrobe(); 
 		    	if (strobe!=null) { 
 		    		m.put("s", twoDigits(strobe)); 
+		    	}
+		    	if (fc.getCustomControls()!=null && fc.getCustomControls().size()>0) {
+		    		ArrayList ccs = new ArrayList();
+		    		for (CustomControl cc : fc.getCustomControls()) {
+		    			ccs.add(cc.getValue());
+		    		}
+		    		m.put("ccs", ccs);
 		    	}
 		    	fixValues.add(m);
 		    }
@@ -237,6 +259,7 @@ public class FancyControllerAction
     		} else if (panel.equals("fixPanel")) {
     			List fixValues = new ArrayList();
     		    for (Fixture f : controller.getFixtures()) {
+        			FixtureController fc = f.getFixtureController();
     		    	ChannelMuxer cm = f.getChannelMuxer();
     		    	FixtureOutput fo = cm.getOutput();
     		    	HashMap m = new HashMap();
@@ -258,6 +281,13 @@ public class FancyControllerAction
     		    		m.put("s", twoDigits(strobe)); 
     		    	}
     		    	fixValues.add(m);
+    		    	if (fc.getCustomControls()!=null && fc.getCustomControls().size()>0) {
+    		    		ArrayList ccs = new ArrayList();
+    		    		for (CustomControl cc : fc.getCustomControls()) {
+    		    			ccs.add(cc.getValue());
+    		    		}
+    		    		m.put("ccs", ccs);
+    		    	}
     		    }
     		    result.put("fixValues", fixValues);
 
@@ -391,9 +421,6 @@ public class FancyControllerAction
     		} else {
     			result.put("message", "Value out of range");
     		}
-    		
-    		
-    		
 	    	
     	} else if (action.equals("blackOut")) {
     		if (fixtureId == -1) {
@@ -527,6 +554,22 @@ public class FancyControllerAction
 				"pan " + (sameRange ? " " + df.format(fd.getPanRange()*x/100) + "&deg;" : "") + "(" + df.format(x) + "%)" + 
 				", tilt " + (sameRange ? " " + df.format(fd.getTiltRange()*y/100) + "&deg;" : "") + "(" + df.format(y) + "%)");
     	
+    	} else if (action.equals("customControl")) {
+    		int c=0;
+    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		int controlId = Integer.parseInt(request.getParameter("controlId"));
+    		int value=Integer.parseInt(request.getParameter("value"));
+    		FixtureDef fd = null;
+    		for (String iterationId : fixtureIdStrings) {
+    			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
+    			if (fd==null) { fd = f.getFixtureDef(); } 
+    			else if ( fd != f.getFixtureDef()) { logger.warn("Inconsistent fixtureDefs setting customControls (fixtureIds=" + request.getParameter("fixtureIds") + ")"); }
+    			FixtureController fc = f.getFixtureController();
+    			fc.getCustomControls().get(controlId).setValueWithCallback(value);
+    			c++;
+    		}
+    		result.put("message", c + " fixture(s) updated");
+			
     	} else if (action.equals("resetAudio")) {
     		AudioController audioController = appConfig.getController().getAudioController();
     		audioController.close();

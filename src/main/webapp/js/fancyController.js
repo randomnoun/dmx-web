@@ -268,6 +268,8 @@ var fixDimSlider = null;
 var fixStrobeSlider = null;
 var fixUIUpdateOnly = false; // if true, only update UI, don't send AJAX requests
 var fixAimDraggable = null;
+var fixCustomControlsVisible = false;
+var fixCustomControlFixtureDef = null;
 function fixInitPanel() {
     var x,y,fixEl;
     var fp=$("fixPanel");
@@ -290,6 +292,7 @@ function fixInitPanel() {
     }
     Event.observe($("fixAllNone"), 'click', fixAllNoneClick);
     Event.observe($("fixGroup"), 'click', fixGroupClick);
+    Event.observe($("fixCustom"), 'click', fixCustomClick);
     Event.observe($("fixBlackout"), 'click', fixBlackout);
     Event.observe($("fixAim"), 'click', fixAimClick);
     fixDimSlider = new Control.Slider("fixDimHandle", "fixDim", {
@@ -395,6 +398,7 @@ function fixItemClick(event) {
     } else {
     	$("fixAllNone").removeClassName("fixSmallSelect");
     }
+    if (fixCustomControlsVisible) { fixUpdateCustomControls(); }
 }
 
 function fixLabelAim(panMin, panMax, tiltMin, tiltMax) {
@@ -423,25 +427,36 @@ function fixLabelAim(panMin, panMax, tiltMin, tiltMax) {
 function fixUpdateControls(fixtureId) {
     var f=fixtures[fixtureId];
     var fd=fixtureDefs[f.type];
+    var v=fixValues[fixtureId];
     fixUIUpdateOnly=true;
-    fixColorPicker.setColor(fixValues[fixtureId]["c"]);
-    fixDimSlider.setValue(1-fixValues[fixtureId]["d"]);
+    fixColorPicker.setColor(v["c"]);
+    fixDimSlider.setValue(1-v["d"]);
     if (fixValues[fixtureId]["s"]) {
     	fixStrobeSlider.setValue(
-    		1-((fixValues[fixtureId]["s"]-fd["minStrobeHertz"])/
+    		1-((v["s"]-fd["minStrobeHertz"])/
     		(fd["maxStrobeHertz"]-fd["minStrobeHertz"])));
     } else {
     	fixStrobeSlider.setValue(1);
     }
-    fixDimSlider.setValue(1-fixValues[fixtureId]["d"]);
+    fixDimSlider.setValue(1-v["d"]);
     var aimHandleEl=$("fixAimHandle");
     var aimActualEl=$("fixAimActual");
     var aimHandleDimensions=Element.getDimensions(aimHandleEl);
     var aimParentDimensions=Element.getDimensions(aimHandleEl.parentNode);
-    aimHandleEl.style.left=(fixValues[fixtureId]["p"]*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
-    aimHandleEl.style.top=(fixValues[fixtureId]["t"]*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
-    aimActualEl.style.left=(fixValues[fixtureId]["ap"]*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
-    aimActualEl.style.top=(fixValues[fixtureId]["at"]*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
+    aimHandleEl.style.left=(v["p"]*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
+    aimHandleEl.style.top=(v["t"]*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
+    aimActualEl.style.left=(v["ap"]*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
+    aimActualEl.style.top=(v["at"]*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
+    var ccs=fd["customControls"];
+    if (ccs && fixCustomControlsVisible) {
+    	for (var i=0; i<ccs.length; i++) {
+    		if (ccs[i].uiType=="TOGGLE") {
+    			if (v["ccs"][i]==1) { $("fixCC[" + i + "]").addClassName("fixSmallSelect"); }
+    			else { $("fixCC[" + i + "]").removeClassName("fixSmallSelect"); }
+    		}
+    	}
+    }
+    
     fixUIUpdateOnly=false
 }
 
@@ -457,6 +472,7 @@ function fixGroupClick(event) {
         $$(".fixItem").each(function(f){f.removeClassName("fixSelect");});
         if (fixLastFixSelectedEl!=null) { fixLastFixSelectedEl.addClassName("fixSelect"); }
     }
+    if (fixCustomControlsVisible) { fixUpdateCustomControls(); }
 }
 
 function fixAllNoneClick(event) {
@@ -474,6 +490,67 @@ function fixAllNoneClick(event) {
     		$("fixGroup").removeClassName("fixSmallSelect"); 
     	}
     }
+}
+
+// show/hide the custom controls panel
+function fixCustomClick(event) {
+	fixCustomEl = event.element();
+	fixCustomControlsVisible=!fixCustomControlsVisible;
+	if (fixCustomControlsVisible) {
+		fixCustomEl.addClassName("fixSmallSelect");
+		$("fixStandardControls").style.visibility="hidden";
+		$("fixCustomControls").style.visibility="visible";
+		fixUpdateCustomControls();
+	} else {
+		fixCustomEl.removeClassName("fixSmallSelect");
+		$("fixStandardControls").style.visibility="visible";
+		$("fixCustomControls").style.visibility="hidden";
+	}
+}
+
+function fixUpdateCustomControls() {
+	var cc,tmft=false,i,fd=null;
+    var fixItems=new Array();
+    var ccEl=$("fixCustomControls");
+    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){i=f.readAttribute("fixtureId");if(fd==null){fd=fixtureDefs[fixtures[i].type]}else if (fd!=fixtureDefs[fixtures[i].type]){tmft=true;}};});
+    if (fd==null) {
+    	ccEl.update("Select a fixture or set of fixtures of the same type.");
+    } else if (tmft) {
+    	ccEl.update("Too many fixture types selected. Select a fixture or set of fixtures of the same type.")
+    } else {
+    	if (fixCustomControlFixtureDef!=fd) {
+    		fixCustomControlFixtureDef=null;
+    		ccEl.update("");  // have to remove event listeners on removed controls ?
+    		if (fd["customControls"]) {
+	    		for (i=0; i<fd["customControls"].length; i++) {
+	    			cc=fd["customControls"][i];
+	    			if (cc["uiType"]=="TOGGLE") {
+	    		        var ctrlEl = new Element("div", { 
+	    		            "id": "fixCC[" + i + "]", 
+	    		            "controlId": i,
+	    		            "class" : "fixCustomToggle" }).update(cc.label);
+	    		        ccEl.appendChild(ctrlEl);
+	    		        Event.observe(ctrlEl, 'click', fixCustomToggleClick.bindAsEventListener(i));
+	    			}
+	    		}
+    		} else {
+    			ccEl.update("No custom controls for this fixture type");
+    		}
+    		fixCustomControlFixtureDef=fd;
+    	}
+    }
+}
+
+function fixCustomToggleClick(event, controlId) {
+	// should toggle requested value here
+	// controlId should be defined here, but doesn't appear to be...
+	var controlId = event.element().getAttribute("controlId");
+	var fixItems=new Array();
+    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
+    if (fixItems.length > 0) {
+    	var newValue = 1-fixValues[fixItems[0]]["ccs"][controlId];
+    	sendRequest('fancyController.html?action=customControl&controlId=' + controlId + '&value=' + newValue + '&fixtureIds=' + fixGetItemIds());
+	}
 }
 
 
@@ -556,6 +633,7 @@ function fixColorChange(color) {
 
 var fixAimLimitter = new AjaxLimitter(100, 200);
 function fixAimDrag(x, y) {
+	if (fixUIUpdateOnly) { return; }
     var fixItemIds=fixGetItemIds();
     if (fixItemIds!="") {
        fixAimLimitter.sendRequest( 

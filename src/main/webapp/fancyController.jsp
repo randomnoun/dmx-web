@@ -87,6 +87,7 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 
 <div id="fixPanel" style="display: none;">
   <div id="fixBlackout" class="fixControl">Blackout</div>
+  <div id="fixStandardControls">
   <div id="fixDimScrollArea">
   <div id="fixDim"><div id="fixDimHandle"></div></div>
   </div>
@@ -100,13 +101,17 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="fixColorPicker"></div>
   <div id="fixAim" class="fixControl"><div id="fixAimHandle"></div><div id="fixAimActual"></div></div>
   <div id="fixAimLabel">Pan/Tilt control</div>
-  <div id="fixAimLeft">Left</div>
-  <div id="fixAimRight">Right</div>
-  <div id="fixAimTop">Top</div>
-  <div id="fixAimBottom">Bottom</div>
+  <div id="fixAimLeft">&#8592;</div>
+  <div id="fixAimRight">&#8594;</div>
+  <div id="fixAimTop">&#8593;</div>
+  <div id="fixAimBottom">&#8595;</div>
+  </div>
+  <div id="fixCustomControls"></div>
+  
   
   <div id="fixGroup" class="fixControl fixGroup">Select individual</div>
   <div id="fixAllNone" class="fixControl fixAllNone">All/None</div>
+  <div id="fixCustom" class="fixControl fixCustom">Custom controls</div>
   
 </div>
 
