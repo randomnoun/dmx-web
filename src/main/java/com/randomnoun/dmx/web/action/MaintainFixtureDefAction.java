@@ -1,6 +1,7 @@
 package com.randomnoun.dmx.web.action;
 
 
+import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.upload.FormFile;
+import org.apache.struts.upload.MultipartRequestHandler;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -32,18 +35,25 @@ import bsh.SimpleNode;
 // import bsh.SimpleNode; - package private. bastardos.
 
 import com.randomnoun.common.ErrorList;
+import com.randomnoun.common.StreamUtils;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
+import com.randomnoun.common.webapp.upload.FileProgressTO;
+import com.randomnoun.common.webapp.upload.ProgressTO;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
+import com.randomnoun.dmx.dao.FixtureDefImageDAO;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.show.Show;
+import com.randomnoun.dmx.to.FixtureDefImageTO;
 import com.randomnoun.dmx.to.FixtureDefTO;
+import com.randomnoun.dmx.web.ExtendedMultiPartRequestHandler;
+import com.randomnoun.dmx.web.StrutsUploadForm;
 
 /**
  * Fixture definition maintenance action
@@ -91,7 +101,10 @@ public class MaintainFixtureDefAction
     	ErrorList errors = new ErrorList();
     	
     	FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
+    	FixtureDefImageDAO fixtureDefImageDAO = new FixtureDefImageDAO(appConfig.getJdbcTemplate());
+    	
     	FixtureDefTO fixtureDef;
+    	List<FixtureDefImageTO> fixtureDefImages;
 
     	long fixtureDefId = -1;
     	String fixtureDefIdString = request.getParameter("fixtureDefId");
@@ -103,7 +116,9 @@ public class MaintainFixtureDefAction
     	
     	if (action.equals("getFixtureDef")) {
     		fixtureDef = fixtureDefDAO.getFixtureDef(fixtureDefId);
+    		fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages(fixtureDef);
     		request.setAttribute("fixtureDef", fixtureDef);
+    		request.setAttribute("fixtureDefImages", fixtureDefImages);
     		
     	} else if (action.equals("newFixtureDef")) {
     		fixtureDef = new FixtureDefTO();
@@ -155,7 +170,59 @@ public class MaintainFixtureDefAction
 	    			errors.addError("Fixture updated", "Fixture definition updated", ErrorList.SEVERITY_OK);
 	    		}
 	    		appConfig.reloadFixturesAndShows();
-    		} 
+    		}
+    		if (lngId!=-1) {
+    			FixtureDefTO tmp = new FixtureDefTO();
+    			tmp.setId(lngId);
+        		fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages(tmp);
+        		request.setAttribute("fixtureDefImages", fixtureDefImages);
+    		}
+    		
+    	} else if (action.equals("getProgress")) {
+    		logger.debug("Getting progress in session '" + request.getSession().getId() + "'"); 
+    		FileProgressTO progressTO = (FileProgressTO) session.getAttribute(ExtendedMultiPartRequestHandler.PROGRESS_SESSION_KEY);
+    		if (progressTO==null) {
+    			request.setAttribute("json", "{ 'percentDone' : 0 }" );
+    		} else {
+    			request.setAttribute("json", progressToJson(progressTO));
+    		}
+    	    forward="json";
+    	
+    	} else if (action.equals("submitFile")) {
+    		String script = "";
+    		if (request.getAttribute(MultipartRequestHandler.ATTRIBUTE_MAX_LENGTH_EXCEEDED)!=null) {
+    			// errors.addError("Image not uploaded", "Maximum sizelimit exceeded", ErrorList.SEVERITY_OK);
+    			script = "parent.edtCompletedUploadError(\"Maximum sizelimit exceeded\");";
+    		} else {
+	            StrutsUploadForm myForm = (StrutsUploadForm) actionForm;
+	            Map files = actionForm.getMultipartRequestHandler().getFileElements();
+	            FormFile file = (FormFile)files.get("attachment");
+	            if (file.getFileSize()==0) {
+	            	script = "parent.edtCompletedUploadError(\"Zero-byte file submitted\");";
+	            } else {
+		            FixtureDefImageTO fixtureDefImage = new FixtureDefImageTO();
+		            fixtureDefImage.setFixtureDefId(fixtureDefId);
+		            fixtureDefImage.setName(file.getFileName());
+		            fixtureDefImage.setSize(file.getFileSize());
+		            fixtureDefImage.setContentType(file.getContentType());
+		            fixtureDefImageDAO.createFixtureDefImage(fixtureDefImage);
+		            fixtureDefImageDAO.saveImage(fixtureDefImage, file.getInputStream());
+		            // errors.addError("Image uploaded", "Documentation file '" + fileName + "' (" + fileSize + " bytes) uploaded OK", ErrorList.SEVERITY_OK);
+		            script = "parent.edtCompletedUploadOK(" + fixtureDefImage.getId() + ", " + fixtureDefImage.getSize() + 
+		              ", \"" + Text.escapeJavascript2(fixtureDefImage.getName()) + "\");";
+	            }
+    		}
+    		request.setAttribute("script", script);
+    		forward = "script";
+    		
+    	} else if (action.equals("getFile")) {
+    		long fileId = Long.parseLong(request.getParameter("fileId"));
+    		FixtureDefImageTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fileId);
+    		response.setContentType(fixtureDefImage.getContentType());
+    		response.setContentLength((int) fixtureDefImage.getSize());
+    		InputStream is = fixtureDefImageDAO.loadImage(fixtureDefImage);
+    		StreamUtils.copyStream(is, response.getOutputStream());
+    		forward = null;
     		
     	} else if (action.equals("")) {
     		// initial page load
@@ -170,13 +237,19 @@ public class MaintainFixtureDefAction
     	}
 
     	request.setAttribute("errors", errors);
-		return mapping.findForward(forward);
+    	if (forward==null) {
+    		return null;
+    	} else {
+    		return mapping.findForward(forward);
+    	}
 		
     }
     
     private String getFixtureDefScriptTemplate() {
+    	String defaultPackage = AppConfig.getAppConfig().getProperty("fixture.defaultPackage");
+    	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
     	return
-    	"package com.randomnoun.dmx.fixture.script;\n" +
+    	"package " + defaultPackage + ";\n" +
     	"\n" +
     	"import java.awt.Color;\n" +
     	"\n" +
@@ -241,8 +314,11 @@ public class MaintainFixtureDefAction
     }
     
     public String getFixtureControllerScriptTemplate() {
+    	String defaultPackage = AppConfig.getAppConfig().getProperty("fixture.defaultPackage");
+    	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
+
     	return
-    	"package com.randomnoun.dmx.fixture.script;\n" +
+    	"package " + defaultPackage + ";\n" +
     	"\n" +
     	"import java.awt.Color;\n" +
     	"\n" +
@@ -451,6 +527,26 @@ public class MaintainFixtureDefAction
 			}
 		}
 		return errorLines;
+    }
+    
+    public String progressToJson(FileProgressTO progress) {
+    	String subtasksJSON;
+    	if (progress.getSubtasks()==null) {
+    		subtasksJSON = "null";
+    	} else {
+    		subtasksJSON = "";
+	    	synchronized(progress.getSubtasks()) {
+	    		for (int i=0; i<progress.getSubtasks().size(); i++) {
+	    			ProgressTO subtask = (ProgressTO) progress.getSubtasks().get(i);
+		    		subtasksJSON += (subtasksJSON.equals("") ? "" : ", ") + progressToJson(progress);
+		    	}
+	    	}
+	    	subtasksJSON = "[" + subtasksJSON + "]";
+    	}
+    	return 
+    	  "{ 'percentDone' : " + progress.getPercentDone() +  "', " +
+    	  "  'status' : '" + Text.escapeJavascript2(progress.getStatus()) + "', " +  // use enums
+    	  "  'subTasks' : " + subtasksJSON + " }";
     }
 
     

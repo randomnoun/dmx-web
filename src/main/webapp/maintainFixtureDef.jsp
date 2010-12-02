@@ -101,6 +101,25 @@ BODY { font-size: 8pt; font-family: Arial; }
     background-image: url("image/lineError.png");
     background-repeat: no-repeat;
 }
+
+
+  #progressBar { 
+    padding-top: 5px; 
+  }
+  #progressBarBox { 
+    width: 200px; 
+    height: 6px; 
+    background: #eee;
+    border: solid 1px black;
+  }
+  #progressBarBoxContent { 
+    width: 0; 
+    height: 6px; 
+    border-right: 1px solid #9ACB34; 
+    background: #9ACB34; 
+  }
+
+
 </style>
 <script>
 <r:setJavascriptVar name="fixtureDefErrorLines" value="${fixtureDefErrorLines}" />
@@ -117,7 +136,7 @@ function edtGetFixtureDef() {
 	    document.location = "maintainFixtureDef.html?action=getFixtureDef&fixtureDefId=" + fixtureDefId;
 	}
 }
-function edtGewFixtureDef() {
+function edtNewFixtureDef() {
     document.location = "maintainFixtureDef.html?action=newFixtureDef";
 }
 
@@ -184,6 +203,9 @@ function edtInitPanel() {
     var edtSubmitEl = $("edtSubmit");
     edtSubmitEl.update(fixtureDefId==-1 ? "Create" : "Update");
     Event.observe(edtSubmitEl, 'click', edtSubmitClick);
+
+    if ($("attachment")) { $("attachment").value = ""; }
+    if ($("addFile")) { $("addFile").disabled = false; }
     </c:if>
     
     Event.observe($("lhsCancel"), 'click', lhsCancelClick);
@@ -201,8 +223,46 @@ function edtSubmit() {
 }
 
 function edtAddFile() {
-    alert("AJAX away");
+	$("uploadForm").target="uploadTarget"
+    document.forms[0].submit();
+    $("progressBar").style.display = 'block';
+    $("progressBarText").update("upload in progress: 0%");
+    $("addFile").disabled = true;
+    window.setTimeout(edtRefreshProgress, 1500);
 }
+
+function edtRefreshProgress() {
+	new Ajax.Request("maintainFixtureDef.html?action=getProgress", {
+        method:'get', // evalJSON:true,
+        onSuccess: function(transport) {
+            edtUpdateProgress(transport.responseJSON);
+        }
+    });	
+}
+
+function edtUpdateProgress(json) {
+    $("progressBarText").update("upload in progress: " + json.percentDone + "%");
+    $("progressBarBoxContent").style.width = parseInt(json.percentDone * 2) + "px";
+    window.setTimeout(edtRefreshProgress, 1000);
+} 
+
+// invoked by iframe script
+function edtCompletedUploadError(text) {
+    alert(text);
+    $("addFile").disabled = false;
+}
+
+function edtCompletedUploadOK(id, size, name) {
+	var newRowEl = new Element("tr");
+	newRowEl.appendChild(new Element("td"));
+	newRowEl.appendChild(new Element("td").update(
+		"<input type=\"checkbox\" name=\"image" + id + "\" checked> " + 
+		"<a href=\"maintainFixtureDef.html?action=getFile&fileId=" + id + "\" target=\"_new\">" + name + "</a> (" + size + ")<br/>"));
+	$("lastImageRow").insert({'before': newRowEl});
+	if ($("attachment")) { $("attachment").value = ""; }
+	$("addFile").disabled = false;
+}
+
 
 function initWindow() {
     edtInitPanel();
@@ -252,17 +312,37 @@ function initWindow() {
 <tr><td>Name:</td>
     <td colspan="2"><r:input type="text" name="fixtureDef.name" value="${fixtureDef.name}"/></td></tr>
 
-<form action="maintainFixtureDef.html" method="post">
-<input type="hidden" name="updateFiles" value="Y" />
+<form id="uploadForm" action="maintainFixtureDef.html" method="post" enctype="multipart/form-data">
+<input type="hidden" name="action" value="submitFile" />
+<input type="hidden" name="fixtureDefId" value="${fixtureDef.id}" />
 <tr><td valign="top">Image attachments:</td>
-    <td><input type="file" name="image" />
+    <td><input type="file" name="attachment" />
         <input id="addFile", type="button" name="addFile" value="Add" />
-    </td></tr>
+        <div id="progressBar" style="display: block;">
+          <div id="theMeter">
+            <div id="progressBarBox">
+               <div id="progressBarBoxContent"></div>
+            </div>
+            <div id="progressBarText"></div>            
+          </div>
+        </div>      
+    </td>
+<tr><td></td>
+    <td><iframe name="uploadTarget" id="uploadTarget" style="width:100px; height:1px; border:0px solid #fff;"/></iframe>
+    </td>
+</tr>    
+    
+</tr>
+
+<c:if test="${fixtureDefImages!=null}" >
+<c:forEach var="fixtureDefImage" items="${fixtureDefImages}" >
 <tr><td valign="top"></td>
-    <td><input type="checkbox" name="image1" checked> image1 49K<br/>
-        <input type="checkbox" name="image2" checked> image2 100K<br/>
+    <td><input type="checkbox" name="image<c:out value="${fixtureDefImage.id}"/>" checked> <a href="maintainFixtureDef.html?action=getFile&fileId=<c:out value="${fixtureDefImage.id}"/>" target="_new"><c:out value="${fixtureDefImage.name}"/></a> (<c:out value="${fixtureDefImage.size}"/>)<br/>
     </td>    
 </tr>
+</c:forEach>
+</c:if>
+<tr id="lastImageRow" />
 </form>
 
 <form action="maintainFixtureDef.html" method="post">
