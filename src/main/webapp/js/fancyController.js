@@ -448,11 +448,15 @@ function fixUpdateControls(fixtureId) {
     aimActualEl.style.left=(v["ap"]*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
     aimActualEl.style.top=(v["at"]*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
     var ccs=fd["customControls"];
+    var ccEl;
     if (ccs && fixCustomControlsVisible) {
     	for (var i=0; i<ccs.length; i++) {
-    		if (ccs[i].uiType=="TOGGLE") {
-    			if (v["ccs"][i]==1) { $("fixCC[" + i + "]").addClassName("fixSmallSelect"); }
-    			else { $("fixCC[" + i + "]").removeClassName("fixSmallSelect"); }
+    		ccEl = $("fixCC[" + i + "]");
+    		if (ccEl) {
+	    		if (ccs[i].uiType=="TOGGLE") {
+	    			if (v["ccs"][i]==1) { ccEl.addClassName("fixSmallSelect"); }
+	    			else { ccEl.removeClassName("fixSmallSelect"); }
+	    		}
     		}
     	}
     }
