@@ -20,8 +20,22 @@ public class Universe {
 	
 	// the 0th element of this array is DMX channel one.
 	private int dmxValues[] = new int[MAX_CHANNELS];
+	
+	// this is the time this DMX value last changed
+	private long dmxLastChangedTime[] = new long[MAX_CHANNELS];
+
+	//private long timeSent[] = new long[MAX_CHANNELS]; going to assume timeSet==timeSent
+	
 	private List<UniverseUpdateListener> listeners = new ArrayList<UniverseUpdateListener>();
 	private TimeSource timeSource;
+	
+	public Universe() {
+		long now = System.currentTimeMillis();
+		for (int i=0; i<MAX_CHANNELS; i++) {
+			dmxValues[i]=0;
+			dmxLastChangedTime[i]=now;
+		}
+	}
 	
 	/** Returns the DMX value of one channel in this universe.
 	 *  
@@ -46,12 +60,22 @@ public class Universe {
 		if (dmxChannelNumber < 1 || dmxChannelNumber > 512) {
 			throw new IllegalArgumentException("dmxChannelNumber must be between 1 and 512");
 		}
-		dmxValues[dmxChannelNumber-1] = value;
-		// @TODO fire some events off to any listeners
-		// (for display, sending to the outside world, etc)
-		for (UniverseUpdateListener listener : listeners) {
-			listener.onEvent(new DmxUpdateEvent(this, dmxChannelNumber, value));
+		if (dmxValues[dmxChannelNumber-1] != value) {
+			dmxValues[dmxChannelNumber-1] = value;
+			dmxLastChangedTime[dmxChannelNumber-1]=System.currentTimeMillis();
+			// fire some events off to any listeners
+			// (for display, sending to the outside world, etc)
+			for (UniverseUpdateListener listener : listeners) {
+				listener.onEvent(new DmxUpdateEvent(this, dmxChannelNumber, value));
+			}
 		}
+	}
+	
+	public long getDmxLastChangedTime(int dmxChannelNumber) {
+		if (dmxChannelNumber < 1 || dmxChannelNumber > 512) {
+			throw new IllegalArgumentException("dmxChannelNumber must be between 1 and 512");
+		}
+		return dmxLastChangedTime[dmxChannelNumber-1];
 	}
 	
 	//public int[] getAllDmxChannelValues() {
