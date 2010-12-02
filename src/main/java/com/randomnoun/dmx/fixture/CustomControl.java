@@ -7,7 +7,13 @@ package com.randomnoun.dmx.fixture;
  */
 public class CustomControl {
 
-	public enum UIType { TOGGLE, SLIDER }
+	/** The way in which this custom control should be represented to the end-user */
+	public enum UIType {
+		/** Display this control as a toggle button */
+		TOGGLE, 
+		
+		/** Display this control as a slider */
+		SLIDER }
 
 	private String label;
 	private UIType uiType;
