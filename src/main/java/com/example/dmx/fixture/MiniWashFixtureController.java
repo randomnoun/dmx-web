@@ -1,8 +1,13 @@
 package com.example.dmx.fixture;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.randomnoun.dmx.channel.MacroChannelDef;
+import com.randomnoun.dmx.fixture.CustomControl;
+import com.randomnoun.dmx.fixture.CustomControl.CustomControlCallback;
+import com.randomnoun.dmx.fixture.CustomControl.UIType;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 
@@ -18,6 +23,23 @@ public class MiniWashFixtureController extends FixtureController {
 
   public MiniWashFixtureController(Fixture fixture) {
     super(fixture);
+	  List controls = new ArrayList();
+	  controls.add(
+	    new CustomControl("Movement Macro 1", UIType.TOGGLE, 
+	    new CustomControlCallback() {
+	    	public void setValue(int value) { 
+	    		setMovementMacro(value==1 ? 1 : 0);
+	    		getCustomControls().get(1).setValue(0);
+	    	}; }) );
+	  controls.add(
+	    new CustomControl("Movement Macro 2", UIType.TOGGLE, 
+	    new CustomControlCallback() {
+	    	public void setValue(int value) { 
+	    		setMovementMacro(value==1 ? 2 : 0);
+	    		getCustomControls().get(0).setValue(0);
+	    	}; }) );
+	  setCustomControls(controls);
+    
   }
   
   /** Sets the color of this fixture.
@@ -59,12 +81,12 @@ public class MiniWashFixtureController extends FixtureController {
 
   public void setColorMacro(int i) {
     MacroChannelDef mcd = (MacroChannelDef) fixture.getFixtureDef().getChannelDefByOffset(9);
-    fixture.setDmxChannelValue(9, mcd.getMacros().get(9).getLowValue());
+    fixture.setDmxChannelValue(9, mcd.getMacros().get(i).getLowValue());
   }
 
   public void setMovementMacro(int i) {
     MacroChannelDef mcd = (MacroChannelDef) fixture.getFixtureDef().getChannelDefByOffset(11);
-    fixture.setDmxChannelValue(11, mcd.getMacros().get(11).getLowValue());
+    fixture.setDmxChannelValue(11, mcd.getMacros().get(i).getLowValue());
   }
   
 }
