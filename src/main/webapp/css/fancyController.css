@@ -139,6 +139,35 @@ BODY { font-size: 8pt; font-family: Arial; }
   background-image: url("../image/sbutton-red.png");
   color: white; font-size: 14pt;
 }
+#fixCustom {
+  position: absolute; top: 20px; left: 120px; width: 80px; height: 70px;
+  font-size: 14pt;
+}
+.fixCustom {
+  background-image: url("../image/sbutton-blue.png");
+}
+
+#fixGroup {
+  position: absolute; top: 110px; left: 120px; width: 80px; height: 70px;
+  font-size: 14pt;
+}
+.fixGroup {
+  background-image: url("../image/sbutton-blue.png");
+}
+#fixAllNone {
+  position: absolute; top: 110px; left: 20px; width: 80px; height: 70px;
+  font-size: 14pt;
+}
+.fixAllNone {
+  background-image: url("../image/sbutton-blue.png");
+}
+
+#fixStandardControls {
+  position: absolute; top:20px; left: 220px; width: 900px;
+}
+
+
+
 #fixDim {
   position: absolute; top: 20px; left: 220px; width: 90px; height: 160px;
   background-image: url("../image/dimBack.png");
@@ -164,24 +193,6 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 185px; left: 330px; width: 90px; height: 20px;
   text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
 }
-
-#fixGroup {
-  position: absolute; top: 20px; left: 120px; width: 80px; height: 70px;
-  font-size: 14pt;
-}
-.fixGroup {
-  background-image: url("../image/sbutton-blue.png");
-}
-#fixAllNone {
-  position: absolute; top: 110px; left: 20px; width: 80px; height: 70px;
-  font-size: 14pt;
-}
-.fixAllNone {
-  background-image: url("../image/sbutton-blue.png");
-}
-
-
-
 #fixColorPicker {
   /* 195x195 pixels */
   position: absolute; top: 0px; left: 440px; /*width: 160px; height: 160px;*/
@@ -224,13 +235,14 @@ BODY { font-size: 8pt; font-family: Arial; }
   background-color: #AAAAFF;
   cursor: pointer; 
 }
+
+
 .fixSelect {
   background-image: url("../image/button-blue2.png");
 }
 .fixSmallSelect {
   background-image: url("../image/sbutton-blue2.png");
 }
-
 .fixOutput {
   position: absolute; top:40px; left: 5px; height: 20px; width: 170px;
   font-size: 16pt;
