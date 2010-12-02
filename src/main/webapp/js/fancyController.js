@@ -270,6 +270,7 @@ var fixUIUpdateOnly = false; // if true, only update UI, don't send AJAX request
 var fixAimDraggable = null;
 var fixCustomControlsVisible = false;
 var fixCustomControlFixtureDef = null;
+var fixCustomControls = new Array();
 function fixInitPanel() {
     var x,y,fixEl;
     var fp=$("fixPanel");
@@ -456,6 +457,8 @@ function fixUpdateControls(fixtureId) {
 	    		if (ccs[i].uiType=="TOGGLE") {
 	    			if (v["ccs"][i]==1) { ccEl.addClassName("fixSmallSelect"); }
 	    			else { ccEl.removeClassName("fixSmallSelect"); }
+	    		} else if (ccs[i].uiType=="SLIDER") {
+	    			fixCustomControls[i].setValue(1-(v["ccs"][i]/255));
 	    		}
     		}
     	}
@@ -514,10 +517,10 @@ function fixCustomClick(event) {
 }
 
 function fixUpdateCustomControls() {
-	var cc,tmft=false,i,fd=null;
+	var cc,tmft=false,i,fixtureId,fd=null;
     var fixItems=new Array();
     var ccEl=$("fixCustomControls");
-    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){i=f.readAttribute("fixtureId");if(fd==null){fd=fixtureDefs[fixtures[i].type]}else if (fd!=fixtureDefs[fixtures[i].type]){tmft=true;}};});
+    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixtureId=f.readAttribute("fixtureId");if(fd==null){fd=fixtureDefs[fixtures[fixtureId].type]}else if (fd!=fixtureDefs[fixtures[fixtureId].type]){tmft=true;}};});
     if (fd==null) {
     	ccEl.update("Select a fixture or set of fixtures of the same type.");
     	fixCustomControlFixtureDef=null;
@@ -537,7 +540,26 @@ function fixUpdateCustomControls() {
 	    		            "controlId": i,
 	    		            "class" : "fixCustomToggle" }).update(cc.label);
 	    		        ccEl.appendChild(ctrlEl);
-	    		        Event.observe(ctrlEl, 'click', fixCustomToggleClick.bindAsEventListener(i));
+	    		        Event.observe(ctrlEl, 'click', fixCustomToggleClick.curry(i));
+	    			} else if (cc["uiType"]=="SLIDER") {
+	    				var ctrlEl = new Element("div", { 
+	    		            "id": "fixCC[" + i + "]", 
+	    		            "controlId": i,
+	    		            "class" : "fixCustomSlider" });
+	    				var handleEl = new Element("div", { "class" : "fixCustomSliderHandle" });
+	    				ccEl.appendChild(ctrlEl);
+	    				ctrlEl.appendChild(handleEl);
+	    				fixCustomControls[i] = new Control.Slider(handleEl, ctrlEl, {
+	    			        axis: "vertical",
+	    			        sliderValue: 1-(fixValues[fixtureId]["ccs"][i]/255),
+	    			        onSlide: fixCustomSliderChange.curry(i),  // value is 2nd param
+	    			        onChange: fixCustomSliderChange.curry(i) 
+	    			    });
+	    				var labelEl = new Element("div", {"class": "fixCustomSliderLabel"}).update(cc.label);
+	    				labelEl.style.left=ctrlEl.positionedOffset().left+"px";
+	    				ccEl.appendChild(labelEl);
+	    				
+	    				
 	    			}
 	    		}
     		} else {
@@ -548,23 +570,14 @@ function fixUpdateCustomControls() {
     }
 }
 
-function fixCustomToggleClick(event, controlId) {
-	// should toggle requested value here
-	// controlId should be defined here, but doesn't appear to be...
-	var controlId = event.element().getAttribute("controlId");
-	var fixItems=new Array();
-    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
-    if (fixItems.length > 0) {
-    	var newValue = 1-fixValues[fixItems[0]]["ccs"][controlId];
-    	sendRequest('fancyController.html?action=customControl&controlId=' + controlId + '&value=' + newValue + '&fixtureIds=' + fixGetItemIds());
-	}
-}
-
-
-function fixGetItemIds() {
+function fixGetItems() {
     var fixItems=new Array();
     $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
-    return fixItems.join(",");
+    return fixItems;
+}
+
+function fixGetItemIds() {
+	return fixGetItems().join(",");
 }
 
 function fixBlackout(event) {
@@ -646,6 +659,28 @@ function fixAimDrag(x, y) {
        fixAimLimitter.sendRequest( 
            'fancyController.html?action=fixtureAim&x=' + (x*100) + '&y=' + (y*100) + '&fixtureIds=' + fixItemIds);
     }
+}
+
+function fixCustomToggleClick(controlId) {
+	// should toggle requested value here
+	// controlId should be defined here, but doesn't appear to be...
+	//var controlId = event.element().getAttribute("controlId");
+	var fixItems=fixGetItems();
+    if (fixItems.length > 0) {
+    	var newValue = 1-fixValues[fixItems[0]]["ccs"][controlId];
+    	sendRequest('fancyController.html?action=customControl&controlId=' + controlId + '&value=' + newValue + '&fixtureIds=' + fixItems.join(","));
+	}
+}
+
+var fixCustomSliderLimitter = new AjaxLimitter(100, 200);
+function fixCustomSliderChange(controlId, value) {
+	// alert("updating slider " + controlId + " to " + value);
+	if (fixUIUpdateOnly) { return; }
+	var newValue = Math.floor(255*(1-value));
+	var fixItems=fixGetItems();
+    if (fixItems.length > 0) {
+    	fixCustomSliderLimitter.sendRequest('fancyController.html?action=customControl&controlId=' + controlId + '&value=' + newValue + '&fixtureIds=' + fixItems.join(","));
+	}
 }
 
 

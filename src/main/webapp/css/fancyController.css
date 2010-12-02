@@ -162,11 +162,11 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 
 #fixStandardControls {
-  position: absolute; top:0px; left: 220px; width: 900px; height: 210px;
+  position: absolute; top:0px; left: 220px; width: 680px; height: 210px;
 }
 #fixCustomControls {
-  position: absolute; top:0px; left: 220px; width: 900px; height: 210px;
-  padding-top: 20px;
+  position: absolute; top:0px; left: 220px; width: 680px; height: 210px;
+  padding-top: 20px; padding-left: 20px;
   visibility: hidden;
 }
 
@@ -277,7 +277,21 @@ BODY { font-size: 8pt; font-family: Arial; }
   font-size: 14pt;
   background-image: url("../image/sbutton-blue.png");
 }
-
+.fixCustomSlider {
+  display: inline-block; position: relative; width: 40px; height: 160px;
+  margin-right: 20px; margin-bottom: 20px;
+  font-size: 14pt;
+  background-image: url("../image/customSliderBack.png");
+}
+.fixCustomSliderHandle {
+  width: 40px; height: 30px;
+  background-image: url("../image/customSliderHandle.png");  
+  cursor: move;
+}
+.fixCustomSliderLabel {
+  position: absolute; top: 185px; 
+  text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
+}
 
 
 /*** DMX panel ***/
