@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.randomnoun.common.ExceptionUtils;
 import com.randomnoun.dmx.channel.BitResolution;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef;
@@ -25,6 +26,7 @@ import com.randomnoun.dmx.channel.rotation.TiltPositionChannelDef;
 public abstract class FixtureController {
 
 	protected Fixture fixture;
+	protected List<CustomControl> customControls = null;
 	
 	public FixtureController(Fixture fixture) {
 		this.fixture = fixture;
@@ -230,6 +232,18 @@ public abstract class FixtureController {
 	
 	public FixtureDef getFixtureDef() {
 		return fixture.getFixtureDef();
+	}
+	
+	public void setCustomControls(List customControls) {
+		if (this.customControls==null) { 
+			this.customControls = (List<CustomControl>) customControls;
+		} else {
+			throw new IllegalStateException("Cannot define customControls on a FixtureController more than once");
+		}
+	}
+	
+	public List<CustomControl> getCustomControls() {
+		return customControls;
 	}
 	
 
