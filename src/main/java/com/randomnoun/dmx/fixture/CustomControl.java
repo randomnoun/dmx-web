@@ -9,10 +9,6 @@ public class CustomControl {
 
 	public enum UIType { TOGGLE }
 
-	public abstract static class CustomControlCallback {
-		public void setValue(int value) { };
-	}
-	
 	private String label;
 	private UIType uiType;
 	private int value;

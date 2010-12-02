@@ -6,8 +6,8 @@ import java.util.List;
 
 import com.randomnoun.dmx.channel.MacroChannelDef;
 import com.randomnoun.dmx.fixture.CustomControl;
-import com.randomnoun.dmx.fixture.CustomControl.CustomControlCallback;
 import com.randomnoun.dmx.fixture.CustomControl.UIType;
+import com.randomnoun.dmx.fixture.CustomControlCallback;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 
