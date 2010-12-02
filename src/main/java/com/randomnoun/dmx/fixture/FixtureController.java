@@ -216,13 +216,19 @@ public abstract class FixtureController {
 	
 	
 	
-	/** Sets all channels for this fixture to 0 */
+	/** Sets all channels for this fixture to 0, sets all custom control
+	 * values to 0 (without triggering callbacks) */
 	public void blackOut() {
 		// which is different to setting the color to black
 		// this.setColor(Color.BLACK);
 		FixtureDef fixtureDef = fixture.getFixtureDef();
-		for (int i = 0; i < fixtureDef.getNumDmxChannels(); i++){
+		for (int i = 0; i < fixtureDef.getNumDmxChannels(); i++) {
 			fixture.setDmxChannelValue(i, 0);
+		}
+		if (this.customControls!=null) {
+			for (int i = 0; i < customControls.size(); i++) {
+				customControls.get(i).setValue(0); 
+			}
 		}
 	}
 	

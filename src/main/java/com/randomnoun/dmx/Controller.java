@@ -72,10 +72,13 @@ public class Controller {
 		fixtures.clear();
 	}
 
-	/** Sets all DMX channels available to this controller to zero. 
-	 * 
+	/** Sets all DMX channels available to this controller to zero,
+	 * sets all custom controls of all fixtures to zero. 
 	 */
 	public void blackOut() {
+		for (Fixture f : fixtures) {
+			f.blackOut();
+		}
 		for (int i=1; i<Universe.MAX_CHANNELS; i++){
 			universe.setDmxChannelValue(i, 0);
 		}
