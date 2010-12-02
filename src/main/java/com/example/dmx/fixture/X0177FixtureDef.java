@@ -38,6 +38,9 @@ public class X0177FixtureDef extends FixtureDef {
     this.model = "X0177";
     this.maxWattage = 20;
     
+    this.minimumStrobeHertz = 0.55;
+    this.maximumStrobeHertz = 4.0;
+    
     this.numDmxChannels=7;
     
     this.addChannelDef(new MasterDimmerChannelDef(0));
@@ -45,7 +48,8 @@ public class X0177FixtureDef extends FixtureDef {
     this.addChannelDef(new GreenDimmerChannelDef(2));
     this.addChannelDef(new BlueDimmerChannelDef(3));
     // 0.55Hz->4Hz strobe
-    this.addChannelDef(new StrobeChannelDef(4, 0, 0.55, 8, 4.0, 250)); 
+    this.addChannelDef(new StrobeChannelDef(4, 0, 
+    	minimumStrobeHertz, 8, maximumStrobeHertz, 250)); 
     MacroChannelDef mcd = new MacroChannelDef(5);
     mcd.addMacro(new Macro("rainbow color change, fade transition", 96, 127));
     mcd.addMacro(new Macro("RBG color change, no transition", 128, 159));

@@ -55,10 +55,13 @@ public class MiniWashFixtureDef12 extends FixtureDef {
     this.width = 240;
     this.height= 240;
     this.weight = 3800;
-    this.panRange = 540;
-    this.tiltRange = 180;
     this.maxAmbientTemperature = 40;
     this.maxWattage = 68;
+
+    this.panRange = 540;
+    this.tiltRange = 180;
+    this.minimumStrobeHertz = 0.6;
+    this.maximumStrobeHertz = 4.0;
 
     this.numDmxChannels = 12;
     
@@ -105,7 +108,8 @@ public class MiniWashFixtureDef12 extends FixtureDef {
     this.addChannelDef(dimmerStrobeChannelDef);
   
     // this is used by the muxer to perform strobes (TODO: combine into Macros above)
-    fakeStrobeChannelDef = new StrobeChannelDef(5, 0, 0.6, 135, 4, 239); // 0.6Hz->4Hz strobe
+    fakeStrobeChannelDef = new StrobeChannelDef(5, 0, 
+    	minimumStrobeHertz, 135, maximumStrobeHertz, 239); // 0.6Hz->4Hz strobe
   
     this.addChannelDef(new RedDimmerChannelDef(6));
     this.addChannelDef(new GreenDimmerChannelDef(7));

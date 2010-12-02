@@ -34,6 +34,12 @@ public abstract class FixtureDef {
 	/** Range of tilt, in degrees */
 	protected int tiltRange;
 	
+	/** The slowest strobe speed in hertz (cycles per second) */
+	protected double minimumStrobeHertz;
+	
+	/** The fastest strobe speed in hertz (cycles per second) */
+	protected double maximumStrobeHertz;
+	
 	/** Maximum ambient temperator, in degrees */
 	protected int maxAmbientTemperature;
 	
@@ -51,6 +57,8 @@ public abstract class FixtureDef {
 	public long getHeight() { return height; }
 	public int getPanRange() { return panRange; }
 	public int getTiltRange() { return tiltRange; }
+	public double getMinimumStrobeHertz() { return minimumStrobeHertz; }
+	public double getMaximumStrobeHertz() { return maximumStrobeHertz; }
 	public int getMaxAmbientTemperature() { return maxAmbientTemperature; }
 	public int getMaxWattage() { return maxWattage; }
 	public LightSourceDef getLightSourceDef() { return lightSourceDef; }
@@ -111,10 +119,5 @@ public abstract class FixtureDef {
 	public String getHtmlLabel() {
 		return this.getClass().getName();
 	}
-	
-	
-	
-	
-	
 	
 }
