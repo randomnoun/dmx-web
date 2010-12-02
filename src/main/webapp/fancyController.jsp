@@ -78,6 +78,7 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 <div id="shwPanel" >
   <div id="shwCancel">Cancel</div>
   <div id="shwAudio">
+    <div id="shwAudioBMTLegend"></div>
     <div id="shwAudioBassOuter" class="shwAudioOuter" /><div id="shwAudioBassInner" class="shwAudioInner"></div></div>
     <div id="shwAudioMidOuter" class="shwAudioOuter" /><div id="shwAudioMidInner" class="shwAudioInner"></div></div>
     <div id="shwAudioTrebleOuter" class="shwAudioOuter" /><div id="shwAudioTrebleInner" class="shwAudioInner"></div></div>

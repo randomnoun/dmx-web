@@ -112,8 +112,13 @@ BODY { font-size: 8pt; font-family: Arial; }
   border: solid #262482 1px;
   text-align: center; color: white; font-size: 18pt;
 }
+#shwAudioBMTLegend {
+  position: absolute; top: 4px; left: 5px; width: 32px; height: 27px;	
+  background-image: url("../image/bassMiddleTreble.png");
+}
 .shwAudioOuter {
-  position: absolute; height: 4px; right: 5px; width: 100px;
+  position: absolute; height: 4px; left: 42px; width: 120px;
+  background-color: #262482;
   border: solid #262482 1px;
 }
 .shwAudioInner {
