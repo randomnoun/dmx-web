@@ -43,6 +43,7 @@ import com.randomnoun.common.webapp.upload.FileProgressTO;
 import com.randomnoun.common.webapp.upload.ProgressTO;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.Universe;
+import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.FixtureDefImageDAO;
@@ -421,6 +422,8 @@ public class MaintainFixtureDefAction
 				Map nullProperties = new HashMap();
 				Constructor constructor = clazz.getConstructor();
 				fixtureDefObj = (FixtureDef) constructor.newInstance();
+				fixtureObj = new Fixture("testFixture", fixtureDefObj, nullUniverse, 1);
+				ChannelMuxer channelMuxer = fixtureDefObj.getChannelMuxer(fixtureObj);
 			}
 			fixtureObj = new Fixture("Fixture validation", fixtureDefObj, nullUniverse, 1);
 		} catch (Exception e) {
@@ -449,7 +452,7 @@ public class MaintainFixtureDefAction
 				errors.addError("script", "Invalid class", "Error whilst instantiating fixture controller definition: " + getStackSummary(e));
 			}
 		}
-		
+
 		
     	return errors;
     }
