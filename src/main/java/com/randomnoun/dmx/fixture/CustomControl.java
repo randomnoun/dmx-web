@@ -7,7 +7,7 @@ package com.randomnoun.dmx.fixture;
  */
 public class CustomControl {
 
-	public enum UIType { TOGGLE }
+	public enum UIType { TOGGLE, SLIDER }
 
 	private String label;
 	private UIType uiType;
