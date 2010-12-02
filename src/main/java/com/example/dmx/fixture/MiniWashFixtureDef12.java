@@ -244,7 +244,7 @@ public class MiniWashFixtureDef12 extends FixtureDef {
       new ChannelMuxer[] { panMuxer, tiltMuxer });
 
     ChannelMuxer autoProgram1Muxer =  
-        new TimedMotionChannelMuxer(fixture, universeTimeSource, 
+        new TimedMotionChannelMuxer(fixture, fixtureDef.getChannelDefByOffset(11), 
         	new TimedMotionDef[] {
         	new TimedMotionDef(    0, 1500, 0, 0), // 1.5 sec to get to next pos'n
         	new TimedMotionDef( 1500, 1500, 0, 180),
@@ -259,7 +259,7 @@ public class MiniWashFixtureDef12 extends FixtureDef {
         	// new TimedMotionDef(15000, 1500, 0, 0),
         });
     ChannelMuxer autoProgram3Muxer =  
-        new TimedMotionChannelMuxer(fixture, universeTimeSource, 
+        new TimedMotionChannelMuxer(fixture, fixtureDef.getChannelDefByOffset(11), 
         	new TimedMotionDef[] {
         	new TimedMotionDef(    0, 1500, 0, 0), // 1.5 sec to get to next pos'n
         	new TimedMotionDef( 1500, 1500, 0, 180),
