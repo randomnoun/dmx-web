@@ -17,9 +17,6 @@ public class MacroChannelDef extends ChannelDef {
 
 	public List<Macro> macros = new ArrayList<Macro>();
 	
-	String htmlLabel;
-	String htmlImg;
-	
 	public static class Macro {
 		String name;
 		int lowValue;
@@ -59,14 +56,6 @@ public class MacroChannelDef extends ChannelDef {
 		return this.macros;
 	}
 	
-	
-	public String getHtmlImg() { 
-		return htmlImg;
-		
-	}
-	public String getHtmlLabel() {
-		return htmlLabel;
-	}
 
 	
 }
