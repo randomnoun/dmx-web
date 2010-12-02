@@ -5,7 +5,9 @@
           "http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
 <struts-config>
     <form-beans>
+        <form-bean name="fileUpload" type="com.randomnoun.dmx.web.StrutsUploadForm"></form-bean>
     </form-beans>
+    
 	<global-exceptions>
       <exception key="some.message.bundle.apparently"
         type="java.lang.Throwable" 
@@ -71,8 +73,12 @@
 
         <action path="/maintainFixtureDef" 
           type="com.randomnoun.dmx.web.action.MaintainFixtureDefAction"
+          name="fileUpload"
+          scope="request"
         >
           <forward name="success" path="/maintainFixtureDef.jsp"/>
+          <forward name="json" path="/misc/json.jsp"/>
+          <forward name="script" path="/misc/script.jsp"/>
         </action>
 
         <action path="/maintainFixture" 
@@ -126,7 +132,7 @@
 
 
 	<controller processorClass="com.randomnoun.common.webapp.struts.CustomRequestProcessor"
-      multipartClass="com.randomnoun.common.webapp.struts.ExtendedMultiPartRequestHandler"  
+      multipartClass="com.randomnoun.dmx.web.ExtendedMultiPartRequestHandler"  
     />
 	
 	 
