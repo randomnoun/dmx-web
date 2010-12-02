@@ -23,12 +23,17 @@ import com.randomnoun.dmx.channelMuxer.primitive.ColorChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.primitive.FixedColorChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.primitive.PanPositionChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.primitive.TiltPositionChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.timed.TimedMotionChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.timed.ColorGradientDef;
+import com.randomnoun.dmx.channelMuxer.timed.ColorGradientTransition;
 import com.randomnoun.dmx.channelMuxer.timed.StrobeChannelMuxer;
 import com.randomnoun.dmx.channelMuxer.timed.TimedColorGradientChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.timed.TimedMotionDef;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.fixture.FixtureOutput;
+import com.randomnoun.dmx.timeSource.DistortedTimeSource;
 import com.randomnoun.dmx.timeSource.TimeSource;
 import com.randomnoun.dmx.timeSource.UniverseTimeSource;
 
@@ -96,6 +101,7 @@ public class MiniWashFixtureDef12 extends FixtureDef {
     dimmerStrobeChannelDef.addMacro(new Macro("100-0%", 8, 134));
     dimmerStrobeChannelDef.addMacro(new Macro("strobe slow-fast", 135, 239));
     dimmerStrobeChannelDef.addMacro(new Macro("open", 240, 255));
+    dimmerStrobeChannelDef.setHtmlLabel("Dimmer/Strobe");
     this.addChannelDef(dimmerStrobeChannelDef);
   
     // this is used by the muxer to perform strobes (TODO: combine into Macros above)
@@ -107,6 +113,7 @@ public class MiniWashFixtureDef12 extends FixtureDef {
     
     // channel 9 is color macros
     MacroChannelDef mcd = new MacroChannelDef(9);
+    mcd.addMacro(new Macro("No Function", 0, 7));
     mcd.addMacro(new Macro("white", 8, 21));
     mcd.addMacro(new Macro("red", 22, 35));  // NB: different to spec
     mcd.addMacro(new Macro("green", 36, 49));
@@ -124,13 +131,15 @@ public class MiniWashFixtureDef12 extends FixtureDef {
     mcd.addMacro(new Macro("violet", 204, 217));
     mcd.addMacro(new Macro("crepe", 218, 231));
     mcd.addMacro(new Macro("color-changemacro", 232, 255));
+    mcd.setHtmlLabel("Color macro");
     this.addChannelDef(mcd);
     
     // channel 10 alters the speed of the color-changemacro above
-    this.addChannelDef(new LabelChannelDef(10, null, "VectorSpeed (Color)"));
+    this.addChannelDef(new SpeedChannelDef(10, 0, 255, 1.0, 3.0));
   
     // channel 11 is movement macros
     mcd = new MacroChannelDef(11);
+    mcd.addMacro(new Macro("No Function", 0, 7));
     mcd.addMacro(new Macro("Auto Program 1", 8, 22));
     mcd.addMacro(new Macro("Auto Program 2", 23, 37));
     mcd.addMacro(new Macro("Auto Program 3", 38, 52));
@@ -147,17 +156,16 @@ public class MiniWashFixtureDef12 extends FixtureDef {
     mcd.addMacro(new Macro("Sound Active 6", 203, 217));
     mcd.addMacro(new Macro("Sound Active 7", 218, 232));
     mcd.addMacro(new Macro("Sound Active 8", 133, 127));
+    mcd.setHtmlLabel("Movement macro");
     this.addChannelDef(mcd);
   }
   
-  
-  // TODO: this may allow fixture/channel definitions to get access to muxers,
-  // which seems like a bad design decision.
   
   // TODO: this bit needs a GUI
   public ChannelMuxer getChannelMuxer(Fixture fixture) {
     MiniWashFixtureDef12 fixtureDef = (MiniWashFixtureDef12) fixture.getFixtureDef();
     TimeSource universeTimeSource = new UniverseTimeSource(fixture.getUniverse());
+    TimeSource distortedTimeSource = new DistortedTimeSource(fixture, universeTimeSource);
     
     // output is determined by
     //   color: color DMX values,
@@ -173,34 +181,129 @@ public class MiniWashFixtureDef12 extends FixtureDef {
     ChannelMuxer panMuxer = new PanPositionChannelMuxer(fixture);
     ChannelMuxer tiltMuxer = new TiltPositionChannelMuxer(fixture);
 
-    ChannelMuxer openMuxer = new NullChannelMuxer(colorMuxer);
-    ChannelMuxer blackMuxer = new FixedColorChannelMuxer(fixture, Color.BLACK);
-    ChannelMuxer dimmerMuxer = new MasterDimmerChannelMuxer(colorMuxer, 5, 134, 8);
+    // these would be import static in Java  
+    ColorGradientTransition FADE = ColorGradientTransition.FADE;  
+    ColorGradientTransition SHARP = ColorGradientTransition.SHARP;
     
+    // TODO: color/position macro muxers
+    // channel 9 is color macros. The colours here aren't particularly accurate.
+    ChannelMuxer openMuxer2 = new NullChannelMuxer(colorMuxer);
+    ChannelMuxer colorGradientMuxer =  
+        new TimedColorGradientChannelMuxer(fixture, distortedTimeSource, 
+        new ColorGradientDef[] {
+        new ColorGradientDef(0, Color.BLUE, 1000,FADE),
+        new ColorGradientDef(1000, Color.GREEN, 1000, FADE),
+        new ColorGradientDef(2000, Color.CYAN, 1000, FADE),
+        new ColorGradientDef(3000, Color.RED, 1000, FADE),
+        new ColorGradientDef(4000, Color.MAGENTA, 1000, FADE),
+      });
+    MacroChannelMuxer colorMacroMuxer = 
+    	new MacroChannelMuxer(fixtureDef.getChannelDefByOffset(9), colorMuxer,
+    	new ChannelMuxer[] {
+    	  openMuxer2,
+    	  new FixedColorChannelMuxer(fixture, Color.WHITE),
+    	  new FixedColorChannelMuxer(fixture, Color.RED),
+    	  new FixedColorChannelMuxer(fixture, Color.GREEN),
+    	  new FixedColorChannelMuxer(fixture, Color.BLUE),
+    	  new FixedColorChannelMuxer(fixture, Color.CYAN),
+    	  new FixedColorChannelMuxer(fixture, Color.MAGENTA),
+    	  new FixedColorChannelMuxer(fixture, Color.YELLOW),
+    	  new FixedColorChannelMuxer(fixture, Color.MAGENTA),  // 'PURPLE'
+    	  new FixedColorChannelMuxer(fixture, Color.ORANGE),
+    	  new FixedColorChannelMuxer(fixture, Color.PINK),     // 'CHARTREUSE'
+    	  new FixedColorChannelMuxer(fixture, Color.PINK),
+    	  new FixedColorChannelMuxer(fixture, Color.ORANGE),   // 'BROWN'
+    	  new FixedColorChannelMuxer(fixture, Color.YELLOW),   // 'GOLD'
+    	  new FixedColorChannelMuxer(fixture, Color.MAGENTA),  // 'CRIMSON'
+    	  new FixedColorChannelMuxer(fixture, Color.MAGENTA),  // 'VIOLET'
+    	  new FixedColorChannelMuxer(fixture, Color.GRAY),     // 'CREPE'
+    	  colorGradientMuxer
+    	});
+    colorMacroMuxer.setName("colorMacroMuxer"); // debugging
+
+    ChannelMuxer openMuxer = new NullChannelMuxer(colorMacroMuxer);
+    ChannelMuxer blackMuxer = new FixedColorChannelMuxer(fixture, Color.BLACK);
+    ChannelMuxer dimmerMuxer = new MasterDimmerChannelMuxer(colorMacroMuxer, 5, 134, 8);
+
     // the strobe for this fixture is embedded within a macro channel
     StrobeChannelMuxer strobeMuxer = 
-      new StrobeChannelMuxer(colorMuxer, universeTimeSource,
+      new StrobeChannelMuxer(colorMacroMuxer, universeTimeSource,
         fixtureDef.fakeStrobeChannelDef);
   
     MacroChannelMuxer dimmerStrobeMuxer = 
-      new MacroChannelMuxer(fixtureDef.getChannelDefByOffset(5), colorMuxer,
+      new MacroChannelMuxer(fixtureDef.getChannelDefByOffset(5), colorMacroMuxer,
       new ChannelMuxer[] { openMuxer /* is documented as black */, 
         dimmerMuxer, strobeMuxer, openMuxer });
     
-    // TODO: color/position macro muxers
+    ChannelMuxer panTiltMuxer = new MaskChannelMuxer(
+      new int[] { FixtureOutput.MASK_PAN, FixtureOutput.MASK_TILT },
+      new ChannelMuxer[] { panMuxer, tiltMuxer });
 
+    ChannelMuxer autoProgram1Muxer =  
+        new TimedMotionChannelMuxer(fixture, universeTimeSource, 
+        	new TimedMotionDef[] {
+        	new TimedMotionDef(    0, 1500, 0, 0), // 1.5 sec to get to next pos'n
+        	new TimedMotionDef( 1500, 1500, 0, 180),
+        	new TimedMotionDef( 3000, 1500, 0, 0),
+        	new TimedMotionDef( 4500, 1500, 0, 180),
+        	new TimedMotionDef( 6000, 1500, 0, 0),
+        	new TimedMotionDef( 7500, 1500, 0, 180),
+        	new TimedMotionDef( 9000, 1500, 270, 0),
+        	new TimedMotionDef(10500, 1500, 270, 180),
+        	new TimedMotionDef(12000, 1500, 270, 0),
+        	new TimedMotionDef(13500, 1500, 270, 180),
+        	// new TimedMotionDef(15000, 1500, 0, 0),
+        });
+    ChannelMuxer autoProgram3Muxer =  
+        new TimedMotionChannelMuxer(fixture, universeTimeSource, 
+        	new TimedMotionDef[] {
+        	new TimedMotionDef(    0, 1500, 0, 0), // 1.5 sec to get to next pos'n
+        	new TimedMotionDef( 1500, 1500, 0, 180),
+        	new TimedMotionDef( 3000, 1500, 0, 0),
+        	new TimedMotionDef( 4500, 1500, 0, 180),
+        	new TimedMotionDef( 6000, 1500, 0, 0),
+        	new TimedMotionDef( 7500, 1500, 0, 180),
+        	new TimedMotionDef( 9000, 1500, 0, 0),
+        	new TimedMotionDef(10500, 1500, 0, 180),
+        	new TimedMotionDef(12000, 1500, 0, 0),
+        	new TimedMotionDef(13500, 2000, 0, 180),
+        	new TimedMotionDef(15500, 2000, 450, 0),
+        	//new TimedMotionDef(17500, 1500, 0, 0),
+        });
+
+    MacroChannelMuxer motionMacroMuxer =
+        new MacroChannelMuxer(fixtureDef.getChannelDefByOffset(11), panTiltMuxer,
+        new ChannelMuxer[] {
+        	panTiltMuxer,
+        	autoProgram1Muxer,
+        	autoProgram1Muxer,  // autoProgram2 appears to be same as autoProgram1
+        	autoProgram3Muxer,
+        	autoProgram3Muxer,
+        	autoProgram3Muxer,
+        	autoProgram3Muxer,
+        	autoProgram3Muxer,
+        	autoProgram3Muxer,
+        	autoProgram1Muxer,  // is documented as Sound Active 1
+        	autoProgram1Muxer,  // is documented as Sound Active 2
+        	autoProgram3Muxer,  // is documented as Sound Active 3
+        	autoProgram3Muxer,  // is documented as Sound Active 4
+        	autoProgram3Muxer,  // is documented as Sound Active 5
+        	autoProgram3Muxer,  // is documented as Sound Active 6
+        	autoProgram3Muxer,  // is documented as Sound Active 7
+        	autoProgram3Muxer,  // is documented as Sound Active 8
+        });
+    motionMacroMuxer.setName("motionMacroMuxer"); // debugging    		
+    
+    
     ChannelMuxer maskMuxer = new MaskChannelMuxer(
       new int[] {
         FixtureOutput.MASK_COLOR,
-        FixtureOutput.MASK_PAN,
-        FixtureOutput.MASK_TILT
+        FixtureOutput.MASK_PAN | FixtureOutput.MASK_TILT
       },
       new ChannelMuxer[] {
         dimmerStrobeMuxer,
-        panMuxer,
-        tiltMuxer
+        motionMacroMuxer
       });
-
     
     return maskMuxer;
   }
