@@ -22,7 +22,8 @@ public class MacroChannelMuxer extends ChannelMuxer {
 	ChannelMuxer[] outputMuxers;
 	MacroChannelDef channelDef;
 	Logger logger = Logger.getLogger(MacroChannelMuxer.class);
-
+	String name;
+	
 	public MacroChannelMuxer(ChannelMuxer inputMuxer, ChannelMuxer[] outputMuxers) {
 		this(inputMuxer.getFixtureDef().getChannelDefByClass(MacroChannelDef.class), 
 			inputMuxer, outputMuxers);
@@ -33,15 +34,19 @@ public class MacroChannelMuxer extends ChannelMuxer {
 		this.channelDef = (MacroChannelDef) channelDef;
 		this.inputMuxer = inputMuxer;
 		this.outputMuxers = outputMuxers;
+		this.name = "MacroChannelMuxer";
 		
 		if (inputMuxer==null) { throw new NullPointerException("Null inputMuxer"); }
 		if (outputMuxers==null) { throw new NullPointerException("Null outputMuxers"); }
 		if (outputMuxers.length==0) { throw new IllegalArgumentException("Null outputMuxers"); }
+		if (outputMuxers.length!=this.channelDef.macros.size()) { throw new IllegalArgumentException("Number of outputMuxers (" + outputMuxers.length + ") should equal number of macro definitions (" + this.channelDef.macros.size() + ")"); }
 
 		if (this.channelDef==null) { 
 			throw new IllegalStateException("Cannot apply a macro muxer to a fixture without a macroChannel definition");
 		}
 	}
+	
+	public void setName(String name) { this.name = name; }
 
 	/** Returns the index of the macro which is currently running, or -1
 	 * if no macro is running
@@ -88,7 +93,7 @@ public class MacroChannelMuxer extends ChannelMuxer {
 	
 	@Override
 	public FixtureOutput getOutput() {
-		logger.debug("mux input " + inputMuxer.getOutput() + ", currentMacroIndex=" + getCurrentMacroIndex());
+		logger.debug(name + " input " + inputMuxer.getOutput() + ", value=" + fixture.getDmxChannelValue(channelDef.getOffset()) + ", currentMacroIndex=" + getCurrentMacroIndex());
 		return getCurrentChannelMuxer().getOutput();
 	}
 }
