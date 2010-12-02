@@ -21,26 +21,38 @@ import com.randomnoun.dmx.fixture.FixtureController;
  */
 public class MiniWashFixtureController extends FixtureController {
 
-  public MiniWashFixtureController(Fixture fixture) {
-    super(fixture);
-	  List controls = new ArrayList();
-	  controls.add(
-	    new CustomControl("Movement Macro 1", UIType.TOGGLE, 
-	    new CustomControlCallback() {
-	    	public void setValue(int value) { 
-	    		setMovementMacro(value==1 ? 1 : 0);
-	    		getCustomControls().get(1).setValue(0);
-	    	}; }) );
-	  controls.add(
-	    new CustomControl("Movement Macro 2", UIType.TOGGLE, 
-	    new CustomControlCallback() {
-	    	public void setValue(int value) { 
-	    		setMovementMacro(value==1 ? 2 : 0);
-	    		getCustomControls().get(0).setValue(0);
-	    	}; }) );
-	  setCustomControls(controls);
-    
-  }
+	public MiniWashFixtureController(Fixture fixture) {
+	    super(fixture);
+	    List controls = new ArrayList();
+	    controls.add(getMotionMacroCustomControl("Motion Macro 1", 1));
+	    controls.add(getMotionMacroCustomControl("Motion Macro 2", 2));
+	    controls.add(getMotionMacroCustomControl("Motion Macro 3", 3));
+	    controls.add(getMotionMacroCustomControl("Motion Macro 4", 4));
+	    controls.add(getMotionMacroCustomControl("Motion Macro 5", 5));
+	    controls.add(getMotionMacroCustomControl("Motion Macro 6", 6));
+	    controls.add(getMotionMacroCustomControl("Motion Macro 7", 7));
+	    controls.add(getMotionMacroCustomControl("Motion Macro 8", 8));
+	    controls.add(new CustomControl("Color Cycle", UIType.TOGGLE,
+	      new CustomControlCallback() {
+	        public void setValue(int value) {
+	          setColorMacro(value==1 ? 17: 0);
+	        }
+	      } ));
+	    setCustomControls(controls);
+	  }
+	    
+	    public CustomControl getMotionMacroCustomControl(String label, int macro) {
+	    	final int finalMacro = macro;
+	      return new CustomControl(label, UIType.TOGGLE, 
+	      new CustomControlCallback() {
+	        public void setValue(int value) { 
+	          setMovementMacro(value==1 ? finalMacro : 0);
+	          for (int i=1; i<=8; i++) { 
+	            if (i!=finalMacro) { getCustomControls().get(i-1).setValue(0); }
+	          }
+	        }
+	      });
+	    }
   
   /** Sets the color of this fixture.
    * 
