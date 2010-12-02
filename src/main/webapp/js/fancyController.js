@@ -494,6 +494,7 @@ function fixAllNoneClick(event) {
     		$("fixGroup").removeClassName("fixSmallSelect"); 
     	}
     }
+    if (fixCustomControlsVisible) { fixUpdateCustomControls(); }
 }
 
 // show/hide the custom controls panel
@@ -519,8 +520,10 @@ function fixUpdateCustomControls() {
     $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){i=f.readAttribute("fixtureId");if(fd==null){fd=fixtureDefs[fixtures[i].type]}else if (fd!=fixtureDefs[fixtures[i].type]){tmft=true;}};});
     if (fd==null) {
     	ccEl.update("Select a fixture or set of fixtures of the same type.");
+    	fixCustomControlFixtureDef=null;
     } else if (tmft) {
     	ccEl.update("Too many fixture types selected. Select a fixture or set of fixtures of the same type.")
+    	fixCustomControlFixtureDef=null;
     } else {
     	if (fixCustomControlFixtureDef!=fd) {
     		fixCustomControlFixtureDef=null;
