@@ -46,7 +46,11 @@ public abstract class FixtureOutput {
 	
 	public String toString() {
 		Color c = getColor();
-		return "r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + ", d=" + getDim();
+		if (c==null) {
+			return "null color, d=" + getDim() + ", p=" + getPan() + ", t=" + getTilt();
+		} else {
+			return "r=" + c.getRed()+ ", g=" + c.getGreen() + ", b=" + c.getBlue() + ", d=" + getDim() + ", p=" + getPan() + ", t=" + getTilt();
+		}
 	}
 	
 }
