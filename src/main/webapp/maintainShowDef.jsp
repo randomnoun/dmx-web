@@ -205,6 +205,7 @@ function initWindow() {
 <col width="100px;"/>
 <col width="100px;"/>
 <col width="700px;"/>
+<c:if test="${showDef==null}" >
 <tr><td>Select show definition:</td>
     <td><r:select name="showDefId" value="${showDefId}" data="${showDefs}" 
   displayColumn="name" valueColumn="id"  /></td>
@@ -214,6 +215,7 @@ function initWindow() {
     <td></td>
     <td><input type="button" name="createShowDef" value="Create new show definition" onclick="edtNewShowDef()" /></td>
 </tr>
+</c:if>
 <c:if test="${showDef!=null}" >
 <input type="hidden" name="showDef.id" value="${showDef.id}" />
 <input type="hidden" name="updateShowDef" value="Y" />
