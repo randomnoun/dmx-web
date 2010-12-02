@@ -122,6 +122,8 @@ public class FancyControllerAction
         			m2.put("label", fd.getHtmlLabel());
     				m2.put("panRange", fd.getPanRange());
     				m2.put("tiltRange", fd.getTiltRange());
+    				m2.put("minStrobeHertz", fd.getMinimumStrobeHertz());
+    				m2.put("maxStrobeHertz", fd.getMaximumStrobeHertz());
     				List cds = new ArrayList();
     				for (int i=0; i<fd.getChannelDefs().size(); i++) {
     					ChannelDef cd = fd.getChannelDefs().get(i);
@@ -168,7 +170,10 @@ public class FancyControllerAction
 		    		m.put("t", twoDigits(fo.getTilt()));
 		    		m.put("at", twoDigits(fo.getActualTilt()));
 		    	}
-		    	Double strobe = fo.getStrobe(); if (strobe!=null) { m.put("s", twoDigits(strobe)); }
+		    	Double strobe = fo.getStrobe(); 
+		    	if (strobe!=null) { 
+		    		m.put("s", twoDigits(strobe)); 
+		    	}
 		    	fixValues.add(m);
 		    }
 
@@ -248,7 +253,10 @@ public class FancyControllerAction
     		    		m.put("t", twoDigits(fo.getTilt()));
     		    		m.put("at", twoDigits(fo.getActualTilt()));
     		    	}
-    		    	Double strobe = fo.getStrobe(); if (strobe!=null) { m.put("s", twoDigits(strobe)); }
+    		    	Double strobe = fo.getStrobe(); 
+    		    	if (strobe!=null) { 
+    		    		m.put("s", twoDigits(strobe)); 
+    		    	}
     		    	fixValues.add(m);
     		    }
     		    result.put("fixValues", fixValues);

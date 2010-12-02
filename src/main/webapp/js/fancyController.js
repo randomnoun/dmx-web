@@ -8,12 +8,6 @@ var lhsMenuPanels=new Array("lgoPanel", "shwPanel", "fixPanel", "dmxPanel", "log
 var longPollRequest=null;
 var currentPanelName=null;
 var MAX_LENGTH=9223372036854775807;
-function startShow(showId) {
-    document.location = "controller.html?action=startShow&showId=" + showId;
-}
-function cancelShow(showId) {
-    document.location = "controller.html?action=cancelShow&showId=" + showId;
-}
 
 function initLookups() {
     for (var i=0; i<fixtures.length; i++) {
@@ -273,6 +267,7 @@ var fixColorPicker = null;
 var fixDimSlider = null;
 var fixStrobeSlider = null;
 var fixUIUpdateOnly = false; // if true, only update UI, don't send AJAX requests
+var fixAimDraggable = null;
 function fixInitPanel() {
     var x,y,fixEl;
     var fp=$("fixPanel");
@@ -296,6 +291,7 @@ function fixInitPanel() {
     Event.observe($("fixAllNone"), 'click', fixAllNoneClick);
     Event.observe($("fixGroup"), 'click', fixGroupClick);
     Event.observe($("fixBlackout"), 'click', fixBlackout);
+    Event.observe($("fixAim"), 'click', fixAimClick);
     fixDimSlider = new Control.Slider("fixDimHandle", "fixDim", {
         axis: "vertical",
         onSlide: function(v) { fixDimChange(v); },
@@ -307,9 +303,10 @@ function fixInitPanel() {
         onChange: function(v) { fixStrobeChange(v); }
     });
     fixStrobeSlider.setValue(1);
+    
     $("fixAimActual").absolutize();
-    new Draggable("fixAimHandle", {
-        // constain code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
+    fixAimDraggable = new Draggable("fixAimHandle", {
+        // constraint code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
         snap: function(x,y,draggable) {
             function constrain(n, lower, upper) {
                 if (n>upper) { return upper; }
@@ -338,6 +335,23 @@ function fixInitPanel() {
     fixColorPicker=jQuery.farbtastic(jQuery('#fixColorPicker'), fixColorChange);
     fixUpdateControls(0);
 } 
+
+// would be nice if this also started the Draggable stuff
+function fixAimClick(event) {
+    /* another day ...
+	var aimHolderEl=$("fixAim");
+	var aimHandleEl=$("fixAimHandle");
+	var pointer  = [Event.pointerX(event), Event.pointerY(event)];
+    var offsets  = Position.cumulativeOffset(aimHolderEl);
+    handleDimensions=Element.getDimensions(aimHandleEl);
+    parentDimensions=Element.getDimensions(aimHolderEl);
+    aimHandleEl.style.left=(pointer[0]-offsets[0]-handleDimensions.width/2) + "px";
+    aimHandleEl.style.top=(pointer[1]-offsets[1]-handleDimensions.ehight/2) + "px";
+    handlePos=Position.positionedOffset(aimHolderEl);
+    fixAimDrag((handlePos[0]+handleDimensions.width/2)/(parentDimensions.width),
+               (handlePos[1]+handleDimensions.height/2)/(parentDimensions.height));
+    */
+}
 
 function fixToggleEl(el) {
     if (el.hasClassName("fixSelect")) {
@@ -411,6 +425,14 @@ function fixUpdateControls(fixtureId) {
     var fd=fixtureDefs[f.type];
     fixUIUpdateOnly=true;
     fixColorPicker.setColor(fixValues[fixtureId]["c"]);
+    fixDimSlider.setValue(1-fixValues[fixtureId]["d"]);
+    if (fixValues[fixtureId]["s"]) {
+    	fixStrobeSlider.setValue(
+    		1-((fixValues[fixtureId]["s"]-fd["minStrobeHertz"])/
+    		(fd["maxStrobeHertz"]-fd["minStrobeHertz"])));
+    } else {
+    	fixStrobeSlider.setValue(1);
+    }
     fixDimSlider.setValue(1-fixValues[fixtureId]["d"]);
     var aimHandleEl=$("fixAimHandle");
     var aimActualEl=$("fixAimActual");
