@@ -3,7 +3,7 @@ package com.example.dmx.show;
 import java.awt.Color;
 import java.util.Map;
 
-import com.example.dmx.fixture.MiniWashFixtureDef12.MiniWashFixtureController;
+import com.example.dmx.fixture.MiniWashFixtureController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.show.Show;
 
