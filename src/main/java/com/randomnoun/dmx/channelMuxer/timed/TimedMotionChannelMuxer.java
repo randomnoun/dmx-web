@@ -22,18 +22,31 @@ public class TimedMotionChannelMuxer extends CyclingTimeBasedChannelMuxer {
 	
 	private long cycleTime;
 	private TimedMotionDef[] timedMotionDefs;
+	private int dmxChannel; // universe-based
 	
 	@Override
 	public long getCycleTime() {
 		return cycleTime;
 	}
 	
+	// cycle offsets start from when the DMX value was originally set to 
+	// initiate this movement macro 
+	public long getCycleOffset() {
+		long getCycleTime = getCycleTime();
+		if (getCycleTime==0) { return 0; }
+		return (timeSource.getTime()-
+			fixture.getUniverse().getDmxLastChangedTime(dmxChannel)) % getCycleTime; 
+	}
+	
+	
 	public TimedMotionChannelMuxer(
 		Fixture fixture, 
-		TimeSource timeSource, 
+		ChannelDef channelDef, 
 		TimedMotionDef[] timedMotionDefs) 
 	{
-		super(fixture, timeSource);
+		super(fixture, fixture.getUniverse().getTimeSource());
+		
+		this.dmxChannel = channelDef.getOffset() + fixture.getStartDmxChannel();
 		this.timedMotionDefs = timedMotionDefs;
 		
 		if (timedMotionDefs==null) { throw new NullPointerException("Null timedMotionDefs"); }
