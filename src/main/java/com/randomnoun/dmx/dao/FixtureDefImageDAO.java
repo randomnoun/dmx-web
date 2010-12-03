@@ -32,6 +32,7 @@ public class FixtureDefImageDAO {
             f.setSize(rs.getLong("size"));
             f.setContentType(rs.getString("contentType"));
             f.setFileLocation(rs.getString("fileLocation"));
+            f.setDescription(rs.getString("description"));
             return f;
         }
     }
@@ -49,7 +50,7 @@ public class FixtureDefImageDAO {
      */
     public List<FixtureDefImageTO> getFixtureDefImages(String sqlWhereClause) {
         String sql =
-            "SELECT id, fixtureDefId, name, size, contentType, fileLocation " +
+            "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description " +
             " FROM fixtureDefImage " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<FixtureDefImageTO>) jt.query(sql, new FixtureDefImageDAORowMapper());
@@ -64,7 +65,7 @@ public class FixtureDefImageDAO {
      */
     public List<FixtureDefImageTO> getFixtureDefImages(FixtureDefTO fixtureDef) {
         String sql =
-            "SELECT id, fixtureDefId, name, size, contentType, fileLocation " +
+            "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description" +
             " FROM fixtureDefImage " +
             " WHERE fixtureDefId = " + fixtureDef.getId();
 	    return (List<FixtureDefImageTO>) jt.query(sql, new FixtureDefImageDAORowMapper());
@@ -79,13 +80,29 @@ public class FixtureDefImageDAO {
      */
     public FixtureDefImageTO getFixtureDefImage(long fixtureDefImageId) {
         return (FixtureDefImageTO) jt.queryForObject(
-            "SELECT id, fixtureDefId, name, size, contentType, fileLocation " +
+            "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description " +
             " FROM fixtureDefImage " +
             " WHERE id = ?",
             new Object[] { new Long(fixtureDefImageId) }, 
             new FixtureDefImageDAORowMapper());
     }
 
+    /** Return a fixtureDefImage
+    *
+    * @param fixtureDefImageId the fixtureDefImageId
+    *
+    * @return the requested FixtureDefImageTO object
+    */
+   public FixtureDefImageTO getFixtureDefImage(long fixtureDefId, String filename) {
+       return (FixtureDefImageTO) jt.queryForObject(
+           "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description " +
+           " FROM fixtureDefImage " +
+           " WHERE fixtureDefId = ? AND name = ?",
+           new Object[] { new Long(fixtureDefId), filename }, 
+           new FixtureDefImageDAORowMapper());
+   }
+    
+    
     /** Update a fixtureDefImage
      *
      * @param fixtureDefImage the fixtureDefImage to update
@@ -93,7 +110,7 @@ public class FixtureDefImageDAO {
     public void updateFixtureDefImage(FixtureDefImageTO fixtureDefImage) {
         String sql =
             "UPDATE fixtureDefImage " +
-            " SET fixtureDefId=?, name=?, size=?, contentType=?, fileLocation=? " + 
+            " SET fixtureDefId=?, name=?, size=?, contentType=?, fileLocation=?, description=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
@@ -102,6 +119,7 @@ public class FixtureDefImageDAO {
                 fixtureDefImage.getSize(),
                 fixtureDefImage.getContentType(),
                 fixtureDefImage.getFileLocation(),
+                fixtureDefImage.getDescription(),
                 fixtureDefImage.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixtureDefImage update failed (" + updated + " rows updated)");
@@ -124,15 +142,16 @@ public class FixtureDefImageDAO {
     	
         String sql =
             "INSERT INTO fixtureDefImage " + 
-            " (fixtureDefId, name, size, contentType, fileLocation) " +
-            " VALUES (?, ?, ?, ?, ? )";
+            " (fixtureDefId, name, size, contentType, fileLocation, description) " +
+            " VALUES (?, ?, ?, ?, ?, ?)";
         long updated = jt.update(sql,
             new Object[] { 
                 fixtureDefImage.getFixtureDefId(),		
                 fixtureDefImage.getName(),
                 fixtureDefImage.getSize(),
                 fixtureDefImage.getContentType(),
-                fixtureDefImage.getFileLocation()});
+                fixtureDefImage.getFileLocation(),
+                fixtureDefImage.getDescription()});
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixtureDefImage insert failed (" + updated + " rows updated)");
         }
@@ -158,10 +177,10 @@ public class FixtureDefImageDAO {
     }
     
     public String sanitiseFilename(String f) {
-    	f=f.toLowerCase();
-    	if (f.indexOf("/")!=-1) { f.substring(f.lastIndexOf("/")); }
-    	if (f.indexOf("\\")!=-1) { f.substring(f.lastIndexOf("\\")); }
-    	if (f.indexOf(":")!=-1) { f.substring(f.lastIndexOf(":")); }
+    	f = f.toLowerCase();
+    	if (f.indexOf("/")!=-1) { f = f.substring(f.lastIndexOf("/")); }
+    	if (f.indexOf("\\")!=-1) { f = f.substring(f.lastIndexOf("\\")); }
+    	if (f.indexOf(":")!=-1) { f = f.substring(f.lastIndexOf(":")); }
     	for (int i=0; i<f.length(); i++) {
     		char ch = f.charAt(i);
     		if ((ch>='0' && ch<='9') || (ch>='a' && ch<='z') || ch=='.') {

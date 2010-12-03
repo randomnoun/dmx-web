@@ -8,6 +8,7 @@ public class FixtureDefImageTO {
     private long size;
     private String contentType;
     private String fileLocation;
+    private String description;
 
     /** Returns the id
      * @return the id
@@ -65,6 +66,17 @@ public class FixtureDefImageTO {
         this.size = size;
     }
 
+    /** Returns the size
+     * @return the size
+     */
+    public String getSizeInUnits() {
+    	if (size < 1024) { return size + " bytes"; }
+    	else if (size < 1024 * 1024) { return (size/1024) + "KB"; }
+    	else if (size < 1024 * 1024 * 1024) { return (size/1024/1024) + "MB"; }
+    	else { return (size/1024/1024/1024) + "GB"; }
+    }
+
+    
     /** Returns the contentType
      * @return the contentType
      */
@@ -93,5 +105,20 @@ public class FixtureDefImageTO {
         this.fileLocation = fileLocation;
     }
 
+    /** Returns the description
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /** Set the description
+     * @param description
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    
 }
 
