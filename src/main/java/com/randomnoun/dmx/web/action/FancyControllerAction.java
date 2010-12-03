@@ -27,8 +27,10 @@ import org.apache.struts.action.ActionMapping;
 import com.randomnoun.common.ExceptionUtils;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
+import com.randomnoun.common.ThreadContext;
 import com.randomnoun.common.security.User;
 import com.randomnoun.common.servlet.VersionServlet;
+import com.randomnoun.common.timer.Benchmark;
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.AudioSource;
 import com.randomnoun.dmx.Controller;
@@ -101,8 +103,14 @@ public class FancyControllerAction
     		fixtureController = fixture.getFixtureController();
     	}
     	if (action==null) { action = ""; }
-    	
-
+    	if ("true".equals(appConfig.getProperty("benchmark.browser.enabled"))) {
+    		String lrid=request.getParameter("lrid"); // lastRequestId
+    		String lrd=request.getParameter("lrd");   // lastRequestDuration
+    		String lru=request.getParameter("lru");   // lastRequestPanelUpdateTime
+    		String trst=request.getParameter("trst"); // thisRequestStartTime
+    		Benchmark benchmark = (Benchmark) request.getAttribute("benchmark");
+    		if (benchmark!=null) { benchmark.annotate("lrid=" + lrid + ",lrd=" + lrd + ",lru=" + lru + ",trst=" + trst); }
+    	}
     	
     	if (action.equals("")) {
     		List shows = new ArrayList();
