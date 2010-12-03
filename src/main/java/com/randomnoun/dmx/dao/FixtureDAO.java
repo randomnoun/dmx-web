@@ -4,9 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -23,6 +21,15 @@ public class FixtureDAO {
             f.setFixtureDefId(rs.getLong("fixtureDefId"));
             f.setName(rs.getString("name"));
             f.setDmxOffset(rs.getLong("dmxOffset"));
+            f.setX(rs.getLong("x")); if (rs.wasNull()) { f.setX(null); }
+            f.setY(rs.getLong("y")); if (rs.wasNull()) { f.setY(null); }
+            f.setZ(rs.getLong("z")); if (rs.wasNull()) { f.setZ(null); }
+            f.setLookingAtX(rs.getLong("lookingAtX")); if (rs.wasNull()) { f.setLookingAtX(null); }
+            f.setLookingAtY(rs.getLong("lookingAtY")); if (rs.wasNull()) { f.setLookingAtY(null); }
+            f.setLookingAtZ(rs.getLong("lookingAtZ")); if (rs.wasNull()) { f.setLookingAtZ(null); }
+            f.setUpX(rs.getLong("upX")); if (rs.wasNull()) { f.setUpX(null); }
+            f.setUpY(rs.getLong("upY")); if (rs.wasNull()) { f.setUpY(null); }
+            f.setUpZ(rs.getLong("upZ")); if (rs.wasNull()) { f.setUpZ(null); }
             return f;
         }
     }
@@ -40,7 +47,7 @@ public class FixtureDAO {
      */
     public List<FixtureTO> getFixtures(String sqlWhereClause) {
         String sql =
-            "SELECT id, fixtureDefId, name, dmxOffset " +
+            "SELECT id, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ " +
             " FROM fixture " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<FixtureTO>) jt.query(sql, new FixtureDAORowMapper());
@@ -54,7 +61,7 @@ public class FixtureDAO {
      */
     public FixtureTO getFixture(long fixtureId) {
         return (FixtureTO) jt.queryForObject(
-            "SELECT id, fixtureDefId, name, dmxOffset " +
+            "SELECT id, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ " +
             " FROM fixture " +
             " WHERE id = ?",
             new Object[] { new Long(fixtureId) }, 
@@ -68,20 +75,64 @@ public class FixtureDAO {
     public void updateFixture(FixtureTO fixture) {
         String sql =
             "UPDATE fixture " +
-            " SET fixtureDefId=?, name=?, dmxOffset=? " + 
+            " SET fixtureDefId=?, name=?, dmxOffset=?, x=?, y=?, z=?, lookingAtX=?, lookingAtY=?, lookingAtZ=?, upX=?, upY=?, upZ=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
                 fixture.getFixtureDefId(),
                 fixture.getName(),
                 fixture.getDmxOffset(),
+                fixture.getX(),
+                fixture.getY(),
+                fixture.getZ(),
+                fixture.getLookingAtX(),
+                fixture.getLookingAtY(),
+                fixture.getLookingAtZ(),
+                fixture.getUpX(),
+                fixture.getUpY(),
+                fixture.getUpZ(),
                 fixture.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixture update failed (" + updated + " rows updated)");
         }
     }
+
+    /** Inserts a fixture into the database.
+     *
+     * The id column of the object will be populated on return
+     *
+     * @param fixture the fixture to insert
+     *
+     * @return the id of the new record
+     */
+    public long createFixture(FixtureTO fixture) {
+        String sql =
+            "INSERT INTO fixture " + 
+            " (fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ) " +
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+        long updated = jt.update(sql,
+            new Object[] { 
+                fixture.getFixtureDefId(),
+                fixture.getName(),
+                fixture.getDmxOffset(),
+                fixture.getX(),
+                fixture.getY(),
+                fixture.getZ(),
+                fixture.getLookingAtX(),
+                fixture.getLookingAtY(),
+                fixture.getLookingAtZ(),
+                fixture.getUpX(),
+                fixture.getUpY(),
+                fixture.getUpZ()});
+        if (updated!=1) {
+            throw new DataIntegrityViolationException("fixture insert failed (" + updated + " rows updated)");
+        }
+        long fixtureId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        fixture.setId(fixtureId);
+        return fixtureId;
+    }
     
-   /** Delete a fixture
+    /** Delete a fixture
     *
     * @param fixture the fixture to update
     */
@@ -95,30 +146,4 @@ public class FixtureDAO {
            throw new DataIntegrityViolationException("fixture delete failed (" + updated + " rows updated)");
        }
    }
-
-    /** Inserts a fixture into the database.
-     *
-     * The id column of the object will be populated on return
-     *
-     * @param fixture the fixture to insert
-     *
-     * @return the id of the new record
-     */
-    public long createFixture(FixtureTO fixture) {
-        String sql =
-            "INSERT INTO fixture " + 
-            " (fixtureDefId, name, dmxOffset) " +
-            " VALUES (?, ?, ? )";
-        long updated = jt.update(sql,
-            new Object[] { 
-                fixture.getFixtureDefId(),
-                fixture.getName(),
-                fixture.getDmxOffset()});
-        if (updated!=1) {
-            throw new DataIntegrityViolationException("fixture insert failed (" + updated + " rows updated)");
-        }
-        long fixtureId = jt.queryForLong("SELECT LAST_INSERT_ID()");
-        fixture.setId(fixtureId);
-        return fixtureId;
-    }
 }

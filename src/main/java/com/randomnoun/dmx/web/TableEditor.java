@@ -313,7 +313,7 @@ public abstract class TableEditor {
   }
 
  /** Returns the username passed in to this request
-  *  @return the username passed in ot this request */
+  *  @return the username passed in to this request */
   public String getUsername() {
     return (String) table.getForm().get("authUsername");
   }

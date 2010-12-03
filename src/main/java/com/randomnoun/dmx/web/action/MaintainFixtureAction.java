@@ -62,7 +62,8 @@ public class MaintainFixtureAction
     public static class FixtureTableEditor extends TableEditor {
 
     	private final static String[] fieldNames = 
-    		new String[] { "id", "fixtureDefId", "name", "dmxOffset" };
+    		new String[] { "id", "fixtureDefId", "name", "dmxOffset", "x", "y", "z",
+    		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ" };
     	
     	// @TODO this is all rather silly...
     	
@@ -115,6 +116,27 @@ public class MaintainFixtureAction
     	    valid = valid & table.checkMandatory("name", 100, "Name");
     	    valid = valid & table.checkMandatory("dmxOffset", 10, "DMX offset");
     	    valid = valid & table.checkNumeric("dmxOffset", "DMX offset");
+    	    valid = valid & table.checkFloat("x", "X Position");
+    	    valid = valid & table.checkFloat("y", "Y Position");
+    	    valid = valid & table.checkFloat("z", "Z Position");
+    	    valid = valid & table.checkFloat("lookingAtX", "Looking at X Position");
+    	    valid = valid & table.checkFloat("lookingAtY", "Looking at Y Position");
+    	    valid = valid & table.checkFloat("lookingAtZ", "Looking at Z Position");
+    	    valid = valid & table.checkFloat("upX", "Up X Vector");
+    	    valid = valid & table.checkFloat("upY", "Up Y Vector");
+    	    valid = valid & table.checkFloat("upZ", "Up Z Vector");
+    	    valid = valid & table.checkMandatoryInclusive(
+    	    	new String[] { "x", "y", "z" },
+    	    	new String[] { "X Position", "Y Position", "Z Position" });
+    	    valid = valid & table.checkMandatoryInclusive(
+    	    	new String[] { "lookingAtX", "lookingAtY", "lookingAtZ" },
+    	    	new String[] { "Looking at X Position", "Looking at Y Position", "Looking at Z Position" });
+    	    valid = valid & table.checkMandatoryInclusive(
+    	    	new String[] { "upX", "upY", "upZ" },
+    	    	new String[] { "Up X Vector", "Up Y Vector", "Up Z Vector" });
+    	    
+    	    
+    	    
     	    return valid;
     	}
     	  

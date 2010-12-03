@@ -282,7 +282,9 @@ public class Table {
       if ("Y".equals((String) row.get("cmdDelete"))) {
         operation = ROW_DELETE;
       } else if ("X".equals((String) row.get("cmdUpdate"))) {
-        operation = ROW_SKIP;
+    	  // row has not changed, but had been submitted in a previous POST
+    	  // (may or may not have validation errors on it) 
+        operation = ROW_UPDATE;
       } else if ("N".equals((String) row.get("cmdUpdate"))) {
     	  // non-autoincrementing non-editable keys
     	operation = ROW_CREATE;
@@ -509,6 +511,55 @@ public class Table {
   }
 
   /**
+   * Performs inclusive mandatoriness validation. If any of the fields specified are
+   * entered, then all fields in the group must be entered. 
+   *
+   * @param columnNames The column names in this row we are inspecting
+   * @param labels The column labels to insert in the error message
+   *
+   * @return <i>true</i> if validation passes, <i>false</i> otherwise.
+   */
+  public boolean checkMandatoryInclusive(String[] columnNames, String[] labels) {
+	  
+	  if (columnNames.length!=labels.length) {
+		  throw new IllegalArgumentException("columnName array length must be == label array length");
+	  }
+	  
+	  int count=0;
+	  String fieldNames = "";
+	  for (int i = 0; i < columnNames.length; i++) {
+		  Object objValue = getRowValue(columnNames[i]);
+	      String value;
+		  if (objValue==null) {
+		      errors.addError(tableName + "[" + currentRowNumber + "]." + columnNames[i], 
+		    	        "Missing field", "The field '" + labels[i] + "' is missing.", 
+		    	        ErrorList.SEVERITY_INVALID);
+    	      return false;
+		  }
+		  if (objValue instanceof String) {
+			  value = (String) objValue;
+		  } else {
+			  value = objValue.toString();
+		  }
+		  if (!Text.isBlank(value)) { count++; };
+		  fieldNames += (i==0 ? "" : ((i==columnNames.length-1) ? " and " : ", ")) + 
+		    "'" + labels[i] + "'";
+	  }
+	  if (count==0 || count==columnNames.length) {
+		  // OK
+		  return true;
+	  } else {
+		  
+	      errors.addError(tableName + "[" + currentRowNumber + "]." +
+	         Text.join(columnNames, "," + tableName + "[" + currentRowNumber + "]."),
+	       	 "Mandatory fields", "You must enter all of the fields " + fieldNames + ", or leave them all empty",
+	    	 ErrorList.SEVERITY_INVALID);
+	      return false;
+	  }
+  }
+
+  
+  /**
    * Performs string length validation.
    *
    * @param columnName The column name in this row we are inspecting
@@ -653,6 +704,78 @@ public class Table {
     return true;
   }
 
+  
+  /**
+   * Performs float field validation. Note that an empty field will pass this
+   * validation rule (use checkMandatory if the field must be entered).
+   *
+   * @param columnName The column name in this row we are inspecting
+   * @param label The column label to insert in the error message
+   *
+   * @return <i>true</i> if validation passes, <i>false</i> otherwise.
+   */
+  public boolean checkFloat(String columnName, String label) {
+    return checkFloat(columnName, label, -1);
+  }
+
+  /**
+   * Performs float field validation. Note that an empty field will pass this
+   * validation rule (use checkMandatory if the field must be entered).
+   *
+   * @param columnName The column name in this row we are inspecting
+   * @param label The column label to insert in the error message
+   * @param maxDigits The maximum number of digits permissible. A negative value indicates
+   *                  that no maximum constraint applies; a value of <i>0</i>, whilst
+   *                  valid, is somewhat pointless.
+   *
+   * @return <i>true</i> if validation passes, <i>false</i> otherwise.
+   */
+  public boolean checkFloat(String columnName, String label, int maxDigits) {
+    Object objValue = getRowValue(columnName);
+    String value;
+
+    if (objValue == null) {
+      return true;
+    }
+
+    if (objValue instanceof String) {
+      value = (String) objValue;
+    } else {
+      value = objValue.toString();
+    }
+
+    if (value.equals("")) {
+      return true;
+    }
+
+    boolean canConvertToFloat = false;
+    try {
+    	float f = new Float(value).floatValue();
+    	canConvertToFloat = true;
+    } catch (NumberFormatException nfe) {
+    	// fair enough then
+    }
+   
+    if (!canConvertToFloat) {
+      errors.addError(tableName + "[" + currentRowNumber + "]." + columnName, 
+        "Invalid field", "The field '" + label + "' must be a valid number", 
+        ErrorList.SEVERITY_INVALID);
+
+      return false;
+    }
+
+    if (maxDigits >= 0 && value.length() > maxDigits) {
+      errors.addError(tableName + "[" + currentRowNumber + "]." + columnName, 
+        "Invalid field", "The field '" + label + "' must not contain more than " + 
+        maxDigits + " digits", ErrorList.SEVERITY_INVALID);
+
+      return false;
+    }
+
+    return true;
+  }
+  
+  
   /**
    * Performs currency field validation. Note that an empty field will pass this
    * validation rule (use checkMandatory if the field must be entered).
