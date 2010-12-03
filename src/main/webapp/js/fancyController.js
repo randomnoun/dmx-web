@@ -171,13 +171,13 @@ function lgoInitPanel() {
   
 function shwInitPanel() {
     var x, y, el, displayOffset=0, lastShowGroupId=-1;
-    var sp=$("shwPanel");
+    var sp=$("shwItemContainer");
     for (var i=0; i<shows.length; i++) {
     	var show = shows[i];
     	if (lastShowGroupId!=show["showGroupId"]) {
     		var separatorEl = new Element("div", { "class" : "shwItemSeparator" });
-    		separatorEl.style.left="20px"; 
-    		separatorEl.style.top=((110+Math.floor((i+displayOffset-1)/4)*90)+80)+"px";
+    		separatorEl.style.left="10px"; 
+    		separatorEl.style.top=((10+Math.floor((i+displayOffset-1)/4)*90)+80)+"px";
     		if ((i+displayOffset)%4!=0) {
     			displayOffset += (4-((i+displayOffset)%4));
     		}
@@ -185,7 +185,7 @@ function shwInitPanel() {
     		lastShowGroupId = show["showGroupId"];
     	}
         
-        x=20+((i+displayOffset)%4)*200; y=110+Math.floor((i+displayOffset)/4)*90;
+        x=10+((i+displayOffset)%4)*200; y=10+Math.floor((i+displayOffset)/4)*90;
         var shwEl = new Element("div", { 
             "id": "shwItem[" + show["id"] + "]", 
             "showId": show["id"],
@@ -197,7 +197,9 @@ function shwInitPanel() {
         sp.appendChild(shwEl);
         Event.observe(shwEl, 'click', shwItemClick);
     }
-    Event.observe($("shwCancel"), 'click', shwCancel);
+    Event.observe($("shwCancel"), 'click', shwCancelClick);
+    Event.observe($("shwPageUp"), 'click', shwPageDownClick);
+    Event.observe($("shwPageDown"), 'click', shwPageUpClick);
 } 
 
 function shwItemClick(event) {
@@ -207,9 +209,24 @@ function shwItemClick(event) {
     sendRequest('fancyController.html?action=startShow&showId=' + showId, startPollRequests);
 }
 
-function shwCancel(event) {
+function shwCancelClick(event) {
     sendRequest('fancyController.html?action=cancelShow');
 }
+
+function shwPageDownClick(event) {
+	//new Effect.ScrollTo($("shwItemContainer"), { duration:'0.2', offset:-1000 });
+	var el = $("shwItemContainer");
+	new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, 'scrollTop');
+	
+}
+
+function shwPageUpClick(event) {
+	//new Effect.ScrollTo($("shwItemContainer"), { duration:'0.2', offset:1000 });
+	var el = $("shwItemContainer");
+	new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, 'scrollTop');
+}
+
+
 
 // this could be cleaned up a bit
 function shwUpdatePanel(json) {
