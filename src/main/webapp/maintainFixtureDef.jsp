@@ -240,6 +240,10 @@ function edtRefreshProgress() {
     });	
 }
 
+function edtDeleteFile(id) {
+	alert("Not implemented");
+}
+
 function edtUpdateProgress(json) {
     $("progressBarText").update("upload in progress: " + json.percentDone + "%");
     $("progressBarBoxContent").style.width = parseInt(json.percentDone * 2) + "px";
@@ -252,14 +256,15 @@ function edtCompletedUploadError(text) {
     $("addFile").disabled = false;
 }
 
-function edtCompletedUploadOK(id, size, name) {
+function edtCompletedUploadOK(id, sizeInUnits, name, description) {
 	var newRowEl = new Element("tr");
 	newRowEl.appendChild(new Element("td"));
 	newRowEl.appendChild(new Element("td").update(
-		"<input type=\"checkbox\" name=\"image" + id + "\" checked> " + 
-		"<a href=\"maintainFixtureDef.html?action=getFile&fileId=" + id + "\" target=\"_new\">" + name + "</a> (" + size + ")<br/>"));
+		"<input type=\"button\" name=\"image" + id + "\" value=\"Delete\" onclick=\"edtDeleteFile(" + id + ")\"/> " + 
+		"<a href=\"image/fixture/" + fixtureDefId + "/" + name + "\" target=\"_new\">" + name + "</a> (" + sizeInUnits + ") " + description + "<br/>"));
 	$("lastImageRow").insert({'before': newRowEl});
 	if ($("attachment")) { $("attachment").value = ""; }
+	if ($("description")) { $("description").value = ""; }
 	$("addFile").disabled = false;
 }
 
@@ -316,7 +321,8 @@ function initWindow() {
 <input type="hidden" name="action" value="submitFile" />
 <input type="hidden" name="fixtureDefId" value="${fixtureDef.id}" />
 <tr><td valign="top">Image attachments:</td>
-    <td><input type="file" name="attachment" />
+    <td><input id="attachment" type="file" name="attachment" />
+        <input id="description" type="text" name="description" size="30" />
         <input id="addFile", type="button" name="addFile" value="Add" />
         <div id="progressBar" style="display: block;">
           <div id="theMeter">
@@ -336,8 +342,9 @@ function initWindow() {
 
 <c:if test="${fixtureDefImages!=null}" >
 <c:forEach var="fixtureDefImage" items="${fixtureDefImages}" >
-<tr><td valign="top"></td>
-    <td><input type="checkbox" name="image<c:out value="${fixtureDefImage.id}"/>" checked> <a href="maintainFixtureDef.html?action=getFile&fileId=<c:out value="${fixtureDefImage.id}"/>" target="_new"><c:out value="${fixtureDefImage.name}"/></a> (<c:out value="${fixtureDefImage.size}"/>)<br/>
+<tr><td valign="top"></td> 
+    <!--  maintainFixtureDef.html?action=getFile&fileId=<c:out value="${fixtureDefImage.id}"/>"   -->
+    <td><input type="button" name="image<c:out value="${fixtureDefImage.id}"/>" value="Delete" onclick="edtDeleteFile(<c:out value="${fixtureDefImage.id}"/>)"/> <a href="image/fixture/<c:out value="${fixtureDefImage.fixtureDefId}"/>/<c:out value="${fixtureDefImage.name}"/>" target="_new"><c:out value="${fixtureDefImage.name}"/></a> (<c:out value="${fixtureDefImage.sizeInUnits}"/>) <c:out value="${fixtureDefImage.description}"/><br/>
     </td>    
 </tr>
 </c:forEach>

@@ -195,22 +195,23 @@ public class MaintainFixtureDefAction
     			// errors.addError("Image not uploaded", "Maximum sizelimit exceeded", ErrorList.SEVERITY_OK);
     			script = "parent.edtCompletedUploadError(\"Maximum sizelimit exceeded\");";
     		} else {
-	            StrutsUploadForm myForm = (StrutsUploadForm) actionForm;
+    			String description = ((String[]) actionForm.getMultipartRequestHandler().getAllElements().get("description"))[0];
 	            Map files = actionForm.getMultipartRequestHandler().getFileElements();
-	            FormFile file = (FormFile)files.get("attachment");
+	            FormFile file = (FormFile) files.get("attachment");
 	            if (file.getFileSize()==0) {
 	            	script = "parent.edtCompletedUploadError(\"Zero-byte file submitted\");";
 	            } else {
 		            FixtureDefImageTO fixtureDefImage = new FixtureDefImageTO();
 		            fixtureDefImage.setFixtureDefId(fixtureDefId);
 		            fixtureDefImage.setName(file.getFileName());
+		            fixtureDefImage.setDescription(description);
 		            fixtureDefImage.setSize(file.getFileSize());
 		            fixtureDefImage.setContentType(file.getContentType());
 		            fixtureDefImageDAO.createFixtureDefImage(fixtureDefImage);
 		            fixtureDefImageDAO.saveImage(fixtureDefImage, file.getInputStream());
 		            // errors.addError("Image uploaded", "Documentation file '" + fileName + "' (" + fileSize + " bytes) uploaded OK", ErrorList.SEVERITY_OK);
-		            script = "parent.edtCompletedUploadOK(" + fixtureDefImage.getId() + ", " + fixtureDefImage.getSize() + 
-		              ", \"" + Text.escapeJavascript2(fixtureDefImage.getName()) + "\");";
+		            script = "parent.edtCompletedUploadOK(" + fixtureDefImage.getId() + ", \"" + fixtureDefImage.getSizeInUnits() + 
+		              "\", \"" + Text.escapeJavascript2(fixtureDefImage.getName()) + "\", \"" + Text.escapeJavascript2(fixtureDefImage.getDescription()) + "\");";
 	            }
     		}
     		request.setAttribute("script", script);
