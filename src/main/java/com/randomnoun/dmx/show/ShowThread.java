@@ -54,6 +54,7 @@ public class ShowThread extends Thread {
 					}
 				}
 			} catch (Exception e) {
+				onWithTheShow = false;
 				logger.debug("Show '" + show.getName() + "' threw an exception", e);
 				show.state = Show.State.SHOW_STOPPED_WITH_EXCEPTION;
 				show.setLastException(e);
