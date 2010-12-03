@@ -15,6 +15,8 @@ public abstract class FixtureDef {
 
 	protected String vendor;
 	protected String model;
+	protected String htmlImg;
+	protected String htmlLabel;
 	
 	/** Length of fixture, in mm */
 	protected long length;
@@ -113,11 +115,13 @@ public abstract class FixtureDef {
 	
 
 	public String getHtmlImg() {
-		return "image/fixture/placeholder.png";
+		if (htmlImg==null) { return "image/fixturePlaceholder.png"; }
+		return htmlImg;
 	}
 
 	public String getHtmlLabel() {
-		return this.getClass().getName();
+		if (htmlLabel==null) { return this.getClass().getName(); }
+		return htmlLabel;
 	}
 	
 }
