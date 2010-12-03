@@ -617,6 +617,12 @@ public class AppConfig extends AppConfigBase {
     		logger.error("Not starting show " + showId + " - unknown show");
     		return;
     	}
+    	ShowThread thread = showConfig.getThread();
+    	if (thread.isAlive()) {
+    		// @TODO cancel & restart show ?
+    		logger.warn("Not starting show " + showId + " '" + showConfig.getShow().getName() + "' since it has already started");
+    		return;
+    	}
     	// cancel all shows with the same showGroupId
     	if (showConfig.getShow().getShowGroupId()!=-1) {
 	    	for (ShowConfig showConfig2 : showConfigs.values()) {
@@ -630,14 +636,7 @@ public class AppConfig extends AppConfigBase {
     	}
     	// should probably wait a small amount of time for shows to cancel properly,
     	// then forcibly terminate them
-    	
-    	ShowThread thread = showConfig.getThread();
-    	if (thread.isAlive()) {
-    		// @TODO cancel & restart show ?
-    		logger.warn("Not starting show " + showId + " '" + showConfig.getShow().getName() + "' since it has already started");
-    	} else {
-    		thread.start();
-    	}
+    	thread.start();
     }
     
     public void cancelShow(long showId) {
