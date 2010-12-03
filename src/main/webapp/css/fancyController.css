@@ -150,6 +150,11 @@ BODY { font-size: 8pt; font-family: Arial; }
 	
 
 /*** FIXTURE panel ***/
+#fixItemContainer {
+  position: absolute; top: 200px; left: 10px; width: 800px; height: 480px;
+  border: dotted 1px #AAAAFF;
+  overflow: hidden; 
+}
 .fixItem {
   position: absolute; width: 180px; height: 70px; /*background-color: #AAAAFF; */
   background-image: url("../image/button-blue.png");  
@@ -192,6 +197,18 @@ BODY { font-size: 8pt; font-family: Arial; }
   visibility: hidden;
 }
 
+#fixPageUp {
+  position: absolute; width: 80px; height: 70px; top:210px; left: 820px; 
+  background-image: url("../image/sbutton-blue.png"); 
+  text-align: center; color: #000044; font-size: 14pt;
+  cursor: pointer;  
+}
+#fixPageDown {
+  position: absolute; width: 80px; height: 70px; top:610px; left: 820px; 
+  background-image: url("../image/sbutton-blue.png"); 
+  text-align: center; color: #000044; font-size: 14pt;
+  cursor: pointer;  
+}   
 
 
 #fixDim {

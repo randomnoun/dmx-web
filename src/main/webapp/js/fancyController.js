@@ -214,14 +214,11 @@ function shwCancelClick(event) {
 }
 
 function shwPageDownClick(event) {
-	//new Effect.ScrollTo($("shwItemContainer"), { duration:'0.2', offset:-1000 });
 	var el = $("shwItemContainer");
 	new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, 'scrollTop');
-	
 }
 
 function shwPageUpClick(event) {
-	//new Effect.ScrollTo($("shwItemContainer"), { duration:'0.2', offset:1000 });
 	var el = $("shwItemContainer");
 	new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, 'scrollTop');
 }
@@ -306,8 +303,9 @@ var fixCustomControls = new Array();
 function fixInitPanel() {
     var x,y,fixEl;
     var fp=$("fixPanel");
+    var fic=$("fixItemContainer");
     for (var i=0; i<fixtures.length; i++) {
-        x=20+(i%4)*200; y=210+Math.floor(i/4)*90;
+        x=10+(i%4)*200; y=10+Math.floor(i/4)*90;
         f=fixtures[i]; fd=fixtureDefs[f.type];
         var fixEl = new Element("div", { 
             "id": "fixItem[" + i + "]", "fixtureId": i,
@@ -319,8 +317,7 @@ function fixInitPanel() {
             "</div>" 
             );
         fixEl.style.left=x+"px"; fixEl.style.top=y+"px";
-        fp.appendChild(fixEl);
-        
+        fic.appendChild(fixEl);
         Event.observe(fixEl, 'click', fixItemClick);
     }
     Event.observe($("fixAllNone"), 'click', fixAllNoneClick);
@@ -367,10 +364,24 @@ function fixInitPanel() {
     Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
     Event.observe('fixStrobeScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // mozilla
     Event.observe('fixStrobeScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // IE/Opera
+    Event.observe($("fixPageUp"), 'click', fixPageDownClick);
+    Event.observe($("fixPageDown"), 'click', fixPageUpClick);
+
     //jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
     fixColorPicker=jQuery.farbtastic(jQuery('#fixColorPicker'), fixColorChange);
     fixUpdateControls(0);
 } 
+
+function fixPageDownClick(event) {
+	var el = $("fixItemContainer");
+	new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, 'scrollTop');
+}
+
+function fixPageUpClick(event) {
+	var el = $("fixItemContainer");
+	new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, 'scrollTop');
+}
+
 
 // would be nice if this also started the Draggable stuff
 function fixAimClick(event) {
