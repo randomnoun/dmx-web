@@ -38,12 +38,21 @@
     <servlet-name>multiJavascript</servlet-name>
     <servlet-class>com.randomnoun.dmx.web.MultiJavascriptServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>fixtureImage</servlet-name>
+    <servlet-class>com.randomnoun.dmx.web.FixtureImageServlet</servlet-class>
+  </servlet>
 
 
   <servlet-mapping>
     <servlet-name>action</servlet-name>
     <url-pattern>*.html</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>fixtureImage</servlet-name>
+    <url-pattern>/image/fixture</url-pattern>
+  </servlet-mapping>
+  
   <servlet-mapping>
     <servlet-name>versionServlet</servlet-name>
     <url-pattern>/version</url-pattern>
