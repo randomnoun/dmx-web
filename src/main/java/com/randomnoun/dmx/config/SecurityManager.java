@@ -9,6 +9,10 @@ import org.apache.log4j.Logger;
 
 /** A security manager that restricts the operations allowed by
  * ShowThreads. 
+ *
+ * XXX: Don't throw additional SecurityExceptions in here; there's only
+ * one SecurityManager per VM (set by System.setSecurityManager). 
+ * You probably want to look at ProtectionDomains/PolicyManagers instead.
  * 
  * TODO: what about code executed in fixture definitions/controllers via the 
  * controller actions ?
@@ -37,6 +41,8 @@ public class SecurityManager extends java.lang.SecurityManager {
 		this.parentManager = parentManager;
 	}
 
+	// not using log4j due to circular dependencies logging security 
+	// checks within (and whilst loading) log4j classes
 	private void debug(String s) {
 		String threadId = Thread.currentThread().getName();
 		if (!threadId.startsWith("ContainerBackgroundProcessor")) {
@@ -109,7 +115,10 @@ public class SecurityManager extends java.lang.SecurityManager {
 	
 	@Override
 	public void checkPermission(Permission perm) {
-		debug("checkPermission([name='" + perm.getName() + "',actions='" + perm.getActions() + "']");
+		// http threads do a *lot* of these
+		if (!perm.getName().equals("setContextClassLoader")) {
+			debug("checkPermission([name='" + perm.getName() + "',actions='" + perm.getActions() + "']");
+		}
 		if (parentManager!=null) { parentManager.checkPermission(perm); }
 	}
 
@@ -140,18 +149,21 @@ public class SecurityManager extends java.lang.SecurityManager {
 
 	@Override
 	public void checkExit(int status) {
+		//throw new SecurityException("exit not permitted");
 		debug("checkExit(" + status + ")");
 		if (parentManager!=null) { parentManager.checkExit(status); }
 	}
 
 	@Override
 	public void checkExec(String cmd) {
+		//throw new SecurityException("exec not permitted");
 		debug("checkExec('" + cmd + "')");
 		if (parentManager!=null) { parentManager.checkExec(cmd); }
 	}
 
 	@Override
 	public void checkLink(String lib) {
+		//throw new SecurityException("link not permitted");
 		debug("checkLink('" + lib + "')");
 		if (parentManager!=null) { parentManager.checkLink(lib); }
 	}
@@ -176,66 +188,77 @@ public class SecurityManager extends java.lang.SecurityManager {
 
 	@Override
 	public void checkWrite(FileDescriptor fd) {
+		//throw new SecurityException("write not permitted");
 		debug("checkWrite(FileDescriptor " + fd.toString() + ")");
 		if (parentManager!=null) { parentManager.checkWrite(fd); }
 	}
 
 	@Override
 	public void checkWrite(String file) {
+		//throw new SecurityException("write not permitted");
 		debug("checkWrite('" + file + "')");
 		if (parentManager!=null) { parentManager.checkWrite(file); }
 	}
 
 	@Override
 	public void checkDelete(String file) {
+		//throw new SecurityException("delete not permitted");
 		debug("checkDelete('" + file + "')");
 		if (parentManager!=null) { parentManager.checkDelete(file); }
 	}
 
 	@Override
 	public void checkConnect(String host, int port) {
+		//throw new SecurityException("connect not permitted");
 		debug("checkConnect('" + host + "', " + port + ")");
 		if (parentManager!=null) { parentManager.checkConnect(host, port); }
 	}
 
 	@Override
 	public void checkConnect(String host, int port, Object context) {
+		//throw new SecurityException("connect not permitted");
 		debug("checkConnect('" + host + "', " + port + ", " + context.getClass().getName() + ")");
 		if (parentManager!=null) { parentManager.checkConnect(host, port, context); }
 	}
 
 	@Override
 	public void checkListen(int port) {
+		//throw new SecurityException("listen not permitted");
 		debug("checkListen(" + port + ")");
 		if (parentManager!=null) { parentManager.checkListen(port); }
 	}
 
 	@Override
 	public void checkAccept(String host, int port) {
+		//throw new SecurityException("accept not permitted");
 		debug("checkAccept('" + host + "', " + port + ")");
 		if (parentManager!=null) { parentManager.checkAccept(host, port); }
 	}
 
 	@Override
 	public void checkMulticast(InetAddress maddr) {
+		//throw new SecurityException("multicast not permitted");
 		debug("checkMulticast(InetAddress " + maddr.toString() + ")");
 		if (parentManager!=null) { parentManager.checkMulticast(maddr); }
 	}
 
 	@Override
 	public void checkMulticast(InetAddress maddr, byte ttl) {
+		//throw new SecurityException("multicast not permitted");
 		debug("checkMulticast(InetAddress " + maddr.toString() + ", " + ttl + ")");
 		if (parentManager!=null) { parentManager.checkMulticast(maddr, ttl); }
 	}
 
 	@Override
 	public void checkPropertiesAccess() {
+		//throw new SecurityException("propertiesAccess not permitted");
 		debug("checkPropertiesAccess()");
 		if (parentManager!=null) { parentManager.checkPropertiesAccess(); }
 	}
 
 	@Override
 	public void checkPropertyAccess(String key) {
+		//throw new SecurityException("propertyAccess not permitted");
 		debug("checkPropertyAccess('" + key + "')");
 		if (parentManager!=null) { parentManager.checkPropertyAccess(key); }
 	}
