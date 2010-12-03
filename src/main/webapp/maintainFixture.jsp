@@ -98,6 +98,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
   font-weight: bold; text-align: center; padding-top: 16px;
   cursor: pointer
 }
+.smallInput { width: 40px; }
 </style>
 
 
@@ -114,7 +115,8 @@ var tblObj = new rnTable(
   'mainForm',                                 // enclosing clientside form id
   'Are you sure you wish to delete this fixture ?',
     new Array(
-      'id', 'fixtureDefId', 'name', 'dmxOffset')
+      'id', 'fixtureDefId', 'name', 'dmxOffset','x', 'y', 'z',
+      'lookingAtX', 'lookingAtY', 'lookingAtZ', 'upX', 'upY', 'upZ')
 );
 
 
@@ -165,11 +167,26 @@ function initWindow() {
 	    <input type="hidden" name="action" value="maintain" /> 
 
   <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
+      <tr>
+        <td colspan="4"></td>
+        <td colspan="3" class="formHeader" style="background-color: #000052">Position</td>
+        <td colspan="3" class="formHeader" style="background-color: #000052">Looking at Position</td>
+        <td colspan="3" class="formHeader" style="background-color: #000052">Up vector</td>
+      </tr>
       <tr valign="bottom"> 
        <td class="formHeader">&nbsp;</td>
        <td class="formHeader" style="background-color: #000052">Fixture type</td>
        <td class="formHeader" style="background-color: #000052">Name</td>
        <td class="formHeader" style="background-color: #000052">DMX offset</td>
+       <td class="formHeader" style="background-color: #000052">X</td>
+       <td class="formHeader" style="background-color: #000052">Y</td>
+       <td class="formHeader" style="background-color: #000052">Z</td>
+       <td class="formHeader" style="background-color: #000052">X</td>
+       <td class="formHeader" style="background-color: #000052">Y</td>
+       <td class="formHeader" style="background-color: #000052">Z</td>
+       <td class="formHeader" style="background-color: #000052">X</td>
+       <td class="formHeader" style="background-color: #000052">Y</td>
+       <td class="formHeader" style="background-color: #000052">Z</td>
    </tr>
       <c:forEach var="rowData" varStatus="rowStatus" items="${form.fixtures}" > 
                    <c:choose> <c:when test="${rowData.cmdDelete == 'Y'}"> 
@@ -196,11 +213,39 @@ function initWindow() {
                                   <r:select data="${form.fixtureDefs}" name="fixtures[${rowStatus.index}].fixtureDefId" value="${rowData.fixtureDefId}" displayColumn="name" valueColumn="id" firstOption="(please select...)" />
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].name' text='errorBg' />"> 
-                                  <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="55">
+                                  <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="20">
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].dmxOffset' text='errorBg' />"> 
-                                  <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.dmxOffset}'/>" size="30">
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.dmxOffset}'/>" >
                               </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].x' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].x" value="<c:out value='${rowData.x}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].y' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].y" value="<c:out value='${rowData.y}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].z' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].z" value="<c:out value='${rowData.z}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].lookingAtX' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].lookingAtX" value="<c:out value='${rowData.lookingAtX}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].lookingAtY' text='errorBg' />"> 
+                                  <input type="text" class="fsmallInput ormfield" name="fixtures[<c:out value='${rowStatus.index}'/>].lookingAtY" value="<c:out value='${rowData.lookingAtY}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].lookingAtZ' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].lookingAtZ" value="<c:out value='${rowData.lookingAtZ}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].upX' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].upX" value="<c:out value='${rowData.upX}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].upY' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].upY" value="<c:out value='${rowData.upY}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].upZ' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].upZ" value="<c:out value='${rowData.upZ}'/>" >
+                              </td>
+                              
                           </tr>
                    </c:when>
                           
@@ -215,11 +260,39 @@ function initWindow() {
                                   <r:select data="${form.fixtureDefs}" name="fixtures[${rowStatus.index}].fixtureDefId" value="${rowData.fixtureDefId}" displayColumn="name" valueColumn="id" firstOption="(please select...)"/>
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].name' text='errorBg' />"> 
-                                  <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="55">
+                                  <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="20">
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].dmxOffset' text='errorBg' />"> 
-                                  <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.dmxOffset}'/>" size="30">
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.dmxOffset}'/>" >
                               </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].x' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].x" value="<c:out value='${rowData.x}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].y' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].y" value="<c:out value='${rowData.y}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].z' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].z" value="<c:out value='${rowData.z}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].lookingAtX' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].lookingAtX" value="<c:out value='${rowData.lookingAtX}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].lookingAtY' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].lookingAtY" value="<c:out value='${rowData.lookingAtY}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].lookingAtZ' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].lookingAtZ" value="<c:out value='${rowData.lookingAtZ}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].upX' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].upX" value="<c:out value='${rowData.upX}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].upY' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].upY" value="<c:out value='${rowData.upY}'/>" >
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].upZ' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].upZ" value="<c:out value='${rowData.upZ}'/>" >
+                              </td>
+                              
                        </tr>
                    </c:otherwise></c:choose> 
                </c:forEach> 
@@ -230,8 +303,17 @@ function initWindow() {
                        <input type="hidden" name="fixtures[<c:out value='${form.fixtures_size}'/>].cmdUpdate" value="N">
                    </td>
                    <td><r:select data="${form.fixtureDefs}" name="fixtures[${form.fixtures_size}].fixtureDefId" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)"/></td>
-                   <td><input type="text" class="formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].name" value="" size="55"></td>
-                   <td><input type="text" class="formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].dmxOffset" value="" size="30"></td>
+                   <td><input type="text" class="formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].name" value="" size="20"></td>
+                   <td><input type="text" class="smallInput formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].dmxOffset" value="" ></td>
+                   <td><input type="text" class="smallInput formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].x" value="" ></td>
+                   <td><input type="text" class="smallInput formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].y" value="" ></td>
+                   <td><input type="text" class="smallInput formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].z" value="" ></td>
+                   <td><input type="text" class="smallInput formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].lookingAtX" value="" ></td>
+                   <td><input type="text" class="smallInput formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].lookingAtY" value="" ></td>
+                   <td><input type="text" class="smallInput formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].lookingAtZ" value="" ></td>
+                   <td><input type="text" class="smallInput formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].upX" value="" ></td>
+                   <td><input type="text" class="smallInput formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].upY" value="" ></td>
+                   <td><input type="text" class="smallInput formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].upZ" value="" ></td>
                </tr>
                <tr> 
                    <td> <div class="greenrollover"> <a href="javascript:void(0)" onclick="fnAddRow(tblObj); return 0;"><img src="image/add-icon.gif" width="18" height="17" border="0"></a></div></td>
