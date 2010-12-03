@@ -35,6 +35,25 @@ public class Fixture {
 	
 	/** X position of this fixture */
 	float z;
+
+	
+	/** Looking-at X position of this fixture */
+	float lookingAtX;
+	
+	/** Looking-at Y position of this fixture */
+	float lookingAtY;
+	
+	/** Looking-at X position of this fixture */
+	float lookingAtZ;
+	
+	/** Up X vector of this fixture */
+	float upX;
+	
+	/** Up Y vector of this fixture */
+	float upY;
+	
+	/** Up Z vector of this fixture */
+	float upZ;
 	
 	// could generate these on demand, perhaps
 	FixtureController fixtureController;
@@ -59,6 +78,18 @@ public class Fixture {
 		this.z = z;
 	}
 	
+	public void setLookingAt(float x, float y, float z) {
+		this.lookingAtX = x;
+		this.lookingAtY = y;
+		this.lookingAtZ = z;
+	}
+	
+	public void setUpVector(float x, float y, float z) {
+		this.upX = x;
+		this.upY = y;
+		this.upZ = z;
+	}
+	
 	/** Returns this fixture's position in a three-element float array 
 	 * (x, y, z)
 	 * 
@@ -67,6 +98,25 @@ public class Fixture {
 	public float[] getPosition() {
 		return new float[]{x, y, z};
 	}
+
+	/** Returns this fixture's looking-at location in a three-element float array 
+	 * (x, y, z)
+	 * 
+	 * @return
+	 */
+	public float[] getLookingAt() {
+		return new float[]{lookingAtX, lookingAtY, lookingAtZ};
+	}
+
+	/** Returns this fixture's up vector in a three-element float array 
+	 * (x, y, z)
+	 * 
+	 * @return
+	 */
+	public float[] getUpVector() {
+		return new float[]{upX, upY, upZ};
+	}
+
 	
 	/*
 	public void setPan(double pan) { this.pan = pan; timeSinceLastPanUpdate = System.currentTimeMillis(); }
