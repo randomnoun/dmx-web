@@ -83,6 +83,9 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
     <div id="shwAudioMidOuter" class="shwAudioOuter" /><div id="shwAudioMidInner" class="shwAudioInner"></div></div>
     <div id="shwAudioTrebleOuter" class="shwAudioOuter" /><div id="shwAudioTrebleInner" class="shwAudioInner"></div></div>
   </div>
+  <div id="shwPageUp">Page up</div>
+  <div id="shwPageDown">Page down</div>
+  <div id="shwItemContainer"></div>
 </div>
 
 
@@ -114,6 +117,10 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="fixAllNone" class="fixControl fixAllNone">All/None</div>
   <div id="fixCustom" class="fixControl fixCustom">Custom controls</div>
   
+  <div id="fixItemContainer"></div>
+  <div id="fixPageUp">Page up</div>
+  <div id="fixPageDown">Page down</div>
+
 </div>
 
 <div id="dmxPanel" style="display: none;">
