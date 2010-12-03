@@ -396,6 +396,10 @@ function fixItemClick(event) {
     $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
     if (fixItems.length==1) {
     	var fd = fixtureDefs[fixtures[fixItems[0]].type];
+    	var cn=$("fixAim").childNodes;
+    	for (var i=cn.length-1; i>1; i--) {
+        	cn.item(i).parentNode.removeChild(cn.item(i));
+        }
         fixLabelAim(0, fd["panRange"], 0, fd["tiltRange"]);
     	fixUpdateControls(fixItems[0]);
     	$("fixAllNone").removeClassName("fixSmallSelect");
