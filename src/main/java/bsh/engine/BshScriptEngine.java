@@ -30,7 +30,7 @@ public class BshScriptEngine extends AbstractScriptEngine
 		getInterpreter(); // go ahead and prime the interpreter now
 	}
 
-	protected Interpreter getInterpreter()
+	public Interpreter getInterpreter()
 	{
 		if ( interpreter == null ) {
 			this.interpreter = new bsh.Interpreter();
