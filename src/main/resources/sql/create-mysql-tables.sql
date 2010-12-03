@@ -15,6 +15,15 @@ CREATE TABLE `fixture` (
   `fixtureDefId` INTEGER UNSIGNED NOT NULL,
   `name` VARCHAR(100),
   `dmxOffset` INTEGER UNSIGNED NOT NULL,
+   `x` FLOAT DEFAULT NULL,
+   `y` FLOAT DEFAULT NULL,
+   `z` FLOAT DEFAULT NULL,
+   `lookingAtX` FLOAT DEFAULT NULL,
+   `lookingAtY` FLOAT DEFAULT NULL,
+   `lookingAtZ` FLOAT DEFAULT NULL,
+   `upX` FLOAT DEFAULT NULL,
+   `upY` FLOAT DEFAULT NULL,
+   `upZ` FLOAT DEFAULT NULL,
   PRIMARY KEY (`Id`)
 )
 ENGINE = InnoDB;
@@ -57,6 +66,7 @@ CREATE TABLE `fixtureDefImage` (
   `size` INTEGER UNSIGNED NOT NULL,
   `contentType` VARCHAR(200) NOT NULL,
   `fileLocation` VARCHAR(200) NOT NULL COMMENT 'relative to app base specified in appConfig',
+  `description` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`)
 )
 ENGINE = InnoDB;
