@@ -6,7 +6,10 @@ import java.io.StringReader;
 import java.lang.Thread.State;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -449,6 +452,10 @@ public class AppConfig extends AppConfigBase {
 					Fixture fixture = new Fixture(fixtureTO.getName(), 
 						fixtureDef, 
 						controller.getUniverse(), (int) fixtureTO.getDmxOffset());
+					if (fixtureTO.getX()!=null) { fixture.setPosition(fixtureTO.getX(), fixtureTO.getY(), fixtureTO.getZ()); }
+					if (fixtureTO.getLookingAtX()!=null) { fixture.setPosition(fixtureTO.getLookingAtX(), fixtureTO.getLookingAtY(), fixtureTO.getLookingAtZ()); }
+					if (fixtureTO.getUpX()!=null) { fixture.setPosition(fixtureTO.getUpX(), fixtureTO.getUpY(), fixtureTO.getUpZ()); }
+					
 					if (fixtureController != null) {
 						fixtureController.addFixture(fixture);
 					}
