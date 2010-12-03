@@ -778,11 +778,12 @@ function dmxInitPanel() {
     }
     for (var i=0; i<fixtures.length; i++) {
     	f=fixtures[i];
-    	//var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
-    	//	"<img src=\"" + fixtureDefs[f.type]["img"] + "\">"	);
     	var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
-    		"<img src=\"image/favicon.png\">"	);
+    		"<img src=\"" + fixtureDefs[f.type]["img"] + "\">"	);
+    	//var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
+    	//	"<img src=\"image/favicon.png\">"	);
     	$("dmxBox[" + f["dmxOffset"] + "]").insert({'top':dmxFixtureIconEl});
+    	$("dmxBox[" + f["dmxOffset"] + "]").className="dmxValueWithFixture";
     }
     Event.observe($("dmxImmediate"), 'click', dmxImmediateClick);
     /*
