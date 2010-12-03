@@ -5,6 +5,11 @@ var dmxHighlightTimeout = -1;
 var dmxImmediate = true;
 var logExceptions = new Array();
 var lhsMenuPanels=new Array("lgoPanel", "shwPanel", "fixPanel", "dmxPanel", "logPanel", "cnfPanel");
+var prfRequestId = 0;
+var prfEnabled = true;
+var prfStartPollRequestTime = null;
+var prfEndPollRequestTime = null;
+var prfEndPanelUpdateTime = null;
 var longPollRequest=null;
 var currentPanelName=null;
 var MAX_LENGTH=9223372036854775807;
@@ -108,12 +113,22 @@ function lhsConfig() { lhsSelect($("lhsConfig")); lhsShowPanel("cnfPanel"); }
 
 
 function startPollRequests() {
-    new Ajax.Request('fancyController.html?action=poll&panel=' + currentPanelName, {
+	var pollUrl = 'fancyController.html?action=poll&panel=' + currentPanelName; 
+	if (prfEnabled) {
+	    pollUrl += "&lrid=" + prfRequestId + "&lrd=" + (prfEndPollRequestTime-prfStartPollRequestTime) + "&lru=" + (prfEndPanelUpdateTime-prfEndPollRequestTime)
+		prfRequestId++;
+		prfStartPollRequestTime=new Date().getTime();
+		pollUrl += "&trst=" + prfStartPollRequestTime; 
+    }
+    new Ajax.Request(pollUrl, {
         onSuccess: function(transport) {
+        	prfEndPollRequestTime=new Date().getTime();
             updatePanel(transport.responseJSON);
+            prfEndPanelUpdateTime=new Date().getTime();
         },
         onException: function(request, exception) {
-        	//alert(exception);
+        	prfEndPollRequestTime=new Date().getTime();
+        	prfEndPanelUpdateTime=0;
         }
     })
 }
@@ -713,7 +728,7 @@ var dmxSelectedFixture=null;  // fixture being highlighted
 var dmxSelectedChannel=null;  // fixture being editted
 var dmxSelectedValue=null;
 function dmxInitPanel() {
-    var x,y,el;
+    var x,y,el,f;
     var dv=$("dmxValues");
     for (var i=1; i<=255; i++) { 
         x=20+((i-1)%16)*50; y=90+Math.floor((i-1)/16)*30;
@@ -728,6 +743,14 @@ function dmxInitPanel() {
         Event.observe(dmxEl, 'click', dmxValueClick);
         Event.observe(dmxEl, 'mouseover', dmxValueOnMouseOver);
         Event.observe(dmxEl, 'mouseout', dmxValueOnMouseOut);
+    }
+    for (var i=0; i<fixtures.length; i++) {
+    	f=fixtures[i];
+    	//var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
+    	//	"<img src=\"" + fixtureDefs[f.type]["img"] + "\">"	);
+    	var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
+    		"<img src=\"image/favicon.png\">"	);
+    	$("dmxBox[" + f["dmxOffset"] + "]").insert({'top':dmxFixtureIconEl});
     }
     Event.observe($("dmxImmediate"), 'click', dmxImmediateClick);
     /*
@@ -908,9 +931,9 @@ function dmxValueOnMouseOver(event) {
     }
     //if (dmxSelectedFixture!=f) {
     el.update("Name: <b>" + f["name"] + "</b><br/>" +
-    	"Type: <img src=\"" + fd["img"] + "\">" + fd["label"] + "<br/>" + 
+    	"Type: <img valign=\"text-bottom\" src=\"" + fd["img"] + "\">" + fd["label"] + "<br/>" + 
     	"Offset: " + f["dmxOffset"] + "<br/>" +
-    	"Channel: " + (ch-off) + (cd==null ? "" : " (<img src=\"" + cd["img"] + "\">" + cd["label"] + ")"));
+    	"Channel: " + (ch-off) + (cd==null ? "" : " (<img valign=\"text-bottom\" src=\"" + cd["img"] + "\">" + cd["label"] + ")"));
     //}
     for (j=off; j<off+dc; j++) {
     	el = $("dmxBox[" + j + "]");
