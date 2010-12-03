@@ -44,7 +44,7 @@ public class MacroChannelDef extends ChannelDef {
 	 */
 	public MacroChannelDef(int offset) {
 		super(offset, 0, 255);
-		setHtmlImg("image/channel/placeholder.png");
+		setHtmlImg("image/channel/macro_16x16.png");
 		setHtmlLabel("Macro channel");
 	}
 

@@ -32,7 +32,7 @@ public class SpeedChannelDef extends ChannelDef {
 	public double getSpeedUpFactorWhenFast() { return speedUpFactorWhenFast; }
 	
 	public String getHtmlImg() { 
-		return "image/channel/placeholder.png";
+		return "image/channel/time_16x16.png";
 		
 	}
 	public String getHtmlLabel() {

@@ -36,7 +36,7 @@ public class StrobeChannelDef extends ChannelDef {
 		this.minimumStrobeValue = minimumStrobeValue;
 		this.maximumStrobeHertz = maximumStrobeHertz;
 		this.maximumStrobeValue = maximumStrobeValue;
-		setHtmlImg("image/channel/placeholder.png");
+		setHtmlImg("image/channel/strobe_16x16.png");
 		setHtmlLabel("Strobe");
 	}
 	

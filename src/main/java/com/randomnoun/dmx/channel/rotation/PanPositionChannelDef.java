@@ -6,13 +6,13 @@ public class PanPositionChannelDef extends AngularPositionChannelDef {
 	
 	public PanPositionChannelDef(int offset, double minAngle, double maxAngle) {
 		super(offset, BitResolution.BYTE, AngularPositionType.PAN, minAngle, maxAngle);
-		setHtmlImg("image/channel/placeholder.png");
+		setHtmlImg("image/channel/pan_16x16.png");
 		setHtmlLabel("Pan position");
 	}
 	
 	public PanPositionChannelDef(int offset, BitResolution bitResolution, double minAngle, double maxAngle) {
 		super(offset, bitResolution, AngularPositionType.PAN, minAngle, maxAngle);
-		setHtmlImg("image/channel/placeholder.png");
+		setHtmlImg("image/channel/pan_16x16.png");
 		setHtmlLabel("Pan position" + (getBitResolution()==BitResolution.BYTE ? "" : " " + getBitResolution()));
 	}
 

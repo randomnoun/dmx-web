@@ -32,7 +32,7 @@ public class AngularSpeedChannelDef extends ChannelDef {
 		this.dmxValues = dmxValues;
 		this.panSpeedValues = panSpeedValues;
 		this.tiltSpeedValues = tiltSpeedValues;
-		setHtmlImg("image/channel/placeholder.png");
+		setHtmlImg("image/channel/movetime_16x16.png");
 		setHtmlLabel("Angular speed");
 	}
 
