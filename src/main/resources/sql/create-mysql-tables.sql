@@ -5,6 +5,8 @@ CREATE TABLE `fixtureDef` (
   `fixtureDefScript` MEDIUMTEXT NOT NULL,
   `fixtureControllerClassName` VARCHAR(100) NOT NULL,
   `fixtureControllerScript` MEDIUMTEXT NOT NULL,
+  `channelMuxerClassName` VARCHAR(100) DEFAULT NULL,
+  `channelMuxerScript` MEDIUMTEXT DEFAULT NULL,
   PRIMARY KEY (`Id`)
 )
 ENGINE = InnoDB;
