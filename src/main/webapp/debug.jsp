@@ -9,8 +9,8 @@
 %>
 <%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
 <%@ taglib uri="/WEB-INF/fmt.tld" prefix="fmt" %>
-<%@ taglib uri="/WEB-INF/common.tld" prefix="dt" %>
-<dt:authCheck/>
+<%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
+<r:authCheck/>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- $Id$ -->
 <%
@@ -86,13 +86,13 @@
 </head>
 <body>
 <div style="height:5px;"></div>
-<dt:tabgroup currentTabId="${debugTab}" layout="round" hideTabsheet="true">
-  <dt:tab id="attributes" label="Attributes" href="debug.html?debugTab=attributes" >
+<r:tabgroup currentTabId="${debugTab}" layout="round" hideTabsheet="true">
+  <r:tab id="attributes" label="Attributes" href="debug.html?debugTab=attributes" >
   <jsp:include page="misc/errorHeader.jsp" />
   <jsp:include page="misc/debugAttributes.jsp" />
-</dt:tab>
+</r:tab>
 
-<dt:tab id="security" label="Security" href="debug.html?debugTab=security" >
+<r:tab id="security" label="Security" href="debug.html?debugTab=security" >
 <c:choose>
 <c:when test="${securityRoles['Security Authoriser'] || securityRoles['Security Administrator'] || securityRoles['Security Officer'] || securityRoles['Developer']}">
   <form action="debug.html">
@@ -264,10 +264,10 @@
 You do not have sufficient permissions to view this tab. 
 </c:otherwise>
 </c:choose>
-  </dt:tab>
+  </r:tab>
 
 
-  <dt:tab id="jndi" label="JNDI" href="debug.html?debugTab=jndi" >
+  <r:tab id="jndi" label="JNDI" href="debug.html?debugTab=jndi" >
   <h1>JNDI Browser</h1>
   <div id="errorDiv"></div>
   <ul id="topNode" ></ul>
@@ -306,9 +306,9 @@ You do not have sufficient permissions to view this tab.
   </script>
   <hr/>
   
-  </dt:tab>
+  </r:tab>
   
-  <dt:tab id="benchmark" label="Performance" href="debug.html?debugTab=benchmark" >
+  <r:tab id="benchmark" label="Performance" href="debug.html?debugTab=benchmark" >
 <form action="debug.html" method="post">
   <div class="helptext">
   <input type="hidden" name="debugTab" value="benchmark" />
@@ -327,9 +327,9 @@ You do not have sufficient permissions to view this tab.
   </c:forEach>
   </table>
   
-  </dt:tab>
+  </r:tab>
 
-  <dt:tab id="logging" label="Logging" href="debug.html?debugTab=logging" >
+  <r:tab id="logging" label="Logging" href="debug.html?debugTab=logging" >
   <jsp:include page="misc/errorHeader.jsp" />
   <form action="debug.html" method="post">
   <input type="hidden" name="debugTab" value="logging" />
@@ -368,9 +368,9 @@ You do not have sufficient permissions to view this tab.
     <th>appenders</th>
   </tr>
   <tr>
-    <td><dt:input type="text" name="className" value="${className}" size="80" maxlength="200"/></td>
-    <td><dt:select name="level" data="${levels}" value="${level}" firstOption="(please select...)"/></td>
-    <td><dt:input type="submit" name="setLevel" value="Set level"/></td>
+    <td><r:input type="text" name="className" value="${className}" size="80" maxlength="200"/></td>
+    <td><r:select name="level" data="${levels}" value="${level}" firstOption="(please select...)"/></td>
+    <td><r:input type="submit" name="setLevel" value="Set level"/></td>
     <td></td>
     <td></td>
     <td></td>
@@ -388,9 +388,9 @@ You do not have sufficient permissions to view this tab.
   </table>
   </form>
 
-  </dt:tab>
+  </r:tab>
 
-  <dt:tab id="eventLog" label="Event Log" href="debug.html?debugTab=eventLog" >
+  <r:tab id="eventLog" label="Event Log" href="debug.html?debugTab=eventLog" >
 <form action="debug.html" method="post">
   <div class="helptext">
   <input type="hidden" name="debugTab" value="eventLog" />
@@ -421,9 +421,9 @@ You do not have sufficient permissions to view this tab.
     <td valign="top"></td>
   </c:forEach>
   </table>
-  </dt:tab>
+  </r:tab>
 
-  <dt:tab id="webClient" label="DMX" href="debug.html?debugTab=dmx" >
+  <r:tab id="webClient" label="DMX" href="debug.html?debugTab=dmx" >
 <form action="debug.html" method="post">
   <div class="helptext">
   <input type="hidden" name="debugTab" value="dmx" />
@@ -434,10 +434,10 @@ You do not have sufficient permissions to view this tab.
 
 
 
-  </dt:tab>
+  </r:tab>
 
 
-  <dt:tab id="test" label="Test" href="debug.html?debugTab=test" >
+  <r:tab id="test" label="Test" href="debug.html?debugTab=test" >
   <h1>Audit</h1>
   <a href="../audit/installationAudit.do">Installation Audit</a><br/>
   <a href="../audit/resourceAudit.do">Resource Audit</a><br/>
@@ -458,7 +458,7 @@ You do not have sufficient permissions to view this tab.
   <a href="../misc/sessionDump.do">Session dump</a><br/>
   --%>
   
-<dt:startEnvironment mask="*-dev-*">  
+<r:startEnvironment mask="*-dev-*">  
   <br/>
   <b>Warning!</b> The following tests require local filesystem access, and may modify database tables. <br/>
   Do *NOT* use on a production system !<br/>
@@ -466,11 +466,11 @@ You do not have sufficient permissions to view this tab.
   <a href="../ServletTestRunner?suite=com.randomnoun.facebook.webapp.AllStrutsTests&xsl=/multipass/xsl/cactus-report.xml" >Struts JUnit tests</a> <br/> 
   <a href="../ServletTestRunner?suite=com.randomnoun.facebook.webapp.AllHttpUnitTests&xsl=/multipass/xsl/cactus-report.xml" >HttpUnit JUnit tests</a> <br/> 
   <br/>
-</dt:startEnvironment>
+</r:startEnvironment>
   
-  </dt:tab>
+  </r:tab>
   
-</dt:tabgroup>
+</r:tabgroup>
 
 </body>
 </html>
