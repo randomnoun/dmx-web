@@ -47,6 +47,7 @@ import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
+import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.FixtureDefImageDAO;
 import com.randomnoun.dmx.fixture.Fixture;
@@ -55,6 +56,7 @@ import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.to.FixtureDefImageTO;
 import com.randomnoun.dmx.to.FixtureDefTO;
+import com.randomnoun.dmx.to.FixtureTO;
 import com.randomnoun.dmx.web.ExtendedMultiPartRequestHandler;
 import com.randomnoun.dmx.web.StrutsUploadForm;
 
@@ -133,13 +135,28 @@ public class MaintainFixtureDefAction
     		request.setAttribute("fixtureDef", fixtureDef);
 
     	} else if (action.equals("deleteFixtureDef")) {
+    		FixtureTO found = null;
     		fixtureDef = fixtureDefDAO.getFixtureDef(fixtureDefId);
-    		fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages(fixtureDef);
-    		for (FixtureDefImageTO fixtureDefImage : fixtureDefImages) {
-    			fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
+    		List<FixtureTO> fixtures = (new FixtureDAO(appConfig.getJdbcTemplate())).getFixtures(null);
+    		for (FixtureTO fixture : fixtures) {
+    			if (fixture.getFixtureDefId()==fixtureDefId) {
+    				found = fixture; 
+    				break;
+    			}
     		}
-    		fixtureDefDAO.deleteFixtureDef(fixtureDef);
-    		errors.addError("Fixture deleted", "Fixture definition deleted", ErrorList.SEVERITY_OK);
+    		if (found!=null) {
+    			request.setAttribute("fixtureDef", fixtureDef);
+    			errors.addError("Fixture patched", "You cannot delete this fixture since it has been " +
+    				"patched at DMX offset " + found.getDmxOffset() + ". " +
+    				"Remove this fixture from the Fixtures configuration page and try again.", ErrorList.SEVERITY_ERROR);
+    		} else {
+	    		fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages(fixtureDef);
+	    		for (FixtureDefImageTO fixtureDefImage : fixtureDefImages) {
+	    			fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
+	    		}
+	    		fixtureDefDAO.deleteFixtureDef(fixtureDef);
+	    		errors.addError("Fixture deleted", "Fixture definition deleted", ErrorList.SEVERITY_OK);
+    		}
     		
     	} else if (request.getParameter("updateFixtureDef")!=null) {
     		Map fixtureDefMap = (Map) form.get("fixtureDef");
