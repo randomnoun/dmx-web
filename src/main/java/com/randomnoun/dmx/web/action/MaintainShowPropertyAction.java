@@ -176,14 +176,14 @@ public class MaintainShowPropertyAction
 	    		List defaultProperties = show.getDefaultProperties();
 	    		for (Iterator i = defaultProperties.iterator(); i.hasNext(); ) {
 	    			PropertyDef defaultProperty = (PropertyDef) i.next();
-	    			if (Struct.getStructuredListItem(properties, "key", defaultProperty.getKey())==null) {
+	    			if (Struct.getStructuredListItem(propertiesAsMaps, "key", defaultProperty.getKey())==null) {
 	    				Map newProperty = new HashMap();
 	    				newProperty.put("key", defaultProperty.getKey());
 	    				newProperty.put("value", defaultProperty.getDefaultValue());
 	    				newProperty.put("description", defaultProperty.getDescription());
 	    				propertiesAsMaps.add(newProperty);
 	    			} else {
-	    				Map newProperty = Struct.getStructuredListItem(properties, "key", defaultProperty.getKey());
+	    				Map newProperty = Struct.getStructuredListItem(propertiesAsMaps, "key", defaultProperty.getKey());
 	    				newProperty.put("description", defaultProperty.getDescription());
 	    			}
 	    		}
