@@ -175,7 +175,7 @@ public class FixtureDefImageDAO {
     	File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
     	return new FileInputStream(new File(imageBase, fixtureDefImage.getFileLocation()));
     }
-    
+
     public String sanitiseFilename(String f) {
     	f = f.toLowerCase();
     	if (f.indexOf("/")!=-1) { f = f.substring(f.lastIndexOf("/")); }
@@ -191,4 +191,32 @@ public class FixtureDefImageDAO {
     	}
     	return f;
     }
+    
+    /** Deletes a fixtureDefImage from the database, and
+     * removes any filesystem resources.
+    *
+    * The id column of the object will be populated on return
+    *
+    * @param fixtureDefImage the fixtureDefImage to insert
+    *
+    * @return the id of the record to delete
+    */
+   public void deleteFixtureDefImage(FixtureDefImageTO fixtureDefImage) {
+       String sql =
+           "DELETE FROM fixtureDefImage " + 
+           " WHERE id = ?";
+       long updated = jt.update(sql,
+           new Object[] { 
+               fixtureDefImage.getId(),		
+           });
+       if (updated!=1) {
+           throw new DataIntegrityViolationException("fixtureDefImage delete failed (" + updated + " rows updated)");
+       }
+   		File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
+   		File file = new File(imageBase, fixtureDefImage.getFileLocation());
+   		if (!file.delete()) {
+   			throw new DataIntegrityViolationException("fixtureDefImage delete failed - could not remove filesystem resource");
+   		}
+   }
+
 }
