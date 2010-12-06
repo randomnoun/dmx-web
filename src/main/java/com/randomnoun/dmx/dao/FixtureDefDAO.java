@@ -117,5 +117,25 @@ public class FixtureDefDAO {
         fixtureDef.setId(fixtureDefId);
         return fixtureDefId;
     }
+
+    /** Deletes a fixtureDef from the database.
+    *
+    * @param fixtureDef the fixtureDef to delete
+    *
+    * @return the id of the new record
+    */
+   public void deleteFixtureDef(FixtureDefTO fixtureDef) {
+       String sql =
+           "DELETE FROM fixtureDef " + 
+           " WHERE id = ?";
+       long updated = jt.update(sql,
+           new Object[] { 
+               fixtureDef.getId(),
+           });
+       if (updated!=1) {
+           throw new DataIntegrityViolationException("fixtureDef delete failed (" + updated + " rows updated)");
+       }
+   }
+    
 }
 

@@ -1,6 +1,8 @@
 package com.randomnoun.dmx.web.action;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
@@ -127,8 +129,18 @@ public class MaintainFixtureDefAction
     		fixtureDef.setName("name of fixture");
     		fixtureDef.setFixtureDefScript(getFixtureDefScriptTemplate());
     		fixtureDef.setFixtureControllerScript(getFixtureControllerScriptTemplate());
+    		fixtureDef.setChannelMuxerScript(getChannelMuxerScriptTemplate());
     		request.setAttribute("fixtureDef", fixtureDef);
-    				
+
+    	} else if (action.equals("deleteFixtureDef")) {
+    		fixtureDef = fixtureDefDAO.getFixtureDef(fixtureDefId);
+    		fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages(fixtureDef);
+    		for (FixtureDefImageTO fixtureDefImage : fixtureDefImages) {
+    			fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
+    		}
+    		fixtureDefDAO.deleteFixtureDef(fixtureDef);
+    		errors.addError("Fixture deleted", "Fixture definition deleted", ErrorList.SEVERITY_OK);
+    		
     	} else if (request.getParameter("updateFixtureDef")!=null) {
     		Map fixtureDefMap = (Map) form.get("fixtureDef");
     		long lngId = Long.parseLong((String) fixtureDefMap.get("id"));
@@ -271,91 +283,42 @@ public class MaintainFixtureDefAction
     }
     
     private String getFixtureDefScriptTemplate() {
-    	String defaultPackage = AppConfig.getAppConfig().getProperty("fixture.defaultPackage");
-    	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
-    	return
-    	"package " + defaultPackage + ";\n" +
-    	"\n" +
-    	"import java.awt.Color;\n" +
-    	"\n" +
-    	"import com.randomnoun.dmx.Fixture;\n" +
-    	"import com.randomnoun.dmx.FixtureController;\n" +
-    	"import com.randomnoun.dmx.FixtureDef;\n" +
-    	"import com.randomnoun.dmx.channel.MacroChannelDef;\n" +
-    	"import com.randomnoun.dmx.channel.MacroChannelDef.Macro;\n" +
-    	"import com.randomnoun.dmx.channel.dimmer.BlueDimmerChannelDef;\n" +
-    	"import com.randomnoun.dmx.channel.dimmer.GreenDimmerChannelDef;\n" +
-    	"import com.randomnoun.dmx.channel.dimmer.MasterDimmerChannelDef;\n" +
-    	"import com.randomnoun.dmx.channel.dimmer.RedDimmerChannelDef;\n" +
-    	"import com.randomnoun.dmx.channel.SpeedChannelDef;\n" +
-    	"import com.randomnoun.dmx.channel.StrobeChannelDef;\n" +
-    	"import com.randomnoun.dmx.channelMuxer.ChannelMuxer;\n" +
-    	"import com.randomnoun.dmx.channelMuxer.MacroChannelMuxer;\n" +
-    	"import com.randomnoun.dmx.channelMuxer.filter.MasterDimmerChannelMuxer;\n" +
-    	"import com.randomnoun.dmx.channelMuxer.primitive.ColorChannelMuxer;\n" +
-    	"import com.randomnoun.dmx.channelMuxer.timed.StrobeChannelMuxer;\n" +
-    	"import com.randomnoun.dmx.channelMuxer.timed.TimedColorGradientChannelMuxer;\n" +
-    	"import com.randomnoun.dmx.timeSource.DistortedTimeSource;\n" +
-    	"import com.randomnoun.dmx.timeSource.TimeSource;\n" +
-    	"import com.randomnoun.dmx.timeSource.UniverseTimeSource;\n" +
-    	"\n" +
-    	"/** Fixture definition for xxxx\n" +
-    	" * \n" +
-    	" * @author name\n" +
-    	" */\n" +
-    	"public class X0177FixtureDef extends FixtureDef {\n" +
-    	"\n" +
-    	"	\n" +
-    	"	public X0177FixtureDef() {\n" +
-    	"		this.vendor = \"Chinese sweatshop workers\";\n" +
-    	"		this.model = \"MODEL-12345\";\n" +
-    	"		this.maxWattage = 20;\n" +
-    	"		this.numDmxChannels=7;\n" +
-    	"		\n" +
-    	"		this.addChannelDef(new MasterDimmerChannelDef(0));\n" +
-    	"		this.addChannelDef(new RedDimmerChannelDef(1));\n" +
-    	"		this.addChannelDef(new GreenDimmerChannelDef(2));\n" +
-    	"		this.addChannelDef(new BlueDimmerChannelDef(3));\n" +
-    	"		this.addChannelDef(new StrobeChannelDef(4, 0, 2, 8, 10, 250)); // 2Hz->10Hz strobe\n" +
-    	"	}\n" +
-    	"	\n" +
-    	"	\n" +
-    	"	public ChannelMuxer getChannelMuxer(Fixture fixture) {\n" +
-    	"		TimeSource universeTimeSource = new UniverseTimeSource(fixture.getUniverse());\n" +
-    	"		// output is determined by\n" +
-    	"		//   color DMX values + strobe DMX value\n" +
-    	"		// and the fixture can then be dimmed by the master dimmer DMX value\n" +
-    	"		\n" +
-    	"		ChannelMuxer colorMuxer = new ColorChannelMuxer(fixture);\n" +
-    	"		StrobeChannelMuxer strobeMuxer = new StrobeChannelMuxer(colorMuxer, universeTimeSource);\n" +
-    	"		return new MasterDimmerChannelMuxer(strobeMuxer);\n" +
-    	"	}\n" +
-    	"	\n" +
-    	"	public FixtureController getFixtureController(Fixture fixture) {\n" +
-    	"		return new X0177FixtureController(fixture);\n" +
-    	"	}\n" +
-    	"	\n" +
-    	"}\n";
+    	try {
+    		String defaultPackage = AppConfig.getAppConfig().getProperty("fixture.defaultPackage");
+        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
+	    	InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/defaultFixtureDef.java");
+	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			StreamUtils.copyStream(is, baos);
+			return "package " + defaultPackage + ";\n" + new String(baos.toByteArray());
+		} catch (IOException e) {
+			throw new IllegalStateException("IOException in ByteArrayOutputStream", e);
+		}
+    }
+
+    public String getChannelMuxerScriptTemplate() {
+    	try {
+        	String defaultPackage = AppConfig.getAppConfig().getProperty("fixture.defaultPackage");
+        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
+	    	InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/defaultChannelMuxer.java");
+	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			StreamUtils.copyStream(is, baos);
+			return "package " + defaultPackage + ";\n" + new String(baos.toByteArray());
+		} catch (IOException e) {
+			throw new IllegalStateException("IOException in ByteArrayOutputStream", e);
+		}
     }
     
     public String getFixtureControllerScriptTemplate() {
-    	String defaultPackage = AppConfig.getAppConfig().getProperty("fixture.defaultPackage");
-    	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
-
-    	return
-    	"package " + defaultPackage + ";\n" +
-    	"\n" +
-    	"import java.awt.Color;\n" +
-    	"\n" +
-    	"import com.randomnoun.dmx.Fixture;\n" +
-    	"import com.randomnoun.dmx.FixtureController;\n" +
-    	"import com.randomnoun.dmx.FixtureDef;\n" +
-    	"\n" +
-    	"public class X0177FixtureController extends FixtureController {\n" +
-    	"	public X0177FixtureController(Fixture fixture) {\n" +
-    	"		super(fixture);\n" +
-    	"	}\n" +
-    	"}\n";
+    	try {
+        	String defaultPackage = AppConfig.getAppConfig().getProperty("fixture.defaultPackage");
+        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
+    		InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/defaultFixtureController.java");
+	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			StreamUtils.copyStream(is, baos);
+			return "package " + defaultPackage + ";\n" + new String(baos.toByteArray());
+		} catch (IOException e) {
+			throw new IllegalStateException("IOException in ByteArrayOutputStream", e);
+		}
     }
     
     public static class ScriptLocationErrorData extends ErrorList.ErrorData {

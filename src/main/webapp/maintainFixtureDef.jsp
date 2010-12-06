@@ -254,12 +254,16 @@ function edtInitPanel() {
     Event.observe(edtSubmitEl, 'click', edtSubmitClick);
 
     if ($("attachment")) { $("attachment").value = ""; }
-    if ($("addFile")) { $("addFile").disabled = false; }
+    if ($("addFile")) { 
+    	$("addFile").disabled = false; 
+        Event.observe($("addFile"), 'click', edtAddFile);
+    }
+    
     </c:if>
     
     Event.observe($("lhsCancel"), 'click', lhsCancelClick);
     Event.observe($("lhsOK"), 'click', lhsOKClick);
-    Event.observe($("addFile"), 'click', edtAddFile);
+    
 }
 
 function edtSubmitClick() { edtSubmit(); }
@@ -337,6 +341,11 @@ function edtDeleteFileComplete(json) {
 	}
 }
 
+function edtDeleteFixtureDef() {
+	if (confirm("Are you sure you want to delete this fixture definition?")) {
+		document.location = "maintainFixtureDef.html?action=deleteFixtureDef&fixtureDefId=" + fixtureDefId;		
+	}
+}
 
 function edtSetTab(newTab) {
 	for (var i=0; i<edtTabNames.length; i++) {
@@ -394,7 +403,12 @@ function initWindow() {
 
 <c:if test="${fixtureDef!=null}" >
 <tr><td>Name:</td>
-    <td colspan="2"><r:input type="text" name="fixtureDef.name" value="${fixtureDef.name}"/></td></tr>
+    <td colspan="2"><r:input type="text" name="fixtureDef.name" value="${fixtureDef.name}"/>
+    <c:if test="${fixtureDef.id!=-1}" >
+    <input type="button" name="deleteFixtureDef" value="Delete this fixture definition" onclick="edtDeleteFixtureDef()" /></td>
+    </c:if>
+    </td>
+</tr>
 </table>
 
 <div id="tabContainer" class="tabs"><ul>
@@ -444,6 +458,10 @@ function initWindow() {
 </div>
 
 <div id="attachmentTabSheet" class="tabSheet">
+<c:choose><c:when test="${fixtureDef.id==-1}">
+You must create a fixture before you can attach documents
+</c:when>
+<c:otherwise>
 <form id="uploadForm" action="maintainFixtureDef.html" method="post" enctype="multipart/form-data">
 <input type="hidden" name="action" value="submitFile" />
 <input type="hidden" name="fixtureDefId" value="${fixtureDef.id}" />
@@ -485,6 +503,8 @@ function initWindow() {
 <tr id="lastImageRow" />
 </table>
 </form>
+</c:otherwise>
+</c:choose>
 </div>
 
 </div>
