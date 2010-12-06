@@ -19,16 +19,25 @@ public class CustomControl {
 	private UIType uiType;
 	private int value;
 	private CustomControlCallback callback;
+	private String top, left;
 	
 	public CustomControl(String label, UIType uiType, CustomControlCallback callback) {
 		this.label = label;
 		this.uiType = uiType;
+		this.top = null;
+		this.left = null;
 		this.callback = callback;
 	}
 	
 	public UIType getUIType() { return uiType; }
 	public int getValue() { return value; }
 	public String getLabel() { return label; }
+	public void setTop(String top) { this.top = top; }
+	public void setLeft(String left) { this.left = left; }
+	public void setTop(long top) { this.top = String.valueOf(top) + "px"; }
+	public void setLeft(long left) { this.left = String.valueOf(left) + "px"; }
+	public String getTop() { return top; }
+	public String getLeft() { return left; }
 	
 	// sets the value of this control, non-user initiated
 	// (e.g. to clear a set of mutually-exclusive toggles)
