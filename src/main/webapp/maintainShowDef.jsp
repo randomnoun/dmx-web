@@ -173,6 +173,12 @@ function edtInitPanel() {
     Event.observe($("lhsOK"), 'click', lhsOKClick);
 }
 
+function edtDeleteShowDef() {
+    if (confirm("Are you sure you want to delete this show definition?")) {
+        document.location = "maintainShowDef.html?action=deleteShowDef&showDefId=" + showDefId;     
+    }
+}
+
 function edtSubmitClick() { document.forms[0].submit(); }
 function lhsCancelClick() { document.location = "index.html?panel=cnfPanel"; }
 function lhsOKClick() { document.forms[0].submit(); };
@@ -220,7 +226,11 @@ function initWindow() {
 <input type="hidden" name="showDef.id" value="${showDef.id}" />
 <input type="hidden" name="updateShowDef" value="Y" />
 <tr><td>Name:</td>
-    <td colspan="2"><r:input type="text" name="showDef.name" value="${showDef.name}"/></td></tr>
+    <td colspan="2"><r:input type="text" name="showDef.name" value="${showDef.name}"/>
+    <c:if test="${showDef.id!=-1}" >
+    <input type="button" name="deleteShowDef" value="Delete this show definition" onclick="edtDeleteShowDef()" /></td>
+    </c:if>
+    </td></tr>
 <tr><td valign="top">Script:</td>
     <td colspan="2"><r:input type="textarea" name="showDef.script" value="${showDef.script}" rows="25" cols="100"/></td></tr>
 <tr><td></td>
