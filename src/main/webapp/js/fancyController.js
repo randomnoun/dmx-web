@@ -352,13 +352,16 @@ function fixInitPanel() {
         onSlide: function(v) { fixDimChange(v); },
         onChange: function(v) { fixDimChange(v); }
     });
+    Event.observe('fixDimScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // mozilla
+    Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
     fixStrobeSlider = new Control.Slider("fixStrobeHandle", "fixStrobe", {
         axis: "vertical",
         onSlide: function(v) { fixStrobeChange(v); },
         onChange: function(v) { fixStrobeChange(v); }
     });
     fixStrobeSlider.setValue(1);
-    
+    Event.observe('fixStrobeScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // mozilla
+    Event.observe('fixStrobeScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // IE/Opera
     $("fixAimActual").absolutize();
     fixAimDraggable = new Draggable("fixAimHandle", {
         // constraint code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
@@ -382,10 +385,6 @@ function fixInitPanel() {
         },
         revert: false
     });
-    Event.observe('fixDimScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // mozilla
-    Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
-    Event.observe('fixStrobeScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // mozilla
-    Event.observe('fixStrobeScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // IE/Opera
     Event.observe($("fixPageUp"), 'click', fixPageDownClick); noSelect($("fixPageUp"));
     Event.observe($("fixPageDown"), 'click', fixPageUpClick); noSelect($("fixPageDown"));
 
@@ -783,8 +782,11 @@ function fixUpdatePanel(json) {
 
 /******************************* DMX PANEL ******************************/
 var dmxSelectedFixture=null;  // fixture being highlighted
-var dmxSelectedChannel=null;  // fixture being editted
+var dmxSelectedChannel=null;  // fixture being editted via keyboard
 var dmxSelectedValue=null;
+var dmxHighlightedChannel=null; // fixture being editted via slider
+var dmxSlider=null;
+var dmxUIUpdateOnly = false
 function dmxInitPanel() {
     var x,y,el,f;
     var dv=$("dmxValues");
@@ -811,6 +813,17 @@ function dmxInitPanel() {
     	$("dmxBox[" + f["dmxOffset"] + "]").insert({'top':dmxFixtureIconEl});
     	$("dmxBox[" + f["dmxOffset"] + "]").className="dmxValueWithFixture";
     }
+    dmxSlider = new Control.Slider("dmxSliderHandle", "dmxSlider", {
+        axis: "vertical",
+        onSlide: function(v) { dmxSliderChange(v); },
+        onChange: function(v) { dmxSliderChange(v); }
+    });
+    Event.observe('dmxSliderScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(dmxSlider, 0.1));  // mozilla
+    Event.observe('dmxSliderScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(dmxSlider, 0.1));  // IE/Opera
+    $("dmxSliderScrollArea").style.visibility="hidden";
+
+    
+    
     Event.observe($("dmxImmediate"), 'click', dmxImmediateClick);
     /*
     Event.observe($("dmxHighlight"), 'mouseover', dmxShowHighlight);
@@ -834,6 +847,13 @@ function dmxHideHighlight2() {
     dmxHighlightTimeout=-1;
 }
 */
+var dmxSliderLimitter = new AjaxLimitter(100, 200);
+function dmxSliderChange(v) {
+	if (dmxUIUpdateOnly) { return; }
+    v=Math.floor(255*(1-v));
+    dmxSliderLimitter.sendRequest( 
+       'fancyController.html?action=setDmxValue&channel=' + dmxHighlightedChannel + '&value=' + v);
+}
 
 function dmxImmediateClick(event) {
 	dmxImmediate = !dmxImmediate;
@@ -944,6 +964,9 @@ function dmxKeypress(event) {
     	dmxSelectedValue.removeClassName("dmxSelectedValue");
     	if (dmxImmediate) {
     		sendRequest("fancyController.html?action=setDmxValue&channel=" + dmxSelectedChannel + "&value=" + v);
+    		dmxUIUpdateOnly=true;
+    		dmxSlider.setValue(1-v/255);
+    		dmxUIUpdateOnly=false;
     	}
     	Event.stopObserving(document, 'keypress', dmxKeypress);
     	Event.stopObserving(document, 'keydown', dmxKeydown);
@@ -959,7 +982,8 @@ function dmxKeypress(event) {
 }
 
 function dmxValueOnMouseOver(event) {
-	var dmxValueEl, el, ch, f, off, dc, j, cds, cd = null;
+	var dmxValueEl, el, ch, f, off, dc, j, cds, cd = null, dmxSliderEl;
+	if (dmxSlider.dragging) { return; }
     dmxValueEl = event.element();
     ch=$(dmxValueEl).readAttribute("dmxChannel");
     while (!ch && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; ch=$(dmxValueEl).readAttribute("dmxChannel"); }
@@ -977,6 +1001,7 @@ function dmxValueOnMouseOver(event) {
     if (!f) { 
     	el.update(dmxTimeSourceText);
     	dmxSelectedFixture=null;
+    	$("dmxSliderScrollArea").style.visibility="hidden";
     	return;
     };
     off=f["dmxOffset"];
@@ -985,7 +1010,7 @@ function dmxValueOnMouseOver(event) {
     cds=fd["channelDefs"];
     for (var j=0; j<cds.length; j++) {
     	if (cds[j]["dmxOffset"]==ch-off) {
-    		cd=cds[j];
+    		cd=cds[j]; break;
     	}
     }
     //if (dmxSelectedFixture!=f) {
@@ -1000,10 +1025,19 @@ function dmxValueOnMouseOver(event) {
     	if (j==ch) {
     		el.removeClassName("dmxSelectGroup");
     		el.addClassName("dmxSelect");
+    		dmxHighlightedChannel=ch;
     	} else {
     		el.addClassName("dmxSelectGroup");
     	}
     }
+	dmxSliderEl=$("dmxSliderScrollArea");
+	dmxSliderEl.style.visibility="visible";
+	var pos=Position.positionedOffset(dmxValueEl);
+	dmxSliderEl.style.left = pos[0] + "px";
+	dmxSliderEl.style.top = (pos[1] + 26) + "px";
+	dmxUIUpdateOnly=true;
+	dmxSlider.setValue(1-dmxValues[dmxHighlightedChannel-1]/255);
+	dmxUIUpdateOnly=false;
     dmxSelectedFixture=f;
 }
 function dmxValueOnMouseOut(event) {
@@ -1175,14 +1209,14 @@ function initLongPolling() {
 /******************************* INIT ******************************/
 
 function initWindow() {
-    lhsFixtures(); // need fixtures to be visible during init, or dimmer slider breaks (?)
+    // lhsFixtures(); // need fixtures to be visible during init, or dimmer slider breaks (?)
     initLookups();
     initLhsMenu();
 
     lgoInitPanel();
-    dmxInitPanel();
+    lhsDMX(); dmxInitPanel();
     shwInitPanel();
-    fixInitPanel();
+    lhsFixtures(); fixInitPanel();
     logInitPanel();
     cnfInitPanel();
     if (origPanel=='cnfPanel') {  // from cancel buttons in editor pages
