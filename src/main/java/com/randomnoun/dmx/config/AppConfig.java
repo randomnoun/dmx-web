@@ -33,6 +33,7 @@ import com.randomnoun.dmx.AudioSource;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.DmxDevice;
 import com.randomnoun.dmx.ExceptionContainer;
+import com.randomnoun.dmx.ExceptionContainerImpl;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
@@ -101,7 +102,10 @@ public class AppConfig extends AppConfigBase {
     /** Script context containing scripted fixture definitions, fixtures, and shows */
     private ScriptContext scriptContext;
     
-    /** Accumulated events to broadcast to HTTP clients */
+    /** AppConfig exceptions (cleared on reload) */
+    private ExceptionContainerImpl exceptionContainer;
+    
+    /* * Accumulated events to broadcast to HTTP clients */
     //private CometEventManager cometEventManager;
     
     // @TODO keep track of which shows require which fixtures,
@@ -188,6 +192,7 @@ public class AppConfig extends AppConfigBase {
 
         AppConfig newInstance = new AppConfig();
     	try {
+    		newInstance.exceptionContainer = new ExceptionContainerImpl();
 	        newInstance.initHostname();
 	        newInstance.loadProperties();  // properties depends on hostname
 	        newInstance.initSecurityManager();
@@ -255,6 +260,7 @@ public class AppConfig extends AppConfigBase {
     	//getScriptEngine().eval(script, getScriptContext());
     	
     	// chronic thread safety problems here
+    	exceptionContainer.clearExceptions();
     	logger.info("reloadFixturesAndShows(): reloading scriptContext");
         initScriptContext();
         try {
@@ -441,9 +447,13 @@ public class AppConfig extends AppConfigBase {
 
 				
 				} catch (ScriptException se) {
-					logger.error("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", se);
+					AppConfigException ace = new AppConfigException("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", se);
+					exceptionContainer.addException(ace);
+					logger.error(ace);
 				} catch (Exception e) {
-					logger.error("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", e);
+					AppConfigException ace = new AppConfigException("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", e);
+					exceptionContainer.addException(ace);
+					logger.error(ace);
 				}
 			}
 		}
@@ -505,7 +515,9 @@ public class AppConfig extends AppConfigBase {
 					showConfigs.put(new Long(i), new ShowConfig(this, i, showObj));
 					shows.add(showObj);
 				} catch (Exception e) {
-					logger.error("Error whilst instantiating compiled show " + id + ": '" + name + "'", e);
+					AppConfigException ace = new AppConfigException("Error whilst instantiating compiled show " + id + ": '" + name + "'", e);
+					exceptionContainer.addException(ace);
+					logger.error(ace);
 				}
 			}
 		}
@@ -536,7 +548,9 @@ public class AppConfig extends AppConfigBase {
 						logger.error("Error processing show " + showDef.getId() + ": '" + showDef.getName() + "'; className='" + showDef.getClassName() + "' does not extend com.randomnoun.dmx.Show"); 
 					}
 				} catch (ScriptException se) {
-					logger.error("Error evaluating script for show " + showDef.getId() + ": '" + showDef.getName() + "'", se);
+					AppConfigException ace = new AppConfigException("Error evaluating script for show " + showDef.getId() + ": '" + showDef.getName() + "'", se);
+					exceptionContainer.addException(ace);
+					logger.error(ace);
 				}
 			}
 		}
@@ -585,15 +599,10 @@ public class AppConfig extends AppConfigBase {
 							shows.add(showObj);
 						}
 					} catch (Exception e) {
-						logger.error("Error whilst instantiating show " + showTO.getId() + ": '" + showTO.getName() + "'", e);
+						AppConfigException ace = new AppConfigException("Error whilst instantiating show " + showTO.getId() + ": '" + showTO.getName() + "'", e);
+						exceptionContainer.addException(ace);
+						logger.error(ace);
 					}
-					
-					/*
-					Fixture fixture = new Fixture(showTO.getName(), 
-						fixtureDef, 
-						controller.getUniverse(), (int) showTO.getDmxOffset());
-					controller.addFixture(fixture);
-					*/
 				}
 			}
 		}
@@ -615,7 +624,9 @@ public class AppConfig extends AppConfigBase {
 				updateListener.startThread();
 				
 			} catch (UnknownHostException e) {
-				logger.error("Could not attach VLC listener", e);
+				AppConfigException ace = new AppConfigException("Could not attach VLC listener", e);
+				exceptionContainer.addException(ace);
+				logger.error(ace);
 			}
 		}
     }
@@ -788,6 +799,11 @@ public class AppConfig extends AppConfigBase {
 		return audioSource.getExceptions();
 	}
 
+	public List<ExceptionContainer.TimestampedException> getAppConfigExceptions() {
+		return exceptionContainer.getExceptions();
+	}
+	
+	
 	/** Removes the leading block and line comment markers from a piece of javadoc comment.
 	 * 
 	 * @param comment The comment to clean for display

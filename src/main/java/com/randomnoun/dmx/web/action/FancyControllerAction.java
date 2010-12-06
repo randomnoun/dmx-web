@@ -314,69 +314,11 @@ public class FancyControllerAction
 
     		} else if (panel.equals("logPanel")) {
         		List exceptions = new ArrayList();
-        		List<ExceptionContainer.TimestampedException> e1 = controller.getAudioController().getExceptions();
-        		synchronized(e1) {
-        			for (int i=0; i<e1.size(); i++) {
-        				ExceptionContainer.TimestampedException te = e1.get(i);
-        				Map m = new HashMap();
-        				m.put("type", "audio");
-        				m.put("timestamp", te.getTimestamp());
-        				m.put("count", te.getCount());
-        				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
-        				m.put("message", te.getException().getMessage());
-        				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
-        					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
-        				exceptions.add(m);
-        			}
-        		}
-
-        		e1 = appConfig.getAudioSourceExceptions();
-        		synchronized(e1) {
-        			for (int i=0; i<e1.size(); i++) {
-        				ExceptionContainer.TimestampedException te = e1.get(i);
-        				Map m = new HashMap();
-        				m.put("type", "audioSource");
-        				m.put("timestamp", te.getTimestamp());
-        				m.put("count", te.getCount());
-        				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
-        				m.put("message", te.getException().getMessage());
-        				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
-        					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
-        				exceptions.add(m);
-        			}
-        		}
-        		
-        		e1 = appConfig.getDmxDeviceExceptions();
-        		synchronized(e1) {
-        			for (int i=0; i<e1.size(); i++) {
-        				ExceptionContainer.TimestampedException te = e1.get(i);
-        				Map m = new HashMap();
-        				m.put("type", "dmx");
-        				m.put("timestamp", te.getTimestamp());
-        				m.put("count", te.getCount());
-        				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
-        				m.put("message", te.getException().getMessage());
-        				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
-            					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
-        				exceptions.add(m);
-        			}
-        		}
-        		List<AppConfig.TimestampedShowException> e2 = appConfig.getShowExceptions();
-        		synchronized(e2) {
-        			for (int i=0; i<e2.size(); i++) {
-        				TimestampedShowException te = e2.get(i);
-        				Map m = new HashMap();
-        				m.put("type", "show");
-        				m.put("timestamp", te.getTimestamp());
-        				m.put("count", te.getCount());
-        				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
-        				m.put("showId", te.getShow().getId());
-        				m.put("message", te.getException().getMessage());
-        				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
-            					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
-        				exceptions.add(m);
-        			}
-        		}
+        		addExceptions(exceptions, "appConfig", appConfig.getAppConfigExceptions());
+        		addExceptions(exceptions, "audio", controller.getAudioController().getExceptions());
+        		addExceptions(exceptions, "audioSource", appConfig.getAudioSourceExceptions());
+        		addExceptions(exceptions, "dmx", appConfig.getDmxDeviceExceptions());
+        		addShowExceptions(exceptions, appConfig.getShowExceptions());
         		result.put("exceptions", exceptions);
         		result.put("stopPollRequests", Boolean.TRUE);
 
@@ -652,6 +594,41 @@ public class FancyControllerAction
     	version.put("rxtxJarVersion", jarVersion);
     	version.put("rxtxDllVersion", dllVersion);
     	return version;
+    }
+    
+    public void addExceptions(List exceptions, String type, List<ExceptionContainer.TimestampedException> e1) {
+		synchronized(e1) {
+			for (int i=0; i<e1.size(); i++) {
+				ExceptionContainer.TimestampedException te = e1.get(i);
+				Map m = new HashMap();
+				m.put("type", type);
+				m.put("timestamp", te.getTimestamp());
+				m.put("count", te.getCount());
+				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
+				m.put("message", te.getException().getMessage());
+				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
+					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
+				exceptions.add(m);
+			}
+		}
+    }
+    
+    public void addShowExceptions(List exceptions, List<AppConfig.TimestampedShowException> e2) {
+		synchronized(e2) {
+			for (int i=0; i<e2.size(); i++) {
+				TimestampedShowException te = e2.get(i);
+				Map m = new HashMap();
+				m.put("type", "show");
+				m.put("timestamp", te.getTimestamp());
+				m.put("count", te.getCount());
+				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
+				m.put("showId", te.getShow().getId());
+				m.put("message", te.getException().getMessage());
+				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
+    					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
+				exceptions.add(m);
+			}
+		}
     }
     
     Double twoDigits(Double input) {
