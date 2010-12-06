@@ -8,6 +8,8 @@ public class FixtureDefTO {
     private String fixtureDefScript;
     private String fixtureControllerClassName;
     private String fixtureControllerScript;
+    private String channelMuxerClassName;
+    private String channelMuxerScript;
 
     /** Returns the id
      * @return the id
@@ -94,5 +96,31 @@ public class FixtureDefTO {
         this.fixtureControllerScript = fixtureControllerScript;
     }
     
+    /** Returns the class name of the ChannelMuxer defined in the script
+     * @return the class name of the ChannelMuxer defined in the script
+     */
+    public String getChannelMuxerClassName() {
+        return channelMuxerClassName;
+    }
+
+    /** Set the class name of the ChannelMuxer defined in the script
+     * @param class name of the ChannelMuxer defined in the script
+     */
+    public void setChannelMuxerClassName(String channelMuxerClassName) {
+        this.channelMuxerClassName = channelMuxerClassName;
+    }
     
+    /** Returns the channelMuxerScript
+    * @return the channelMuxerScript
+    */
+   public String getChannelMuxerScript() {
+       return channelMuxerScript;
+   }
+
+   /** Set the channelMuxerScript
+    * @param channelMuxerScript
+    */
+   public void setChannelMuxerScript(String channelMuxerScript) {
+       this.channelMuxerScript = channelMuxerScript;
+   }
 }

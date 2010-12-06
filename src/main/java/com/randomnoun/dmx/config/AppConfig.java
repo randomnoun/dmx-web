@@ -403,6 +403,10 @@ public class AppConfig extends AppConfigBase {
 					
 					logger.debug("Loading scripted fixtureController '" + fixtureDef.getName() + "' from database");
 					getScriptEngine().eval(fixtureDef.getFixtureControllerScript(), fixtureScriptContext);
+
+					logger.debug("Loading scripted channelMuxer '" + fixtureDef.getName() + "' from database");
+					getScriptEngine().eval(fixtureDef.getChannelMuxerScript(), fixtureScriptContext);
+					
 					// @TODO validate that the scriptContext now contains a 
 					// fixture definition of the class specified in the FixtureDefTO
 					// @TODO maybe scope the instance here so that it doesn't clobber any other global 'instance' instance
@@ -435,6 +439,8 @@ public class AppConfig extends AppConfigBase {
 				
 				} catch (ScriptException se) {
 					logger.error("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", se);
+				} catch (Exception e) {
+					logger.error("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", e);
 				}
 			}
 		}

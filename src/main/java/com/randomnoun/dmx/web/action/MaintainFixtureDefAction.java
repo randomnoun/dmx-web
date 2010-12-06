@@ -134,22 +134,28 @@ public class MaintainFixtureDefAction
     		long lngId = Long.parseLong((String) fixtureDefMap.get("id"));
     		String fixtureDefScript = (String) fixtureDefMap.get("fixtureDefScript");
     		String fixtureControllerScript = (String) fixtureDefMap.get("fixtureControllerScript");
+    		String channelMuxerScript = (String) fixtureDefMap.get("channelMuxerScript");
     		String fixtureDefClassName = null;
     		String fixtureControllerClassName = null;
+    		String channelMuxerClassName = null;
 			List errorLines = getErrorLines(errors);
     		
     		ErrorList fixtureDefErrors = validateScriptSyntax("fixture definition", fixtureDefScript);
     		ErrorList fixtureControllerErrors = validateScriptSyntax("fixture controller", fixtureControllerScript);
+    		ErrorList channelMuxerErrors = validateScriptSyntax("channel muxer", channelMuxerScript);
     		List fixtureDefErrorLines = getErrorLines(fixtureDefErrors);
     		List fixtureControllerErrorLines = getErrorLines(fixtureControllerErrors);
+    		List channelMuxerErrorLines = getErrorLines(channelMuxerErrors);
     		
     		errors.addErrors(fixtureDefErrors);
     		errors.addErrors(fixtureControllerErrors);
+    		errors.addErrors(channelMuxerErrors);
     		
     		if (!errors.hasErrors()) {
     			fixtureDefClassName = getClassName(fixtureDefScript);
     			fixtureControllerClassName = getClassName(fixtureControllerScript);
-    			ErrorList instanceErrors = validateScriptInstances(fixtureDefScript, fixtureDefClassName, fixtureControllerScript, fixtureControllerClassName);
+    			channelMuxerClassName = getClassName(channelMuxerScript);
+    			ErrorList instanceErrors = validateScriptInstances(fixtureDefScript, fixtureDefClassName, fixtureControllerScript, fixtureControllerClassName, channelMuxerScript, channelMuxerClassName);
     			fixtureDefErrorLines.addAll(getErrorLines(instanceErrors));
     			errors.addErrors(instanceErrors);
     		}
@@ -157,6 +163,7 @@ public class MaintainFixtureDefAction
     			Struct.setFromRequest(form, request);
     			request.setAttribute("fixtureDefErrorLines", fixtureDefErrorLines);
     			request.setAttribute("fixtureControllerErrorLines", fixtureControllerErrorLines);
+    			request.setAttribute("channelMuxerErrorLines", channelMuxerErrorLines);
     			request.setAttribute("fixtureDef", form.get("fixtureDef"));
     		} else {
     			fixtureDef = new FixtureDefTO();
@@ -411,12 +418,17 @@ public class MaintainFixtureDefAction
         return errors;
     }
     
-    public ErrorList validateScriptInstances(String fixtureDefScript, String fixtureDefClassName, String fixtureControllerScript, String fixtureControllerClassName) {
+    public ErrorList validateScriptInstances(
+    		String fixtureDefScript, String fixtureDefClassName, 
+    		String fixtureControllerScript, String fixtureControllerClassName,
+    		String channelMuxerScript, String channelMuxerClassName) 
+    {
     	ErrorList errors = new ErrorList();
     	AppConfig appConfig = AppConfig.getAppConfig();
     	Fixture fixtureObj = null;
 		FixtureDef fixtureDefObj = null;
 		FixtureController fixtureControllerObj = null;
+		ChannelMuxer channelMuxerObj = null;
 		ScriptEngine scriptEngine = null;
 		ScriptContext scriptContext = null;
 		Universe nullUniverse = new Universe();
@@ -427,6 +439,9 @@ public class MaintainFixtureDefAction
 			scriptContext = scriptEngine.getContext();
 			appConfig.loadFixtures(scriptContext, testController);
 			scriptEngine.eval(fixtureDefScript, scriptContext);
+			scriptEngine.eval(fixtureControllerScript, scriptContext);
+			scriptEngine.eval(channelMuxerScript, scriptContext);
+			
 			String testScript =
 				"import com.randomnoun.dmx.fixture.FixtureDef;\n" +
 				"import " + fixtureDefClassName + ";\n" +
@@ -450,7 +465,6 @@ public class MaintainFixtureDefAction
 		
 		if (!errors.hasErrors()) {
 			try {
-				scriptEngine.eval(fixtureControllerScript, scriptContext);
 				String testScript =
 					"import com.randomnoun.dmx.fixture.FixtureController;\n" +
 					"import " + fixtureControllerClassName + ";\n" +
@@ -467,6 +481,27 @@ public class MaintainFixtureDefAction
 			} catch (Exception e) {
 				logger.error("Exception validating scripted fixture controller", e);
 				errors.addError("script", "Invalid class", "Error whilst instantiating fixture controller definition: " + getStackSummary(e));
+			}
+		}
+		
+		if (!errors.hasErrors()) {
+			try {
+				String testScript =
+					"import com.randomnoun.dmx.channelMuxer.ChannelMuxer;\n" +
+					"import " + channelMuxerClassName + ";\n" +
+					"return " + channelMuxerClassName + ".class;\n" ;
+				// @TODO check class before instantiating
+				Class clazz = (Class) scriptEngine.eval(testScript, scriptContext);
+				if (!ChannelMuxer.class.isAssignableFrom(clazz)) {
+					errors.addError("script", "Invalid class", "Class " + channelMuxerClassName + " does not extend com.randomnoun.dmx.channelMuxer.ChannelMuxer"); 
+				} else {
+					Map nullProperties = new HashMap();
+					Constructor constructor = clazz.getConstructor(Fixture.class);
+					channelMuxerObj = (ChannelMuxer) constructor.newInstance(fixtureObj);
+				}
+			} catch (Exception e) {
+				logger.error("Exception validating scripted channel muxer", e);
+				errors.addError("script", "Invalid class", "Error whilst instantiating channel muxer definition: " + getStackSummary(e));
 			}
 		}
 

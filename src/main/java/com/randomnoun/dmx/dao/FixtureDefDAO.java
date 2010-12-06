@@ -21,9 +21,11 @@ public class FixtureDefDAO {
             f.setId(rs.getLong("id"));
             f.setName(rs.getString("name"));
             f.setFixtureDefClassName(rs.getString("fixtureDefClassName"));
-            f.setFixtureControllerClassName(rs.getString("fixtureControllerClassName"));
             f.setFixtureDefScript(rs.getString("fixtureDefScript"));
+            f.setFixtureControllerClassName(rs.getString("fixtureControllerClassName"));
             f.setFixtureControllerScript(rs.getString("fixtureControllerScript"));
+            f.setChannelMuxerClassName(rs.getString("channelMuxerClassName"));
+            f.setChannelMuxerScript(rs.getString("channelMuxerScript"));
             return f;
         }
     }
@@ -41,7 +43,7 @@ public class FixtureDefDAO {
      */
     public List<FixtureDefTO> getFixtureDefs(String sqlWhereClause) {
         String sql =
-            "SELECT id, name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript " +
+            "SELECT id, name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript, channelMuxerClassName, channelMuxerScript " +
             " FROM fixtureDef " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<FixtureDefTO>) jt.query(sql, new FixtureDefDAORowMapper());
@@ -55,7 +57,7 @@ public class FixtureDefDAO {
      */
     public FixtureDefTO getFixtureDef(long fixtureDefId) {
         return (FixtureDefTO) jt.queryForObject(
-            "SELECT id, name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript " +
+            "SELECT id, name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript, channelMuxerClassName, channelMuxerScript " +
             " FROM fixtureDef " +
             " WHERE id = ?",
             new Object[] { new Long(fixtureDefId) }, 
@@ -69,7 +71,7 @@ public class FixtureDefDAO {
     public void updateFixtureDef(FixtureDefTO fixtureDef) {
         String sql =
             "UPDATE fixtureDef " +
-            " SET name=?, fixtureDefClassName=?, fixtureDefScript=?, fixtureControllerClassName=?, fixtureControllerScript=? " + 
+            " SET name=?, fixtureDefClassName=?, fixtureDefScript=?, fixtureControllerClassName=?, fixtureControllerScript=?, channelMuxerClassName=?, channelMuxerScript=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
@@ -78,6 +80,8 @@ public class FixtureDefDAO {
                 fixtureDef.getFixtureDefScript(),
                 fixtureDef.getFixtureControllerClassName(),
                 fixtureDef.getFixtureControllerScript(),
+                fixtureDef.getChannelMuxerClassName(),
+                fixtureDef.getChannelMuxerScript(),
                 fixtureDef.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixtureDef update failed (" + updated + " rows updated)");
@@ -95,15 +99,17 @@ public class FixtureDefDAO {
     public long createFixtureDef(FixtureDefTO fixtureDef) {
         String sql =
             "INSERT INTO fixtureDef " + 
-            " (name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript) " +
-            " VALUES (?, ?, ?, ?, ?)";
+            " (name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript, channelMuxerClassName, channelMuxerScript) " +
+            " VALUES (?, ?, ?, ?, ?, ?, ?)";
         long updated = jt.update(sql,
             new Object[] { 
                 fixtureDef.getName(),
                 fixtureDef.getFixtureDefClassName(),
                 fixtureDef.getFixtureDefScript(),
                 fixtureDef.getFixtureControllerClassName(),
-                fixtureDef.getFixtureControllerScript()});
+                fixtureDef.getFixtureControllerScript(),
+                fixtureDef.getChannelMuxerClassName(),
+                fixtureDef.getChannelMuxerScript()});
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixtureDef insert failed (" + updated + " rows updated)");
         }
