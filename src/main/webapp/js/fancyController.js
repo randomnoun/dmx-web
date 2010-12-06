@@ -827,28 +827,8 @@ function dmxInitPanel() {
     
     
     Event.observe($("dmxImmediate"), 'click', dmxImmediateClick);
-    /*
-    Event.observe($("dmxHighlight"), 'mouseover', dmxShowHighlight);
-    Event.observe($("dmxHighlight2"), 'mouseover', dmxShowHighlight);
-    Event.observe($("dmxHighlight"), 'mouseout', dmxHideHighlight);
-    Event.observe($("dmxHighlight2"), 'mouseout', dmxHideHighlight);
-    */
 }
-/*
-function dmxShowHighlight(event) {
-    if (dmxHighlightTimeout!=-1) { window.clearTimeout(dmxHighlightTimeout); }
-    dmxHighlightTimeout=-1;
-}
-function dmxHideHighlight(event) {
-    if (dmxHighlightTimeout==-1) { dmxHighlightTimeout=window.setTimeout(dmxHideHighlight2, 1000); }
-}
-function dmxHideHighlight2() {
-    $("dmxHighlight").style.display="none";
-    $("dmxHighlight2").style.display="none";
-    if (dmxHighlightTimeout!=-1) { window.clearTimeout(dmxHighlightTimeout); }
-    dmxHighlightTimeout=-1;
-}
-*/
+
 var dmxSliderLimitter = new AjaxLimitter(100, 200);
 function dmxSliderChange(v) {
 	if (dmxUIUpdateOnly) { return; }
@@ -884,7 +864,7 @@ function dmxUpdateAllClick(event) {
 function dmxValueClick(event) {
     var dmxValueEl, el, el2, ch, f, off, dc, j, cds, cd = null;
     dmxValueEl = event.element();
-    if (dmxValueEl==$(dmxSliderScrollArea)) {
+    if (dmxValueEl==$("dmxSliderScrollArea")) {
     	ch=dmxHighlightedChannel; dmxValueEl=$("dmxBox[" + ch + "]");
     } else {
     	ch=$(dmxValueEl).readAttribute("dmxChannel");
@@ -973,6 +953,7 @@ function dmxKeypress(event) {
         dmxSelectedValue.removeClassName("dmxSelectedValue");
         Event.stopObserving(document, 'keypress', dmxKeypress);
         Event.stopObserving(document, 'keydown', dmxKeydown);
+        dmxSelectedChannel=null;
         event.stop();
     	break;
     case Event.KEY_RETURN:
@@ -985,6 +966,7 @@ function dmxKeypress(event) {
     	}
     	Event.stopObserving(document, 'keypress', dmxKeypress);
     	Event.stopObserving(document, 'keydown', dmxKeydown);
+    	dmxSelectedChannel=null;
     	break;
     	
     case Event.KEY_LEFT:
@@ -1071,45 +1053,28 @@ function dmxValueOnMouseOut(event) {
     }
 }
 
-
-    /*
-    var h1=$("dmxHighlight"), h2=$("dmxHighlight2");
-    var h1x, h1y, h1w, h2x, h2y, h2w;
-    if (Math.floor((i-1)/16)==Math.floor(((i+dc-2)/16))) {
-        h1x=20+((i-1)%16)*50; h1y=90+Math.floor((i-1)/16)*30;
-        h1w=dc*50;
-    } else {
-        h1x=20+((i-1)%16)*50; h1y=90+Math.floor((i-1)/16)*30;
-        h1w=(16-((i-1)%16))*50;
-        h2x=20; h2y=90+(Math.floor((i-1)/16)+1)*30;
-        h2w=(dc-16+((i-1)%16))*50;
-    }
-    
-    dmxHideHighlight2(); 
-    h1.style.left=(h1x-10)+"px"; h1.style.top=(h1y-10)+"px";
-    h1.style.width=(h1w+20)+"px"; h1.style.display="block";
-    if (h2x) {
-        h2.style.left=(h2x-10)+"px"; h2.style.top=(h2y-10)+"px";
-        h2.style.width=(h2w+20)+"px"; h2.style.display="block";
-    }
-    h1.innerHTML="<div class=\"dmxHighlightFooter\">" + f["name"] + "</div>";
-    h2.innerHTML="<div class=\"dmxHighlightFooter\">" + f["name"] + "</div>";
-    */
-
-
 function dmxUpdatePanel(json) {
     var dmxValuesNew = json.dmxValues.split(",");
     for (var i=1; i<=255; i++) {
         var el = $("dmxValue[" + i + "]");
         if (dmxValues[i-1]!=dmxValuesNew[i-1]) {
         	dmxValues[i-1]=dmxValuesNew[i-1];
-        	el.innerHTML=dmxValues[i-1];
-        	el.addClassName("dmxModified");
-        	dmxModified[i-1] = true;
+        	if (i!=dmxSelectedChannel) {
+	        	el.innerHTML=dmxValues[i-1];
+	        	el.addClassName("dmxModified");
+	        	dmxModified[i-1] = true;
+        	}
         } else if (dmxModified[i-1]) {
         	dmxModified[i-1] = false;
         	el.removeClassName("dmxModified");
         }
+    }
+    if (dmxHighlightedChannel && 
+    	($("dmxSliderScrollArea").style.visibility=="visible") &&
+    	(!dmxSlider.dragging)) {
+	    dmxUIUpdateOnly=true;
+		dmxSlider.setValue(1-dmxValues[dmxHighlightedChannel-1]/255);
+		dmxUIUpdateOnly=false;
     }
 }
 
