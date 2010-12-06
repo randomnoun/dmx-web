@@ -145,12 +145,12 @@ BODY { font-size: 8pt; font-family: Arial; }
 </style>
 <script>
 <r:setJavascriptVar name="fixtureDefErrorLines" value="${fixtureDefErrorLines}" />
-<r:setJavascriptVar name="fixtureControllerErrorLines" value="${fixtureControllerErrorLines}" />
 <r:setJavascriptVar name="channelMuxerErrorLines" value="${channelMuxerErrorLines}" />
+<r:setJavascriptVar name="fixtureControllerErrorLines" value="${fixtureControllerErrorLines}" />
 <r:setJavascriptVar name="fixtureDefId" value="${fixtureDef.id}" />
 var edtFixtureDefEditor;
 var edtFixtureControllerEditor;
-var edtTabNames = new Array('fixture', 'controller', 'channelMuxer', 'attachment');
+var edtTabNames = new Array('fixture', 'channelMuxer', 'controller', 'attachment');
 
 function edtGetFixtureDef() {
 	var fixtureDefIdEl = document.getElementById("fixtureDefId");
@@ -171,19 +171,20 @@ function edtEditorInitialisationCallback(editor) {
 	        var lineNumberContainerDiv = $("fixtureDef.fixtureDefScript").nextSibling.childNodes[2];
 	        setTimeout(edtHighlightRow.curry(new Date().getTime(), lineNumberContainerDiv, fixtureDefErrorLines), 100);
 	    }
-	} else if (editor==edtFixtureControllerEditor) {
-        if (edtFixtureControllerEditor && fixtureControllerErrorLines > 0) {
-        	edtFixtureControllerEditor.jumpToLine(fixtureControllerErrorLines[0]);
-            var lineNumberContainerDiv = $("fixtureDef.fixtureControllerScript").nextSibling.childNodes[2];
-            setTimeout(edtHighlightRow.curry(new Date().getTime(), lineNumberContainerDiv, fixtureControllerErrorLines), 100);
-        }
-	} else {
+	} else if (editor==edtChannelMuxerEditor) {
         if (edtChannelMuxerEditor && channelMuxerErrorLines > 0) {
             edtChannelMuxerEditor.jumpToLine(channelMuxerErrorLines[0]);
             var lineNumberContainerDiv = $("fixtureDef.channelMuxerScript").nextSibling.childNodes[2];
             setTimeout(edtHighlightRow.curry(new Date().getTime(), lineNumberContainerDiv, channelMuxerErrorLines), 100);
         }
+	}  else if (editor==edtFixtureControllerEditor) {
+	    if (edtFixtureControllerEditor && fixtureControllerErrorLines > 0) {
+	        edtFixtureControllerEditor.jumpToLine(fixtureControllerErrorLines[0]);
+	        var lineNumberContainerDiv = $("fixtureDef.fixtureControllerScript").nextSibling.childNodes[2];
+	        setTimeout(edtHighlightRow.curry(new Date().getTime(), lineNumberContainerDiv, fixtureControllerErrorLines), 100);
+	    }
 	}
+
 }
 
 // line numbers aren't visible at editor initialisation time, try for 2 seconds...
@@ -229,7 +230,7 @@ function edtInitPanel() {
         tabMode : "shift",
         initCallback : edtEditorInitialisationCallback
     });
-    edtFixtureControllerEditor = CodeMirror.fromTextArea('fixtureDef.fixtureControllerScript', {
+    edtChannelMuxerEditor = CodeMirror.fromTextArea('fixtureDef.channelMuxerScript', {
         lineNumbers: true,
         height: (522-offsets[1]) + "px", width: "750px",
         parserfile: ["tokenizejava.js","parsejava.js"],
@@ -238,7 +239,7 @@ function edtInitPanel() {
         tabMode : "shift",
         initCallback : edtEditorInitialisationCallback
     });
-    edtChannelMuxerEditor = CodeMirror.fromTextArea('fixtureDef.channelMuxerScript', {
+    edtFixtureControllerEditor = CodeMirror.fromTextArea('fixtureDef.fixtureControllerScript', {
         lineNumbers: true,
         height: (522-offsets[1]) + "px", width: "750px",
         parserfile: ["tokenizejava.js","parsejava.js"],
@@ -267,8 +268,8 @@ function lhsOKClick() { edtSubmit(); };
 
 function edtSubmit() {
 	document.forms[0].elements["fixtureDef.name"].value=$("fixtureDef.name").value;
-	document.forms[0].elements["fixtureDef.fixtureControllerScript"].value=edtFixtureControllerEditor.getCode();
 	document.forms[0].elements["fixtureDef.channelMuxerScript"].value=edtChannelMuxerEditor.getCode();
+	document.forms[0].elements["fixtureDef.fixtureControllerScript"].value=edtFixtureControllerEditor.getCode();
 	document.forms[0].submit();
 }
 
@@ -398,8 +399,8 @@ function initWindow() {
 
 <div id="tabContainer" class="tabs"><ul>
 <li id="fixtureTab" class="current"><a onclick="edtSetTab('fixture')">Fixture</a></li>
-<li id="controllerTab"><a onclick="edtSetTab('controller')" >Controller</a></li>
 <li id="channelMuxerTab"><a onclick="edtSetTab('channelMuxer')" >Channel Muxer</a></li>
+<li id="controllerTab"><a onclick="edtSetTab('controller')" >Controller</a></li>
 <li id="attachmentTab"><a onclick="edtSetTab('attachment')" >Attachments</a></li>
 </ul></div>
 <div id="fixtureTabSheet" class="tabSheet">
@@ -420,17 +421,6 @@ function initWindow() {
 </form>
 </div>
 
-<div id="controllerTabSheet" class="tabSheet">
-<table>
-<c:if test="${fixtureDef.fixtureControllerClassName != null}" >    
-<tr><td valign="top">Controller class:</td>
-    <td><c:out value="${fixtureDef.fixtureControllerClassName}"/></td></tr>    
-</c:if>    
-<tr><td valign="top">Controller script:</td>
-    <td colspan="2"><r:input type="textarea" name="fixtureDef.fixtureControllerScript" value="${fixtureDef.fixtureControllerScript}" rows="25" cols="100"/></td></tr>
-</table>    
-</div>
-
 <div id="channelMuxerTabSheet" class="tabSheet">
 <table>
 <c:if test="${fixtureDef.channelMuxerClassName != null}" >    
@@ -439,6 +429,17 @@ function initWindow() {
 </c:if>    
 <tr><td valign="top">Channel Muxer script:</td>
     <td colspan="2"><r:input type="textarea" name="fixtureDef.channelMuxerScript" value="${fixtureDef.channelMuxerScript}" rows="25" cols="100"/></td></tr>
+</table>    
+</div>
+
+<div id="controllerTabSheet" class="tabSheet">
+<table>
+<c:if test="${fixtureDef.fixtureControllerClassName != null}" >    
+<tr><td valign="top">Controller class:</td>
+    <td><c:out value="${fixtureDef.fixtureControllerClassName}"/></td></tr>    
+</c:if>    
+<tr><td valign="top">Controller script:</td>
+    <td colspan="2"><r:input type="textarea" name="fixtureDef.fixtureControllerScript" value="${fixtureDef.fixtureControllerScript}" rows="25" cols="100"/></td></tr>
 </table>    
 </div>
 
