@@ -51,11 +51,11 @@ BODY { font-size: 8pt; font-family: Arial; }
   cursor: pointer;
 }
 .rhsPanel {
-  position: absolute; top: 30px; left: 210px; width: 900px; height: 700px;
+  position: absolute; top: 30px; left: 210px; width: 1020px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue; 
 }
 #rhsMessage {
-  position: absolute; top: 5px; left: 210px; width: 896px; height: 16px;
+  position: absolute; top: 5px; left: 210px; width: 1016px; height: 16px;
   text-align: left; color: #000044; font-size: 10pt; font-weight: bold;
   background-color: #EEEEFF; border: solid 1px blue; padding: 2px;
 }
@@ -125,7 +125,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 #tabContainer {
     position: absolute;
     left: 20px; 
-    width: 856px;
+    width: 956px;
 }
 .tabSheet {
     position:absolute;
@@ -136,7 +136,7 @@ BODY { font-size: 8pt; font-family: Arial; }
     border-color: threedshadow;
     background-color: white;
     padding: 2px;
-    width: 850px;
+    width: 950px;
     overflow-x: auto; 
     overflow-y: auto; 
     /*height: 550px;*/  
@@ -223,7 +223,7 @@ function edtInitPanel() {
     
     edtFixtureDefEditor = CodeMirror.fromTextArea('fixtureDef.fixtureDefScript', {
         lineNumbers: true,
-        height: (522-offsets[1]) + "px", width: "750px",
+        height: (522-offsets[1]) + "px", width: "850px",
         parserfile: ["tokenizejava.js","parsejava.js"],
         stylesheet: "css/codemirror/javacolors.css",
         path: "js/codemirror/",
@@ -232,7 +232,7 @@ function edtInitPanel() {
     });
     edtChannelMuxerEditor = CodeMirror.fromTextArea('fixtureDef.channelMuxerScript', {
         lineNumbers: true,
-        height: (522-offsets[1]) + "px", width: "750px",
+        height: (522-offsets[1]) + "px", width: "850px",
         parserfile: ["tokenizejava.js","parsejava.js"],
         stylesheet: "css/codemirror/javacolors.css",
         path: "js/codemirror/",
@@ -241,7 +241,7 @@ function edtInitPanel() {
     });
     edtFixtureControllerEditor = CodeMirror.fromTextArea('fixtureDef.fixtureControllerScript', {
         lineNumbers: true,
-        height: (522-offsets[1]) + "px", width: "750px",
+        height: (522-offsets[1]) + "px", width: "850px",
         parserfile: ["tokenizejava.js","parsejava.js"],
         stylesheet: "css/codemirror/javacolors.css",
         path: "js/codemirror/",
