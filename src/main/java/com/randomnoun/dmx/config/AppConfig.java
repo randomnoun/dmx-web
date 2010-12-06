@@ -377,6 +377,7 @@ public class AppConfig extends AppConfigBase {
 				if (fixtureDef.getNumDmxChannels()<=0) {
 					logger.error("Fixture " + i + " has no DMX channels");
 				}
+				// @TODO setImagePath() for fixtures in property files
 				Fixture fixtureObj = new Fixture(name, fixtureDef, controller.getUniverse(), Integer.parseInt(dmxOffset));
 				if (fixtureController!=null) {
 					fixtureController.addFixture(fixtureObj);
@@ -414,6 +415,7 @@ public class AppConfig extends AppConfigBase {
 					// @TODO check class before instantiating
 					Object instance = (Object) getScriptEngine().eval(testScript, fixtureScriptContext);
 					if (instance instanceof FixtureDef) {
+						((FixtureDef) instance).setImagePath("image/fixture/" + fixtureDef.getId() + "/");
 						scriptedFixtureDefs.put(fixtureDef.getId(), instance);
 					} else {
 						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureDefClassName() + "' does not extend com.randomnoun.dmx.fixture.FixtureDef"); 
