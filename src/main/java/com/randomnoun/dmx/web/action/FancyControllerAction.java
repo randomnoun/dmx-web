@@ -153,6 +153,10 @@ public class FancyControllerAction
 	    					Map m4 = new HashMap();
 	    					m4.put("uiType", cc.getUIType().toString());
 	    					m4.put("label", cc.getLabel());
+	    					if (cc.getLeft()!=null) {
+	    						m4.put("left", cc.getLeft());
+	    						m4.put("top", cc.getTop());
+	    					}
 	    					ccs.add(m4);
 	    				}
 	    				m2.put("customControls", ccs);
