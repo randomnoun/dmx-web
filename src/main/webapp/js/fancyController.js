@@ -310,11 +310,13 @@ function fixInitPanel() {
         var fixEl = new Element("div", { 
             "id": "fixItem[" + i + "]", "fixtureId": i,
             "class" : "fixItem" }).update(
-            f.name + "<div class=\"fixOutput\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
+            f.name +
+            "<div class=\"fixOutput\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
             (fd.panRange==0 ? "" : "&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>") +
             (fd.tiltRange==0 ? "" : "&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div>") +
-            "&nbsp;<div class=\"fixOutputStrobe\"></div>" + 
-            "</div>" 
+            "&nbsp;<div class=\"fixOutputStrobe\"></div>" +
+            "</div>" +
+            "<div class=\"fixItemIcon\"><img src=\"" + fd["img32"] + "\"></div>"
             );
         fixEl.style.left=x+"px"; fixEl.style.top=y+"px";
         fic.appendChild(fixEl);
@@ -779,7 +781,7 @@ function dmxInitPanel() {
     for (var i=0; i<fixtures.length; i++) {
     	f=fixtures[i];
     	var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
-    		"<img src=\"" + fixtureDefs[f.type]["img"] + "\">"	);
+    		"<img src=\"" + fixtureDefs[f.type]["img16"] + "\">");
     	//var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
     	//	"<img src=\"image/favicon.png\">"	);
     	$("dmxBox[" + f["dmxOffset"] + "]").insert({'top':dmxFixtureIconEl});
@@ -964,9 +966,10 @@ function dmxValueOnMouseOver(event) {
     }
     //if (dmxSelectedFixture!=f) {
     el.update("Name: <b>" + f["name"] + "</b><br/>" +
-    	"Type: <img valign=\"text-bottom\" src=\"" + fd["img"] + "\">" + fd["label"] + "<br/>" + 
-    	"Offset: " + f["dmxOffset"] + "<br/>" +
-    	"Channel: " + (ch-off) + (cd==null ? "" : " (<img valign=\"text-bottom\" src=\"" + cd["img"] + "\">" + cd["label"] + ")"));
+    	"<img valign=\"text-bottom\" src=\"" + fd["img16"] + "\"> " + fd["label"] + "<br/>" + 
+    	"<img valign=\"text-bottom\" src=\"image/channel/offset_16x16.png\"> Offset: " + f["dmxOffset"] + "<br/>" +
+    	(cd==null ? "" : "<img valign=\"text-bottom\" src=\"" + cd["img"] + "\"> " + cd["label"]) +
+    	" (Channel: " + (ch-off) + ")");
     //}
     for (j=off; j<off+dc; j++) {
     	el = $("dmxBox[" + j + "]");
