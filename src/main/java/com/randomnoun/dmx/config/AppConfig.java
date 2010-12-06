@@ -661,6 +661,21 @@ public class AppConfig extends AppConfigBase {
     		logger.warn("Not cancelling show " + showId + " '" + showConfig.getShow().getName() + "' since it is not running");
     	}
     }
+    
+    public void cancelShowGroup(long showGroupId) {
+    	// cancel all shows with the same showGroupId
+    	for (ShowConfig showConfig2 : showConfigs.values()) {
+    		if (showConfig2.getShow().getShowGroupId()==showGroupId) {
+    			ShowThread thread2 = showConfig2.getThread();
+    	    	if (thread2.isAlive()) {
+    	    		thread2.cancel();
+    	    	}
+    		}
+    	}
+    	// should probably wait a small amount of time for shows to cancel properly,
+    	// then forcibly terminate them
+    }
+    
  
     public void addShowException(Show show, Exception exception) {
     	showExceptions.add(new TimestampedShowException(show, exception));

@@ -12,11 +12,11 @@ BODY { font-size: 8pt; font-family: Arial; }
   cursor: pointer;
 }
 .rhsPanel {
-  position: absolute; top: 30px; left: 210px; width: 920px; height: 700px;
+  position: absolute; top: 30px; left: 210px; width: 1020px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue; 
 }
 #rhsMessage {
-  position: absolute; top: 5px; left: 210px; width: 916px; height: 16px;
+  position: absolute; top: 5px; left: 210px; width: 1016px; height: 16px;
   text-align: left; color: #000044; font-size: 10pt; font-weight: bold;
   background-color: #EEEEFF; border: solid 1px blue; padding: 2px;
 }
@@ -65,13 +65,17 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 /*** SHOW panel ***/
 #shwCancel {
-  position: absolute; top: 20px; left: 20px; width: 180px; height: 70px;
-  /*background-color: red; */
-  background-image: url("../image/button-red.png");
-  text-align: center; color: white; font-size: 18pt;
+  position: absolute; top: 20px; left: 20px; width: 80px; height: 70px;
+  background-image: url("../image/sbutton-red.png");
+  text-align: center; color: white; font-size: 14pt;
+}
+.shwCancelGroup {
+  position: absolute; width: 80px; height: 70px;
+  background-image: url("../image/sbutton-blue.png");
+  text-align: center; color: #000044; font-size: 14pt;
 }
 #shwItemContainer {
-  position: absolute; top: 100px; left: 10px; width: 800px; height: 580px;
+  position: absolute; top: 100px; left: 10px; width: 900px; height: 580px;
   border: dotted 1px #AAAAFF;
   overflow: hidden; 
 }
@@ -82,7 +86,7 @@ BODY { font-size: 8pt; font-family: Arial; }
   cursor: pointer; 
 }
 .shwItemSeparator {
-  position: absolute; width: 780px; height: 2px; /*background-color: #AAAAFF; */
+  position: absolute; width: 880px; height: 2px; /*background-color: #AAAAFF; */
   text-align: center; background-color: #AAAAFF; font-size: 4pt;
 }
 
@@ -140,13 +144,13 @@ BODY { font-size: 8pt; font-family: Arial; }
 #shwAudioMidInner    { background-color: #b3a5ee; }
 #shwAudioTrebleInner { background-color: #dbcdff; }
 #shwPageUp {
-  position: absolute; width: 80px; height: 70px; top:110px; left: 820px; 
+  position: absolute; width: 80px; height: 70px; top:110px; left: 920px; 
   background-image: url("../image/sbutton-blue.png"); 
   text-align: center; color: #000044; font-size: 14pt;
   cursor: pointer; 	
 }
 #shwPageDown {
-  position: absolute; width: 80px; height: 70px; top:610px; left: 820px; 
+  position: absolute; width: 80px; height: 70px; top:610px; left: 920px; 
   background-image: url("../image/sbutton-blue.png"); 
   text-align: center; color: #000044; font-size: 14pt;
   cursor: pointer;  
@@ -155,7 +159,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 /*** FIXTURE panel ***/
 #fixItemContainer {
-  position: absolute; top: 200px; left: 10px; width: 800px; height: 480px;
+  position: absolute; top: 200px; left: 10px; width: 900px; height: 480px;
   border: dotted 1px #AAAAFF;
   overflow: hidden; 
 }
@@ -196,22 +200,22 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 
 #fixStandardControls {
-  position: absolute; top:0px; left: 220px; width: 680px; height: 210px;
+  position: absolute; top:0px; left: 220px; width: 780px; height: 210px;
 }
 #fixCustomControls {
-  position: absolute; top:0px; left: 220px; width: 680px; height: 210px;
+  position: absolute; top:0px; left: 220px; width: 780px; height: 210px;
   padding-top: 20px; padding-left: 20px;
   visibility: hidden;
 }
 
 #fixPageUp {
-  position: absolute; width: 80px; height: 70px; top:210px; left: 820px; 
+  position: absolute; width: 80px; height: 70px; top:210px; left: 920px; 
   background-image: url("../image/sbutton-blue.png"); 
   text-align: center; color: #000044; font-size: 14pt;
   cursor: pointer;  
 }
 #fixPageDown {
-  position: absolute; width: 80px; height: 70px; top:610px; left: 820px; 
+  position: absolute; width: 80px; height: 70px; top:610px; left: 920px; 
   background-image: url("../image/sbutton-blue.png"); 
   text-align: center; color: #000044; font-size: 14pt;
   cursor: pointer;  

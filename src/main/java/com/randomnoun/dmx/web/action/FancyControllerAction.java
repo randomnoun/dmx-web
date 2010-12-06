@@ -482,7 +482,12 @@ public class FancyControllerAction
     			}
     			result.put("message", "Cancel all shows requested");
     		}
-    	
+
+    	} else if (action.equals("cancelShowGroup")) {
+    		int showGroupId = Integer.parseInt(request.getParameter("showGroupId"));
+    		appConfig.cancelShowGroup(showGroupId);
+    		result.put("message", "ShowGroup " + showGroupId + " cancel requested");
+    		
     	} else if (action.equals("fixtureBlackout")) {
     		int c=0;
     		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
