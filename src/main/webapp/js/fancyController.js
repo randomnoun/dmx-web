@@ -1040,7 +1040,8 @@ function dmxValueOnMouseOver(event) {
 function dmxValueOnMouseOut(event) {
     var dmxValueEl = event.element();
     var ch=$(dmxValueEl).readAttribute("dmxChannel");
-    while (!ch && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; ch=$(dmxValueEl).readAttribute("dmxChannel"); }
+    while (!ch && dmxValueEl!=null) {dmxValueEl=$(dmxValueEl.parentNode); if (dmxValueEl) { ch=dmxValueEl.readAttribute("dmxChannel"); } }
+    if (dmxValueEl==null) { return; }
     //var f=dmxToFixture[ch];
     //if (!f) { return; }
     f=dmxSelectedFixture;  // current selected fixture
