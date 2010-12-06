@@ -128,7 +128,8 @@ public class FancyControllerAction
     			if (!fixtureDefs.containsKey(fdName)) {
     				Map m2 = new HashMap();
     				m2.put("dmxChannels", fd.getNumDmxChannels());
-        			m2.put("img", fd.getHtmlImg());
+        			m2.put("img16", fd.getHtmlImg16());
+        			m2.put("img32", fd.getHtmlImg32());
         			m2.put("label", fd.getHtmlLabel());
     				m2.put("panRange", fd.getPanRange());
     				m2.put("tiltRange", fd.getTiltRange());
