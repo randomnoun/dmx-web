@@ -20,9 +20,11 @@ import com.randomnoun.common.Struct;
 import com.randomnoun.common.http.HttpUtil;
 import com.randomnoun.common.security.User;
 import com.randomnoun.common.spring.StructuredResultReader;
+import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
+import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
 import com.randomnoun.dmx.web.Table;
 import com.randomnoun.dmx.web.TableEditor;
@@ -65,7 +67,8 @@ public class MaintainFixtureAction
     		new String[] { "id", "fixtureDefId", "name", "dmxOffset", "x", "y", "z",
     		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ" };
     	
-    	// @TODO this is all rather silly...
+    	Map fixtureDefMap = null;
+    	int[] occupiedDmxValues = new int[Universe.MAX_CHANNELS];
     	
     	@Override
 		public void createRow(Map row) throws Exception {
@@ -96,6 +99,10 @@ public class MaintainFixtureAction
 		}
 
 		private void init() {
+			this.fixtureDefMap = getFixtureDefMap();
+			for (int i=0; i<Universe.MAX_CHANNELS; i++) {
+				occupiedDmxValues[i]=-1;
+			}
     	}
 
     	public void removeEmptyRows(Map form) {
@@ -134,7 +141,26 @@ public class MaintainFixtureAction
     	    valid = valid & table.checkMandatoryInclusive(
     	    	new String[] { "upX", "upY", "upZ" },
     	    	new String[] { "Up X Vector", "Up Y Vector", "Up Z Vector" });
-    	    
+    	    if (valid) {
+	    	    long fixtureDefId = Long.parseLong(table.getRowValue("fixtureDefId"));
+	    	    long dmxOffset = Long.parseLong(table.getRowValue("dmxOffset"));
+	    	    long numChannels = ((Long) fixtureDefMap.get(fixtureDefId)).longValue();
+	    	    for (int i=1; i<=numChannels; i++) {
+	    	    	int otherFixtureId = occupiedDmxValues[(int) dmxOffset+i-1];
+	    	    	if (otherFixtureId==-1) {
+	    	    		occupiedDmxValues[(int) dmxOffset+i-1]=table.getCurrentRow();
+	    	    	} else {
+	    	    		table.getErrors().addError(
+	    	    			"fixtures[" + table.getCurrentRow() + "].dmxOffset,fixtures[" + otherFixtureId + "].dmxOffset", 
+	    	    		   "DMX conflict", "The fixtures '" + table.getRowValue("name") + "' and '" + 
+	    	    		   ((Map)table.getRows().get(otherFixtureId)).get("name") + 
+	    	    		   "' overlap on some DMX channels", 
+	    	    		   ErrorList.SEVERITY_INVALID);
+	    	    		valid = false;
+	    	    		break;
+	    	    	}
+	    	    }
+    	    }
     	    
     	    
     	    return valid;
@@ -170,6 +196,7 @@ public class MaintainFixtureAction
 			Map form = new HashMap();
 			List fixtures = getFixtures();
 			form.put("fixtureDefs", getFixtureDefs());
+			form.put("fixtureDefMap", getFixtureDefMap());
 			form.put("fixtures", fixtures);
 			form.put("fixtures_size", fixtures.size());
 			return form;
@@ -196,6 +223,19 @@ public class MaintainFixtureAction
     		FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
     		return fixtureDefDAO.getFixtureDefs(null);
     	}
+    	
+    	public Map getFixtureDefMap() {
+    		AppConfig appConfig = AppConfig.getAppConfig();
+    		JdbcTemplate jt = appConfig.getJdbcTemplate();
+    		FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
+    		List<FixtureDefTO> fixtureDefs = fixtureDefDAO.getFixtureDefs(null);
+    		Map fixtureDefMap = new HashMap();
+    		for (FixtureDefTO fixture : fixtureDefs) {
+    			fixtureDefMap.put(new Long(fixture.getId()), new Long(fixture.getDmxChannels()));
+    		}
+    		return fixtureDefMap;
+    	}
+    	
    }
       
       
@@ -242,11 +282,11 @@ public class MaintainFixtureAction
 			//System.out.println(Struct.structuredListToString("rows", result.getRows()));
 			//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
 			form.put("fixtureDefs", tableEditor.getFixtureDefs());
+			form.put("fixtureDefMap", tableEditor.getFixtureDefMap());
 			form.put("fixtures", result.getRows());
 			form.put("fixtures_size", result.getRows().size());
 			request.setAttribute("errors", result.getErrors());
 			request.setAttribute("form", form);
-			
 			
 		} else {
 			throw new IllegalArgumentException("Invalid action '" + action + "'");
