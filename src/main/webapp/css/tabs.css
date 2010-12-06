@@ -76,10 +76,10 @@
 	color: #333;
 	text-decoration: underline;
 }
-.tabs #current {
+.tabs .current {
 	background-image: url("image/tabs/left_on.gif")
 }
-.tabs #current A {
+.tabs .current A {
 	background-image: url("image/tabs/right_on.gif"); 
 	padding-bottom: 5px; 
   color: #333

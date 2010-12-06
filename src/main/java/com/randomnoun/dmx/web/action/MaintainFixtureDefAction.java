@@ -226,6 +226,22 @@ public class MaintainFixtureDefAction
     		StreamUtils.copyStream(is, response.getOutputStream());
     		forward = null;
     		
+    	} else if (action.equals("deleteFile")) {
+    		Map result = new HashMap();
+    		try {
+	    		long fileId = Long.parseLong(request.getParameter("fileId"));
+	    		FixtureDefImageTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fileId);
+	    		fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
+	    		result.put("result", "success");
+	    		result.put("fileId", new Long(fileId));
+    		} catch (Exception e) {
+    			logger.error("Exception deleting file", e);
+    			result.put("result", "failure");
+    			result.put("message", e.getMessage());
+    		}
+    		request.setAttribute("json", Struct.structuredMapToJson(result));
+    		forward = "json";
+    		
     	} else if (action.equals("")) {
     		// initial page load
     		

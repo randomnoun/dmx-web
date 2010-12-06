@@ -8,6 +8,7 @@
 %>
 <%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
+<%@ taglib uri="/WEB-INF/fmt.tld" prefix="fmt" %>
 <fmt:setLocale value="${locale}"/>
 <fmt:setBundle basename="resources.i18n.general" var="generalBundle" />
 <% 
@@ -29,6 +30,7 @@
     <title><%= appConfig.getProperty("webapp.titlePrefix") %> DMX</title>
 
     <link rel="shortcut icon" href="image/favicon.png" />
+    <link rel="stylesheet" href="css/tabs.css" type="text/css" />
 
     <!-- JavaScript -->
     <script src="mjs?js=prototype" type="text/javascript"></script>
@@ -37,7 +39,7 @@
 <style>
 BODY { font-size: 8pt; font-family: Arial; }
 .lhsMenuContainer {
-  position: absolute; top: 30px; left: 5px; width: 200px; height: 1000px;
+  position: absolute; top: 30px; left: 5px; width: 200px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue;
 }
 #lhsLogo {
@@ -49,7 +51,7 @@ BODY { font-size: 8pt; font-family: Arial; }
   cursor: pointer;
 }
 .rhsPanel {
-  position: absolute; top: 30px; left: 210px; width: 900px; height: 1000px;
+  position: absolute; top: 30px; left: 210px; width: 900px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue; 
 }
 #rhsMessage {
@@ -70,6 +72,7 @@ BODY { font-size: 8pt; font-family: Arial; }
   cursor: pointer; 
 }
 .edtSubmit {
+  position: absolute; left: 20px; top: 610px;
   width: 180px; height: 70px; background-image: url("image/button-green.png");
   /*background-color: #AAAAFF; */ ; margin-top: 10px;
   text-align: center; color: #000044; font-size: 18pt;
@@ -120,6 +123,26 @@ BODY { font-size: 8pt; font-family: Arial; }
   }
 
 
+#tabContainer {
+    position: absolute;
+    left: 20px; top: 38px;
+    width: 856px;
+}
+.tabSheet {
+    position:absolute;
+    left:20px; top:60px;
+    margin-top: 0px;
+    border-style: none solid solid solid;
+    border-width: 1px;
+    border-color: threedshadow;
+    background-color: white;
+    padding: 2px;
+    width: 850px;
+    overflow-x: auto; 
+    overflow-y: auto; 
+    height: 550px;  
+}
+
 </style>
 <script>
 <r:setJavascriptVar name="fixtureDefErrorLines" value="${fixtureDefErrorLines}" />
@@ -127,6 +150,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 <r:setJavascriptVar name="fixtureDefId" value="${fixtureDef.id}" />
 var edtFixtureDefEditor;
 var edtFixtureControllerEditor;
+var edtTabNames = new Array('fixture', 'controller', 'attachment');
 
 function edtGetFixtureDef() {
 	var fixtureDefIdEl = document.getElementById("fixtureDefId");
@@ -183,7 +207,7 @@ function edtInitPanel() {
     <c:if test="${fixtureDef!=null}" >
     edtFixtureDefEditor = CodeMirror.fromTextArea('fixtureDef.fixtureDefScript', {
         lineNumbers: true,
-        height: "340px", width: "750px",
+        height: "500px", width: "750px",
         parserfile: ["tokenizejava.js","parsejava.js"],
         stylesheet: "css/codemirror/javacolors.css",
         path: "js/codemirror/",
@@ -192,7 +216,7 @@ function edtInitPanel() {
     });
     edtFixtureControllerEditor = CodeMirror.fromTextArea('fixtureDef.fixtureControllerScript', {
         lineNumbers: true,
-        height: "340px", width: "750px",
+        height: "500px", width: "750px",
         parserfile: ["tokenizejava.js","parsejava.js"],
         stylesheet: "css/codemirror/javacolors.css",
         path: "js/codemirror/",
@@ -218,13 +242,14 @@ function lhsCancelClick() { document.location = "index.html?panel=cnfPanel"; }
 function lhsOKClick() { edtSubmit(); };
 
 function edtSubmit() {
-	document.forms[1].elements["fixtureDef.name"].value=$("fixtureDef.name").value;
-	document.forms[1].submit();
+	document.forms[0].elements["fixtureDef.name"].value=$("fixtureDef.name").value;
+	document.forms[0].elements["fixtureDef.fixtureControllerScript"].value=edtFixtureControllerEditor.getCode();
+	document.forms[0].submit();
 }
 
 function edtAddFile() {
 	$("uploadForm").target="uploadTarget"
-    document.forms[0].submit();
+    document.forms[1].submit();
     $("progressBar").style.display = 'block';
     $("progressBarText").update("upload in progress: 0%");
     $("addFile").disabled = true;
@@ -240,37 +265,65 @@ function edtRefreshProgress() {
     });	
 }
 
-function edtDeleteFile(id) {
-	alert("Not implemented");
-}
-
 function edtUpdateProgress(json) {
     $("progressBarText").update("upload in progress: " + json.percentDone + "%");
     $("progressBarBoxContent").style.width = parseInt(json.percentDone * 2) + "px";
     window.setTimeout(edtRefreshProgress, 1000);
 } 
 
-// invoked by iframe script
+//invoked by iframe script
 function edtCompletedUploadError(text) {
     alert(text);
     $("addFile").disabled = false;
 }
 
 function edtCompletedUploadOK(id, sizeInUnits, name, description) {
-	var newRowEl = new Element("tr");
-	newRowEl.appendChild(new Element("td"));
-	newRowEl.appendChild(new Element("td").update(
-		"<input type=\"button\" name=\"image" + id + "\" value=\"Delete\" onclick=\"edtDeleteFile(" + id + ")\"/> " + 
-		"<a href=\"image/fixture/" + fixtureDefId + "/" + name + "\" target=\"_new\">" + name + "</a> (" + sizeInUnits + ") " + description + "<br/>"));
-	$("lastImageRow").insert({'before': newRowEl});
-	if ($("attachment")) { $("attachment").value = ""; }
-	if ($("description")) { $("description").value = ""; }
-	$("addFile").disabled = false;
+    var newRowEl = new Element("tr", { "id" : "file[" + id + "]" });
+    newRowEl.appendChild(new Element("td"));
+    newRowEl.appendChild(new Element("td").update(
+        "<input type=\"button\" name=\"image" + id + "\" value=\"Delete\" onclick=\"edtDeleteFile(" + id + ")\"/> " + 
+        "<a href=\"image/fixture/" + fixtureDefId + "/" + name + "\" target=\"_new\">" + name + "</a> (" + sizeInUnits + ") " + description + "<br/>"));
+    $("lastImageRow").insert({'before': newRowEl});
+    if ($("attachment")) { $("attachment").value = ""; }
+    if ($("description")) { $("description").value = ""; }
+    $("addFile").disabled = false;
+}
+
+function edtDeleteFile(fixtureDefImageId) {
+	if (confirm("Are you sure you wish to delete this attachment?")) {
+		new Ajax.Request("maintainFixtureDef.html?action=deleteFile&fixtureDefId=<c:out value='${fixtureDef.id}'/>&fileId=" + fixtureDefImageId, {
+	        method:'get', // evalJSON:true,
+	        onSuccess: function(transport) {
+	            edtDeleteFileComplete(transport.responseJSON);
+	        }
+	    }); 		
+	}
+}
+
+function edtDeleteFileComplete(json) {
+	var result = json["result"];
+	if (result=="success") {
+		var fileId = json["fileId"];
+		$("file[" + fileId + "]").remove();
+	} else {
+		var message = json["message"];
+		alert(message);
+	}
+}
+
+
+function edtSetTab(newTab) {
+	for (var i=0; i<edtTabNames.length; i++) {
+		$(edtTabNames[i] + "TabSheet").style.visibility = (newTab==edtTabNames[i] ? "visible" : "hidden");
+		$(edtTabNames[i] + "Tab").className = (newTab==edtTabNames[i] ? "current" : "");
+	}
+	return false;
 }
 
 
 function initWindow() {
     edtInitPanel();
+    edtSetTab('fixture'); // @TODO: check errorList
 }
 
 
@@ -316,65 +369,89 @@ function initWindow() {
 <c:if test="${fixtureDef!=null}" >
 <tr><td>Name:</td>
     <td colspan="2"><r:input type="text" name="fixtureDef.name" value="${fixtureDef.name}"/></td></tr>
+</table>
 
-<form id="uploadForm" action="maintainFixtureDef.html" method="post" enctype="multipart/form-data">
-<input type="hidden" name="action" value="submitFile" />
-<input type="hidden" name="fixtureDefId" value="${fixtureDef.id}" />
-<tr><td valign="top">Image attachments:</td>
-    <td><input id="attachment" type="file" name="attachment" />
-        <input id="description" type="text" name="description" size="30" />
-        <input id="addFile", type="button" name="addFile" value="Add" />
-        <div id="progressBar" style="display: block;">
-          <div id="theMeter">
-            <div id="progressBarBox">
-               <div id="progressBarBoxContent"></div>
-            </div>
-            <div id="progressBarText"></div>            
-          </div>
-        </div>      
-    </td>
-<tr><td></td>
-    <td><iframe name="uploadTarget" id="uploadTarget" style="width:100px; height:1px; border:0px solid #fff;"/></iframe>
-    </td>
-</tr>    
-    
-</tr>
-
-<c:if test="${fixtureDefImages!=null}" >
-<c:forEach var="fixtureDefImage" items="${fixtureDefImages}" >
-<tr><td valign="top"></td> 
-    <!--  maintainFixtureDef.html?action=getFile&fileId=<c:out value="${fixtureDefImage.id}"/>"   -->
-    <td><input type="button" name="image<c:out value="${fixtureDefImage.id}"/>" value="Delete" onclick="edtDeleteFile(<c:out value="${fixtureDefImage.id}"/>)"/> <a href="image/fixture/<c:out value="${fixtureDefImage.fixtureDefId}"/>/<c:out value="${fixtureDefImage.name}"/>" target="_new"><c:out value="${fixtureDefImage.name}"/></a> (<c:out value="${fixtureDefImage.sizeInUnits}"/>) <c:out value="${fixtureDefImage.description}"/><br/>
-    </td>    
-</tr>
-</c:forEach>
-</c:if>
-<tr id="lastImageRow" />
-</form>
-
+<div id="tabContainer" class="tabs"><ul>
+<li id="fixtureTab" class="current"><a onclick="edtSetTab('fixture')">Fixture</a></li>
+<li id="controllerTab"><a onclick="edtSetTab('controller')" >Controller</a></li>
+<li id="attachmentTab"><a onclick="edtSetTab('attachment')" >Attachments</a></li>
+</ul></div>
+<div id="fixtureTabSheet" class="tabSheet">
 <form action="maintainFixtureDef.html" method="post">
-<input type="hidden" name="fixtureDef.id" value="${fixtureDef.id}" />
+<table>
+<input type="hidden" name="fixtureDef.id" value="<c:out value='${fixtureDef.id}'/>"/>
 <input type="hidden" name="updateFixtureDef" value="Y" />
-<input type="hidden" name="fixtureDef.name" value="${fixtureDef.name}" />
+<input type="hidden" name="fixtureDef.name" value="<c:out value='${fixtureDef.name}'/>"/>
+<input type="hidden" name="fixtureDef.fixtureControllerScript" value="" />
 <c:if test="${fixtureDef.fixtureDefClassName != null}" >    
 <tr><td valign="top">Fixture class:</td>
     <td><c:out value="${fixtureDef.fixtureDefClassName}"/></td></tr>    
 </c:if>    
 <tr><td valign="top">Fixture script:</td>
     <td colspan="2"><r:input type="textarea" name="fixtureDef.fixtureDefScript" value="${fixtureDef.fixtureDefScript}" rows="25" cols="100"/></td></tr>
+</table>
+</form>
+</div>
 
+<div id="controllerTabSheet" class="tabSheet">
+<table>
 <c:if test="${fixtureDef.fixtureControllerClassName != null}" >    
 <tr><td valign="top">Controller class:</td>
     <td><c:out value="${fixtureDef.fixtureControllerClassName}"/></td></tr>    
 </c:if>    
 <tr><td valign="top">Controller script:</td>
     <td colspan="2"><r:input type="textarea" name="fixtureDef.fixtureControllerScript" value="${fixtureDef.fixtureControllerScript}" rows="25" cols="100"/></td></tr>
+</table>    
+</div>
 
-<tr><td></td>
-    <td>
-    <div id="edtSubmit" class="edtSubmit"></div>
+<div id="attachmentTabSheet" class="tabSheet">
+<form id="uploadForm" action="maintainFixtureDef.html" method="post" enctype="multipart/form-data">
+<input type="hidden" name="action" value="submitFile" />
+<input type="hidden" name="fixtureDefId" value="${fixtureDef.id}" />
+<table>
+<tr><td valign="top">Image attachments:</td>
+    <td><input id="attachment" type="file" name="attachment" style="width: 400px;"/>
+    </td>
+<tr><td>Description:</td>
+    <td><input id="description" type="text" name="description" size="30" />
+        <input id="addFile", type="button" name="addFile" value="Add" />
     </td>
 </tr>
+<tr><td></td>
+    <td>
+    <div id="progressBar" style="display: block;">
+      <div id="theMeter">
+        <div id="progressBarBox">
+           <div id="progressBarBoxContent"></div>
+        </div>
+        <div id="progressBarText"></div>            
+      </div>
+    </div>
+    </td>
+</tr>    
+<tr><td></td>
+    <td><iframe name="uploadTarget" id="uploadTarget" style="width:100px; height:1px; border:0px solid #fff;"/></iframe>
+    </td>
+</tr>    
+
+<c:if test="${fixtureDefImages!=null}" >
+<c:forEach var="fixtureDefImage" items="${fixtureDefImages}" >
+<tr id="file[<c:out value='${fixtureDefImage.id}'/>]"><td valign="top"></td> 
+    <!--  maintainFixtureDef.html?action=getFile&fileId=<c:out value="${fixtureDefImage.id}"/>"   -->
+    <td><input type="button" value="Delete" onclick="edtDeleteFile(<c:out value="${fixtureDefImage.id}"/>)"/> <a href="image/fixture/<c:out value="${fixtureDefImage.fixtureDefId}"/>/<c:out value="${fixtureDefImage.name}"/>" target="_new"><c:out value="${fixtureDefImage.name}"/></a> (<c:out value="${fixtureDefImage.sizeInUnits}"/>) <c:out value="${fixtureDefImage.description}"/><br/>
+    </td>    
+</tr>
+</c:forEach>
+</c:if>
+<tr id="lastImageRow" />
+</table>
+</form>
+</div>
+
+</div>
+
+
+<div id="edtSubmit" class="edtSubmit"></div>
 </c:if>
 </table>
 </form>
