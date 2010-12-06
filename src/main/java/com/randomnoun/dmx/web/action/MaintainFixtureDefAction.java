@@ -179,12 +179,16 @@ public class MaintainFixtureDefAction
     		errors.addErrors(fixtureDefErrors);
     		errors.addErrors(fixtureControllerErrors);
     		errors.addErrors(channelMuxerErrors);
+    		fixtureDef = new FixtureDefTO();
     		
     		if (!errors.hasErrors()) {
     			fixtureDefClassName = getClassName(fixtureDefScript);
     			fixtureControllerClassName = getClassName(fixtureControllerScript);
     			channelMuxerClassName = getClassName(channelMuxerScript);
-    			ErrorList instanceErrors = validateScriptInstances(fixtureDefScript, fixtureDefClassName, fixtureControllerScript, fixtureControllerClassName, channelMuxerScript, channelMuxerClassName);
+    			ErrorList instanceErrors = validateScriptInstances(fixtureDef, 
+    				fixtureDefScript, fixtureDefClassName, 
+    				fixtureControllerScript, fixtureControllerClassName, 
+    				channelMuxerScript, channelMuxerClassName);
     			fixtureDefErrorLines.addAll(getErrorLines(instanceErrors));
     			errors.addErrors(instanceErrors);
     		}
@@ -195,7 +199,6 @@ public class MaintainFixtureDefAction
     			request.setAttribute("channelMuxerErrorLines", channelMuxerErrorLines);
     			request.setAttribute("fixtureDef", form.get("fixtureDef"));
     		} else {
-    			fixtureDef = new FixtureDefTO();
     			Struct.setFromMap(fixtureDef, fixtureDefMap, false, true, false);
     			fixtureDef.setFixtureDefClassName(getClassName(fixtureDef.getFixtureDefScript()));
     			fixtureDef.setFixtureControllerClassName(getClassName(fixtureDef.getFixtureControllerScript()));
@@ -398,7 +401,7 @@ public class MaintainFixtureDefAction
         return errors;
     }
     
-    public ErrorList validateScriptInstances(
+    public ErrorList validateScriptInstances(FixtureDefTO fixtureDef,
     		String fixtureDefScript, String fixtureDefClassName, 
     		String fixtureControllerScript, String fixtureControllerClassName,
     		String channelMuxerScript, String channelMuxerClassName) 
@@ -434,6 +437,7 @@ public class MaintainFixtureDefAction
 				Map nullProperties = new HashMap();
 				Constructor constructor = clazz.getConstructor();
 				fixtureDefObj = (FixtureDef) constructor.newInstance();
+				fixtureDef.setDmxChannels(fixtureDefObj.getNumDmxChannels());
 				fixtureObj = new Fixture("testFixture", fixtureDefObj, nullUniverse, 1);
 				ChannelMuxer channelMuxer = fixtureDefObj.getChannelMuxer(fixtureObj);
 			}

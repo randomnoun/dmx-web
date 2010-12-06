@@ -10,6 +10,7 @@ public class FixtureDefTO {
     private String fixtureControllerScript;
     private String channelMuxerClassName;
     private String channelMuxerScript;
+    private long dmxChannels;
 
     /** Returns the id
      * @return the id
@@ -123,4 +124,19 @@ public class FixtureDefTO {
    public void setChannelMuxerScript(String channelMuxerScript) {
        this.channelMuxerScript = channelMuxerScript;
    }
+   
+   /** Returns the number of DMX channels
+    * @return the number of DMX channels
+    */
+   public long getDmxChannels() {
+       return dmxChannels;
+   }
+
+   /** Set the number of DMX channels
+    * @param dmxChannels the number of DMX channels
+    */
+   public void setDmxChannels(long dmxChannels) {
+       this.dmxChannels = dmxChannels;
+   }
+   
 }
