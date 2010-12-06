@@ -15,7 +15,8 @@ public abstract class FixtureDef {
 
 	protected String vendor;
 	protected String model;
-	protected String htmlImg;
+	protected String htmlImg16;
+	protected String htmlImg32;
 	protected String htmlLabel;
 	
 	/** Length of fixture, in mm */
@@ -27,7 +28,7 @@ public abstract class FixtureDef {
 	/** Height of fixture, in mm */
 	protected long height;
 	
-	/** Weight of fixture, in mm */
+	/** Weight of fixture, in g */
 	protected long weight;
 	
 	/** Range of pan, in degrees */
@@ -52,7 +53,12 @@ public abstract class FixtureDef {
 	protected LightSourceDef lightSourceDef;
 
 	protected int numDmxChannels;
+
+	private String imagePath;
 	
+	public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+	
+	public String getImagePath() { return imagePath; }
 	public String getVendor() { return vendor; }
 	public String getModel() { return model; }
 	public long getLength() { return length; }
@@ -114,11 +120,16 @@ public abstract class FixtureDef {
 	public abstract FixtureController getFixtureController(Fixture fixture);
 	
 
-	public String getHtmlImg() {
-		if (htmlImg==null) { return "image/fixturePlaceholder.png"; }
-		return htmlImg;
+	public String getHtmlImg16() {
+		if (htmlImg16==null) { return "image/fixturePlaceholder.png"; }
+		return getImagePath() + htmlImg16;
 	}
 
+	public String getHtmlImg32() {
+		if (htmlImg32==null) { return "image/fixturePlaceholder.png"; }
+		return getImagePath() + htmlImg32;
+	}
+	
 	public String getHtmlLabel() {
 		if (htmlLabel==null) { return this.getClass().getName(); }
 		return htmlLabel;
