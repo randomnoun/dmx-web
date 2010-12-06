@@ -179,6 +179,17 @@ function shwInitPanel() {
     var sp=$("shwItemContainer");
     for (var i=0; i<shows.length; i++) {
     	var show = shows[i];
+    	if (i==0 || lastShowGroupId!=show["showGroupId"]) {
+    		var cancelGroupEl = new Element("div", { 
+                "id": "shwCancelGroup[" + show["showGroupId"] + "]", 
+                "showGroupId": show["showGroupId"],
+                "title" : "Cancel all running shows in this group",
+                "class" : "shwCancelGroup" }).update("Cancel group");
+    		cancelGroupEl.style.left="10px"; 
+    		cancelGroupEl.style.top=((10+Math.floor((i+displayOffset-1)/4)*90)+90)+"px";
+            sp.appendChild(cancelGroupEl);
+            Event.observe(cancelGroupEl, 'click', shwCancelGroupClick.curry(show["showGroupId"]));    		
+    	}
     	if (lastShowGroupId!=show["showGroupId"]) {
     		var separatorEl = new Element("div", { "class" : "shwItemSeparator" });
     		separatorEl.style.left="10px"; 
@@ -190,7 +201,7 @@ function shwInitPanel() {
     		lastShowGroupId = show["showGroupId"];
     	}
         
-        x=10+((i+displayOffset)%4)*200; y=10+Math.floor((i+displayOffset)/4)*90;
+        x=110+((i+displayOffset)%4)*200; y=10+Math.floor((i+displayOffset)/4)*90;
         var shwEl = new Element("div", { 
             "id": "shwItem[" + show["id"] + "]", 
             "showId": show["id"],
@@ -216,6 +227,10 @@ function shwItemClick(event) {
 
 function shwCancelClick(event) {
     sendRequest('fancyController.html?action=cancelShow');
+}
+
+function shwCancelGroupClick(showGroupId) {
+	sendRequest('fancyController.html?action=cancelShowGroup&showGroupId=' + showGroupId);
 }
 
 function shwPageDownClick(event) {
