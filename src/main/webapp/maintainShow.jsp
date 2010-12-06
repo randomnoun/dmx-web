@@ -128,6 +128,15 @@ function edtSubmitClick() {
     checkModify('mainForm',tblObj); 
     document.forms[0].submit();
 }
+function edtEditProperties(showId) { 
+    isSubmitting=true; 
+    checkModify('mainForm',tblObj);
+    document.forms[0].elements["action"].value="editProperties";
+    document.forms[0].elements["showId"].value=showId;
+    document.forms[0].submit();
+}
+
+
 function lhsCancelClick() { document.location = "index.html?panel=cnfPanel"; }
 function lhsOKClick() { 
     isSubmitting=true; 
@@ -146,7 +155,7 @@ function initWindow() {
 
 
 <body onload="initWindow()" onunload="formUnloadCheck('mainForm')">
-<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Fixture config</span></div>
+<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show config</span></div>
 <div class="lhsMenuContainer">
   <div id="lhsCancel" class="lhsMenuItem">Back</div>
   <div id="lhsOK" class="lhsMenuItemGreen">OK</div>
@@ -161,14 +170,16 @@ function initWindow() {
 <jsp:include page="/misc/errorHeader.jsp" />
 <form id="mainForm" name="mainForm" method="post" action="maintainShow.html">
     <input type="hidden" name="action" value="maintain" /> 
+    <input type="hidden" name="showId" value="" />
 <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
     <tr valign="bottom"> 
-     <td class="formHeader">&nbsp;</td>
-     <td class="formHeader" style="background-color: #000052">Show type</td>
+    <td class="formHeader">&nbsp;</td>
+    <td class="formHeader" style="background-color: #000052">Show type</td>
     <td class="formHeader" style="background-color: #000052">Name</td>
     <td class="formHeader" style="background-color: #000052">Show group</td>
     <td class="formHeader" style="background-color: #000052">On complete goto</td>
     <td class="formHeader" style="background-color: #000052">On cancel goto</td>
+    <td class="formHeader" style="background-color: #000052" colspan="2" >Properties</td>
 </tr>
    <c:forEach var="rowData" varStatus="rowStatus" items="${form.shows}" > 
                 <c:choose> <c:when test="${rowData.cmdDelete == 'Y'}"> 
@@ -177,7 +188,7 @@ function initWindow() {
                             <input type="hidden" name="shows[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>">   
                             <input type="hidden" name="shows[<c:out value='${rowStatus.index}'/>].cmdDelete" value="Y"> 
                         </td>
-                        <td colspan="7" bgcolor="#FFAAAA"><div style="margin:5px; color: black;"><i>This row has been marked for deletion. 
+                        <td colspan="9" bgcolor="#FFAAAA"><div style="margin:5px; color: black;"><i>This row has been marked for deletion. 
                         Correct the other validation errors on this page to delete.</i></div></td>
                     </tr>
                 </c:when>
@@ -196,7 +207,7 @@ function initWindow() {
                            </td>
                            <td class="<r:onError name='shows[${rowStatus.index}].name' text='errorBg' />"> 
                                <input type="text" class="formfield" name="shows[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="30">
-                           </td>
+                           <td><input type="button" onclick="editProperties" value="Edit..." /></td>
                            <td class="<r:onError name='shows[${rowStatus.index}].showGroupId' text='errorBg' />"> 
                                <r:select style="width: 70px;" name="shows[${rowStatus.index}].showGroupId" data="${form.showGroups}" value="${rowData.showGroupId}" displayColumn="name" valueColumn="id" firstOption="" />
                            </td>
@@ -206,7 +217,9 @@ function initWindow() {
                            <td class="<r:onError name='shows[${rowStatus.index}].onCancelShowId' text='errorBg' />"> 
                                <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCancelShowId" data="${form.followupShows}" value="${rowData.onCancelShowId}" displayColumn="name" valueColumn="id" firstOption="" />
                            </td>
-
+                           </td>
+                           <td><c:out value='${rowData.showPropertyCount}'/> properties</td>
+                           <td><input type="button" onclick="edtEditProperties(<c:out value='${rowData.id}'/>)" value="Edit..." /></td>
                        </tr>
                 </c:when>
                        
@@ -232,6 +245,8 @@ function initWindow() {
                            <td class="<r:onError name='shows[${rowStatus.index}].onCancelShowId' text='errorBg' />"> 
                                <r:select style="width: 150px;" name="shows[${rowStatus.index}].onCancelShowId" data="${form.followupShows}" value="${rowData.onCancelShowId}" displayColumn="name" valueColumn="id" firstOption="" />
                            </td>
+                           <td><c:out value='${rowData.showPropertyCount}'/> properties</td>
+                           <td><input type="button" onclick="edtEditProperties(<c:out value='${rowData.id}'/>)" value="Edit..." /></td>
                     </tr>
                 </c:otherwise></c:choose> 
             </c:forEach> 
@@ -246,6 +261,8 @@ function initWindow() {
                 <td><r:select style="width: 70px;" name="shows[${form.shows_size}].showGroupId" data="${form.showGroups}" value="" displayColumn="name" valueColumn="id" firstOption="" /></td>
                 <td><r:select style="width: 150px;" name="shows[${form.shows_size}].onCompleteShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" /></td>
                 <td><r:select style="width: 150px;" name="shows[${form.shows_size}].onCancelShowId" data="${form.followupShows}" value="" displayColumn="name" valueColumn="id" firstOption="" /></td>
+                <td></td>
+                <td></td>
             </tr>
             <tr> 
                 <td> <div class="greenrollover"> <a href="javascript:void(0)" onclick="fnAddRow(tblObj); return 0;"><img src="image/add-icon.gif" width="18" height="17" border="0"></a></div></td>

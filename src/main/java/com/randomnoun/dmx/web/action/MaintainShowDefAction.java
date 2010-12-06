@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -326,8 +327,8 @@ public class MaintainShowDefAction
 			if (!Show.class.isAssignableFrom(clazz)) {
 				errors.addError("script", "Invalid class", "Class " + className + " does not extend com.randomnoun.dmx.Show"); 
 			} else {
-				Map nullProperties = new HashMap();
-				Constructor constructor = clazz.getConstructor(long.class, Controller.class, Map.class);
+				Properties nullProperties = new Properties();
+				Constructor constructor = clazz.getConstructor(long.class, Controller.class, Properties.class);
 				showObj = (Show) constructor.newInstance(0L, testController, nullProperties);
 			}
 		} catch (Exception e) {

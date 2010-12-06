@@ -8,6 +8,7 @@ public class ShowTO {
     private Long onCancelShowId;
     private Long onCompleteShowId;
     private Long showGroupId;
+    private long showPropertyCount;
 
     /** Returns the id
      * @return the id
@@ -92,6 +93,20 @@ public class ShowTO {
     public void setShowGroupId(Long showGroupId) {
         this.showGroupId = showGroupId;
     }
-    
+
+    /** Returns the showGroshowPropertyCountupId
+     * @return the showPropertyCount
+     */
+    public long getShowPropertyCount() {
+        return showPropertyCount;
+    }
+
+    /** Set the showPropertyCount
+     * @param showPropertyCount
+     */
+    public void setShowPropertyCount(long showPropertyCount) {
+        this.showPropertyCount = showPropertyCount;
+    }
+
     
 }

@@ -37,9 +37,9 @@ public class ShowPropertyDAO {
      *
      * @return a list of ShowPropertyTO objects that satisfy the supplied criteria
      */
-    public List<ShowPropertyTO> getShowPropertys(String sqlWhereClause) {
+    public List<ShowPropertyTO> getShowProperties(String sqlWhereClause) {
         String sql =
-            "SELECT id, showId, key, value " +
+            "SELECT id, showId, `key`, value " +
             " FROM showProperty " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<ShowPropertyTO>) jt.query(sql, new ShowPropertyDAORowMapper());
@@ -53,7 +53,7 @@ public class ShowPropertyDAO {
      */
     public ShowPropertyTO getShowProperty(long showPropertyId) {
         return (ShowPropertyTO) jt.queryForObject(
-            "SELECT id, showId, key, value " +
+            "SELECT id, showId, `key`, value " +
             " FROM showProperty " +
             " WHERE id = ?",
             new Object[] { new Long(showPropertyId) }, 
@@ -67,7 +67,7 @@ public class ShowPropertyDAO {
     public void updateShowProperty(ShowPropertyTO showProperty) {
         String sql =
             "UPDATE showProperty " +
-            " SET showId=?, key=?, value=? " + 
+            " SET showId=?, `key`=?, value=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
@@ -91,7 +91,7 @@ public class ShowPropertyDAO {
     public long createShowProperty(ShowPropertyTO showProperty) {
         String sql =
             "INSERT INTO showProperty " + 
-            " (showId, key, value) " +
+            " (showId, `key`, value) " +
             " VALUES (?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] { 
@@ -105,5 +105,20 @@ public class ShowPropertyDAO {
         showProperty.setId(showPropertyId);
         return showPropertyId;
     }
+    
+    /** Deletes a showProperty from the database.
+    *
+    * @param showProperty the showProperty to delete
+    */
+   public void deleteShowProperty(ShowPropertyTO showProperty) {
+       String sql =
+           "DELETE FROM showProperty " + 
+           " WHERE id = ?";
+       long updated = jt.update(sql,
+           new Object[] { showProperty.getId() });
+       if (updated!=1) {
+           throw new DataIntegrityViolationException("showProperty delete failed (" + updated + " rows updated)");
+       }
+   }
 }
 

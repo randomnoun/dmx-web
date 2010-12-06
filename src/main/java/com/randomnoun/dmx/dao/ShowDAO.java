@@ -28,11 +28,19 @@ public class ShowDAO {
             if (rs.wasNull()) { s.setOnCompleteShowId(null); }
             s.setShowGroupId(rs.getLong("showGroupId"));
             if (rs.wasNull()) { s.setShowGroupId(null); }
-            
             return s;
         }
     }
 
+    public static class ShowWithPropertyCountDAORowMapper extends ShowDAORowMapper {
+        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ShowTO s = (ShowTO) super.mapRow(rs, rowNum);
+            s.setShowPropertyCount(rs.getLong("showPropertyCount"));
+            return s;
+        }
+    }
+    
+    
     public ShowDAO(JdbcTemplate jt) {
         this.jt = jt;
     }
@@ -52,6 +60,24 @@ public class ShowDAO {
 	    return (List<ShowTO>) jt.query(sql, new ShowDAORowMapper());
     }
 
+    /** Return a list of shows, using the supplied SQL WHERE clause. If a
+     * null sqlWhereClause if supplied, all clients are returned.
+     *
+     * @param sqlWhereClause a condition to apply to the SQL SELECT
+     *
+     * @return a list of ShowTO objects that satisfy the supplied criteria
+     */
+    public List<ShowTO> getShowsWithPropertyCounts(String sqlWhereClause) {
+        String sql =
+            "SELECT `show`.id, showDefId, name, onCancelShowId, onCompleteShowId, showGroupId, COUNT(showProperty.id) AS showPropertyCount " +
+            " FROM `show` LEFT JOIN `showProperty` " +
+            " ON `show`.id = `showProperty`.showId " +
+            (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause) +
+            " GROUP BY `show`.id";
+	    return (List<ShowTO>) jt.query(sql, new ShowWithPropertyCountDAORowMapper());
+    }
+    
+    
     /** Return a show
      *
      * @param showId the showId

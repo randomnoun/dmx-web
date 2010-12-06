@@ -23,6 +23,10 @@ import com.randomnoun.common.spring.StructuredResultReader;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
+import com.randomnoun.dmx.dao.ShowPropertyDAO;
+import com.randomnoun.dmx.show.PropertyDef;
+import com.randomnoun.dmx.show.Show;
+import com.randomnoun.dmx.to.ShowPropertyTO;
 import com.randomnoun.dmx.to.ShowTO;
 import com.randomnoun.dmx.web.Table;
 import com.randomnoun.dmx.web.TableEditor;
@@ -40,13 +44,13 @@ import com.randomnoun.dmx.web.TableEditor.TableEditorResult;
  * @version         $Id$
  * @author          knoxg
  */
-public class MaintainShowAction
+public class MaintainShowPropertyAction
     extends Action {
     /** A revision marker to be used in exception stack traces. */
     public static final String _revision = "$Id$";
 
     /** Logger instance for this class */
-    private static final Logger logger = Logger.getLogger(MaintainShowAction.class);
+    private static final Logger logger = Logger.getLogger(MaintainShowPropertyAction.class);
 
 	public Map getParameterMap(HttpServletRequest request) {
 		Map map = new HashMap();
@@ -59,49 +63,51 @@ public class MaintainShowAction
 
 
 
-    public static class ShowTableEditor extends TableEditor {
+    public static class ShowPropertyTableEditor extends TableEditor {
 
     	private final static String[] fieldNames = 
-    		new String[] { "id", "showDefId", "name", "onCompleteShowId", "onCancelShowId", "showGroupId" };
-
-    	private final static String[] fieldNames2 = 
-    		new String[] { "id", "showDefId", "name", "onCompleteShowId", "onCancelShowId", "showGroupId", "showPropertyCount" };
-
-    	// @TODO this is all rather silly...
+    		new String[] { "id", "key", "value" };
+    	
+    	private long showId;
+    	
+    	public ShowPropertyTableEditor(long showId) {
+    		this.showId = showId;
+    	}
     	
     	@Override
 		public void createRow(Map row) throws Exception {
     		AppConfig appConfig = AppConfig.getAppConfig();
     		JdbcTemplate jt = appConfig.getJdbcTemplate();
-    		ShowDAO showDAO = new ShowDAO(jt);
-    		ShowTO show = new ShowTO();
+    		ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(jt);
+    		ShowPropertyTO show = new ShowPropertyTO();
+    		show.setShowId(showId);
     		Struct.setFromMap(show, row, false, true, false, fieldNames);
-    		showDAO.createShow(show);
+    		showPropertyDAO.createShowProperty(show);
 		}
 
 		@Override
 		public void updateRow(Map row) throws Exception {
 			JdbcTemplate jt = AppConfig.getAppConfig().getJdbcTemplate();
-    		ShowDAO showDAO = new ShowDAO(jt);
-    		ShowTO show = new ShowTO();
-    		Struct.setFromMap(show, row, false, true, false, fieldNames);
-    		showDAO.updateShow(show);
+			ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(jt);
+    		ShowPropertyTO showProperty = new ShowPropertyTO();
+    		Struct.setFromMap(showProperty, row, false, true, false, fieldNames);
+    		showPropertyDAO.updateShowProperty(showProperty);
 		}
 
 		@Override
 		public void deleteRow(Map row) throws Exception {
 			JdbcTemplate jt = AppConfig.getAppConfig().getJdbcTemplate();
-    		ShowDAO showDAO = new ShowDAO(jt);
-    		ShowTO show = new ShowTO();
-    		Struct.setFromMap(show, row, false, true, false, fieldNames);
-    		showDAO.deleteShow(show);
+			ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(jt);
+			ShowPropertyTO showProperty = new ShowPropertyTO();
+    		Struct.setFromMap(showProperty, row, false, true, false, fieldNames);
+    		showPropertyDAO.deleteShowProperty(showProperty);
 		}
 
 		private void init() {
     	}
 
     	public void removeEmptyRows(Map form) {
-    		removeEmptyRows(form, fieldNames, "shows");
+    		removeEmptyRows(form, fieldNames, "showProperties");
     	}
     	
     	/**
@@ -114,22 +120,17 @@ public class MaintainShowAction
     	 */
     	public boolean validateRow(Map row) {
     	    boolean valid = true;
-    	    valid = valid & table.checkMandatory("showDefId", 10, "Show type"); // @TODO check against IDs in DB
-    	    valid = valid & table.checkNumeric("showDefId", "Show type");
-    	    valid = valid & table.checkMandatory("name", 100, "Name");
-    	    //valid = valid & table.checkMandatory("onCancelShowDefId", 10, "DMX offset");
-    	    valid = valid & table.checkNumeric("onCancelShowId", "On cancel goto");
-    	    valid = valid & table.checkNumeric("onCompleteShowId", "On complete goto");
-    	    valid = valid & table.checkNumeric("showGroupId", "Show group");
+    	    valid = valid & table.checkMandatory("key", 100, "Key"); // @TODO check against IDs in DB
+    	    valid = valid & table.checkMandatory("value", 255, "Value"); // @TODO check against IDs in DB
     	    return valid;
     	}
     	  
     	  
-    	public TableEditorResult maintainShows(Map request) {
+    	public TableEditorResult maintainShowProperties(Map request) {
     		TableEditorResult result;
 		    List updateErrors;
 		    
-		    table = new Table(request, "shows", "id", String.class);
+		    table = new Table(request, "showProperties", "id", String.class);
 		    table.setEditableKey(false);
 		    init();
 
@@ -141,7 +142,7 @@ public class MaintainShowAction
     			result.setErrors(getTable().getErrors());
     		} else {
     			result = getResult();
-    			result.setRows(getShows());
+    			result.setRows(getShowProperties());
     			ErrorList errors = getTable().getErrors();
     			errors.addError("Shows updated", "Table has been updated", ErrorList.SEVERITY_OK);
     			result.setErrors(errors);
@@ -150,62 +151,42 @@ public class MaintainShowAction
     		return result;
     	}
     	
-    	public Map readShows(Map request) {
+    	public Map readShowProperties(Map request) {
 			Map form = new HashMap();
-			List shows = getShows();
-			form.put("shows", shows);
-			form.put("shows_size", shows.size());
-			form.put("showDefs", getShowDefs());
-			form.put("followupShows", getFollowupShows());
-			form.put("showGroups", getShowGroups());
+			List showProperties = getShowProperties();
+			form.put("showProperties", showProperties);
+			form.put("showProperties_size", showProperties.size());
 			return form;
     	}
     	
-    	public List getShows() {
+    	public List getShowProperties() {
     		AppConfig appConfig = AppConfig.getAppConfig();
     		JdbcTemplate jt = appConfig.getJdbcTemplate();
     		ShowDAO showDAO = new ShowDAO(jt);
-    		List<ShowTO> shows = showDAO.getShowsWithPropertyCounts(null);
-    		// holy freaking christ. This is 12 types of wrong. Or 1:02AM types of wrong. Take your pick.
-    		List showsAsMaps = new ArrayList();
-    		for (ShowTO show : shows) {
-    			Map showMap = new HashMap();
-    			Struct.setFromObject(showMap, show, false, true, true, fieldNames2);
-    			showsAsMaps.add(showMap);
+    		ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(jt);
+    		Show show = appConfig.getShow(showId);
+    		List<ShowPropertyTO> properties = showPropertyDAO.getShowProperties("showId=" + showId);
+    		List propertiesAsMaps = new ArrayList();
+    		for (ShowPropertyTO property : properties) {
+    			Map showPropertyMap = new HashMap();
+    			Struct.setFromObject(showPropertyMap, property, false, true, true, fieldNames);
+    			propertiesAsMaps.add(showPropertyMap);
     		}
-    		return showsAsMaps;
-    	}
-    	
-    	public List getShowDefs() {
-    		AppConfig appConfig = AppConfig.getAppConfig();
-    		JdbcTemplate jt = appConfig.getJdbcTemplate();
-    		ShowDefDAO showDefDAO = new ShowDefDAO(jt);
-    		return showDefDAO.getShowDefs(null);
-    	}
-    	
-    	public List getFollowupShows() {
-    		AppConfig appConfig = AppConfig.getAppConfig();
-    		JdbcTemplate jt = appConfig.getJdbcTemplate();
-    		ShowDAO showDAO = new ShowDAO(jt);
-    		return showDAO.getShows(null);
-    	}
-
-    	public List getShowGroups() {
-    		List showGroups = new ArrayList();
-    		AppConfig appConfig = AppConfig.getAppConfig();
-    		JdbcTemplate jt = appConfig.getJdbcTemplate();
-    		ShowDAO showDAO = new ShowDAO(jt);
-    		Long lastShow = showDAO.getLastShowGroupId();
-    		long lastShowPlusOne = (lastShow==null ? 1 : lastShow.longValue() + 1);
-    		for (int i=1; i<=lastShowPlusOne; i++) {
-    			Map row = new HashMap();
-    			row.put("name", "Group " + i);
-    			row.put("id", new Long(i));
-    			showGroups.add(row);
+    		if (show!=null) {
+	    		List defaultProperties = show.getDefaultProperties();
+	    		for (Iterator i = defaultProperties.iterator(); i.hasNext(); ) {
+	    			PropertyDef defaultProperty = (PropertyDef) i.next();
+	    			if (Struct.getStructuredListItem(properties, "key", defaultProperty.getKey())==null) {
+	    				Map newProperty = new HashMap();
+	    				newProperty.put("key", defaultProperty.getKey());
+	    				newProperty.put("value", defaultProperty.getDefaultValue());
+	    				propertiesAsMaps.add(newProperty);
+	    			}
+	    		}
     		}
-    		return showGroups;
+    		Struct.sortStructuredList(propertiesAsMaps, "key");
+    		return propertiesAsMaps;
     	}
-    	
     	
    }
       
@@ -235,34 +216,30 @@ public class MaintainShowAction
 		JdbcTemplate jt = appConfig.getJdbcTemplate();
 		String action = request.getParameter("action");
 		
+		long showId = Long.parseLong(request.getParameter("showId"));
+		request.setAttribute("showId", new Long(showId));
+		
 		if (action==null) { action = ""; }
-		if (action.equals("")) {
+		if (action.equals("") || action.equals("editProperties")) {
 			// default action displays entry page
-			ShowTableEditor tableEditor = new ShowTableEditor();
-			request.setAttribute("form", tableEditor.readShows(null));
+			ShowPropertyTableEditor tableEditor = new ShowPropertyTableEditor(showId);
+			request.setAttribute("form", tableEditor.readShowProperties(null));
 			
-		} else if (action.equals("maintain") || action.equals("editProperties")) {
+		} else if (action.equals("maintain")) {
 			Map form = new HashMap();
 			Struct.setFromRequest(form, request);
 			
 			//System.out.println(Struct.structuredMapToString("form", form));
-			ShowTableEditor tableEditor = new ShowTableEditor();
+			ShowPropertyTableEditor tableEditor = new ShowPropertyTableEditor(showId);
 			tableEditor.removeEmptyRows(form);
-			TableEditorResult result = tableEditor.maintainShows(form);
+			TableEditorResult result = tableEditor.maintainShowProperties(form);
 			//System.out.println("======================================");
 			//System.out.println(Struct.structuredListToString("rows", result.getRows()));
 			//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
-			form.put("shows", result.getRows());
-			form.put("shows_size", result.getRows().size());
-			form.put("showDefs", tableEditor.getShowDefs());
-			form.put("followupShows", tableEditor.getFollowupShows());
-			form.put("showGroups", tableEditor.getShowGroups());
+			form.put("showProperties", result.getRows());
+			form.put("showProperties_size", result.getRows().size());
 			request.setAttribute("errors", result.getErrors());
 			request.setAttribute("form", form);
-			
-			if (!result.getErrors().hasErrors(ErrorList.SEVERITY_INVALID) && action.equals("editProperties")) {
-				forward = "showProperties";
-			}
 			
 		} else {
 			throw new IllegalArgumentException("Invalid action '" + action + "'");

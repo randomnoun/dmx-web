@@ -97,8 +97,14 @@
           type="com.randomnoun.dmx.web.action.MaintainShowAction"
         >
           <forward name="success" path="/maintainShow.jsp"/>
+          <forward name="showProperties" path="/maintainShowProperty.html"/>
         </action>
 
+      <action path="/maintainShowProperty" 
+          type="com.randomnoun.dmx.web.action.MaintainShowPropertyAction"
+        >
+          <forward name="success" path="/maintainShowProperty.jsp"/>
+        </action>
 
 <!-- 
         <action path="/stocktakeDateSelection" 

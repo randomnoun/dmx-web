@@ -1,6 +1,10 @@
 package com.randomnoun.dmx.show;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -30,8 +34,8 @@ public abstract class Show {
 	String name;
 	boolean cancelled;
 	long startTime;
-	Semaphore sleepSemaphore; // this'll be fun if >1 Show runs at the same time. Should this go into the ShowConfig object ?
-	Map properties;
+	Semaphore waitSemaphore; // this'll be fun if >1 Shows run at the same time. Should this go into the ShowConfig object ?
+	Properties properties;
 	String label = null;
 	long onCancelShowId = -1;
 	long onCompleteShowId = -1;
@@ -44,6 +48,10 @@ public abstract class Show {
 	
 	
 	protected Show(long id, Controller controller, String name, long length, Map properties) {
+		this(id, controller, name, length, (Properties) properties);
+	}
+	
+	protected Show(long id, Controller controller, String name, long length, Properties properties) {
 		this.id = id;
 		this.controller = controller;
 		this.name = name;
@@ -53,7 +61,7 @@ public abstract class Show {
 		this.properties = properties;
 		this.label = null;
 		this.state = State.SHOW_STOPPED;
-		sleepSemaphore = new Semaphore(0);
+		waitSemaphore = new Semaphore(0);
 	}
 	
 	public void setName(String name) { this.name = name; }
@@ -85,7 +93,7 @@ public abstract class Show {
 	public Controller getController() { return controller; }
 	public AudioSource getAudioSource() { return audioSource; }
 
-	/** Returns the description for this show. If this method is not overriden, will return
+	/** Returns the description for this show. If this method is not overridden, will return
 	 * the javadoc of the Show object.
 	 * @return a description of the show.
 	 */
@@ -99,7 +107,7 @@ public abstract class Show {
 		startTime = System.currentTimeMillis();
 		cancelled = false;
 		lastException = null;
-		sleepSemaphore.drainPermits();
+		waitSemaphore.drainPermits();
 	}
 	
 	protected void reset() { 
@@ -114,7 +122,7 @@ public abstract class Show {
 	public abstract void stop();
 	public void cancel() { 
 		cancelled = true; 
-		sleepSemaphore.release(); // @TODO don't allow >1 permits on this semaphore
+		waitSemaphore.release(); // @TODO don't allow >1 permits on this semaphore
 	}
 	public boolean isCancelled() { return cancelled; }
 	public void setLastException(Exception e) {
@@ -127,6 +135,15 @@ public abstract class Show {
 		return System.currentTimeMillis() - startTime;
 	}
 	
+	/** Default properties for this show */
+	public List getDefaultProperties() {
+		return Collections.EMPTY_LIST;
+	}
+	
+	public String getProperty(String key) {
+		return properties.getProperty(key);
+	}
+	
 	public void waitUntil(long millisecondsIntoShow) {
 		// as a last resort, if the play() method doesn't return when a cancellation is
 		// requested, we can prevent the thread from waitUntil'ing
@@ -135,8 +152,8 @@ public abstract class Show {
 		try { 
 			long timeout = millisecondsIntoShow-(System.currentTimeMillis() - startTime);
 			if (timeout > 0) {
-				boolean acquired = sleepSemaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
-				if (acquired) { sleepSemaphore.release(); }
+				boolean acquired = waitSemaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+				if (acquired) { waitSemaphore.release(); }
 			}
 			// Thread.sleep(millisecondsIntoShow-(System.currentTimeMillis() - startTime));
 		} catch (InterruptedException ie) {
@@ -151,8 +168,8 @@ public abstract class Show {
 		
 		try { 
 			if (milliseconds > 0) {
-				boolean acquired = sleepSemaphore.tryAcquire(milliseconds, TimeUnit.MILLISECONDS);
-				if (acquired) { sleepSemaphore.release(); }
+				boolean acquired = waitSemaphore.tryAcquire(milliseconds, TimeUnit.MILLISECONDS);
+				if (acquired) { waitSemaphore.release(); }
 			}
 			// Thread.sleep(millisecondsIntoShow-(System.currentTimeMillis() - startTime));
 		} catch (InterruptedException ie) {
