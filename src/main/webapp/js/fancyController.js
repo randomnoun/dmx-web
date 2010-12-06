@@ -583,20 +583,23 @@ function fixUpdateCustomControls() {
     		if (fd["customControls"]) {
 	    		for (i=0; i<fd["customControls"].length; i++) {
 	    			cc=fd["customControls"][i];
+	    			var ctrlEl;
 	    			if (cc["uiType"]=="TOGGLE") {
-	    		        var ctrlEl = new Element("div", { 
+	    		        ctrlEl = new Element("div", { 
 	    		            "id": "fixCC[" + i + "]", 
 	    		            "controlId": i,
 	    		            "class" : "fixCustomToggle" }).update(cc.label);
 	    		        ccEl.appendChild(ctrlEl);
+	    		        if (cc.top) { ctrlEl.absolutize(); ctrlEl.style.top=cc.top; ctrlEl.style.left=cc.left; }
 	    		        Event.observe(ctrlEl, 'click', fixCustomToggleClick.curry(i));
 	    			} else if (cc["uiType"]=="SLIDER") {
-	    				var ctrlEl = new Element("div", { 
+	    				ctrlEl = new Element("div", { 
 	    		            "id": "fixCC[" + i + "]", 
 	    		            "controlId": i,
 	    		            "class" : "fixCustomSlider" });
 	    				var handleEl = new Element("div", { "class" : "fixCustomSliderHandle" });
 	    				ccEl.appendChild(ctrlEl);
+	    				if (cc.top) { ctrlEl.absolutize(); ctrlEl.style.top=cc.top; ctrlEl.style.left=cc.left; }
 	    				ctrlEl.appendChild(handleEl);
 	    				fixCustomControls[i] = new Control.Slider(handleEl, ctrlEl, {
 	    			        axis: "vertical",
@@ -607,8 +610,8 @@ function fixUpdateCustomControls() {
 	    				var labelEl = new Element("div", {"class": "fixCustomSliderLabel"}).update(cc.label);
 	    				labelEl.style.left=ctrlEl.positionedOffset().left+"px";
 	    				ccEl.appendChild(labelEl);
-	    				
-	    				
+	    			} else {
+	    				alert("Unknown control type '" + cc["uiType"] + "'")
 	    			}
 	    		}
     		} else {
