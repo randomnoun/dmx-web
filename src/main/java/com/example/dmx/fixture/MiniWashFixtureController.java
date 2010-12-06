@@ -6,10 +6,11 @@ import java.util.List;
 
 import com.randomnoun.dmx.channel.MacroChannelDef;
 import com.randomnoun.dmx.fixture.CustomControl;
-import com.randomnoun.dmx.fixture.CustomControl.UIType;
 import com.randomnoun.dmx.fixture.CustomControlCallback;
+import com.randomnoun.dmx.fixture.CustomControl.UIType;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
+
 
 /** The MiniWashFixtureController can have it's color and strobe controlled
  * by the default FixtureController. 
@@ -21,38 +22,55 @@ import com.randomnoun.dmx.fixture.FixtureController;
  */
 public class MiniWashFixtureController extends FixtureController {
 
-	public MiniWashFixtureController(Fixture fixture) {
-	    super(fixture);
-	    List controls = new ArrayList();
-	    controls.add(getMotionMacroCustomControl("Motion Macro 1", 1));
-	    controls.add(getMotionMacroCustomControl("Motion Macro 2", 2));
-	    controls.add(getMotionMacroCustomControl("Motion Macro 3", 3));
-	    controls.add(getMotionMacroCustomControl("Motion Macro 4", 4));
-	    controls.add(getMotionMacroCustomControl("Motion Macro 5", 5));
-	    controls.add(getMotionMacroCustomControl("Motion Macro 6", 6));
-	    controls.add(getMotionMacroCustomControl("Motion Macro 7", 7));
-	    controls.add(getMotionMacroCustomControl("Motion Macro 8", 8));
-	    controls.add(new CustomControl("Color Cycle", UIType.TOGGLE,
-	      new CustomControlCallback() {
-	        public void setValue(int value) {
-	          setColorMacro(value==1 ? 17: 0);
-	        }
-	      } ));
-	    setCustomControls(controls);
-	  }
-	    
-	    public CustomControl getMotionMacroCustomControl(String label, int macro) {
-	    	final int finalMacro = macro;
-	      return new CustomControl(label, UIType.TOGGLE, 
-	      new CustomControlCallback() {
-	        public void setValue(int value) { 
-	          setMovementMacro(value==1 ? finalMacro : 0);
-	          for (int i=1; i<=8; i++) { 
-	            if (i!=finalMacro) { getCustomControls().get(i-1).setValue(0); }
-	          }
-	        }
-	      });
-	    }
+    public MiniWashFixtureController(Fixture fixture) {
+    super(fixture);
+    List controls = new ArrayList();
+    controls.add(getSliderCustomControl("Color speed", 10, 0, 20));
+    controls.add(getMotionMacroCustomControl("Motion Macro 1", 1, 60, 20));
+    controls.add(getMotionMacroCustomControl("Motion Macro 2", 2, 150, 20));
+    controls.add(getMotionMacroCustomControl("Motion Macro 3", 3, 240, 20));
+    controls.add(getMotionMacroCustomControl("Motion Macro 4", 4, 330, 20));
+    controls.add(getMotionMacroCustomControl("Motion Macro 5", 5, 420, 20));
+    controls.add(getMotionMacroCustomControl("Motion Macro 6", 6, 510, 20));
+    controls.add(getMotionMacroCustomControl("Motion Macro 7", 7, 600, 20));
+    controls.add(getMotionMacroCustomControl("Motion Macro 8", 8, 60, 100));
+    CustomControl colorCycle=new CustomControl("Color Cycle", UIType.TOGGLE,
+      new CustomControlCallback() {
+        public void setValue(int value) {
+          setColorMacro(value==1 ? 17: 0);
+        }
+      } );
+    colorCycle.setLeft(150); colorCycle.setTop(100);
+    controls.add(colorCycle);
+    setCustomControls(controls);
+  }
+    
+   public CustomControl getMotionMacroCustomControl(String label, int macro, long x, long y) {
+        final int finalMacro = macro;
+        CustomControl control = new CustomControl(label, UIType.TOGGLE, 
+        new CustomControlCallback() {
+          public void setValue(int value) { 
+            setMovementMacro(value==1 ? finalMacro : 0);
+            for (int i=1; i<=8; i++) { 
+              if (i!=finalMacro) { getCustomControls().get(i).setValue(0); }
+            }
+          }
+        });
+          control.setLeft(x); control.setTop(y);
+          return control;
+      }
+        
+  public CustomControl getSliderCustomControl(String label, int channel, long x, long y) {
+    final int finalChannel = channel;
+    CustomControl control = new CustomControl(label, UIType.SLIDER, 
+    new CustomControlCallback() {
+      public void setValue(int value) { 
+        fixture.setDmxChannelValue(finalChannel, value);
+      }
+    });
+    control.setLeft(x); control.setTop(y);
+    return control;
+  }      
   
   /** Sets the color of this fixture.
    * 
@@ -77,7 +95,7 @@ public class MiniWashFixtureController extends FixtureController {
     //super.setMasterDimmer(value);
     fixture.setDmxChannelValue(5, 8 + ((255-value)*126)/255);
   }
-
+    
   public void setStrobe(int value) {
     fixture.setDmxChannelValue(5, 135 + (value*104/255));
   }
@@ -86,6 +104,7 @@ public class MiniWashFixtureController extends FixtureController {
     fixture.setDmxChannelValue(5, 0);
   }
 
+  
 
   public void setMovementSpeed(int i) {
     fixture.setDmxChannelValue(4, i);

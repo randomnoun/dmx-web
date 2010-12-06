@@ -1,36 +1,14 @@
 package com.example.dmx.fixture;
 
-import java.awt.Color;
-
 import com.randomnoun.dmx.channel.LabelChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef;
 import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
-import com.randomnoun.dmx.channel.dimmer.BlueDimmerChannelDef;
-import com.randomnoun.dmx.channel.dimmer.GreenDimmerChannelDef;
-import com.randomnoun.dmx.channel.dimmer.MasterDimmerChannelDef;
-import com.randomnoun.dmx.channel.dimmer.RedDimmerChannelDef;
 import com.randomnoun.dmx.channel.SpeedChannelDef;
 import com.randomnoun.dmx.channel.StrobeChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.MacroChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.MaskChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.filter.MasterDimmerChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.primitive.ColorChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.primitive.FixedColorChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.primitive.FixedPositionChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.timed.StrobeChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.timed.TimedColorGradientChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.timed.ColorGradientTransition;
-import com.randomnoun.dmx.channelMuxer.timed.ColorGradientDef;
-import com.randomnoun.dmx.channelMuxer.timed.TimedMotionChannelMuxer;
-import com.randomnoun.dmx.channelMuxer.timed.TimedMotionDef;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
-import com.randomnoun.dmx.fixture.FixtureOutput;
-import com.randomnoun.dmx.timeSource.DistortedTimeSource;
-import com.randomnoun.dmx.timeSource.TimeSource;
-import com.randomnoun.dmx.timeSource.UniverseTimeSource;
   
 /** Fixture definition for the EL5308 7-headed hydra at Albion 
  * (purchased 2010-10-21)
@@ -83,59 +61,8 @@ public class EL5308FixtureDef extends FixtureDef {
   }
   
   
-  // TODO: this bit needs a GUI
   public ChannelMuxer getChannelMuxer(Fixture fixture) {
-	FixtureDef fixtureDef = fixture.getFixtureDef();
-    TimeSource universeTimeSource = new UniverseTimeSource(fixture.getUniverse());
-    TimeSource distortedTimeSource = new DistortedTimeSource(fixture, universeTimeSource);
-
-    // these would be import static in Java  
-    ColorGradientTransition FADE = ColorGradientTransition.FADE;  
-    ColorGradientTransition SHARP = ColorGradientTransition.SHARP;
-  
-    // output is determined by
-    //   fancy 1, 
-    //   then strobe maybe
-    //   then fancy 2
-    //   then maybe the head channels
-    //   then maybe the speed control
-    // this documentation is woeful.
-    
-    //ChannelMuxer colorMuxer = new ColorChannelMuxer(fixture);
-    ChannelMuxer colorMuxer = new FixedColorChannelMuxer(fixture, Color.WHITE);
-
-    // this is all completely conjecture
-    ChannelMuxer whirlingMuxer =  
-        new TimedMotionChannelMuxer(fixture, fixtureDef.getChannelDefByOffset(0), 
-        	new TimedMotionDef[] {
-        	new TimedMotionDef(    0, 1500, 0, 0), // 1.5 sec to get to next pos'n
-        	new TimedMotionDef( 1500, 1500, 0, 360),
-        	new TimedMotionDef( 3000, 1500, 360, 360),
-        	new TimedMotionDef( 4500, 1500, 360, 0) });
-    
-    ChannelMuxer fancy1Muxer = 
-        new MacroChannelMuxer(fixtureDef.getChannelDefByOffset(0), colorMuxer,
-        	new ChannelMuxer[] {
-        	new FixedPositionChannelMuxer(fixture, 0, 0),
-        	whirlingMuxer
-        } );
-
-
-    StrobeChannelMuxer strobeMuxer = 
-        new StrobeChannelMuxer(colorMuxer, universeTimeSource);
-    
-    ChannelMuxer maskMuxer = new MaskChannelMuxer(
-    	      new int[] {
-    	        FixtureOutput.MASK_COLOR,
-    	        FixtureOutput.MASK_PAN | FixtureOutput.MASK_TILT
-    	      },
-    	      new ChannelMuxer[] {
-    	        strobeMuxer,
-    	        fancy1Muxer
-    	      });
-    	    
-    return maskMuxer;
-
+	  return new EL5308ChannelMuxer(fixture);
   }
   
   public FixtureController getFixtureController(Fixture fixture) {
