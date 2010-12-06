@@ -784,6 +784,7 @@ function fixUpdatePanel(json) {
 var dmxSelectedFixture=null;  // fixture being highlighted
 var dmxSelectedChannel=null;  // fixture being editted via keyboard
 var dmxSelectedValue=null;
+var dmxOrigValue=null;
 var dmxHighlightedChannel=null; // fixture being editted via slider
 var dmxSlider=null;
 var dmxUIUpdateOnly = false
@@ -820,6 +821,7 @@ function dmxInitPanel() {
     });
     Event.observe('dmxSliderScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(dmxSlider, 0.1));  // mozilla
     Event.observe('dmxSliderScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(dmxSlider, 0.1));  // IE/Opera
+    Event.observe('dmxSliderScrollArea', 'click', dmxValueClick);
     $("dmxSliderScrollArea").style.visibility="hidden";
 
     
@@ -882,8 +884,12 @@ function dmxUpdateAllClick(event) {
 function dmxValueClick(event) {
     var dmxValueEl, el, el2, ch, f, off, dc, j, cds, cd = null;
     dmxValueEl = event.element();
-    ch=$(dmxValueEl).readAttribute("dmxChannel");
-    while (!ch && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; ch=$(dmxValueEl).readAttribute("dmxChannel"); }
+    if (dmxValueEl==$(dmxSliderScrollArea)) {
+    	ch=dmxHighlightedChannel; dmxValueEl=$("dmxBox[" + ch + "]");
+    } else {
+    	ch=$(dmxValueEl).readAttribute("dmxChannel");
+    	while (!ch && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; ch=$(dmxValueEl).readAttribute("dmxChannel"); }
+    }
     f=dmxToFixture[ch]; 
     if (dmxSelectedFixture!=f && dmxSelectedFixture!=null) {
         off=dmxSelectedFixture["dmxOffset"];
@@ -894,14 +900,21 @@ function dmxValueClick(event) {
             el.removeClassName("dmxSelect");
         }
     }
+    el = $("dmxBox[" + ch + "]");
+    el2 = $("dmxValue[" + ch + "]"); 
     if (dmxSelectedValue) {
     	if (dmxImmediate) {
     		sendRequest("fancyController.html?action=setDmxValue&channel=" + dmxSelectedChannel + "&value=" + dmxSelectedValue.innerHTML);
     	}
     	dmxSelectedValue.removeClassName("dmxSelectedValue");
     }
-    el = $("dmxBox[" + ch + "]"); dmxSelectedChannel = ch;
-    el2 = $("dmxValue[" + ch + "]"); dmxSelectedValue = el2;
+    if (el2 == dmxSelectedValue) {
+    	dmxSelectedValue = null;
+    	return;
+    }
+    dmxSelectedChannel = ch;
+    dmxSelectedValue = el2;
+    dmxOrigValue = dmxValues[ch-1];
 	el2.addClassName("dmxSelectedValue");
 	// capture keystrokes from here on
 	Event.observe(document, 'keypress', dmxKeypress);
@@ -954,7 +967,9 @@ function dmxKeypress(event) {
         break;
     case Event.KEY_ESC:
     	//dmxSelectedValue.innerHTML = "0";
-    	dmxValues[dmxSelectedChannel]=v;
+    	v = dmxOrigValue;
+    	dmxValues[dmxSelectedChannel-1]=v;
+    	dmxSelectedValue.innerHTML = v;
         dmxSelectedValue.removeClassName("dmxSelectedValue");
         Event.stopObserving(document, 'keypress', dmxKeypress);
         Event.stopObserving(document, 'keydown', dmxKeydown);
@@ -1033,8 +1048,8 @@ function dmxValueOnMouseOver(event) {
 	dmxSliderEl=$("dmxSliderScrollArea");
 	dmxSliderEl.style.visibility="visible";
 	var pos=Position.positionedOffset(dmxValueEl);
-	dmxSliderEl.style.left = pos[0] + "px";
-	dmxSliderEl.style.top = (pos[1] + 26) + "px";
+	dmxSliderEl.style.left = (pos[0] - 3) + "px";
+	dmxSliderEl.style.top = (pos[1] - 3) + "px";
 	dmxUIUpdateOnly=true;
 	dmxSlider.setValue(1-dmxValues[dmxHighlightedChannel-1]/255);
 	dmxUIUpdateOnly=false;

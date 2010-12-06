@@ -129,6 +129,9 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="dmxTimeSource" class="dmxTimeSource"></div>
   <div id="dmxValues">
   </div>
+  <div id="dmxSliderScrollArea">
+  <div id="dmxSlider"><div id="dmxSliderHandle"></div></div>
+  </div>
   <!-- 
   <div id="dmxHighlight" style="display:none;"></div>
   <div id="dmxHighlight2" style="display:none;"></div>

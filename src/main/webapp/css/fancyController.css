@@ -415,10 +415,13 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 40px; height: 20px; width: 100%; 
   color: white; background-color: #000044;
 }
-#dmxSliderScrollArea { position: absolute; }
+#dmxSliderScrollArea { position: absolute;
+  width: 54px; height: 190px; 
+  background-image: url("../image/dmxSliderBack.png");
+}
 #dmxSlider {
+  left: 7px; top: 29px;
   position: absolute; width: 40px; height: 160px;
-  background-image: url("../image/customSliderBack.png");
 }
 #dmxSliderHandle {
   width: 40px; height: 30px; cursor: move;
