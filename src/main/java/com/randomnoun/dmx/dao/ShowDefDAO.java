@@ -107,4 +107,19 @@ public class ShowDefDAO {
         showDef.setId(showDefId);
         return showDefId;
     }
+    
+    /** Deletes a showDef into the database.
+    *
+    * @param showDef the showDef to delete
+    */
+   public void deleteShowDef(ShowDefTO showDef) {
+       String sql =
+           "DELETE FROM showDef " + 
+           " WHERE id = ?";
+       long updated = jt.update(sql,
+           new Object[] { new Long(showDef.getId()) });
+       if (updated!=1) {
+           throw new DataIntegrityViolationException("showDef insert failed (" + updated + " rows updated)");
+       }
+   }
 }
