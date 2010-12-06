@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TooManyListenersException;
 
 import javax.script.ScriptContext;
@@ -37,6 +38,7 @@ import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
+import com.randomnoun.dmx.dao.ShowPropertyDAO;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 import com.randomnoun.dmx.event.VlcUniverseUpdateListener;
 import com.randomnoun.dmx.fixture.Fixture;
@@ -49,6 +51,7 @@ import com.randomnoun.dmx.timeSource.WallClockTimeSource;
 import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
 import com.randomnoun.dmx.to.ShowDefTO;
+import com.randomnoun.dmx.to.ShowPropertyTO;
 import com.randomnoun.dmx.to.ShowTO;
 
 import org.apache.log4j.Logger;
@@ -484,15 +487,17 @@ public class AppConfig extends AppConfigBase {
 			logger.warn("No show definitions in appConfig");
 		} else {
 			for (int i=0; i<showsFromProperties.size(); i++) {
-				Map showProperties = (Map) showsFromProperties.get(i);
-				String showClassName = (String) showProperties.get("class");
-				Class showClass = Class.forName(showClassName);
-				Constructor constructor = showClass.getConstructor(long.class, Controller.class, Map.class);
-				String onCompleteShowId = (String) showProperties.get("onCompleteShowId");
-				String onCancelShowId = (String) showProperties.get("onCancelShowId");
-				String name = (String) showProperties.get("name");
 				long id = shows.size();
+				String name = null;
 				try {
+					Properties showProperties = new Properties();
+					showProperties.putAll((Map) showsFromProperties.get(i));
+					String showClassName = (String) showProperties.get("class");
+					Class showClass = Class.forName(showClassName);
+					Constructor constructor = showClass.getConstructor(long.class, Controller.class, Properties.class);
+					String onCompleteShowId = (String) showProperties.get("onCompleteShowId");
+					String onCancelShowId = (String) showProperties.get("onCancelShowId");
+					name = (String) showProperties.get("name");
 					Show showObj = (Show) constructor.newInstance(id, controller, showProperties);
 					if (onCompleteShowId!=null) { showObj.setOnCompleteShowId(Long.parseLong(onCompleteShowId)); }
 					if (onCancelShowId!=null) { showObj.setOnCancelShowId(Long.parseLong(onCancelShowId)); }
@@ -501,10 +506,7 @@ public class AppConfig extends AppConfigBase {
 					shows.add(showObj);
 				} catch (Exception e) {
 					logger.error("Error whilst instantiating compiled show " + id + ": '" + name + "'", e);
-					
 				}
-				
-					
 			}
 		}
 		
@@ -539,7 +541,8 @@ public class AppConfig extends AppConfigBase {
 			}
 		}
 
-		List showsFromDatabase = new ShowDAO(getJdbcTemplate()).getShows(null);
+		List showsFromDatabase = new ShowDAO(getJdbcTemplate()).getShowsWithPropertyCounts(null);
+		ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(getJdbcTemplate());
 		if (showsFromDatabase == null || showsFromDatabase.size()==0) {
 			logger.warn("No show instances in database");
 		} else {
@@ -547,14 +550,18 @@ public class AppConfig extends AppConfigBase {
 				ShowTO showTO = (ShowTO) showsFromDatabase.get(i);
 				long showDefId = showTO.getShowDefId();
 				Class showClass = (Class) scriptedShowDefs.get(showDefId);
+				Constructor constructor = null;
+				try {
+					constructor = showClass.getConstructor(long.class, Controller.class, Properties.class);
+				} catch (Exception e) {
+					logger.error("Exception finding show constructor", e);
+				}
 				String javadoc = (String) scriptedShowDescriptions.get(showDefId);
-				if (showClass==null) {
+				if (showClass==null || constructor==null) {
 					logger.error("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no show found with id '" + showDefId + "'");
 				} else {
 					logger.debug("Creating scripted show '" + showTO.getName() + "' from database");
-					Constructor constructor = showClass.getConstructor(long.class, Controller.class, Map.class);
-					
-					Map showProperties = new HashMap();
+					Properties showProperties = new Properties();
 					//if (showTO.getOnCompleteShowId()!=null) { showProperties.put("onCompleteShowId", showTO.getOnCompleteShowId().toString()); }
 					//if (showTO.getOnCancelShowId()!=null) { showProperties.put("onCancelShowId", showTO.getOnCancelShowId().toString()); }
 					//if (!Text.isBlank(showTO.getName())) { showProperties.put("name", showTO.getName()); }
@@ -562,6 +569,12 @@ public class AppConfig extends AppConfigBase {
 					Show showObj;
 					try {
 						if (addToAppConfig) {
+							if (showTO.getShowPropertyCount()>0) {
+								List<ShowPropertyTO> showPropertyTOs = showPropertyDAO.getShowProperties("showId=" + showTO.getId());
+								for (ShowPropertyTO showProperty : showPropertyTOs) {
+									showProperties.put(showProperty.getKey(), showProperty.getValue());
+								}
+							}
 							showObj = (Show) constructor.newInstance(showTO.getId(), controller, showProperties);
 							if (showTO.getOnCompleteShowId()!=null) { showObj.setOnCompleteShowId(showTO.getOnCompleteShowId().longValue()); }
 							if (showTO.getOnCancelShowId()!=null) { showObj.setOnCancelShowId(showTO.getOnCancelShowId().longValue()); }
@@ -618,7 +631,7 @@ public class AppConfig extends AppConfigBase {
     public Show getShow(long showId) {
     	return showConfigs.get(showId).getShow();
     }
-	
+    
     public void startShow(long showId) {
     	ShowConfig showConfig = showConfigs.get(showId);
     	if (showConfig==null) {
