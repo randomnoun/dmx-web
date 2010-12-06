@@ -169,15 +169,15 @@ function initWindow() {
   <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
       <tr>
         <td colspan="4"></td>
-        <td colspan="3" class="formHeader" style="background-color: #000052">Position</td>
-        <td colspan="3" class="formHeader" style="background-color: #000052">Looking at Position</td>
-        <td colspan="3" class="formHeader" style="background-color: #000052">Up vector</td>
+        <td colspan="3" class="formHeader" style="background-color: #000052">Position <img src="image/help-icon.png" align="right" title="The location of the fixture" /></td>
+        <td colspan="3" class="formHeader" style="background-color: #000052">Looking at Position <img src="image/help-icon.png" align="right" title="A point that this fixture is looking towards (in it's initial state)" /></td>
+        <td colspan="3" class="formHeader" style="background-color: #000052">Up vector <img src="image/help-icon.png" align="right" title="The direction of up, taking the fixture as being at co-ordinates (0,0,0)" /></td>
       </tr>
       <tr valign="bottom"> 
        <td class="formHeader">&nbsp;</td>
-       <td class="formHeader" style="background-color: #000052">Fixture type</td>
-       <td class="formHeader" style="background-color: #000052">Name</td>
-       <td class="formHeader" style="background-color: #000052">DMX offset</td>
+       <td class="formHeader" style="background-color: #000052">Fixture type <img src="image/help-icon.png" align="right" title="Fixture definition type" /></td>
+       <td class="formHeader" style="background-color: #000052">Name <img src="image/help-icon.png" align="right" title="The name that will appear on the 'Fixtures' panel" /></td>
+       <td class="formHeader" style="background-color: #000052">DMX offset <img src="image/help-icon.png" align="right" title="Starting DMX channel for this fixture" /></td>
        <td class="formHeader" style="background-color: #000052">X</td>
        <td class="formHeader" style="background-color: #000052">Y</td>
        <td class="formHeader" style="background-color: #000052">Z</td>

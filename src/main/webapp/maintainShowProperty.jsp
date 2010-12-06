@@ -190,9 +190,14 @@ function initWindow() {
                                <%--  <input type="hidden" name="showProperties[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>"> --%>
                            </td>
                            <td class="<r:onError name='showProperties[${rowStatus.index}].key' text='errorBg' />"> 
-                               <input type="text" class="formfield" name="showProperties[<c:out value='${rowStatus.index}'/>].key" value="<c:out value='${rowData.key}'/>" size="30">
+                               <input type="text" class="formfield" name="showProperties[<c:out value='${rowStatus.index}'/>].key" value="<c:out value='${rowData.key}'/>" size="30" />
+                               <c:if test="${rowData.description!=null}">
+                               <img src="image/help-icon.png" align="right" title="<c:out value='${rowData.description}'/>"/>
+                               </c:if>
+                           </td>    
                            <td class="<r:onError name='showProperties[${rowStatus.index}].value' text='errorBg' />"> 
-                               <input type="text" class="formfield" name="showProperties[<c:out value='${rowStatus.index}'/>].value" value="<c:out value='${rowData.value}'/>" size="50">
+                               <input type="text" class="formfield" name="showProperties[<c:out value='${rowStatus.index}'/>].value" value="<c:out value='${rowData.value}'/>" size="50" />
+                           </td>    
                        </tr>
                 </c:when>
                        
@@ -204,10 +209,13 @@ function initWindow() {
                             <input type="hidden" name="showProperties[<c:out value='${rowStatus.index}'/>].cmdUpdate" value="Y">                
                         </td>
                            <td class="<r:onError name='showProperties[${rowStatus.index}].key' text='errorBg' />"> 
-                               <input type="text" class="formfield" name="showProperties[<c:out value='${rowStatus.index}'/>].key" value="<c:out value='${rowData.key}'/>" size="30">
+                               <input type="text" class="formfield" name="showProperties[<c:out value='${rowStatus.index}'/>].key" value="<c:out value='${rowData.key}'/>" size="30"/>
+                           <c:if test="${rowData.description!=null}">
+                           <img src="image/help-icon.png" align="right" title="<c:out value='${rowData.description}'/>"/>
+                           </c:if>
                            </td>
                            <td class="<r:onError name='showProperties[${rowStatus.index}].value' text='errorBg' />"> 
-                               <input type="text" class="formfield" name="showProperties[<c:out value='${rowStatus.index}'/>].value" value="<c:out value='${rowData.value}'/>" size="50">
+                               <input type="text" class="formfield" name="showProperties[<c:out value='${rowStatus.index}'/>].value" value="<c:out value='${rowData.value}'/>" size="50"/>
                            </td>
                     </tr>
                 </c:otherwise></c:choose> 

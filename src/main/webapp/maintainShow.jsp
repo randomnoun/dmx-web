@@ -174,12 +174,12 @@ function initWindow() {
 <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
     <tr valign="bottom"> 
     <td class="formHeader">&nbsp;</td>
-    <td class="formHeader" style="background-color: #000052">Show type</td>
-    <td class="formHeader" style="background-color: #000052">Name</td>
-    <td class="formHeader" style="background-color: #000052">Show group</td>
-    <td class="formHeader" style="background-color: #000052">On complete goto</td>
-    <td class="formHeader" style="background-color: #000052">On cancel goto</td>
-    <td class="formHeader" style="background-color: #000052" colspan="2" >Properties</td>
+    <td class="formHeader" style="background-color: #000052">Show type <img src="image/help-icon.png" align="right" title="Show definition type" /></td>
+    <td class="formHeader" style="background-color: #000052">Name <img src="image/help-icon.png" align="right" title="The name that will appear on the 'Shows' panel" /></td>
+    <td class="formHeader" style="background-color: #000052">Show group <img src="image/help-icon.png" align="right" title="Only one show in the same group can run at the same time. Shows without a group can run any number of shows at the same time." /></td>
+    <td class="formHeader" style="background-color: #000052">On complete goto <img src="image/help-icon.png" align="right" title="If specified, this show will run when the show completes" /></td>
+    <td class="formHeader" style="background-color: #000052">On cancel goto <img src="image/help-icon.png" align="right" title="If specified, this show will run after the show has been cancelled" /></td>
+    <td class="formHeader" style="background-color: #000052" colspan="2" >Properties <img src="image/help-icon.png" align="right" title="Custom show properties" /></td>
 </tr>
    <c:forEach var="rowData" varStatus="rowStatus" items="${form.shows}" > 
                 <c:choose> <c:when test="${rowData.cmdDelete == 'Y'}"> 
