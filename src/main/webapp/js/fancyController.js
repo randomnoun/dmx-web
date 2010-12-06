@@ -59,22 +59,27 @@ function sendPostRequest(url,parameters,completedFunction) {
 
 
 /******************************* LHS MENU ******************************/
+function clickFx(el) {
+    el.addClassName("clickHighlight");
+    window.setTimeout(function() { el.removeClassName("clickHighlight") }, 50);
+}
+
+function noSelect(el) {
+	el.onselectstart = function() { return false; } //ie
+	el.onmousedown = function() { return false; } //mozilla
+}
 
 function initLhsMenu() {
-    Event.observe($("lhsLogo"), 'click', lhsLogo);
+	var button;
+    Event.observe($("lhsLogo"), 'click', lhsLogo); 
     Event.observe($("lhsBlackout"), 'click', lhsBlackout);
     Event.observe($("lhsShows"), 'click', lhsShows);
     Event.observe($("lhsFixtures"), 'click', lhsFixtures);
     Event.observe($("lhsDMX"), 'click', lhsDMX);
     Event.observe($("lhsLogs"), 'click', lhsLogs);
     Event.observe($("lhsConfig"), 'click', lhsConfig);
-    $$(".lhsMenuItem").each(function(s){Event.observe(s, 'mousedown', function(){return false});});
-    Event.observe($("lhsLogo"), 'mousedown', function(){return false});
-}
-
-function clickFx(el) {
-    el.addClassName("clickHighlight");
-    window.setTimeout(function() { el.removeClassName("clickHighlight") }, 50);
+    $$(".lhsMenuItem").each(function(s){noSelect(s);});
+    noSelect($("lhsLogo"));
 }
 
 function lhsShowPanel(panelName) {
@@ -198,8 +203,8 @@ function shwInitPanel() {
         Event.observe(shwEl, 'click', shwItemClick);
     }
     Event.observe($("shwCancel"), 'click', shwCancelClick);
-    Event.observe($("shwPageUp"), 'click', shwPageDownClick);
-    Event.observe($("shwPageDown"), 'click', shwPageUpClick);
+    Event.observe($("shwPageUp"), 'click', shwPageDownClick); noSelect($("shwPageUp"));
+    Event.observe($("shwPageDown"), 'click', shwPageUpClick); noSelect($("shwPageDown"));
 } 
 
 function shwItemClick(event) {
@@ -322,10 +327,10 @@ function fixInitPanel() {
         fic.appendChild(fixEl);
         Event.observe(fixEl, 'click', fixItemClick);
     }
-    Event.observe($("fixAllNone"), 'click', fixAllNoneClick);
-    Event.observe($("fixGroup"), 'click', fixGroupClick);
-    Event.observe($("fixCustom"), 'click', fixCustomClick);
-    Event.observe($("fixBlackout"), 'click', fixBlackout);
+    Event.observe($("fixAllNone"), 'click', fixAllNoneClick); noSelect($("fixAllNone"));
+    Event.observe($("fixGroup"), 'click', fixGroupClick); noSelect($("fixGroup"));
+    Event.observe($("fixCustom"), 'click', fixCustomClick); noSelect($("fixCustom"));
+    Event.observe($("fixBlackout"), 'click', fixBlackout); noSelect($("fixBlackout"));
     Event.observe($("fixAim"), 'click', fixAimClick);
     fixDimSlider = new Control.Slider("fixDimHandle", "fixDim", {
         axis: "vertical",
@@ -366,8 +371,8 @@ function fixInitPanel() {
     Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
     Event.observe('fixStrobeScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // mozilla
     Event.observe('fixStrobeScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // IE/Opera
-    Event.observe($("fixPageUp"), 'click', fixPageDownClick);
-    Event.observe($("fixPageDown"), 'click', fixPageUpClick);
+    Event.observe($("fixPageUp"), 'click', fixPageDownClick); noSelect($("fixPageUp"));
+    Event.observe($("fixPageDown"), 'click', fixPageUpClick); noSelect($("fixPageDown"));
 
     //jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
     fixColorPicker=jQuery.farbtastic(jQuery('#fixColorPicker'), fixColorChange);
@@ -592,6 +597,7 @@ function fixUpdateCustomControls() {
 	    		        ccEl.appendChild(ctrlEl);
 	    		        if (cc.top) { ctrlEl.absolutize(); ctrlEl.style.top=cc.top; ctrlEl.style.left=cc.left; }
 	    		        Event.observe(ctrlEl, 'click', fixCustomToggleClick.curry(i));
+	    		        noSelect(ctrlEl);
 	    			} else if (cc["uiType"]=="SLIDER") {
 	    				ctrlEl = new Element("div", { 
 	    		            "id": "fixCC[" + i + "]", 

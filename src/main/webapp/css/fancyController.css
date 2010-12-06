@@ -323,6 +323,7 @@ BODY { font-size: 8pt; font-family: Arial; }
   margin-right: 20px; margin-bottom: 20px;
   font-size: 14pt;
   background-image: url("../image/sbutton-blue.png");
+  cursor: pointer;
 }
 .fixCustomSlider {
   display: inline-block; position: relative; width: 40px; height: 160px;
