@@ -184,7 +184,7 @@ function shwInitPanel() {
                 "id": "shwCancelGroup[" + show["showGroupId"] + "]", 
                 "showGroupId": show["showGroupId"],
                 "title" : "Cancel all running shows in this group",
-                "class" : "shwCancelGroup" }).update("Cancel group");
+                "class" : "shwCancelGroup" }).update("<img width=\"80\" height=\"70\" src=\"image/cancel.png\" title=\"Cancel group\"/>");
     		cancelGroupEl.style.left="10px"; 
     		cancelGroupEl.style.top=((10+Math.floor((i+displayOffset-1)/4)*90)+90)+"px";
             sp.appendChild(cancelGroupEl);
