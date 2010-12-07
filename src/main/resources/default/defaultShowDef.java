@@ -1,6 +1,6 @@
 
 import java.awt.Color;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -21,11 +21,11 @@ public class DefaultShow extends Show {
   FixtureController rightWash;
   AudioController audioController;
   
-  public DefaultShow(long id, Controller controller, Map properties) {
+  public DefaultShow(long id, Controller controller, Properties properties) {
     super(id, controller, "Performer entrance", Long.MAX_VALUE, properties);
     sleepMonitor = new Object();
-    leftWash = controller.getFixture(0).getFixtureController();
-    rightWash = controller.getFixture(1).getFixtureController();
+    leftWash = controller.getFixtureControllerByName("leftWash");
+    rightWash = controller.getFixtureControllerByName("rightWash");
     audioController = controller.getAudioController();
   }
   
