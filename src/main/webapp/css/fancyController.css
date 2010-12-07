@@ -11,6 +11,9 @@ BODY { font-size: 8pt; font-family: Arial; }
   padding: 0px 0px;
   cursor: pointer;
 }
+.lhsIcon {
+  float: left;
+}
 .rhsPanel {
   position: absolute; top: 30px; left: 210px; width: 1020px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue; 
@@ -121,7 +124,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 /** maybe layout this vertically, or render as an image on the server
  *  (which will make freq spectrum a bit more interesting) */
 #shwAudio {
-  position: absolute; top: 20px; left: 220px; width: 180px; height: 70px;
+  position: absolute; top: 20px; left: 120px; width: 180px; height: 70px;
   border: solid #262482 1px;
   text-align: center; color: white; font-size: 18pt;
 }
