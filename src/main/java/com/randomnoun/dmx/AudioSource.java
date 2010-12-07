@@ -11,6 +11,8 @@ import com.randomnoun.dmx.event.BeatListener;
  * <p>Other classes that are interested in being notified of beats
  * within the music can register with this class.
  * 
+ * @see com.randomnoun.dmx.show.ShowAudioSource
+ * 
  * @author knoxg
  */
 public abstract class AudioSource implements ExceptionContainer {

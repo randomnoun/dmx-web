@@ -2,8 +2,7 @@ package com.randomnoun.dmx;
 
 import java.util.Map;
 
-/** Class to trigger audio events, or to trigger light events
- * from audio data
+/** Class to trigger audio events.
  * 
  * @author knoxg
  */
