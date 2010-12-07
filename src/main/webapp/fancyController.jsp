@@ -53,12 +53,12 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 <body onload="initWindow()">
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB!</span></div>
 <div class="lhsMenuContainer">
-  <div id="lhsBlackout" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsBlackout.png" title="Blackout"/><div class="lhsMenuText">Blackout</div></div>
-  <div id="lhsShows" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsShows.png" title="Shows"/><div class="lhsMenuText">Shows</div></div>
-  <div id="lhsFixtures" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsFixtures.png" title="Fixtures"/><div class="lhsMenuText">Fixtures</div></div>
-  <div id="lhsDMX" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsDmx.png" title="DMX"/><div class="lhsMenuText">DMX</div></div>
-  <div id="lhsLogs" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsLogs.png" title="Logs"/><div class="lhsMenuText">Logs</div></div>
-  <div id="lhsConfig" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsConfig.png" title="Config"/><div class="lhsMenuText">Config</div></div>
+  <div id="lhsBlackout" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsBlackout.png" title="Blackout"/><div class="lhsMenuText">Blackout</div></div>
+  <div id="lhsShows" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsShows.png" title="Shows"/><div class="lhsMenuText">Shows</div></div>
+  <div id="lhsFixtures" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsFixtures.png" title="Fixtures"/><div class="lhsMenuText">Fixtures</div></div>
+  <div id="lhsDMX" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsDmx.png" title="DMX"/><div class="lhsMenuText">DMX</div></div>
+  <div id="lhsLogs" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsLogs.png" title="Logs"/><div class="lhsMenuText">Logs</div></div>
+  <div id="lhsConfig" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsConfig.png" title="Config"/><div class="lhsMenuText">Config</div></div>
 </div>
 
 <div id="rhsMessage">Messages</div>
@@ -145,19 +145,19 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 </div>
 
 <div id="cnfPanel" style="display: none;">
-  <div id="cnfFixtureDef" class="cnfControl">Fixture definitions</div>
-  <div id="cnfFixture" class="cnfControl">Fixtures</div>
-  <div id="cnfShowDef" class="cnfControl">Show definitions</div>
-  <div id="cnfShow" class="cnfControl">Shows</div>
+  <div id="cnfFixtureDef" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfFixtures.png" title="Fixture definitions"/><div class="cnfMenuText">Fixture definitions</div></div>
+  <div id="cnfFixture" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/lhsFixtures.png" title="Fixtures"/><div class="cnfMenuText">Fixtures</div></div>
+  <div id="cnfShowDef" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfShows.png" title="Show definitions"/><div class="cnfMenuText">Show definitions</div></div>
+  <div id="cnfShow" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/lhsShows.png" title="Shows"/><div class="cnfMenuText">Shows</div></div>
 <%--  <div id="cnfResetDMX" class="cnfControl">Reset DMX device</div>  --%>
-  <div id="cnfResetAudio" class="cnfControl">Reset audio controller</div>
+  <div id="cnfResetAudio" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfResetAudio.png" title="Reset audio controller"/><div class="cnfMenuText">Reset audio controller</div></div>
   
-  <div id="cnfSimple" class="cnfControl">Simple controller</div>
+  <div id="cnfSimple" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfSimpleController.png" title="Simple controller"/><div class="cnfMenuText">Simple controller</div></div>
 <% 
     if (appConfig.getProperty("dev.vlc.streamingUrl")!=null &&
 	  !appConfig.getProperty("dev.vlc.streamingUrl").equals("")) {
 %>  
-  <div id="cnfVideo" class="cnfControl">Video stream</div>
+  <div id="cnfVideo" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfVLC.png" title="Video stream"/><div class="cnfMenuText">Video stream</div></div>
 <%
     }
 %>  

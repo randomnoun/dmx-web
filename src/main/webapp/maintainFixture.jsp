@@ -61,6 +61,12 @@ BODY { font-size: 8pt; font-family: Arial; }
   text-align: center; color: #000044; font-size: 18pt;
   cursor: pointer; 
 }
+.lhsMenuIcon {
+  float: left;
+}
+.lhsMenuText {
+  padding-top: 18px;
+}
 .lhsMenuItemGreen {
   width: 180px; height: 70px; background-image: url("image/button-green.png");
   /*background-color: #AAAAFF; */ ; margin: 10px;
@@ -166,8 +172,8 @@ function initWindow() {
 <body onload="initWindow()" onunload="formUnloadCheck('mainForm')">
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Fixture config</span></div>
 <div class="lhsMenuContainer">
-  <div id="lhsCancel" class="lhsMenuItem">Back</div>
-  <div id="lhsOK" class="lhsMenuItemGreen">OK</div>
+  <div id="lhsCancel" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/back.png" title="Back"/><div class="lhsMenuText">Back</div></div>
+  <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="OK"/><div class="lhsMenuText">OK</div></div>
 </div>
 
 <div id="rhsMessage">Messages</div>
@@ -183,7 +189,7 @@ function initWindow() {
   <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
       <tr>
         <td colspan="3"></td>
-        <td colspan="2" class="formHeader" style="background-color: #000052">DMX offset <img src="image/help-icon.png" align="right" title="Starting DMX channel for this fixture" /></td>
+        <td colspan="2" class="formHeader" style="background-color: #000052" width="90px">DMX offset <img src="image/help-icon.png" align="right" title="Starting DMX channel for this fixture" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Position <img src="image/help-icon.png" align="right" title="The location of the fixture" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Looking at Position <img src="image/help-icon.png" align="right" title="A point that this fixture is looking towards (in it's initial state)" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Up vector <img src="image/help-icon.png" align="right" title="The direction of up, taking the fixture as being at co-ordinates (0,0,0)" /></td>
@@ -341,7 +347,7 @@ function initWindow() {
  
                <tr align="left"> 
                    <td colspan="5">
-                       <div id="edtSubmit" class="edtSubmit">Update</div>
+                       <div id="edtSubmit" class="edtSubmit"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="Update"/><div class="lhsMenuText">Update</div></div>
                    </td>
                </tr>
                <tr> 

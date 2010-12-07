@@ -63,6 +63,12 @@ BODY { font-size: 8pt; font-family: Arial; }
   text-align: center; color: #000044; font-size: 18pt;
   cursor: pointer; 
 }
+.lhsMenuIcon {
+  float: left;
+}
+.lhsMenuText {
+  padding-top: 18px;
+}
 .lhsMenuItemGreen {
   width: 180px; height: 70px; background-image: url("image/button-green.png");
   /*background-color: #AAAAFF; */ ; margin: 10px;
@@ -165,7 +171,10 @@ function edtInitPanel() {
         initCallback : edtEditorInitialisationCallback
     });
     var edtSubmitEl = $("edtSubmit");
-    edtSubmitEl.update(showDefId==-1 ? "Create" : "Update");
+    edtSubmitEl.update(showDefId==-1 ? 
+        "<img class=\"lhsMenuIcon\" width=\"70\" height=\"70\" src=\"image/save.png\" title=\"Create\"/><div class=\"lhsMenuText\">Create</div>" : 
+        "<img class=\"lhsMenuIcon\" width=\"70\" height=\"70\" src=\"image/save.png\" title=\"Update\"/><div class=\"lhsMenuText\">Update</div>"
+    );		
     Event.observe(edtSubmitEl, 'click', edtSubmitClick);
     </c:if>
     
@@ -195,8 +204,8 @@ function initWindow() {
 <body onload="initWindow()">
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show config</span></div>
 <div class="lhsMenuContainer">
-  <div id="lhsCancel" class="lhsMenuItem">Back</div>
-  <div id="lhsOK" class="lhsMenuItemGreen">OK</div>
+  <div id="lhsCancel" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/back.png" title="Back"/><div class="lhsMenuText">Back</div></div>
+  <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="OK"/><div class="lhsMenuText">OK</div></div>
 </div>
 
 <div id="rhsMessage">Messages</div>

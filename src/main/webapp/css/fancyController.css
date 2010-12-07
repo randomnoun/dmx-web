@@ -11,7 +11,7 @@ BODY { font-size: 8pt; font-family: Arial; }
   padding: 0px 0px;
   cursor: pointer;
 }
-.lhsIcon {
+.lhsMenuIcon {
   float: left;
 }
 .lhsMenuText {
@@ -478,11 +478,16 @@ BODY { font-size: 8pt; font-family: Arial; }
 /*** CONFIG panel ***/
 .cnfControl {
   display: inline-block;
-  width: 360px; height: 52px; /*background-color: #AAAAFF; */
+  width: 360px; height: 70px; /*background-color: #AAAAFF; */
   background-image: url("../image/cnfControlBack.png");   
   text-align: center; color: #000044; font-size: 18pt; 
   margin: 20px 20px 0px 20px;
   cursor: pointer;
+}
+.cnfMenuIcon {
+  float: left;
+}
+.cnfMenuText {
   padding-top: 18px;
 }
 
