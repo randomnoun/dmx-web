@@ -64,7 +64,7 @@ public class MaintainFixtureAction
     public static class FixtureTableEditor extends TableEditor {
 
     	private final static String[] fieldNames = 
-    		new String[] { "id", "fixtureDefId", "name", "dmxOffset", "x", "y", "z",
+    		new String[] { "id", "fixtureDefId", "name", "dmxOffset", "sortOrder", "x", "y", "z",
     		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ" };
     	
     	Map fixtureDefMap = null;
@@ -123,6 +123,7 @@ public class MaintainFixtureAction
     	    valid = valid & table.checkMandatory("name", 100, "Name");
     	    valid = valid & table.checkMandatory("dmxOffset", 10, "DMX offset");
     	    valid = valid & table.checkNumeric("dmxOffset", "DMX offset");
+    	    valid = valid & table.checkNumeric("sortOrder", "Sort order");
     	    valid = valid & table.checkFloat("x", "X Position");
     	    valid = valid & table.checkFloat("y", "Y Position");
     	    valid = valid & table.checkFloat("z", "Z Position");
@@ -160,6 +161,43 @@ public class MaintainFixtureAction
 	    	    		break;
 	    	    	}
 	    	    }
+    	    }
+    	    if (valid && !Text.isBlank(table.getRowValue("x")) && 
+    	    		!Text.isBlank(table.getRowValue("lookingAtX")) &&
+    	    		!Text.isBlank(table.getRowValue("upX")) ) 
+    	    {
+    			// a 2D plane with the points (x,y,z) with normal vector upX, upY, upZ
+    			//
+    			// upX(x-initialX) + upY(y-initialY) + upZ(z-initialZ) = 0
+    			//
+    			// should validate that the lookingAtX, lookingAtY and lookingAtZ lie on 
+    			// this plane
+    	    	
+	    	    double initialX = Double.parseDouble(table.getRowValue("x"));
+	    	    double initialY = Double.parseDouble(table.getRowValue("y"));
+	    	    double initialZ = Double.parseDouble(table.getRowValue("z"));
+	    	    double lookingAtX = Double.parseDouble(table.getRowValue("lookingAtX"));
+	    	    double lookingAtY = Double.parseDouble(table.getRowValue("lookingAtY"));
+	    	    double lookingAtZ = Double.parseDouble(table.getRowValue("lookingAtZ"));
+	    	    double upX = Double.parseDouble(table.getRowValue("upX"));
+	    	    double upY = Double.parseDouble(table.getRowValue("upY"));
+	    	    double upZ = Double.parseDouble(table.getRowValue("upZ"));
+	    	    
+	    	    double check = upX*(lookingAtX-initialX) +
+	    	      upY*(lookingAtY-initialY) +
+	    	      upZ*(lookingAtZ-initialZ);
+	    	    if (Math.abs(check)>0.001) { // arbitrary error threshold
+    	    		table.getErrors().addError(
+    	    			"fixtures[" + table.getCurrentRow() + "].lookingAtX," +
+    	    			"fixtures[" + table.getCurrentRow() + "].lookingAtY," +
+    	    			"fixtures[" + table.getCurrentRow() + "].lookingAtZ", 
+    	    		   "Geometry error", "The looking at point " +
+    	    		   "(" + lookingAtX + ", " + lookingAtY + ", " + lookingAtZ + ") does " +
+    	    		   "not lie on the plane located at (" + initialX + ", " + initialY + ", " + initialZ + ") " +
+    	    		   " with normal vector (" + upX + ", " + upY + ", " + upZ + ")", 
+    	    		   ErrorList.SEVERITY_INVALID);
+	    	    }
+	    	    // @TODO convert upX, upY, upZ to unit length
     	    }
     	    
     	    

@@ -15,6 +15,7 @@ public class FixtureTO {
     private Long upX;
     private Long upY;
     private Long upZ;
+    private Long sortOrder;
 
     /** Returns the id
      * @return the id
@@ -198,5 +199,20 @@ public class FixtureTO {
         this.upZ = upZ;
     }
 
+    /** Returns the sortOrder
+     * @return the sortOrder
+     */
+    public Long getSortOrder() {
+        return sortOrder;
+    }
+
+    /** Set the sortOrder
+     * @param sortOrder
+     */
+    public void setSortOrder(Long sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+    
+    
 }
 

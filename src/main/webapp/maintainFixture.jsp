@@ -116,7 +116,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 /** Create rnTable object for this page */
 var tblObj = new rnTable(
   'tblObj',                                   // the name of this variable
-  fixtures_size,    // index of table row containing 'new record' HTML (i.e. rowcount + header rows - footer rows)
+  fixtures_size+1,    // index of table row containing 'new record' HTML (i.e. rowcount + header rows - footer rows)
   fixtures_size,    // key of final record (will be incremented when creating new records)
   'fixtures',                                 // serverside table id (included in name attributes) 
   'id',                                    // table key field 
@@ -190,6 +190,7 @@ function initWindow() {
       <tr>
         <td colspan="3"></td>
         <td colspan="2" class="formHeader" style="background-color: #000052" width="90px">DMX offset <img src="image/help-icon.png" align="right" title="Starting DMX channel for this fixture" /></td>
+        <td></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Position <img src="image/help-icon.png" align="right" title="The location of the fixture" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Looking at Position <img src="image/help-icon.png" align="right" title="A point that this fixture is looking towards (in it's initial state)" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Up vector <img src="image/help-icon.png" align="right" title="The direction of up, taking the fixture as being at co-ordinates (0,0,0)" /></td>
@@ -200,6 +201,7 @@ function initWindow() {
        <td class="formHeader" style="background-color: #000052">Name <img src="image/help-icon.png" align="right" title="The name that will appear on the 'Fixtures' panel" /></td>
        <td class="formHeader" style="background-color: #000052">Start</td>
        <td class="formHeader" style="background-color: #000052">Finish</td>
+       <td class="formHeader" style="background-color: #000052">Sort order</td>
        <td class="formHeader" style="background-color: #000052">X</td>
        <td class="formHeader" style="background-color: #000052">Y</td>
        <td class="formHeader" style="background-color: #000052">Z</td>
@@ -241,6 +243,9 @@ function initWindow() {
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.dmxOffset}'/>" onchange="edtUpdateDmxOffset(<c:out value='${rowStatus.index}'/>)">
                               </td>
                               <td align="right"></td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].sortOrder' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].sortOrder" value="<c:out value='${rowData.sortOrder}'/>">
+                              </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].x' text='errorBg' />"> 
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].x" value="<c:out value='${rowData.x}'/>" >
                               </td>
@@ -289,6 +294,9 @@ function initWindow() {
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.dmxOffset}'/>" onchange="edtUpdateDmxOffset(<c:out value='${rowStatus.index}'/>)">
                               </td>
                               <td align="right"></td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].sortOrder' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].sortOrder" value="<c:out value='${rowData.sortOrder}'/>">
+                              </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].x' text='errorBg' />"> 
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].x" value="<c:out value='${rowData.x}'/>" >
                               </td>
@@ -330,6 +338,7 @@ function initWindow() {
                    <td><input type="text" class="formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].name" value="" size="20"></td>
                    <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].dmxOffset" value="" ></td>
                    <td></td>
+                   <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].sortOrder" value="" ></td>
                    <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].x" value="" ></td>
                    <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].y" value="" ></td>
                    <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].z" value="" ></td>
