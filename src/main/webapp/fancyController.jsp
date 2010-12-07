@@ -76,15 +76,15 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 </div>
 
 <div id="shwPanel" >
-  <div id="shwCancel"><img width="80" height="70" "src="image/cancelWhite.png" title="Cancel all"/></div>
+  <div id="shwCancel"><img width="80" height="70" src="image/cancelWhite.png" title="Cancel all"/></div>
   <div id="shwAudio">
     <div id="shwAudioBMTLegend"></div>
     <div id="shwAudioBassOuter" class="shwAudioOuter" /><div id="shwAudioBassInner" class="shwAudioInner"></div></div>
     <div id="shwAudioMidOuter" class="shwAudioOuter" /><div id="shwAudioMidInner" class="shwAudioInner"></div></div>
     <div id="shwAudioTrebleOuter" class="shwAudioOuter" /><div id="shwAudioTrebleInner" class="shwAudioInner"></div></div>
   </div>
-  <div id="shwPageUp"><img width="80" height="70" "src="image/pageUp.png" title="Page up"/></div>
-  <div id="shwPageDown"><img width="80" height="70" "src="image/pageDown.png" title="Page down"/></div>
+  <div id="shwPageUp"><img width="80" height="70" src="image/pageUp.png" title="Page up"/></div>
+  <div id="shwPageDown"><img width="80" height="70" src="image/pageDown.png" title="Page down"/></div>
   <div id="shwItemContainer"></div>
 </div>
 
@@ -118,8 +118,8 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="fixCustom" class="fixControl fixCustom">Custom controls</div>
   
   <div id="fixItemContainer"></div>
-  <div id="fixPageUp"><img width="80" height="70" "src="image/pageUp.png" title="Page up"/></div>
-  <div id="fixPageDown"><img width="80" height="70" "src="image/pageDown.png" title="Page down"/></div>
+  <div id="fixPageUp"><img width="80" height="70" src="image/pageUp.png" title="Page up"/></div>
+  <div id="fixPageDown"><img width="80" height="70" src="image/pageDown.png" title="Page down"/></div>
 
 </div>
 
@@ -140,8 +140,8 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 
 <div id="logPanel" style="display: none;">
   <div id="logExceptionContainer"></div>
-  <div id="logPageUp"><img width="80" height="70" "src="image/pageUp.png" title="Page up"/></div>
-  <div id="logPageDown"><img width="80" height="70" "src="image/pageDown.png" title="Page down"/></div>
+  <div id="logPageUp"><img width="80" height="70" src="image/pageUp.png" title="Page up"/></div>
+  <div id="logPageDown"><img width="80" height="70" src="image/pageDown.png" title="Page down"/></div>
 </div>
 
 <div id="cnfPanel" style="display: none;">
