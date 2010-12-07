@@ -41,8 +41,8 @@ public class RandomDiscoShow extends Show {
 	public RandomDiscoShow(long id, Controller controller, Properties properties) {
 		super(id, controller, "Random Disco", 2000L, properties);
 		
-		fixture1 = controller.getFixtureByName("leftWash"); fix1 = fixture1.getFixtureController();
-		fixture2 = controller.getFixtureByName("rightWash"); fix2 = fixture2.getFixtureController();
+		fixture1 = controller.getFixtureByName("leftWash1"); fix1 = fixture1.getFixtureController();
+		fixture2 = controller.getFixtureByName("rightWash1"); fix2 = fixture2.getFixtureController();
 		
 		/*
 		TimelineShow show0 = new TimelineShow(
