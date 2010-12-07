@@ -158,6 +158,88 @@ public abstract class FixtureController {
 				(pcdHigh.getMaxAngle() - pcdHigh.getMinAngle())));
 		}
 	}
+	
+	/** Use this fixture's pan and tilt controls to aim it at a specific point.
+	 * For this to work, the fixture's x, y, z, (initial) lookingAtX, lookingAtY, lookingAtZ,
+	 * and upX, upY and upZ must be set.
+	 * 
+	 * @param pointAtX X co-ordinate to point at
+	 * @param pointAtY Y co-ordinate to point at
+	 * @param pointAtZ Z co-ordinate to point at
+	 */
+	public void pointAt(float pointAtX, float pointAtY, float pointAtZ) {
+		// lets assume that the normal vector has length of one.
+		
+		// a 2D plane with the points (x,y,z) with normal vector upX, upY, upZ
+		//
+		// upX*(x-initialX) + upY*(y-initialY) + upZ*(z-initialZ) = 0
+		//
+		// (lookingAtX, lookingAtY, lookingAtZ) are validated to lie on this plane
+		// in the MaintainFixtureAction
+		
+		// from the gear at http://www.math.umn.edu/~nykamp/m2374/readings/planedist/#thecvt
+		// which I have long since forgotten,
+		
+		// distance d to plane from pointAt is
+		//   Math.abs(upX*(pointAtX-initialX) + upY*(pointAtY-initialY) + upZ*(pointAtZ-initialZ)) 
+		// / Math.sqrt(upX^2 + upY^2 + upZ^2)
+		
+		
+		double d = (fixture.upX*(pointAtX-fixture.x) + fixture.upY*(pointAtY-fixture.y) + fixture.upZ*(pointAtZ-fixture.z))
+		 / Math.sqrt(Math.pow(fixture.upX,2) + Math.pow(fixture.upY, 2) + Math.pow(fixture.upZ, 2));
+		double projectX = pointAtX + d*fixture.upX;
+		double projectY = pointAtY + d*fixture.upY;
+		double projectZ = pointAtZ + d*fixture.upZ;
+		
+		
+		// pan is the angle between 
+		//     (initialX,initialY,initialZ)-(lookingAtX,lookingAtY,lookingAtZ)
+		// and (initialX,initialY,initialZ)-(projectX,projectY,projectZ)
+		// as determined on this 2D plane
+		
+		// for the benefit of my brain which has been out of highschool for too long:
+		// for two vectors A and B, the dot product A.B is:
+		//   A.B = a[x]*b[x] + a[y]*b[y] + a[z]*c[z];
+		// for vector A, magnitude of vector is:
+		//   ||A||  = sqrt(a[x]^2 + a[y]^2 + a[z]^2 )
+		// for points A & B, distance between two points are:
+		//   |AB| = sqrt((b[x] - a[x])^2  + (b[y] - a[y])^2  + (b[z] - a[z])^2 )
+		// and the angle between two vectors are
+		//       A.B = ||A||.||B||.cos(t)
+		//   ==> cos(t) = A.B / ||A||.||B||
+		
+		// so to determine pan, need to project pointAt onto the plane via the normal:
+		
+		//   a[x]=(lookingAtX-initialX), a[y]=(lookingAtY-initialY), a[z]=(lookingAtZ-initialZ)
+		//   b[x]=(projectX-initialX), b[y]=(projectY-initialY), b[z]=(projectZ-initialZ)
+		double cosT = ((fixture.lookingAtX-fixture.x) * (projectX-fixture.x) +
+			(fixture.lookingAtY-fixture.y) * (projectY-fixture.y) +
+			(fixture.lookingAtZ-fixture.z) * (projectZ-fixture.z)) 
+			/
+			(Math.sqrt(Math.pow(fixture.lookingAtX-fixture.x, 2) + Math.pow(fixture.lookingAtY-fixture.y, 2) + Math.pow(fixture.lookingAtZ-fixture.z, 2)) *
+			 Math.sqrt(Math.pow(projectX-fixture.x, 2) + Math.pow(projectY-fixture.y, 2) + Math.pow(projectZ-fixture.z, 2)) );
+		double pan = Math.acos(cosT); // will be in range 0-pi
+		pan = pan * 180 / Math.PI;    // 0-180  @TODO full 360 at some point
+		
+		// and tilt should be angle between
+		//     (initialX,initialY,initialZ)-(pointAtX,pointAtY,pointAtZ)
+		// and (initialX,initialY,initialZ)-(projectX,projectY,projectZ)
+		// as determined on this 2D plane
+		cosT = ((pointAtX-fixture.x) * (projectX-fixture.x) +
+			(pointAtY-fixture.y) * (projectY-fixture.y) +
+			(pointAtZ-fixture.z) * (projectZ-fixture.z)) 
+			/
+			(Math.sqrt(Math.pow(pointAtX-fixture.x, 2) + Math.pow(pointAtY-fixture.y, 2) + Math.pow(pointAtZ-fixture.z, 2)) *
+			 Math.sqrt(Math.pow(projectX-fixture.x, 2) + Math.pow(projectY-fixture.y, 2) + Math.pow(projectZ-fixture.z, 2)) );
+		double tilt = Math.acos(cosT);
+		tilt = tilt * 180 / Math.PI;    // 0-180  @TODO full 360 at some point
+		
+		// the chances of this working are zero.
+		panTo(pan);
+		tiltTo(tilt);
+		
+		// @TODO check for pointAt==fixture.(x,y,z); since this'll probably cause divide by zeros
+	}
 
 	
 	/** Sets the strobe for this fixture to the fastest setting available.
