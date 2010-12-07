@@ -51,7 +51,7 @@ public class FixtureDAO {
             "SELECT id, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder " +
             " FROM fixture " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause) +
-            " ORDER BY sortOrder";
+            " ORDER BY sortOrder, dmxOffset";
 	    return (List<FixtureTO>) jt.query(sql, new FixtureDAORowMapper());
     }
 
