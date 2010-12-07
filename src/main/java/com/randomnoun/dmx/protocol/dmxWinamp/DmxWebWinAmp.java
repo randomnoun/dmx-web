@@ -39,11 +39,12 @@ public class DmxWebWinAmp {
 		private boolean retryEnabled = false;
 		private boolean done = false;
 		private boolean exceptionOnLastConnection = false; // to suppress hundreds of exceptions
+		private boolean enableSpectrum;
 		private String url;
 		
 		public Logger logger = Logger.getLogger(PollingThread.class);
 		
-		public PollingThread(DmxWebWinAmp winamp, String url, boolean retryEnabled) {
+		public PollingThread(DmxWebWinAmp winamp, String url, boolean retryEnabled, boolean enableSpectrum) {
 			this.setName("dmxWebPollingThread-" + this.getId());
 			this.winamp = winamp;
 			this.done = false;
@@ -67,9 +68,11 @@ public class DmxWebWinAmp {
 						for (int i=0; i<3; i++) {
 							winamp.avg[i] = Float.parseFloat(props.getProperty("avg[" + i + "]"));
 						}
-						for (int i=0; i<256; i++) {
-							winamp.spectrum[0][i] = Float.parseFloat(props.getProperty("f[0][" + i + "]"));
-							winamp.spectrum[1][i] = Float.parseFloat(props.getProperty("f[1][" + i + "]"));
+						if (enableSpectrum) {
+							for (int i=0; i<256; i++) {
+								winamp.spectrum[0][i] = Float.parseFloat(props.getProperty("f[0][" + i + "]"));
+								winamp.spectrum[1][i] = Float.parseFloat(props.getProperty("f[1][" + i + "]"));
+							}
 						}
 					}
 					exceptionOnLastConnection = false;
@@ -97,7 +100,8 @@ public class DmxWebWinAmp {
 		}
 	}
 	
-	public DmxWebWinAmp(WinampAudioSource audioSource, String host, int port, int timeout, boolean retryEnabled) {
+	public DmxWebWinAmp(WinampAudioSource audioSource, 
+		String host, int port, int timeout, boolean retryEnabled, boolean enableSpectrum) {
 
 		this.audioSource = audioSource;
 		exceptionContainer = new ExceptionContainerImpl();
@@ -121,9 +125,9 @@ public class DmxWebWinAmp {
 		httpClient.getParams().setParameter("http.useragent", "User-Agent: dmx-web/" + version.get("maven.pom.version") + " (" + version.get("bamboo.buildNumber") + ")");
 		httpClient.getParams().setParameter("http.protocol.single-cookie-header", new Boolean(true));
 		httpClient.getParams().setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
-		this.pollingThread = new PollingThread(this, "http://" + host + ":" + port + "/", retryEnabled);
-
-	
+		String url = "http://" + host + ":" + port + "/";
+		if (enableSpectrum) { url += "s"; }
+		this.pollingThread = new PollingThread(this, url, retryEnabled, enableSpectrum);
 	}
 
 	public void connect() {

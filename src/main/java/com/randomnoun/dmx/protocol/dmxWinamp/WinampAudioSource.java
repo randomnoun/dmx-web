@@ -14,6 +14,7 @@ public class WinampAudioSource extends AudioSource {
 	private String host;
 	private int port;
     private boolean connected;
+    private boolean enableSpectrum;
     
     private DmxWebWinAmp winamp;
 
@@ -21,6 +22,7 @@ public class WinampAudioSource extends AudioSource {
 		super(properties);
 		this.host = (String) properties.get("host");
 		this.port = Integer.parseInt((String) properties.get("port"));
+		this.enableSpectrum = "true".equals(properties.get("enableSpectrum"));
 		connected = false;
 		// 
 
@@ -36,7 +38,7 @@ public class WinampAudioSource extends AudioSource {
 
 	@Override
 	public void open() {
-		winamp = new DmxWebWinAmp(this, host, port, 1000, true);
+		winamp = new DmxWebWinAmp(this, host, port, 1000, true, enableSpectrum);
 		winamp.connect();
 		connected = true;
 	}
