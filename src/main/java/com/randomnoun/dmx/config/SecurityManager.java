@@ -126,7 +126,13 @@ public class SecurityManager extends java.lang.SecurityManager {
 	public void checkPermission(Permission perm, Object context) {
 		debug("checkPermission([name='" + perm.getName() + "',actions='" + perm.getActions() + "]," +
 			context.getClass().getName() + ")");
-		if (parentManager!=null) { parentManager.checkPermission(perm, context); }
+		try {
+			if (parentManager!=null) { parentManager.checkPermission(perm, context); }
+			debug("check passed");
+		} catch (SecurityException se) {
+			debug("check failed");
+			throw se;
+		}
 	}
 
 	@Override
@@ -151,7 +157,13 @@ public class SecurityManager extends java.lang.SecurityManager {
 	public void checkExit(int status) {
 		//throw new SecurityException("exit not permitted");
 		debug("checkExit(" + status + ")");
-		if (parentManager!=null) { parentManager.checkExit(status); }
+		try {
+			if (parentManager!=null) { parentManager.checkExit(status); }
+			debug("check passed");
+		} catch (SecurityException se) {
+			debug("check failed");
+			throw se;
+		}			
 	}
 
 	@Override

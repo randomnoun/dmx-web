@@ -277,6 +277,12 @@ public class AppConfig extends AppConfigBase {
     	
     }
     
+    // used from within security framework; just returns null if no
+    // appConfig has been initialised
+    static AppConfig getAppConfigNoInit() {
+    	return instance;
+    }
+    
     /** Return a configuration instance 
      *
      * @throws IllegalStateException if the application did not initialise successfully. 
