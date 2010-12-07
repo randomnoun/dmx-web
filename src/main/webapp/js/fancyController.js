@@ -173,7 +173,7 @@ function lgoInitPanel() {
 
 
 /******************************* SHOW PANEL ******************************/
-  
+var shwScrollFx=null;  
 function shwInitPanel() {
     var x, y, el, displayOffset=0, lastShowGroupId=-1;
     var sp=$("shwItemContainer");
@@ -235,12 +235,14 @@ function shwCancelGroupClick(showGroupId) {
 
 function shwPageDownClick(event) {
 	var el = $("shwItemContainer");
-	new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, 'scrollTop');
+	if (shwScrollFx!=null) { shwScrollFx.cancel(); el.scrollTop=el.scrollTop-1000; shwScrollFx=null; }
+	else { shwScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, {afterFinish:function(){shwScrollFx=null;}}, 'scrollTop'); }
 }
 
 function shwPageUpClick(event) {
 	var el = $("shwItemContainer");
-	new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, 'scrollTop');
+	if (shwScrollFx!=null) { shwScrollFx.cancel(); el.scrollTop=el.scrollTop+1000; shwScrollFx=null; }
+	else { shwScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, {afterFinish:function(){shwScrollFx=null;}}, 'scrollTop'); }
 }
 
 
@@ -320,6 +322,7 @@ var fixAimDraggable = null;
 var fixCustomControlsVisible = false;
 var fixCustomControlFixtureDef = null;
 var fixCustomControls = new Array();
+var fixScrollFx = null;
 function fixInitPanel() {
     var x,y,fixEl;
     var fp=$("fixPanel");
@@ -395,12 +398,14 @@ function fixInitPanel() {
 
 function fixPageDownClick(event) {
 	var el = $("fixItemContainer");
-	new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, 'scrollTop');
+	if (fixScrollFx!=null) { fixScrollFx.cancel(); el.scrollTop=el.scrollTop-1000; fixScrollFx=null; }
+	else { fixScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, {afterFinish:function(){fixScrollFx=null;}}, 'scrollTop'); }
 }
 
 function fixPageUpClick(event) {
 	var el = $("fixItemContainer");
-	new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, 'scrollTop');
+	if (fixScrollFx!=null) { fixScrollFx.cancel(); el.scrollTop=el.scrollTop+1000; fixScrollFx=null; }
+	else { fixScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, {afterFinish:function(){fixScrollFx=null;}}, 'scrollTop'); }
 }
 
 
@@ -824,8 +829,6 @@ function dmxInitPanel() {
     Event.observe('dmxSliderScrollArea', 'click', dmxValueClick);
     $("dmxSliderScrollArea").style.visibility="hidden";
 
-    
-    
     Event.observe($("dmxImmediate"), 'click', dmxImmediateClick);
 }
 
@@ -1081,10 +1084,24 @@ function dmxUpdatePanel(json) {
 
 
 /******************************* LOG PANEL ******************************/
-  
+var logScrollFx;  
 function logInitPanel() {
-    
-} 
+    Event.observe($("logPageUp"), 'click', logPageDownClick); noSelect($("logPageUp"));
+    Event.observe($("logPageDown"), 'click', logPageUpClick); noSelect($("logPageDown"));
+}
+
+function logPageDownClick(event) {
+	var el = $("logExceptionContainer");
+	if (logScrollFx!=null) { logScrollFx.cancel(); el.scrollTop=el.scrollTop-1000; logScrollFx=null; }
+	else { logScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, {afterFinish:function(){logScrollFx=null;}}, 'scrollTop'); }
+}
+
+function logPageUpClick(event) {
+	var el = $("logExceptionContainer");
+	if (logScrollFx!=null) { logScrollFx.cancel(); el.scrollTop=el.scrollTop+1000; logScrollFx=null; }
+	else { logScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, {afterFinish:function(){logScrollFx=null;}}, 'scrollTop'); }
+}
+
 
 function logToggle(logId) {
 	var e = logExceptions[logId];

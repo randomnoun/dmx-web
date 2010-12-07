@@ -430,6 +430,11 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 
 /*** LOG panel ***/
+#logExceptionContainer {
+  width: 920px; height: 700px;
+  background-color: #EEEEFF; 
+  overflow: scroll;
+}
 .logTitle {
   position: relative;
   width: 800px; height: 30px; 
@@ -443,13 +448,24 @@ BODY { font-size: 8pt; font-family: Arial; }
 .logDetail PRE {
   font-family: Lucida Console, Courier New;
 }
-
 .logExpandImg {
   position: absolute; top: 10px; left: 10px; 
 }
 .logMessage {
   position: absolute; top: 5px; left: 30px;
 }
+#logPageUp {
+  position: absolute; width: 80px; height: 70px; top:10px; left: 930px; 
+  background-image: url("../image/sbutton-blue.png"); 
+  text-align: center; color: #000044; font-size: 14pt;
+  cursor: pointer;  
+}
+#logPageDown {
+  position: absolute; width: 80px; height: 70px; top:620px; left: 930px; 
+  background-image: url("../image/sbutton-blue.png"); 
+  text-align: center; color: #000044; font-size: 14pt;
+  cursor: pointer;  
+}   
 
 
 /*** CONFIG panel ***/

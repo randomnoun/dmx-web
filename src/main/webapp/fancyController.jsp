@@ -140,6 +140,8 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 
 <div id="logPanel" style="display: none;">
   <div id="logExceptionContainer"></div>
+  <div id="logPageUp">Page up</div>
+  <div id="logPageDown">Page down</div>
 </div>
 
 <div id="cnfPanel" style="display: none;">
