@@ -1,7 +1,7 @@
 package com.example.dmx.show;
 
 import java.awt.Color;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -38,7 +38,7 @@ public class RandomDiscoShow extends Show {
 	FixtureController fix1;
 	FixtureController fix2;
 	
-	public RandomDiscoShow(long id, Controller controller, Map properties) {
+	public RandomDiscoShow(long id, Controller controller, Properties properties) {
 		super(id, controller, "Random Disco", 2000L, properties);
 		
 		fixture1 = controller.getFixtureByName("leftWash"); fix1 = fixture1.getFixtureController();

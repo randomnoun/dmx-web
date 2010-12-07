@@ -1,7 +1,7 @@
 package com.example.dmx.show;
 
 import java.awt.Color;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -24,7 +24,7 @@ public class AudioFaderShow extends Show {
 	FixtureController fix1;
 	FixtureController fix2;
 	
-	public AudioFaderShow(long id, Controller controller, Map properties) {
+	public AudioFaderShow(long id, Controller controller, Properties properties) {
 		super(id, controller, "Audio Fader", Long.MAX_VALUE, properties);
 		
 		fixture1 = controller.getFixtureByName("leftWash"); fix1 = fixture1.getFixtureController();

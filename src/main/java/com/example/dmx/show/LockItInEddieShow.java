@@ -1,7 +1,7 @@
 package com.example.dmx.show;
 
 import java.awt.Color;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -23,7 +23,7 @@ public class LockItInEddieShow extends Show {
 	MiniWashFixtureController rightWash;
 	AudioController audioController;
 	
-	public LockItInEddieShow(long id, Controller controller, Map properties) {
+	public LockItInEddieShow(long id, Controller controller, Properties properties) {
 		super(id, controller, "Lock it in, eddie", 5000L, properties);
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();

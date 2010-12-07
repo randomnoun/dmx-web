@@ -1,7 +1,7 @@
 package com.example.dmx.show;
 
 import java.awt.Color;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -26,7 +26,7 @@ public class SpotlightShow extends Show {
 	FixtureController rightPar64;
 	AudioController audioController;
 	
-	public SpotlightShow(long id, Controller controller, Map properties) {
+	public SpotlightShow(long id, Controller controller, Properties properties) {
 		super(id, controller, "Spotlight", 1000, properties);
 		leftWash = (MiniWashFixtureController) controller.getFixtureControllerByName("leftWash");
 		rightWash = (MiniWashFixtureController) controller.getFixtureControllerByName("rightWash");

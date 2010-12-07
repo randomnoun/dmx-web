@@ -1,7 +1,7 @@
 package com.example.dmx.show;
 
 import java.awt.Color;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -23,7 +23,7 @@ public class PerformerEntranceShow extends Show {
 	MiniWashFixtureController rightWash;
 	AudioController audioController;
 	
-	public PerformerEntranceShow(long id, Controller controller, Map properties) {
+	public PerformerEntranceShow(long id, Controller controller, Properties properties) {
 		super(id, controller, "Performer entrance", Long.MAX_VALUE, properties);
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();

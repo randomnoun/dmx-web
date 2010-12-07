@@ -1,7 +1,7 @@
 package com.example.dmx.show;
 
 import java.awt.Color;
-import java.util.Map;
+import java.util.Properties;
 
 import com.example.dmx.fixture.MiniWashFixtureController;
 import com.randomnoun.dmx.Controller;
@@ -17,7 +17,7 @@ public class PoliceShow extends Show {
 	MiniWashFixtureController leftWash;
 	MiniWashFixtureController rightWash;
 	
-	public PoliceShow(long id, Controller controller, Map properties) {
+	public PoliceShow(long id, Controller controller, Properties properties) {
 		super(id, controller, "Police", 5000L, properties);
 		leftWash = (MiniWashFixtureController) controller.getFixture(0).getFixtureController();
 		rightWash = (MiniWashFixtureController) controller.getFixture(1).getFixtureController();

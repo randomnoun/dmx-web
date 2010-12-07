@@ -1,6 +1,6 @@
 package com.example.dmx.show;
 
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -16,7 +16,7 @@ public class BlackoutShow extends Show {
 
 	Logger logger = Logger.getLogger(BlackoutShow.class);
 	
-	public BlackoutShow(long id, Controller controller, Map properties) {
+	public BlackoutShow(long id, Controller controller, Properties properties) {
 		super(id, controller, "Blackout", 0L, properties);
 	}
 	
