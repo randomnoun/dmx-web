@@ -1,6 +1,5 @@
 package com.randomnoun.dmx.protocol.dmxWinamp;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -12,7 +11,6 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 
-import com.randomnoun.dmx.AudioSource;
 import com.randomnoun.dmx.ExceptionContainer.TimestampedException;
 import com.randomnoun.dmx.ExceptionContainerImpl;
 import com.randomnoun.dmx.web.action.FancyControllerAction;
