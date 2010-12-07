@@ -51,7 +51,7 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 </script>
 </head>
 <body onload="initWindow()">
-<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB!</span></div>
+<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB</span></div>
 <div class="lhsMenuContainer">
   <div id="lhsBlackout" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsBlackout.png" title="Blackout"/><div class="lhsMenuText">Blackout</div></div>
   <div id="lhsShows" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsShows.png" title="Shows"/><div class="lhsMenuText">Shows</div></div>
