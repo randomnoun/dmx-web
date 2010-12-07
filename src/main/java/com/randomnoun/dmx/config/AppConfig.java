@@ -571,15 +571,22 @@ public class AppConfig extends AppConfigBase {
 				long showDefId = showTO.getShowDefId();
 				Class showClass = (Class) scriptedShowDefs.get(showDefId);
 				Constructor constructor = null;
-				try {
-					constructor = showClass.getConstructor(long.class, Controller.class, Properties.class);
-				} catch (Exception e) {
-					logger.error("Exception finding show constructor", e);
-				}
-				String javadoc = (String) scriptedShowDescriptions.get(showDefId);
-				if (showClass==null || constructor==null) {
-					logger.error("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no show found with id '" + showDefId + "'");
+				if (showClass==null) {
+					AppConfigException ace = new AppConfigException("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no show found with id '" + showDefId + "'");
+					logger.error(ace);
 				} else {
+					try {
+						constructor = showClass.getConstructor(long.class, Controller.class, Properties.class);
+					} catch (Exception e) {
+						AppConfigException ace = new AppConfigException("Error whilst instantiating show " + showTO.getId() + ": '" + showTO.getName() + "'", e);
+						exceptionContainer.addException(ace);
+						logger.error(ace);
+					}
+				}
+				if (showClass==null || constructor==null) {
+					// errors logged above 
+				} else {
+					String javadoc = (String) scriptedShowDescriptions.get(showDefId);
 					logger.debug("Creating scripted show '" + showTO.getName() + "' from database");
 					Properties showProperties = new Properties();
 					//if (showTO.getOnCompleteShowId()!=null) { showProperties.put("onCompleteShowId", showTO.getOnCompleteShowId().toString()); }
