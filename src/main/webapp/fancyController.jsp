@@ -53,12 +53,12 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 <body onload="initWindow()">
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB!</span></div>
 <div class="lhsMenuContainer">
-  <div id="lhsBlackout" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsBlackout.png" title="Blackout"/>Blackout</div>
-  <div id="lhsShows" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsShows.png" title="Shows"/>Shows</div>
-  <div id="lhsFixtures" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsFixtures.png" title="Fixtures"/>Fixtures</div>
-  <div id="lhsDMX" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsDmx.png" title="DMX"/>DMX</div>
-  <div id="lhsLogs" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsLogs.png" title="Logs"/>Logs</div>
-  <div id="lhsConfig" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsConfig.png" title="Config"/>Config</div>
+  <div id="lhsBlackout" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsBlackout.png" title="Blackout"/><div class="lhsMenuText">Blackout</div></div>
+  <div id="lhsShows" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsShows.png" title="Shows"/><div class="lhsMenuText">Shows</div></div>
+  <div id="lhsFixtures" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsFixtures.png" title="Fixtures"/><div class="lhsMenuText">Fixtures</div></div>
+  <div id="lhsDMX" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsDmx.png" title="DMX"/><div class="lhsMenuText">DMX</div></div>
+  <div id="lhsLogs" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsLogs.png" title="Logs"/><div class="lhsMenuText">Logs</div></div>
+  <div id="lhsConfig" class="lhsMenuItem"><img class="lhsIcon" width="70" height="70" src="image/lhsConfig.png" title="Config"/><div class="lhsMenuText">Config</div></div>
 </div>
 
 <div id="rhsMessage">Messages</div>

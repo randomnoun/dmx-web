@@ -14,6 +14,9 @@ BODY { font-size: 8pt; font-family: Arial; }
 .lhsIcon {
   float: left;
 }
+.lhsMenuText {
+  padding-top: 18px;
+}
 .rhsPanel {
   position: absolute; top: 30px; left: 210px; width: 1020px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue; 
@@ -29,8 +32,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 .lhsMenuItem {
   width: 180px; height: 70px; background-image: url("../image/button-blue.png");
-  /*background-color: #AAAAFF; */ ; margin: 10px;
-  text-align: center; color: #000044; font-size: 18pt;
+  margin: 10px;  text-align: center; color: #000044; font-size: 18pt;
   cursor: pointer; 
 }
 .lhsSelect {
@@ -71,11 +73,13 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 20px; left: 20px; width: 80px; height: 70px;
   background-image: url("../image/sbutton-red.png");
   text-align: center; color: white; font-size: 14pt;
+  cursor: pointer;  
 }
 .shwCancelGroup {
   position: absolute; width: 80px; height: 70px;
   background-image: url("../image/sbutton-blue.png");
   text-align: center; color: #000044; font-size: 14pt;
+  cursor: pointer;  
 }
 #shwItemContainer {
   position: absolute; top: 100px; left: 10px; width: 900px; height: 580px;
@@ -176,27 +180,27 @@ BODY { font-size: 8pt; font-family: Arial; }
   position: absolute; top: 2px; left: 2px; width: 32px; height: 32px; 
 }
 #fixBlackout {
-  position: absolute; top: 20px; left: 20px; width: 80px; height: 70px;
+  position: absolute; top: 20px; left: 20px; width: 80px; height: 52px;
   background-image: url("../image/sbutton-red.png");
-  color: white; font-size: 14pt;
+  color: white; font-size: 14pt; padding-top: 18px;
 }
 #fixCustom {
-  position: absolute; top: 20px; left: 120px; width: 80px; height: 70px;
-  font-size: 14pt;
+  position: absolute; top: 20px; left: 120px; width: 80px; height: 62px;
+  font-size: 14pt; padding-top: 8px;
 }
 .fixCustom {
   background-image: url("../image/sbutton-blue.png");
 }
 #fixGroup {
-  position: absolute; top: 110px; left: 120px; width: 80px; height: 70px;
-  font-size: 14pt;
+  position: absolute; top: 110px; left: 120px; width: 80px; height: 62px;
+  font-size: 14pt; padding-top: 8px;
 }
 .fixGroup {
   background-image: url("../image/sbutton-blue.png");
 }
 #fixAllNone {
-  position: absolute; top: 110px; left: 20px; width: 80px; height: 70px;
-  font-size: 14pt;
+  position: absolute; top: 110px; left: 20px; width: 80px; height: 52px;
+  font-size: 14pt; padding-top: 18px;
 }
 .fixAllNone {
   background-image: url("../image/sbutton-blue.png");
@@ -474,11 +478,12 @@ BODY { font-size: 8pt; font-family: Arial; }
 /*** CONFIG panel ***/
 .cnfControl {
   display: inline-block;
-  width: 360px; height: 70px; /*background-color: #AAAAFF; */
+  width: 360px; height: 52px; /*background-color: #AAAAFF; */
   background-image: url("../image/cnfControlBack.png");   
   text-align: center; color: #000044; font-size: 18pt; 
   margin: 20px 20px 0px 20px;
   cursor: pointer;
+  padding-top: 18px;
 }
 
 
