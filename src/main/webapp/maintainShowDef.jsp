@@ -26,7 +26,7 @@
     <meta name="revisit-after" content="2 days" />
     <meta name="keywords" content="nothing-in-particular" />
     
-    <title><%= appConfig.getProperty("webapp.titlePrefix") %> DMX</title>
+    <title><%= appConfig.getProperty("webapp.titlePrefix") %> Maintain show definitions</title>
 
     <link rel="shortcut icon" href="image/favicon.png" />
 
@@ -202,7 +202,7 @@ function initWindow() {
 
 
 <body onload="initWindow()">
-<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show config</span></div>
+<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show definitions</span></div>
 <div class="lhsMenuContainer">
   <div id="lhsCancel" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/back.png" title="Back"/><div class="lhsMenuText">Back</div></div>
   <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="OK"/><div class="lhsMenuText">OK</div></div>

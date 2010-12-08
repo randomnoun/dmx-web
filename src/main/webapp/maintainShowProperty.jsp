@@ -152,7 +152,7 @@ function initWindow() {
 
 
 <body onload="initWindow()" onunload="formUnloadCheck('mainForm')">
-<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show property config</span></div>
+<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show properties</span></div>
 <div class="lhsMenuContainer">
   <div id="lhsCancel" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/back.png" title="Back"/><div class="lhsMenuText">Back</div></div>
   <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="OK"/><div class="lhsMenuText">OK</div></div>

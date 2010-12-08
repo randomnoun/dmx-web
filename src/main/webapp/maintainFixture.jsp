@@ -201,7 +201,7 @@ function initWindow() {
        <td class="formHeader" style="background-color: #000052">Name <img src="image/help-icon.png" align="right" title="The name that will appear on the 'Fixtures' panel" /></td>
        <td class="formHeader" style="background-color: #000052">Start</td>
        <td class="formHeader" style="background-color: #000052">Finish</td>
-       <td class="formHeader" style="background-color: #000052">Sort order</td>
+       <td class="formHeader" style="background-color: #000052">Sort order <img src="image/help-icon.png" align="right" title="Order in which this fixture will appear on the 'Fixtures' panel" /></td>
        <td class="formHeader" style="background-color: #000052">X</td>
        <td class="formHeader" style="background-color: #000052">Y</td>
        <td class="formHeader" style="background-color: #000052">Z</td>
