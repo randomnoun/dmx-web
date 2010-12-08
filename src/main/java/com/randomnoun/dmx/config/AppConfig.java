@@ -273,6 +273,57 @@ public class AppConfig extends AppConfigBase {
         appConfigState = AppConfigState.RUNNING;
     	
     }
+
+    /** Call this after any show definitions or shows have been modified. 
+     * 
+     * <p>This method will kill all show threads, reset the controller,
+     * stop any audio that's playing, and reload the show definitions.
+     */
+    public void reloadShows() {
+    	logger.info("reloadShows(): shutting down show threads");
+    	shutdownThreads();
+    	if (appConfigState!=AppConfigState.STOPPED) {
+    		throw new IllegalStateException("Expected appConfig in STOPPED state; found " + appConfigState);
+    	}
+    	
+    	logger.info("reloadShows(): resetting controller");
+    	controller.blackOut();
+    	
+    	logger.info("reloadShows(): stopping audio");
+    	controller.getAudioController().stopAudio();
+    	
+    	// give the listeners 200 msec to actually do something
+    	try { Thread.sleep(200); } catch (InterruptedException ie) { }
+    	
+    	logger.info("reloadShows(): shutting down listeners");
+    	shutdownListeners();
+
+    	// controller.removeAllFixtures();
+    	
+    	// reset scriptContext classloader 
+    	// see http://www.beanshell.org/manual/classpath.html#Reloading_Classes
+    	//String script = "importCommands(\"/bsh/commands\");\n" +
+		//	"reloadClasses();\n";
+    	//getScriptEngine().eval(script, getScriptContext());
+    	
+    	// chronic thread safety problems here
+    	exceptionContainer.clearExceptions();
+    	logger.info("reloadShows(): reloading showConfigs");
+        // initScriptContext();
+        try {
+	        // loadFixtures(getScriptContext(), getController());
+	        loadShowConfigs(getScriptContext(), true);
+	        loadListeners();
+        } catch (Throwable t) {
+    		initialisationFailure = new RuntimeException("Could not initialise application", t);
+    	}
+        
+        // @TODO should signal to all the fancyControllers out there that the
+        // config has changed from underneath them
+        appConfigState = AppConfigState.RUNNING;
+    	
+    }
+    
     
     // used from within security framework; just returns null if no
     // appConfig has been initialised

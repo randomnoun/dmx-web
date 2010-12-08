@@ -145,7 +145,7 @@ public class MaintainShowAction
     			ErrorList errors = getTable().getErrors();
     			errors.addError("Shows updated", "Table has been updated", ErrorList.SEVERITY_OK);
     			result.setErrors(errors);
-    			AppConfig.getAppConfig().reloadFixturesAndShows();
+    			AppConfig.getAppConfig().reloadShows();
     		}
     		return result;
     	}
