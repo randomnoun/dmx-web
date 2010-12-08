@@ -102,7 +102,7 @@ public class FixtureDefDAO {
         String sql =
             "INSERT INTO fixtureDef " + 
             " (name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript, channelMuxerClassName, channelMuxerScript, dmxChannels) " +
-            " VALUES (?, ?, ?, ?, ?, ?, ?)";
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         long updated = jt.update(sql,
             new Object[] { 
                 fixtureDef.getName(),
