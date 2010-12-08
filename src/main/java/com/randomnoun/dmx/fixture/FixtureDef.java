@@ -54,6 +54,11 @@ public abstract class FixtureDef {
 
 	protected int numDmxChannels;
 
+	protected boolean invertPan = false;                 // if false, pan is clockwise looking up the upVector from the fixture
+	protected boolean invertTilt = false;                // if false, increasing tilt will point the fixture up the upVector
+	protected int pointAtPanStart, pointAtPanEnd;     // if set, preferred ranges for pointAt
+	protected int pointAtTiltStart, pointAtTiltEnd;   // if set, preferred ranges for pointAt
+	
 	private String imagePath;
 	
 	public void setImagePath(String imagePath) { this.imagePath = imagePath; }

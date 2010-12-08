@@ -186,12 +186,12 @@ public abstract class FixtureController {
 		//   Math.abs(upX*(pointAtX-initialX) + upY*(pointAtY-initialY) + upZ*(pointAtZ-initialZ)) 
 		// / Math.sqrt(upX^2 + upY^2 + upZ^2)
 		
-		
+		FixtureDef fixtureDef = fixture.getFixtureDef();		
 		double d = (fixture.upX*(pointAtX-fixture.x) + fixture.upY*(pointAtY-fixture.y) + fixture.upZ*(pointAtZ-fixture.z))
 		 / Math.sqrt(Math.pow(fixture.upX,2) + Math.pow(fixture.upY, 2) + Math.pow(fixture.upZ, 2));
 		double projectX = pointAtX + d*fixture.upX;
 		double projectY = pointAtY + d*fixture.upY;
-		double projectZ = pointAtZ - d*fixture.upZ;  // hmm....
+		double projectZ = pointAtZ - d*fixture.upZ;  // hmm.... maybe negate fixture.upZ above ?
 		
 		
 		// pan is the angle between 
@@ -255,7 +255,12 @@ public abstract class FixtureController {
 		// in this co-ordinate system, +ve pan == clockwise looking from the fixture UP the up vector 
 		// (could configure this in the fixtureDef)
 		if (s > 0) { pan = -pan; }
+		if (fixtureDef.invertPan) { pan = -pan; }
 		if (pan < 0) { pan += 360; }
+		if (fixtureDef.pointAtPanStart!=0 || fixtureDef.pointAtPanEnd!=0) {
+			if (pan > fixtureDef.pointAtPanEnd) { pan=pan-360; }
+			if (pan < fixtureDef.pointAtPanStart) { pan=pan+360; }
+		}
 		// @TODO for fixtures with pan capability > 360degrees, then could choose a 
 		// 'preferred' range for pointAt operations
 		
@@ -272,10 +277,19 @@ public abstract class FixtureController {
 			 Math.sqrt(Math.pow(projectX-fixture.x, 2) + Math.pow(projectY-fixture.y, 2) + Math.pow(projectZ-fixture.z, 2)) );
 		double tilt = Math.acos(cosT);
 		tilt = tilt * 180 / Math.PI;    // 0-180  @TODO full 360 at some point
+		if (fixtureDef.invertTilt) { tilt = -tilt; }
 		if (tilt < 0) { tilt = tilt + 360; }
+		if (fixtureDef.pointAtTiltStart!=0 || fixtureDef.pointAtTiltEnd!=0) {
+			if (pan > fixtureDef.pointAtTiltEnd) { tilt=tilt-360; }
+			if (pan < fixtureDef.pointAtTiltStart) { tilt=tilt+360; }
+		}
+
 		// should probably do the same calculations as above for tilt
 		// using the ground plane as a reference, but I Just Don't Care at the moment.
 		// (I'm assuming we're always tilting up)
+		
+		// TODO (perhaps): if target pan or tilt exceed fixture ranges, then just go to the 
+		// limits of the fixture rather than throwing an Exception
 		
 		// the chances of this working are zero.
 		panTo(pan);
