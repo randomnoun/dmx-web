@@ -13,7 +13,11 @@ public class CustomControl {
 		TOGGLE, 
 		
 		/** Display this control as a slider */
-		SLIDER }
+		SLIDER,
+		
+		/** Display this control as a grid */
+		GRID
+	}
 
 	private String label;
 	private UIType uiType;

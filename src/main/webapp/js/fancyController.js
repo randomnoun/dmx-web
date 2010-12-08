@@ -493,7 +493,6 @@ function fixLabelAim(panMin, panMax, tiltMin, tiltMax) {
             "style" : "top: " + (y*160/tiltMax) + "px;" });
         fixAimEl.appendChild(gridEl);
     }
-    
 }
 
 // make the main fixture controls reflect the current state of the
@@ -532,6 +531,11 @@ function fixUpdateControls(fixtureId) {
 	    			else { ccEl.removeClassName("fixSmallSelect"); }
 	    		} else if (ccs[i].uiType=="SLIDER") {
 	    			fixCustomControls[i].setValue(1-(v["ccs"][i]/255));
+	    		} else if (ccs[i].uiType=="GRID") {
+	    			var x=Math.floor(v["ccs"][i]/160); var y=(v["ccs"][i]%160); 
+	    			x=x<0?0:(x>159?159:x); y=y<0?0:(y>159?159:y);
+	    			fixCustomControls[i].handle.style.left=(x-10) + "px";
+	    			fixCustomControls[i].handle.style.top=(y-10) + "px";
 	    		}
     		}
     	}
@@ -635,6 +639,32 @@ function fixUpdateCustomControls() {
 	    				var labelEl = new Element("div", {"class": "fixCustomSliderLabel"}).update(cc.label);
 	    				labelEl.style.left=ctrlEl.positionedOffset().left+"px";
 	    				ccEl.appendChild(labelEl);
+	    			} else if (cc["uiType"]=="GRID") {
+	    				ctrlEl = new Element("div", { 
+	    		            "id": "fixCC[" + i + "]", 
+	    		            "controlId": i,
+	    		            "class" : "fixCustomGrid" });
+	    				var handleEl = new Element("div", { "class" : "fixCustomGridHandle" });
+	    				ccEl.appendChild(ctrlEl);
+	    				if (cc.top) { ctrlEl.absolutize(); ctrlEl.style.top=cc.top; ctrlEl.style.left=cc.left; }
+	    				ctrlEl.appendChild(handleEl);
+	    				fixCustomControls[i] = new Draggable(handleEl, {
+	    			        // constraint code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
+	    			        snap: function(x,y,draggable) {
+	    			            function constrain(n, lower, upper) {
+	    			                if (n>upper) { return upper; }
+	    			                else if (n<lower) { return lower; }
+	    			                else return n;
+	    			            }
+	    			            return[constrain(x, -10, 149),
+	    			                   constrain(y, -10, 149)];
+	    			        },
+	    			        onDrag: fixCustomGridChange.curry(i),
+	    			        revert: false
+	    			    });
+	    				var labelEl = new Element("div", {"class": "fixCustomSliderLabel"}).update(cc.label);
+	    				labelEl.style.left=ctrlEl.positionedOffset().left+"px";
+	    				ccEl.appendChild(labelEl);	    				
 	    			} else {
 	    				alert("Unknown control type '" + cc["uiType"] + "'")
 	    			}
@@ -758,6 +788,17 @@ function fixCustomSliderChange(controlId, value) {
     if (fixItems.length > 0) {
     	fixCustomSliderLimitter.sendRequest('fancyController.html?action=customControl&controlId=' + controlId + '&value=' + newValue + '&fixtureIds=' + fixItems.join(","));
 	}
+}
+
+var fixCustomGridLimitter = new AjaxLimitter(100,200);
+function fixCustomGridChange(controlId, draggable, event) {
+	if (fixUIUpdateOnly) { return; }
+    var handlePos=Position.positionedOffset(draggable.element); // positions range from -10-150
+    //var x = (handlePos[0]+handleDimensions.width/2)/(parentDimensions.width);
+    //var y = (handlePos[1]+handleDimensions.height/2)/(parentDimensions.height);
+	var fixItemIds=fixGetItemIds();
+    fixCustomGridLimitter.sendRequest( 
+       'fancyController.html?action=customControl&controlId=' + controlId + '&value=' + ((handlePos[0]+10)*160 + handlePos[1]+10) + '&fixtureIds=' + fixItemIds);
 }
 
 
