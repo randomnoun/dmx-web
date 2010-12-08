@@ -480,8 +480,8 @@ public class AppConfig extends AppConfigBase {
 						fixtureDef, 
 						controller.getUniverse(), (int) fixtureTO.getDmxOffset());
 					if (fixtureTO.getX()!=null) { fixture.setPosition(fixtureTO.getX(), fixtureTO.getY(), fixtureTO.getZ()); }
-					if (fixtureTO.getLookingAtX()!=null) { fixture.setPosition(fixtureTO.getLookingAtX(), fixtureTO.getLookingAtY(), fixtureTO.getLookingAtZ()); }
-					if (fixtureTO.getUpX()!=null) { fixture.setPosition(fixtureTO.getUpX(), fixtureTO.getUpY(), fixtureTO.getUpZ()); }
+					if (fixtureTO.getLookingAtX()!=null) { fixture.setLookingAt(fixtureTO.getLookingAtX(), fixtureTO.getLookingAtY(), fixtureTO.getLookingAtZ()); }
+					if (fixtureTO.getUpX()!=null) { fixture.setUpVector(fixtureTO.getUpX(), fixtureTO.getUpY(), fixtureTO.getUpZ()); }
 					
 					if (fixtureController != null) {
 						fixtureController.addFixture(fixture);
