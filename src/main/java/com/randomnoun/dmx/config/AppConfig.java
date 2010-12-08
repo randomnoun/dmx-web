@@ -6,10 +6,7 @@ import java.io.StringReader;
 import java.lang.Thread.State;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.UnknownHostException;
-import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -439,18 +436,9 @@ public class AppConfig extends AppConfigBase {
 					} else {
 						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureDefClassName() + "' does not extend com.randomnoun.dmx.fixture.FixtureDef"); 
 					}
-					String testScript2 =
-						"import com.randomnoun.dmx.fixture.FixtureController;\n" +
-						"import " + fixtureDef.getFixtureDefClassName() + ";\n" +
-						"return new " + fixtureDef.getFixtureDefClassName() + "();\n" ;
-					// @TODO check class before instantiating
-					Object instance2 = (Object) getScriptEngine().eval(testScript2, fixtureScriptContext);
-					if (instance2 instanceof FixtureController) {
-						scriptedFixtureDefs.put(fixtureDef.getId(), instance);
-					} else {
-						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureControllerClassName() + "' does not extend com.randomnoun.dmx.fixture.FixtureController"); 
-					}
-
+					
+					// check for FixtureController will occur later
+					// (only occurs if a Fixture of this type has been registered at a DMX offset, though)
 				
 				} catch (ScriptException se) {
 					AppConfigException ace = new AppConfigException("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", se);
@@ -482,9 +470,17 @@ public class AppConfig extends AppConfigBase {
 					if (fixtureTO.getX()!=null) { fixture.setPosition(fixtureTO.getX(), fixtureTO.getY(), fixtureTO.getZ()); }
 					if (fixtureTO.getLookingAtX()!=null) { fixture.setLookingAt(fixtureTO.getLookingAtX(), fixtureTO.getLookingAtY(), fixtureTO.getLookingAtZ()); }
 					if (fixtureTO.getUpX()!=null) { fixture.setUpVector(fixtureTO.getUpX(), fixtureTO.getUpY(), fixtureTO.getUpZ()); }
-					
-					if (fixtureController != null) {
-						fixtureController.addFixture(fixture);
+					try {
+						//hmm... might need to check that fixtureController==getController()
+						//before doing this ?
+						//FixtureController thisFixtureController = fixture.getFixtureController();
+						if (fixtureController != null) {
+							fixtureController.addFixture(fixture);
+						}
+					} catch (Exception e) {
+						AppConfigException ace = new AppConfigException("Exception in getFixtureController() for fixture " + fixtureTO.getId() + ": '" + fixtureTO.getName() + "'", e);
+						exceptionContainer.addException(ace);
+						logger.error(ace);
 					}
 				}
 			}
