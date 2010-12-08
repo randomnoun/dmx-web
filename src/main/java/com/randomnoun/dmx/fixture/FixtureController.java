@@ -168,7 +168,9 @@ public abstract class FixtureController {
 	 * @param pointAtZ Z co-ordinate to point at
 	 */
 	public void pointAt(float pointAtX, float pointAtY, float pointAtZ) {
-		// lets assume that the normal vector has length of one.
+		// lets assume that the normal vector has length 1 and the distance from 
+		// fixture position to fixture lookingAt has length of one.
+		// @TODO do this.
 		
 		// a 2D plane with the points (x,y,z) with normal vector upX, upY, upZ
 		//
@@ -189,7 +191,7 @@ public abstract class FixtureController {
 		 / Math.sqrt(Math.pow(fixture.upX,2) + Math.pow(fixture.upY, 2) + Math.pow(fixture.upZ, 2));
 		double projectX = pointAtX + d*fixture.upX;
 		double projectY = pointAtY + d*fixture.upY;
-		double projectZ = pointAtZ + d*fixture.upZ;
+		double projectZ = pointAtZ - d*fixture.upZ;  // hmm....
 		
 		
 		// pan is the angle between 
@@ -221,6 +223,43 @@ public abstract class FixtureController {
 		double pan = Math.acos(cosT); // will be in range 0-pi
 		pan = pan * 180 / Math.PI;    // 0-180  @TODO full 360 at some point
 		
+		// to determine whether pan should be negative we should take a plane
+		// defined by 3 points:
+		//   (x1,y1,z1)==(initialX, initialY, initialZ), 
+		//   (x2,y2,z2)==(initialX + upX, initialY + upY, initialZ + upZ), and
+		//   (x3,y3,z3)==(lookingAtX, lookingAtY, lookingAtZ)
+		// and see which side of this plane the pointAt point is.
+		// Note this plane never changes; we could precompute it for each fixture.
+		// from http://local.wasp.uwa.edu.au/~pbourke/geometry/planeeq/
+		// this plane has the equation Ax + By + Cz + D = 0
+		// with the values
+		//   A = y1 (z2 - z3) + y2 (z3 - z1) + y3 (z1 - z2)
+		//   B = z1 (x2 - x3) + z2 (x3 - x1) + z3 (x1 - x2)
+		//   C = x1 (y2 - y3) + x2 (y3 - y1) + x3 (y1 - y2)
+		// - D = x1 (y2 z3 - y3 z2) + x2 (y3 z1 - y1 z3) + x3 (y1 z2 - y2 z1)
+		//
+		// The sign of s = Ax + By + Cz + D determines which side the point (x,y,z) 
+		// lies with respect to the plane. If s > 0 then the point lies on the same 
+		// side as the normal (A,B,C).
+		
+		double x2 = (fixture.x + fixture.upX); 
+		double y2 = (fixture.y + fixture.upY);
+		double z2 = (fixture.z + fixture.upZ);
+		double A = fixture.y * (z2 - fixture.lookingAtZ) + y2 * (fixture.lookingAtZ - fixture.z) + fixture.lookingAtY * (fixture.z - z2);
+		double B = fixture.z * (x2 - fixture.lookingAtX) + z2 * (fixture.lookingAtX - fixture.x) + fixture.lookingAtZ * (fixture.x - x2);
+		double C = fixture.x * (y2 - fixture.lookingAtY) + x2 * (fixture.lookingAtY - fixture.y) + fixture.lookingAtX * (fixture.y - y2);
+		double D = -(fixture.x  * ((y2 * fixture.lookingAtZ) - (fixture.lookingAtY * z2)) +
+		             x2         * ((fixture.lookingAtY * fixture.z) - (fixture.y * fixture.lookingAtZ)) +
+		             fixture.lookingAtX * ((fixture.y * z2) - (y2 * fixture.z)));
+		double s = A * pointAtX + B * pointAtY + C * pointAtZ + D;
+		// in this co-ordinate system, +ve pan == clockwise looking from the fixture UP the up vector 
+		// (could configure this in the fixtureDef)
+		if (s > 0) { pan = -pan; }
+		if (pan < 0) { pan += 360; }
+		// @TODO for fixtures with pan capability > 360degrees, then could choose a 
+		// 'preferred' range for pointAt operations
+		
+		
 		// and tilt should be angle between
 		//     (initialX,initialY,initialZ)-(pointAtX,pointAtY,pointAtZ)
 		// and (initialX,initialY,initialZ)-(projectX,projectY,projectZ)
@@ -233,6 +272,10 @@ public abstract class FixtureController {
 			 Math.sqrt(Math.pow(projectX-fixture.x, 2) + Math.pow(projectY-fixture.y, 2) + Math.pow(projectZ-fixture.z, 2)) );
 		double tilt = Math.acos(cosT);
 		tilt = tilt * 180 / Math.PI;    // 0-180  @TODO full 360 at some point
+		if (tilt < 0) { tilt = tilt + 360; }
+		// should probably do the same calculations as above for tilt
+		// using the ground plane as a reference, but I Just Don't Care at the moment.
+		// (I'm assuming we're always tilting up)
 		
 		// the chances of this working are zero.
 		panTo(pan);
