@@ -8,7 +8,9 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -235,6 +237,8 @@ public class FancyControllerAction
         		for (int i=1; i<=255; i++) {
         			dmxValues+=u.getDmxChannelValue(i) + ",";
         		}
+        		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+        		result.put("now", sdf.format(new Date(u.getTime())));
         		result.put("dmxValues", dmxValues);
 
     			/*
@@ -303,14 +307,6 @@ public class FancyControllerAction
     		    	}
     		    }
     		    result.put("fixValues", fixValues);
-
-    		} else if (panel.equals("dmxPanel")) {
-    			Universe u = appConfig.getController().getUniverse();
-        		String dmxValues = "";
-        		for (int i=1; i<=255; i++) {
-        			dmxValues+=u.getDmxChannelValue(i) + ",";
-        		}
-        		result.put("dmxValues", dmxValues);
 
     		} else if (panel.equals("logPanel")) {
         		List exceptions = new ArrayList();

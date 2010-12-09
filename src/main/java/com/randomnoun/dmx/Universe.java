@@ -39,7 +39,7 @@ public class Universe {
 	
 	/** Returns the DMX value of one channel in this universe.
 	 *  
-	 * @param offset DMX channel number (1-based)
+	 * @param dmxChannelNumber DMX channel number (1-based)
 	 * 
 	 * @return DMX value
 	 */

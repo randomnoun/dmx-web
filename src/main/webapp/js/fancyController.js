@@ -1114,6 +1114,9 @@ function dmxUpdatePanel(json) {
         	el.removeClassName("dmxModified");
         }
     }
+    if (dmxSelectedFixture==null) {
+        $("dmxTimeSource").update("<div class=\"dmxTime\">" + json.now + "</div>")
+    }
     if (dmxHighlightedChannel && 
     	($("dmxSliderScrollArea").style.visibility=="visible") &&
     	(!dmxSlider.dragging)) {

@@ -442,7 +442,12 @@ BODY { font-size: 8pt; font-family: Arial; }
   width: 40px; height: 30px; cursor: move;
   background-image: url("../image/customSliderHandle.png");
 }
-
+.dmxTime {
+  width: 400px;	
+  font-size: 18pt;
+  padding-top: 18px;
+  text-align: center; 
+}
 
 /*** LOG panel ***/
 #logExceptionContainer {
