@@ -113,10 +113,14 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 	        // MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
 	        String winAmpLocation = Registry.getSystemValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Winamp", "UninstallString");
-	        if (winAmpLocation.startsWith("\"")) {
-	        	winAmpLocation = winAmpLocation.substring(1, winAmpLocation.length()-2);
+	        if (winAmpLocation!=null) {
+		        if (winAmpLocation.startsWith("\"")) {
+		        	winAmpLocation = winAmpLocation.substring(1, winAmpLocation.length()-2);
+		        }
+		        winAmpLocation = new File(winAmpLocation).getParentFile().getCanonicalPath();
+	        } else {
+	        	winAmpLocation = "";
 	        }
-	        winAmpLocation = new File(winAmpLocation).getParentFile().getCanonicalPath();
 	        
 	        File dmxPlugin = new File(winAmpLocation, "Plugins\\vis_DmxWebPlugin.dll");
 	        File dmxPluginCfg = new File(winAmpLocation, "Plugins\\vis_DmxWebPlugin.ini");
@@ -189,45 +193,47 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 	        
 	        request.setAttribute("comPorts", comPortsAvailable);
 
-	        Properties ngPluginProperties = new Properties();
-	        if (ngPluginCfg.exists()) {
-	        	LineNumberReader lnr = new LineNumberReader(new FileReader(ngPluginCfg));
-	        	String line = lnr.readLine();
-	        	while (line!=null) {
-	        		line = line.trim();
-	        		if (line.startsWith("//")) { continue; }
-	        		if (line.equals("")) { continue; }
-	        		int pos = line.indexOf("=");
-	        		if (pos!=-1) {
-	        			ngPluginProperties.put(line.substring(0, pos).trim(), line.substring(pos + 1).trim());
-	        		}
-	        	}
-	        	String host = ngPluginProperties.getProperty("sv_host");
-	        	host = Text.strDefault(host, "localhost");
-	        	if (host.equals("0.0.0.0")) { host = "localhost"; }
-		        request.setAttribute("ngWinampHost", host);
-		        request.setAttribute("ngWinampPort", ngPluginProperties.getProperty("sv_port"));
-		        request.setAttribute("ngWinampPassword", ngPluginProperties.getProperty("sv_pass"));
-	        } else {
-		        request.setAttribute("ngWinampHost", "localhost");
-		        request.setAttribute("ngWinampPort", "18443");
-		        request.setAttribute("ngWinampPassword", "abc123");
-	        }
-	        
-	        Properties dmxPluginProperties = new Properties();
-	        if (dmxPluginCfg.exists()) {
-	        	IniFile iniFile = new IniFile();
-	        	try {
-					iniFile.load(dmxPluginCfg);
+	        if (!"".equals(winAmpLocation)) {
+		        Properties ngPluginProperties = new Properties();
+		        if (ngPluginCfg.exists()) {
+		        	LineNumberReader lnr = new LineNumberReader(new FileReader(ngPluginCfg));
+		        	String line = lnr.readLine();
+		        	while (line!=null) {
+		        		line = line.trim();
+		        		if (line.startsWith("//")) { continue; }
+		        		if (line.equals("")) { continue; }
+		        		int pos = line.indexOf("=");
+		        		if (pos!=-1) {
+		        			ngPluginProperties.put(line.substring(0, pos).trim(), line.substring(pos + 1).trim());
+		        		}
+		        	}
+		        	String host = ngPluginProperties.getProperty("sv_host");
+		        	host = Text.strDefault(host, "localhost");
+		        	if (host.equals("0.0.0.0")) { host = "localhost"; }
+			        request.setAttribute("ngWinampHost", host);
+			        request.setAttribute("ngWinampPort", ngPluginProperties.getProperty("sv_port"));
+			        request.setAttribute("ngWinampPassword", ngPluginProperties.getProperty("sv_pass"));
+		        } else {
+			        request.setAttribute("ngWinampHost", "localhost");
+			        request.setAttribute("ngWinampPort", "18443");
+			        request.setAttribute("ngWinampPassword", "abc123");
+		        }
+		        
+		        Properties dmxPluginProperties = new Properties();
+		        if (dmxPluginCfg.exists()) {
+		        	IniFile iniFile = new IniFile();
+		        	try {
+						iniFile.load(dmxPluginCfg);
+				        request.setAttribute("visHost", "localhost");
+				        request.setAttribute("visPort", iniFile.get("settings", "port_number"));
+					} catch (ParseException e1) {
+						// fall-through
+					}	
+		        }
+		        if (dmxPluginProperties.keySet().size()==0) {
 			        request.setAttribute("visHost", "localhost");
-			        request.setAttribute("visPort", iniFile.get("settings", "port_number"));
-				} catch (ParseException e1) {
-					// fall-through
-				}	
-	        }
-	        if (dmxPluginProperties.keySet().size()==0) {
-		        request.setAttribute("visHost", "localhost");
-		        request.setAttribute("visPort", "58273");
+			        request.setAttribute("visPort", "58273");
+		        }
 	        }
 	        
 	        
