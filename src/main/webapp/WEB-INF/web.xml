@@ -35,12 +35,16 @@
     <servlet-class>com.randomnoun.common.servlet.VersionServlet</servlet-class>
   </servlet>
   <servlet>
-    <servlet-name>multiJavascript</servlet-name>
+    <servlet-name>multiJavascriptServlet</servlet-name>
     <servlet-class>com.randomnoun.dmx.web.MultiJavascriptServlet</servlet-class>
   </servlet>
   <servlet>
-    <servlet-name>fixtureImage</servlet-name>
+    <servlet-name>fixtureImageServlet</servlet-name>
     <servlet-class>com.randomnoun.dmx.web.FixtureImageServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>configServlet</servlet-name>
+    <servlet-class>com.randomnoun.dmx.web.ConfigServlet</servlet-class>
   </servlet>
 
 
@@ -49,16 +53,21 @@
     <url-pattern>*.html</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
-    <servlet-name>fixtureImage</servlet-name>
+    <servlet-name>fixtureImageServlet</servlet-name>
     <url-pattern>/image/fixture/*</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>configServlet</servlet-name>
+    <url-pattern>/config</url-pattern>
+  </servlet-mapping>
+
   
   <servlet-mapping>
     <servlet-name>versionServlet</servlet-name>
     <url-pattern>/version</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
-    <servlet-name>multiJavascript</servlet-name>
+    <servlet-name>multiJavascriptServlet</servlet-name>
     <url-pattern>/mjs</url-pattern>
   </servlet-mapping>  
   

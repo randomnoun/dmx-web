@@ -139,7 +139,8 @@
 
 	<controller processorClass="com.randomnoun.common.webapp.struts.CustomRequestProcessor"
       multipartClass="com.randomnoun.dmx.web.ExtendedMultiPartRequestHandler"  
-    />
+    >
+    </controller>
 	
 	 
 
@@ -147,6 +148,7 @@
     <plug-in className="com.randomnoun.common.webapp.struts.AppConfigPlugin" >
       <set-property property="appLogPrefix" value="dmx-web" />
       <set-property property="appConfigClass" value="com.randomnoun.dmx.config.AppConfig" />
+      <set-property property="appConfigMissingPath" value="/config" />
     </plug-in>
 
   <!-- =================================================== Validator plugin -->
