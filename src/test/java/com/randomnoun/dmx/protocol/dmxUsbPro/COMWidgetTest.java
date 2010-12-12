@@ -11,7 +11,9 @@ import com.jacobgen.dmx._USBDMXProCom;
 public class COMWidgetTest {
 
 
+	/*
 	public void testUSBDMXProCom() {
+		
 		ActiveXComponent axc;
 		_USBDMXProCom usbDMXPro;
 
@@ -95,6 +97,7 @@ public class COMWidgetTest {
 		testClass.testUSBDMXProCom();
 		
 	}
+	*/
 	
 	
 }
