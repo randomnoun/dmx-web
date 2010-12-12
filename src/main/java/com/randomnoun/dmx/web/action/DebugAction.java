@@ -42,7 +42,7 @@ import javax.naming.NamingEnumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Debugging action that exposes various application internals
+/** Debugging action that exposes various application internals.
  * 
  * This action always returns the 'success' forward
  * 
