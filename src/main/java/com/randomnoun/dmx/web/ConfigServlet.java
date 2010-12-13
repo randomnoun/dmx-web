@@ -81,6 +81,24 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
     {
 		String jspForward = ""; 
 		Exception e = (Exception) request.getAttribute("exception");
+		
+		// other properties just used during configuration
+		String[] configProperties = new String[] {
+				"databaseAdminUsername", "databaseAdminPassword",
+				"databaseAdminUrl"
+		};
+		
+		// properties to be written to dmx-web.properties
+		String[] fileProperties = new String[] {
+				"database.driver", "database.url", "database.username",
+				"database.password",
+				"dmxDevice.class", "dmxDevice.portName",
+				"audioController.class", 
+				"audioController.host", "audioController.port", "audioController.password",  
+				"audioController.defaultPath"
+				
+		};
+		
 		if (e==null) {
 			// possibly allow this ?
 			Exception e2 = new IllegalStateException("Configuration not required");
@@ -93,6 +111,8 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 		} else if (!e.getMessage().equals("No appConfig")) {
 			jspForward = "misc/error.jsp";
 		} else {
+			
+			
 			
 			// do some config magic here
 			String configPath = System.getProperty(AppConfig.SYSTEM_PROPERTY_KEY_CONFIG_PATH);
@@ -145,53 +165,71 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 	        // get existing database types
 	        List driversList = new ArrayList();;
 	        Map exampleConnectionStrings = new HashMap();
+	        Map exampleAdminConnectionStrings = new HashMap();
 	        for (Enumeration ed = DriverManager.getDrivers(); ed.hasMoreElements(); ) {
 	        	Driver d = (Driver) ed.nextElement();
 	        	String className = d.getClass().getName();
 	        	driversList.add(d.getClass().getName());
 	        	if (className.equals("com.mysql.jdbc.Driver")) {
 	        		exampleConnectionStrings.put(className, "jdbc:mysql://localhost/dmxweb?zeroDateTimeBehavior=convertToNull&autoReconnect=true");
+	        		exampleAdminConnectionStrings.put(className, "jdbc:mysql://localhost/information_schema");
 	        	} else if (className.equals("sun.jdbc.odbc.JdbcOdbcDriver")) {
 	        		exampleConnectionStrings.put(className, "jdbc:odbc:dsn_name");
+	        		exampleAdminConnectionStrings.put(className, "jdbc:odbc:dsn_name");
 	        	} else {
 	        		exampleConnectionStrings.put(className, "Refer to driver documentation");
+	        		exampleAdminConnectionStrings.put(className, "jdbc:odbc:dsn_name");
 	        	}
 	        }
 	        // should put MySQL at top of list
 	        // TODO: try to register some common database types
 	        String defaultDriver = driversList.contains("com.mysql.jdbc.Driver") ? "com.mysql.jdbc.Driver" : (String) driversList.get(0);
 	        String defaultConnString = Text.strDefault((String) exampleConnectionStrings.get(defaultDriver), "Refer to driver documentation");
+	        String defaultAdminConnString = Text.strDefault((String) exampleAdminConnectionStrings.get(defaultDriver), "Refer to driver documentation");
 	        request.setAttribute("jdbcDriversAvailable", Text.join(driversList, ", "));
 	        request.setAttribute("databaseDrivers", driversList);
-	        request.setAttribute("databaseDriver", defaultDriver);
-	        request.setAttribute("databaseConnectionString", defaultConnString);
+	        request.setAttribute("database.driver", defaultDriver);
+	        request.setAttribute("database.url", defaultConnString);
+	        request.setAttribute("database.username", "dmxweb");
+	        request.setAttribute("database.password", "dmxweb");
 	        
+	        request.setAttribute("databaseAdminUsername", "root");
+	        request.setAttribute("databaseAdminPassword", "abc123");
+	        request.setAttribute("databaseAdminUrl", defaultAdminConnString);
 	        
-	        List comPortsAvailable = new ArrayList();
+	        List dmxDevicePortNames = new ArrayList();
 	        Enumeration portList = CommPortIdentifier.getPortIdentifiers();
 			while (portList.hasMoreElements()) {
 				CommPortIdentifier portId = (CommPortIdentifier) portList.nextElement();
 			    if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-			    	comPortsAvailable.add(portId.getName());
+			    	dmxDevicePortNames.add(portId.getName());
 			    }
 			}
-	        request.setAttribute("comPortsAvailable", Text.join(comPortsAvailable, ","));
-	        
-	        
+	        request.setAttribute("comPortsAvailable", Text.join(dmxDevicePortNames, ","));
 	        request.setAttribute("installOK", "true");
-
 	        
-	        request.setAttribute("tempDir", tempDir.getCanonicalPath());
-	        request.setAttribute("uploadDir", uploadDir.getCanonicalPath());
-	        request.setAttribute("logDir", logDir.getCanonicalPath());
-	        request.setAttribute("audioDir", audioDir.getCanonicalPath());
+	        request.setAttribute("webapp.fileUpload.tempDir", tempDir.getCanonicalPath());
+	        request.setAttribute("webapp.fileUpload.path", uploadDir.getCanonicalPath());
+	        request.setAttribute("log4j.logDirectory", logDir.getCanonicalPath());
+	        request.setAttribute("audioController.defaultPath", audioDir.getCanonicalPath());
 	        
 	        
 	        List deviceTypes = new ArrayList();
 	        deviceTypes.add("com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidget");
-	        request.setAttribute("deviceTypes", deviceTypes);
+	        request.setAttribute("dmxDeviceTypes", deviceTypes);
+
+	        List audioControllerTypes = new ArrayList();
+	        audioControllerTypes.add("com.randomnoun.dmx.protocol.ngWinamp.WinampAudioController");
+	        request.setAttribute("audioControllerTypes", audioControllerTypes);
+	        request.setAttribute("audioController.class", "com.randomnoun.dmx.protocol.ngWinamp.WinampAudioController");
+
+	        List audioSourceTypes = new ArrayList();
+	        audioSourceTypes.add("com.randomnoun.dmx.protocol.dmxWinamp.WinampAudioSource");
+	        request.setAttribute("audioSourceTypes", audioControllerTypes);
+	        request.setAttribute("audioSource.class", "com.randomnoun.dmx.protocol.dmxWinamp.WinampAudioSource");
+
 	        
-	        request.setAttribute("comPorts", comPortsAvailable);
+	        request.setAttribute("dmxDevicePortNames", dmxDevicePortNames);
 
 	        if (!"".equals(winAmpLocation)) {
 		        Properties ngPluginProperties = new Properties();
@@ -200,23 +238,28 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 		        	String line = lnr.readLine();
 		        	while (line!=null) {
 		        		line = line.trim();
-		        		if (line.startsWith("//")) { continue; }
-		        		if (line.equals("")) { continue; }
-		        		int pos = line.indexOf("=");
-		        		if (pos!=-1) {
-		        			ngPluginProperties.put(line.substring(0, pos).trim(), line.substring(pos + 1).trim());
+		        		if (line.startsWith("//")) { 
+		        			// ignore comments
+		        		} else if (line.equals("")) { 
+		        			// ignore blank lines
+		        		} else {
+			        		int pos = line.indexOf("=");
+			        		if (pos!=-1) {
+			        			ngPluginProperties.put(line.substring(0, pos).trim(), line.substring(pos + 1).trim());
+			        		}
 		        		}
+		        		line = lnr.readLine();
 		        	}
 		        	String host = ngPluginProperties.getProperty("sv_host");
 		        	host = Text.strDefault(host, "localhost");
 		        	if (host.equals("0.0.0.0")) { host = "localhost"; }
-			        request.setAttribute("ngWinampHost", host);
-			        request.setAttribute("ngWinampPort", ngPluginProperties.getProperty("sv_port"));
-			        request.setAttribute("ngWinampPassword", ngPluginProperties.getProperty("sv_pass"));
+			        request.setAttribute("audioController.host", host);
+			        request.setAttribute("audioController.port", ngPluginProperties.getProperty("sv_port"));
+			        request.setAttribute("audioController.password", ngPluginProperties.getProperty("sv_pass"));
 		        } else {
-			        request.setAttribute("ngWinampHost", "localhost");
-			        request.setAttribute("ngWinampPort", "18443");
-			        request.setAttribute("ngWinampPassword", "abc123");
+			        request.setAttribute("audioController.host", "localhost");
+			        request.setAttribute("audioController.port", "18443");
+			        request.setAttribute("audioController.password", "abc123");
 		        }
 		        
 		        Properties dmxPluginProperties = new Properties();
@@ -224,15 +267,15 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 		        	IniFile iniFile = new IniFile();
 		        	try {
 						iniFile.load(dmxPluginCfg);
-				        request.setAttribute("visHost", "localhost");
-				        request.setAttribute("visPort", iniFile.get("settings", "port_number"));
+				        request.setAttribute("audioSource.host", "localhost");
+				        request.setAttribute("audioSource.port", iniFile.get("settings", "port_number"));
 					} catch (ParseException e1) {
 						// fall-through
 					}	
 		        }
 		        if (dmxPluginProperties.keySet().size()==0) {
-			        request.setAttribute("visHost", "localhost");
-			        request.setAttribute("visPort", "58273");
+			        request.setAttribute("audioSource.host", "localhost");
+			        request.setAttribute("audioSource.port", "58273");
 		        }
 	        }
 	        
@@ -270,7 +313,12 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
     	}
     	version.put("release", props.get("maven.pom.version"));
     	version.put("buildNumber", props.get("bamboo.buildNumber"));
-    	String jarVersion = RXTXVersion.getVersion();
+    	String jarVersion = "unknown";
+    	try {
+    		jarVersion = RXTXVersion.getVersion();
+    	} catch (Error e0) {
+    		jarVersion = "Exception determining version: " + e0.getMessage();
+    	}
     	String dllVersion = "unknown";
     	try {
     		dllVersion = RXTXVersion.nativeGetVersion();
