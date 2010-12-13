@@ -129,8 +129,8 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 	        
 	        Map version = getVersionData();
 	        request.setAttribute("configFileLocation", configFile.getCanonicalPath());
-	        request.setAttribute("dmxVersion", version.get("release"));
-	        request.setAttribute("dmxBuild", version.get("buildNumber"));
+	        request.setAttribute("dmxWebVersion", version.get("release"));
+	        request.setAttribute("dmxWebBuild", version.get("buildNumber"));
 	        request.setAttribute("javaVersion", System.getProperty("java.version"));
 	        request.setAttribute("tomcatVersion", "Unknown");
 	        request.setAttribute("rxtxJarVersion", version.get("rxtxJarVersion"));
@@ -139,8 +139,8 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 	        request.setAttribute("ngWinAmpInstalled", ngPlugin.exists() ? "Yes" : "No");
 	        request.setAttribute("dmxWebWinAmpInstalled", dmxPlugin.exists() ? "Yes" : "No");
 	        
-	        request.setAttribute("serverConfigFileWritable", canWrite(serverConfigFile) ? "Yes" : "No" );
-	        request.setAttribute("dmxConfigFileWritable", canWrite(configFile) ? "Yes" : "No" );
+	        request.setAttribute("serverConfigFileWritable", (canWrite(serverConfigFile) ? "Yes" : "No") + " (" + serverConfigFile.getCanonicalPath() + ")" );
+	        request.setAttribute("dmxConfigFileWritable", (canWrite(configFile) ? "Yes" : "No") + " (" + configFile.getCanonicalPath() + ")");
 	        
 	        // get existing database types
 	        List driversList = new ArrayList();;
@@ -248,6 +248,8 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 	        // prompt for DMX properties
 	        // prompt for WinAmpDMX/NGWinAmp properties
 	        // 
+	        // warn on browser size
+	        
 			jspForward="config/config.jsp";
 		};
 		

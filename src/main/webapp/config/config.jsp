@@ -188,25 +188,25 @@ function initWindow() {
       </tr>
       <tr>
       <tr><td>DMX-web version:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/><%= request.getAttribute("dmxWebVersion") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("dmxWebVersion") %></td></tr>
       <tr><td>DMX-web build:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/><%= request.getAttribute("dmxWebBuild") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("dmxWebBuild") %></td></tr>
       <tr><td>Java version:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/><%= request.getAttribute("javaVersion") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("javaVersion") %></td></tr>
       <tr><td>Tomcat version:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/><%= request.getAttribute("tomcatVersion") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("tomcatVersion") %></td></tr>
       <tr><td>RXTX JAR version:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/><%= request.getAttribute("rxtxJarVersion") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("rxtxJarVersion") %></td></tr>
       <tr><td>RXTX DLL version:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/><%= request.getAttribute("rxtxDllVersion") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("rxtxDllVersion") %></td></tr>
       <tr><td>Server config file writable:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/><%= request.getAttribute("serverConfigFileWritable") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("serverConfigFileWritable") %></td></tr>
       <tr><td>DMX config file writable:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/><%= request.getAttribute("dmxConfigFileWritable") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("dmxConfigFileWritable") %></td></tr>
       <tr><td>JDBC drivers available:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/><%= request.getAttribute("jdbcDriversAvailable") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("jdbcDriversAvailable") %></td></tr>
       <tr><td>COM ports available:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/><%= request.getAttribute("comPortsAvailable") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("comPortsAvailable") %></td></tr>
         <!-- TODO: VLC -->
       <% if (request.getAttribute("installOK")==null) { %>
       <tr>
@@ -227,14 +227,21 @@ function initWindow() {
       <tr>
         <td colspan="2">Database options</td>
       </tr>
-      <tr><td>Database driver:</td><td><r:select name="databaseDriver" value="${databaseDriver}" data="${databaseDrivers}"  /></td></tr>
-      <tr><td>Database connection string:</td><td><r:input styleClass="textInput" type="text" name="databaseConnectionString" value="${databaseConnectionString}" /></td></tr>
+      <tr><td>Database driver:</td>
+          <td><r:select name="databaseDriver" value="${databaseDriver}" data="${databaseDrivers}"  />
+          <br/>If you don't see your database here, you may need to install a JDBC JAR into ther server's <tt>lib</tt> directory.
+          </td></tr>
+      <tr><td>Database connection string:</td>
+          <td><r:input styleClass="textInput" type="text" name="databaseConnectionString" value="${databaseConnectionString}" />
+          <br/>
+          </td></tr>
       <tr><td>Use existing schema:</td><td>
         <r:input type="radio" name="createSchema" trueValue="y" value="${createSchema}" /> Yes - use existing schema<br/>
         <r:input type="radio" name="createSchema" trueValue="n" value="${createSchema}" /> No - create new schema<br/>
       </td></tr>
       <tr><td>Database admin username:</td><td><r:input styleClass="textInput2" type="text" name="databaseAdminUsername" value="${databaseAdminUsername}" /></td></tr>
       <tr><td>Database admin password:</td><td><r:input styleClass="textInput2" type="text" name="databaseAdminPassword" value="${databaseAdminPassword}" /></td></tr>
+      <tr><td>Admin connection string:</td><td><r:input styleClass="textInput" type="text" name="databaseConnectionString" value="${databaseConnectionString}" /></td></tr>
       <tr><td>Database dmx schema:</td><td><r:input styleClass="textInput2" type="text" name="databaseSchema" value="${databaseSchema}" /></td></tr>
       <tr><td>Use existing user:</td><td>
         <r:input type="radio" name="createUser" trueValue="y" value="${createUser}" /> Yes - use existing user<br/>
