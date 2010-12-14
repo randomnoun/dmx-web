@@ -84,7 +84,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 
 TABLE { width: auto; }
 TH, TD { padding: 5px; line-height: 1; font-size: 10pt; vertical-align: top; }
-INPUT { font-size: 8pt; }
+INPUT { font-size: 8pt; margin-bottom: 3px; }
 TR { line-height: 1; }
 SELECT { color: black; margin: 0px; font-size: 8pt; }
 .formHeader { color: white; font-weight: bold; padding: 2px; vertical-align: bottom; }
@@ -109,7 +109,8 @@ P { font-size: 10pt; }
 LI { font-size: 10pt; line-height: 1.5; }
 .smallInput { width: 40px; }
 .textInput { width: 600px; }
-.textInput2 { width: 200px; }  
+.textInput2 { width: 200px; }
+.configHeader { font-weight: bold; font-size: 12pt; }  
 </style>
 
 <script>
@@ -117,28 +118,28 @@ LI { font-size: 10pt; line-height: 1.5; }
 function edtInitPanel() {
     var edtSubmitEl = $("edtSubmit");
     Event.observe(edtSubmitEl, 'click', edtSubmitClick);
-    Event.observe($("lhsCancel"), 'click', lhsCancelClick);
     Event.observe($("lhsOK"), 'click', lhsOKClick);
 }
 
 function edtSubmitClick() { 
     isSubmitting=true; 
-    checkModify('mainForm',tblObj); 
     document.forms[0].submit();
 }
 function lhsOKClick() { 
     isSubmitting=true; 
-    checkModify('mainForm',tblObj); 
     document.forms[0].submit();
 };
 function initWindow() {
     edtInitPanel();
 }
-
+function edtChangeCreateSchema() {
+	var createSchema = document.forms[0].elements['createSchema'][0].checked;
+	$$(".newSchema").each(function(s){s.style.display=createSchema?'table-row':'none';});
+}
 </script>
 </head>
 
-<body onload="initWindow()" onunload="formUnloadCheck('mainForm')">
+<body onload="initWindow()" >
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Application config</span></div>
 <div class="lhsMenuContainer">
 <% if (request.getAttribute("installOK")!=null) { %>
@@ -155,8 +156,8 @@ function initWindow() {
         <input type="hidden" name="action" value="maintain" /> 
 
   <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
-      <col width="200px;" >
-      <col width="800px;" >
+      <col width="300px;" >
+      <col width="700px;" >
       <tr>
         <td colspan="2">
         <h1>Welcome to DMX-web.</h1>
@@ -225,55 +226,75 @@ function initWindow() {
         </td>
       </tr>
       <tr>
-        <td colspan="2">Database options</td>
+        <td colspan="2" class="configHeader">Database options</td>
       </tr>
       <tr><td>Database driver:</td>
-          <td><r:select name="databaseDriver" value="${databaseDriver}" data="${databaseDrivers}"  />
-          <br/>If you don't see your database here, you may need to install a JDBC JAR into ther server's <tt>lib</tt> directory.
+          <td><r:select name="database_driver" value="${database_driver}" data="${databaseDrivers}"  />
+          <br/><p>If you don't see your database here, you may need to install a JDBC JAR into the server's <tt>lib</tt> directory.</p>
           </td></tr>
       <tr><td>Database connection string:</td>
-          <td><r:input styleClass="textInput" type="text" name="databaseConnectionString" value="${databaseConnectionString}" />
+          <td><r:input styleClass="textInput" type="text" name="database_url" value="${database_url}" />
+          <p>This is the database string that will normally be used whilst running DMX-web.</p>
           <br/>
           </td></tr>
-      <tr><td>Use existing schema:</td><td>
-        <r:input type="radio" name="createSchema" trueValue="y" value="${createSchema}" /> Yes - use existing schema<br/>
-        <r:input type="radio" name="createSchema" trueValue="n" value="${createSchema}" /> No - create new schema<br/>
-      </td></tr>
-      <tr><td>Database admin username:</td><td><r:input styleClass="textInput2" type="text" name="databaseAdminUsername" value="${databaseAdminUsername}" /></td></tr>
-      <tr><td>Database admin password:</td><td><r:input styleClass="textInput2" type="text" name="databaseAdminPassword" value="${databaseAdminPassword}" /></td></tr>
-      <tr><td>Admin connection string:</td><td><r:input styleClass="textInput" type="text" name="databaseConnectionString" value="${databaseConnectionString}" /></td></tr>
-      <tr><td>Database dmx schema:</td><td><r:input styleClass="textInput2" type="text" name="databaseSchema" value="${databaseSchema}" /></td></tr>
-      <tr><td>Use existing user:</td><td>
-        <r:input type="radio" name="createUser" trueValue="y" value="${createUser}" /> Yes - use existing user<br/>
-        <r:input type="radio" name="createUser" trueValue="n" value="${createUser}" /> No - create new user<br/>
-      </td></tr>
-      <tr><td>Database dmx username:</td><td><r:input styleClass="textInput2" type="text" name="databaseUsername" value="${databaseUsername}" /></td></tr>
-      <tr><td>Database dmx password:</td><td><r:input styleClass="textInput2" type="text" name="databasePassword" value="${databasePassword}" /></td></tr>
+      <tr><td>Database dmx username:</td>
+        <td><r:input styleClass="textInput2" type="text" name="database_username" value="${database_username}" />
+        </td></tr>
+      <tr><td>Database dmx password:</td>
+        <td><r:input styleClass="textInput2" type="text" name="database_password" value="${database_password}" />
+        </td></tr>
       <tr><td>Database connection type:</td><td>
-        <r:input type="radio" name="createConnection" trueValue="simple" value="${createConnection}" /> Simple - single connection specified in property file<br/>
-        <r:input type="radio" name="createConnection" trueValue="pooled" value="${createConnection}" /> Pooled - pooled connection specified in property file<br/>
-        <r:input type="radio" name="createConnection" trueValue="jndi" value="${createConnection}" /> JNDI - pooled connection specified in server.xml file<br/>
+        <r:input type="radio" name="database_connectionType" trueValue="simple" value="${database_connectionType}" /> Simple - single connection specified in property file<br/>
+        <r:input type="radio" name="database_connectionType" trueValue="dbcp" value="${database_connectionType}" /> Pooled - pooled connection specified in property file<br/>
+        <r:input type="radio" name="database_connectionType" trueValue="jndi" value="${database_connectionType}" /> JNDI - pooled connection specified in server.xml file<br/>
+      </td></tr>
+
+      <tr><td>Create new schema:</td><td>
+        <r:input type="radio" name="createSchema" trueValue="y" value="${createSchema}" onchange="edtChangeCreateSchema()"/> Yes - create new schema<br/>
+        <r:input type="radio" name="createSchema" trueValue="n" value="${createSchema}" onchange="edtChangeCreateSchema()"/> No - use existing schema (specified in connection string above)<br/>
       </td></tr>
       <tr>
-        <td colspan="2">File locations</td>
+        <td colspan="2" class="newSchema"><b>New schema settings</b></td>
+      </tr>
+      <tr class="newSchema"><td>Database admin username:</td>
+        <td><r:input styleClass="textInput2" type="text" name="databaseAdminUsername" value="${databaseAdminUsername}" />
+        <br/><p>This user should be granted CREATE USER, CREATE DATABASE, CREATE TABLE and CREATE TRIGGER permissions on the database.</p>
+        </td></tr>
+        </td></tr>
+      <tr class="newSchema"><td>Database admin password:</td>
+        <td><r:input styleClass="textInput2" type="text" name="databaseAdminPassword" value="${databaseAdminPassword}" />
+        </td></tr>
+      <tr class="newSchema"><td>Admin connection string:</td>
+         <td><r:input styleClass="textInput" type="text" name="databaseAdminUrl" value="${databaseAdminUrl}" />
+         <br/><p>This connection string will only be used to create the DMX-web database users, tables and triggers.</p>
+         </td></tr>
+      <tr class="newSchema"><td>Database dmx schema:</td><td><r:input styleClass="textInput2" type="text" name="databaseSchema" value="${databaseSchema}" /></td></tr>
+      <tr class="newSchema"><td>Create dmx user:</td><td>
+        <r:input type="radio" name="createUser" trueValue="y" value="${createUser}" /> Yes - create the dmx user specified above<br/>
+        <r:input type="radio" name="createUser" trueValue="n" value="${createUser}" /> No - new dmx user specified above already exists<br/>
+      </td></tr>
+      <tr>
+        <td colspan="2" class="configHeader">File locations</td>
       </tr>  
-      <tr><td>Temporary directory:</td><td><r:input styleClass="textInput" type="text" name="tempDir" value="${tempDir}" /></td></tr>
-      <tr><td>Upload directory:</td><td><r:input styleClass="textInput" type="text" name="uploadDir" value="${uploadDir}" /></td></tr>
-      <tr><td>Audio directory:</td><td><r:input styleClass="textInput" type="text" name="audioDir" value="${audioDir}" /></td></tr>
-      <tr><td>Log directory:</td><td><r:input styleClass="textInput" type="text" name="logDir" value="${logDir}" /></td></tr>
+      <tr><td>Temporary directory:</td><td><r:input styleClass="textInput" type="text" name="webapp.fileUpload.tempDir" value="${webapp_fileUpload_tempDir}" /></td></tr>
+      <tr><td>Upload directory:</td><td><r:input styleClass="textInput" type="text" name="webapp.fileUpload.path" value="${webapp_fileUpload_path}" /></td></tr>
+      <tr><td>Audio directory:</td><td><r:input styleClass="textInput" type="text" name="audioController.defaultPath" value="${audioController_defaultPath}" /></td></tr>
+      <tr><td>Log directory:</td><td><r:input styleClass="textInput" type="text" name="log4j.logDirectory" value="${log4j_logDirectory}" /></td></tr>
       <tr>
-        <td colspan="2">DMX connectivity (Enttec USB Pro)</td>
+        <td colspan="2" class="configHeader">DMX connectivity (Enttec USB Pro)</td>
       </tr>
-      <tr><td>Device type:</td><td><r:select name="deviceType" value="${deviceType}" data="${deviceTypes}"  /></td></tr>
-      <tr><td>COM port:</td><td><r:select name="comPort" value="${comPort}" data="${comPorts}"  /></td></tr>
+      <tr><td>Device type:</td><td><r:select name="dmxDevice_class" value="${dmxDevice_class}" data="${dmxDeviceTypes}"  /></td></tr>
+      <tr><td>COM port:</td><td><r:select name="dmxDevice_portName" value="${dmxDevice_portName}" data="${dmxDevicePortNames}"  /></td></tr>
       <tr>
-        <td colspan="2">Audio connectivity (WinAMP)</td>
+        <td colspan="2" class="configHeader">Audio connectivity (WinAMP)</td>
       </tr>
-      <tr><td>DMX-web Visualisation hostname:</td><td><r:input styleClass="textInput2" type="text" name="visHost" value="${visHost}" /></td></tr>
-      <tr><td>DMX-web Visualisation port:</td><td><r:input styleClass="textInput2" type="text" name="visPort" value="${visPort}" /></td></tr>
-      <tr><td>NGWinAmp control hostname:</td><td><r:input styleClass="textInput2" type="text" name="ngWinampHost" value="${ngWinampHost}" /></td></tr>
-      <tr><td>NGWinAmp control port:</td><td><r:input styleClass="textInput2" type="text" name="ngWinampPort" value="${ngWinampPort}" /></td></tr>
-      <tr><td>NGWinAmp control password:</td><td><r:input styleClass="textInput2" type="text" name="ngWinampPassword" value="${ngWinampPassword}" /></td></tr>
+      <tr><td>Audio source type:</td><td><r:select name="audioSource_class" value="${audioSource_class}" data="${audioSourceTypes}"  /></td></tr>
+      <tr><td>DMX-web Visualisation hostname:</td><td><r:input styleClass="textInput2" type="text" name="audioSource_host" value="${audioSource_host}" /></td></tr>
+      <tr><td>DMX-web Visualisation port:</td><td><r:input styleClass="textInput2" type="text" name="audioSource_port" value="${audioSource_port}" /></td></tr>
+      <tr><td>Controller type:</td><td><r:select name="audioController_class" value="${audioController_class}" data="${audioControllerTypes}"  /></td></tr>
+      <tr><td>NGWinAmp control hostname:</td><td><r:input styleClass="textInput2" type="text" name="audioController_host" value="${audioController_host}" /></td></tr>
+      <tr><td>NGWinAmp control port:</td><td><r:input styleClass="textInput2" type="text" name="audioController_port" value="${audioController_port}" /></td></tr>
+      <tr><td>NGWinAmp control password:</td><td><r:input styleClass="textInput2" type="text" name="audioController_password" value="${audioController_password}" /></td></tr>
       <tr>
         <td colspan="2">
         <p>If you're happy with the options above, click the 'OK' button below to verify these settings.</p>
