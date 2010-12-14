@@ -519,7 +519,7 @@ function fixUpdateControls(fixtureId) {
     } else {
     	fixStrobeSlider.setValue(1);
     }
-    fixDimSlider.setValue(1-v["d"]);
+    
     var aimHandleEl=$("fixAimHandle");
     var aimActualEl=$("fixAimActual");
     var aimHandleDimensions=Element.getDimensions(aimHandleEl);
@@ -551,6 +551,91 @@ function fixUpdateControls(fixtureId) {
     
     fixUIUpdateOnly=false
 }
+
+function fixSameValue(values) {
+	sameValue=values[0];
+	for (var i=1; i<values.length; i++) {
+		if (values[i]==null) { return null; }
+		if (values[i]!=sameValue) { return null; }
+	}
+	return sameValue;
+}
+
+// same as fixUpdateControls, but only update where all fixtures have the same value
+// TODO: set other controls opacity to n% ?
+function fixUpdateControlsArray(fixtureIds) {
+    //var f=fixtures[fixtureIds[0]];
+    //var fd=fixtureDefs[f.type];
+    //var v=fixValues[fixtureId];
+	
+    var values=new Array();
+    var value, valuePan, valueTilt;
+    fixUIUpdateOnly=true;
+
+    values=[]; fixtureIds.each(function(fid){values.push(fixtures[fid].type);}); 
+    fd=fixSameValue(values);
+    if (fd) { fd = fixtureDefs[fd]; }
+    
+    values=[]; fixtureIds.each(function(fid){values.push(fixValues[fid]["c"]);}); value=fixSameValue(values);
+    if (value!=null) { fixColorPicker.setColor(value); }
+    
+    values=[]; fixtureIds.each(function(fid){values.push(fixValues[fid]["d"]);}); value=fixSameValue(values);
+    if (value!=null) { fixDimSlider.setValue(1-value); }
+
+    if (fd) {  // all fixtures of same type
+      values=[]; fixtureIds.each(function(fid){values.push(fixValues[fid]["s"]);}); value=fixSameValue(values);
+      if (value!=null) { 
+    	fixStrobeSlider.setValue(1-((value-fd["minStrobeHertz"])/
+    	    (fd["maxStrobeHertz"]-fd["minStrobeHertz"])));
+      } else {
+    	fixStrobeSlider.setValue(1);
+      }
+  
+      var aimHandleEl=$("fixAimHandle");
+      var aimActualEl=$("fixAimActual");
+      var aimHandleDimensions=Element.getDimensions(aimHandleEl);
+      var aimParentDimensions=Element.getDimensions(aimHandleEl.parentNode);
+    
+      values=[]; fixtureIds.each(function(fid){values.push(fixValues[fid]["p"]);}); valuePan=fixSameValue(values);
+      values=[]; fixtureIds.each(function(fid){values.push(fixValues[fid]["t"]);}); valueTilt=fixSameValue(values);
+      if (valuePan!=null && valueTilt!=null) {  // NB: same as above
+        aimHandleEl.style.left=(valuePan*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
+        aimHandleEl.style.top=(valueTilt*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
+      }
+      values=[]; fixtureIds.each(function(fid){values.push(fixValues[fid]["ap"]);}); valuePan=fixSameValue(values);
+      values=[]; fixtureIds.each(function(fid){values.push(fixValues[fid]["at"]);}); valueTilt=fixSameValue(values);
+      if (valuePan!=null && valueTilt!=null) {  // NB: same as above
+        aimActualEl.style.left=(valuePan*aimParentDimensions.width/fd["panRange"] - aimHandleDimensions.width/2) + "px";
+        aimActualEl.style.top=(valueTilt*aimParentDimensions.height/fd["tiltRange"] - aimHandleDimensions.height/2) + "px";
+      }
+      var ccs=fd["customControls"];
+      var ccEl;
+      if (ccs && fixCustomControlsVisible) {
+    	for (var i=0; i<ccs.length; i++) {
+    		ccEl = $("fixCC[" + i + "]");
+    		if (ccEl) {
+    			values=[]; fixtureIds.each(function(fid){values.push(fixValues[fid]["ccs"][i]);}); value=fixSameValue(values);
+    			if (value!=null) {
+	    		  if (ccs[i].uiType=="TOGGLE") {
+	    			if (value==1) { ccEl.addClassName("fixSmallSelect"); }
+	    			else { ccEl.removeClassName("fixSmallSelect"); }
+	    		  } else if (ccs[i].uiType=="SLIDER") {
+	    			fixCustomControls[i].setValue(1-(value/255));
+	    		  } else if (ccs[i].uiType=="GRID") {
+	    			var x=Math.floor(value/160); var y=(value%160); 
+	    			x=x<0?0:(x>159?159:x); y=y<0?0:(y>159?159:y);
+	    			fixCustomControls[i].handle.style.left=(x-10) + "px";
+	    			fixCustomControls[i].handle.style.top=(y-10) + "px";
+	    		  }
+    			}  
+    		}
+    	}
+      }
+    }  
+    
+    fixUIUpdateOnly=false
+}
+
 
 function fixGroupClick(event) {
     var fixGroupEl = event.element();
@@ -831,6 +916,7 @@ function fixUpdatePanel(json) {
     var fixItems=new Array();
     $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
     if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
+    else if (fixItems.length>1) { fixUpdateControlsArray(fixItems); }
 }
 
 
