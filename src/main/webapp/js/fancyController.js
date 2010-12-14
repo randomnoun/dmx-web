@@ -224,7 +224,7 @@ function shwItemClick(event) {
     clickFx(shwItemEl);
     var showId = shwItemEl.readAttribute("showId");
     if (shwState[showId]=="RUNNING") {
-      sendRequest('fancyController.html?action=stopShow&showId=' + showId, startPollRequests);
+      sendRequest('fancyController.html?action=cancelShow&showId=' + showId, startPollRequests);
     } else {
       sendRequest('fancyController.html?action=startShow&showId=' + showId, startPollRequests);      
     }
