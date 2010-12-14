@@ -225,6 +225,7 @@ public class FancyControllerAction
     		request.setAttribute("shows", shows);
     		request.setAttribute("version", version);
     		request.setAttribute("panel", request.getParameter("panel"));
+    		request.setAttribute("javadocUrl", appConfig.getProperty("fancyController.javadocUrl"));
     		forward="success";
 
     	} else if (action.equals("poll")) {

@@ -1,3 +1,4 @@
+var shwState = new Array();
 var dmxValues = dmxValues.split(",");
 var dmxModified = new Array();
 var dmxToFixture = new Array();
@@ -6,7 +7,7 @@ var dmxImmediate = true;
 var logExceptions = new Array();
 var lhsMenuPanels=new Array("lgoPanel", "shwPanel", "fixPanel", "dmxPanel", "logPanel", "cnfPanel");
 var prfRequestId = 0;
-var prfEnabled = true;
+var prfEnabled = false;
 var prfStartPollRequestTime = null;
 var prfEndPollRequestTime = null;
 var prfEndPanelUpdateTime = null;
@@ -162,7 +163,7 @@ function lgoInitPanel() {
       "RXTX DLL version: " + version["rxtxDllVersion"] + "<br/>" + 
       "<br/><br/>" +
       "<ul>\n" +
-      "<li><a href=\"javadoc/dmx/index.html\" target=\"_new\">Java API documentation</a>\n" +
+      "<li><a href=\"" + javadocUrl + "\" target=\"_new\">Java API documentation</a>\n" +
       "</li>\n" +
       "</ul>" +
       "<br/><br/>" +
@@ -200,7 +201,6 @@ function shwInitPanel() {
             sp.appendChild(separatorEl);
     		lastShowGroupId = show["showGroupId"];
     	}
-        
         x=110+((i+displayOffset)%4)*200; y=10+Math.floor((i+displayOffset)/4)*90;
         var shwEl = new Element("div", { 
             "id": "shwItem[" + show["id"] + "]", 
@@ -211,6 +211,7 @@ function shwInitPanel() {
             );
         shwEl.style.left=x+"px"; shwEl.style.top=y+"px";
         sp.appendChild(shwEl);
+        shwState[show["id"]] = "STOPPED";
         Event.observe(shwEl, 'click', shwItemClick);
     }
     Event.observe($("shwCancel"), 'click', shwCancelClick);
@@ -222,7 +223,11 @@ function shwItemClick(event) {
     var shwItemEl = event.element();
     clickFx(shwItemEl);
     var showId = shwItemEl.readAttribute("showId");
-    sendRequest('fancyController.html?action=startShow&showId=' + showId, startPollRequests);
+    if (shwState[showId]=="RUNNING") {
+      sendRequest('fancyController.html?action=stopShow&showId=' + showId, startPollRequests);
+    } else {
+      sendRequest('fancyController.html?action=startShow&showId=' + showId, startPollRequests);      
+    }
 }
 
 function shwCancelClick(event) {
@@ -255,6 +260,7 @@ function shwUpdatePanel(json) {
         var showId = newShows[i]["id"];
         var el = $("shwItem[" + showId + "]");
         if (newShows[i]["state"]=="SHOW_RUNNING") {
+        	shwState[showId] = "RUNNING";
             el.addClassName("shwRunning");
             el.removeClassName("shwException");
             var overlayEl = el.firstDescendant();
@@ -290,9 +296,11 @@ function shwUpdatePanel(json) {
             	}
             }
         } else if (newShows[i]["state"]=="SHOW_STOPPED_WITH_EXCEPTION") {
+        	shwState[showId] = "STOPPED_WITH_EXCEPTION";
             el.removeClassName("shwRunning");
             el.addClassName("shwException");
         } else {            
+        	shwState[showId] = "STOPPED";
             el.removeClassName("shwRunning");
             el.removeClassName("shwException");
             var overlayEl = el.firstDescendant();

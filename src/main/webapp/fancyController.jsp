@@ -45,6 +45,7 @@
 <r:setJavascriptVar name="fixValues" value="${fixValues}" />
 <r:setJavascriptVar name="version" value="${version}" />
 <r:setJavascriptVar name="origPanel" value="${panel}" />
+<r:setJavascriptVar name="javadocUrl" value="${javadocUrl}" />
 var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %>";
 <%-- this will be a client-side include eventually --%>
 <jsp:include page="js/fancyController.js" />
