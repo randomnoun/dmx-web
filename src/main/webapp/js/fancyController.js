@@ -1140,6 +1140,7 @@ var logScrollFx;
 function logInitPanel() {
     Event.observe($("logPageUp"), 'click', logPageDownClick); noSelect($("logPageUp"));
     Event.observe($("logPageDown"), 'click', logPageUpClick); noSelect($("logPageDown"));
+    Event.observe($("logClear"), 'click', logClearClick); noSelect($("logClear"));
 }
 
 function logPageDownClick(event) {
@@ -1152,6 +1153,11 @@ function logPageUpClick(event) {
 	var el = $("logExceptionContainer");
 	if (logScrollFx!=null) { logScrollFx.cancel(); el.scrollTop=el.scrollTop+1000; logScrollFx=null; }
 	else { logScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, {afterFinish:function(){logScrollFx=null;}}, 'scrollTop'); }
+}
+
+function logClearClick(event) {
+    sendRequest('fancyController.html?action=clearLogs');
+    startPollRequests();
 }
 
 

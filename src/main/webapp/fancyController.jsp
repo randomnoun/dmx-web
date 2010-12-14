@@ -143,6 +143,7 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="logExceptionContainer"></div>
   <div id="logPageUp"><img width="80" height="70" src="image/pageUp.png" title="Page up"/></div>
   <div id="logPageDown"><img width="80" height="70" src="image/pageDown.png" title="Page down"/></div>
+  <div id="logClear"><img width="80" height="70" src="image/cancel.png" title="Clear"/></div>
 </div>
 
 <div id="cnfPanel" style="display: none;">

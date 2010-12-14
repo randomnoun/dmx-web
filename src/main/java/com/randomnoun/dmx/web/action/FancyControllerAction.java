@@ -541,6 +541,15 @@ public class FancyControllerAction
     		result.put("message", "Audio controller re-initialised");
     		*/
     		
+    	} else if (action.equals("clearLogs")) {
+    		// startPollRequests();
+    		appConfig.clearAppConfigExceptions();
+    		controller.getAudioController().clearExceptions();
+    		appConfig.clearAudioSourceExceptions();
+    		appConfig.clearDmxDeviceExceptions();
+    		appConfig.clearShowExceptions();
+    		result.put("message", "Exceptions cleared");
+    		
     	} else if (action.equals("resetDMX")) {
 			
     	} else {

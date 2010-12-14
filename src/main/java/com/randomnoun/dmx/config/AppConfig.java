@@ -863,6 +863,22 @@ public class AppConfig extends AppConfigBase {
 		return exceptionContainer.getExceptions();
 	}
 	
+	public void clearAppConfigExceptions() {
+		exceptionContainer.clearExceptions();
+	}
+	
+	public void clearAudioSourceExceptions() {
+		audioSource.clearExceptions();
+	}
+	
+	public void clearDmxDeviceExceptions() {
+		dmxDevice.clearExceptions();
+	}
+	
+	public void clearShowExceptions() {
+		showExceptions.clear();	
+	}
+	
 	
 	/** Removes the leading block and line comment markers from a piece of javadoc comment.
 	 * 
