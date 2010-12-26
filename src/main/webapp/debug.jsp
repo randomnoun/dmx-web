@@ -83,6 +83,7 @@
   }
 -->
 </style>
+<script src="mjs?js=prototype" type="text/javascript"></script>
 </head>
 <body>
 <div style="height:5px;"></div>
@@ -266,6 +267,54 @@ You do not have sufficient permissions to view this tab.
 </c:choose>
   </r:tab>
 
+
+  <r:tab id="jmx" label="JMX" href="debug.html?debugTab=jmx" >
+  <h1>JMX Browser</h1>
+  <div id="errorDiv"></div>
+  <ul id="topNode"></ul>
+  <script>
+  var getTopNode = true;
+
+  if (getTopNode) {
+    getNode("topNode");
+  }
+  
+  function getNode(parentId) {
+    var ulNode = document.getElementById(parentId);
+    if (ulNode==null) {
+      alert("Cannot find node '" + parentId + "'");
+    }
+    if (ulNode.childNodes.length>0) {
+      // already populated; hide this instead
+      ulNode.innerHTML = "";
+    } else {
+    	
+      new Ajax.Request("debug.html?debugTab=jmx&action=getNodes&path=" + escape(parentId), {
+          method:'get', // evalJSON:true,
+          onSuccess: function(transport) {
+                var nodesDoc = transport.responseXML;
+                if (nodesDoc!=null) {
+                    var nodes = nodesDoc.documentElement.childNodes;
+                    for (var i = 0; i < nodes.length; i++) {
+                      var node = nodes.item(i);
+                      var name = node.getAttribute("name");
+                      newLi = document.createElement("LI");
+                      newLi.innerHTML = "<a href=\"javascript:getNode('" + parentId + ";" + name + "');\">"
+                        + name + "</a><ul id=\"" + parentId + ";" + name + "\"></ul>";
+                      ulNode.appendChild(newLi);
+                    }
+                  }
+            },
+            onFailure: function(transport) {
+            	$("errorDiv").update(transport.responseText);
+            } }); 	
+    }
+  }
+  </script>
+  <hr/>
+  <c:out value="${result}"/>
+  </pre>
+  </r:tab>
 
   <r:tab id="jndi" label="JNDI" href="debug.html?debugTab=jndi" >
   <h1>JNDI Browser</h1>

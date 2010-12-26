@@ -68,6 +68,7 @@
           type="com.randomnoun.dmx.web.action.DebugAction"
         >
           <forward name="success" path="/debug.jsp"/>
+          <forward name="xml" path="/misc/xml.jsp"/>
         </action>
 
 

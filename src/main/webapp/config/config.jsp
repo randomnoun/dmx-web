@@ -8,6 +8,21 @@
 %>
 <%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
+<%!
+  String getChecklistImg(HttpServletRequest request, String attributeName) {
+	String img = (String) request.getAttribute(attributeName + ".img"); 
+	if (img.equals("ok")) {
+      return "<img src=\"image/config/icnOK.gif\" width=\"16\" height=\"16\"/>";
+	} else if (img.equals("warning")) {
+	  return "<img src=\"image/config/icnWarning.gif\" width=\"16\" height=\"16\"/>";
+	} else {
+	  return "<img src=\"image/config/icnFail.gif\" width=\"16\" height=\"16\"/>";
+	}
+  }
+%>
+<%
+  long pageNum = ((Long) request.getAttribute("page")).longValue();
+%>
 <html>
 <head>
 
@@ -142,9 +157,11 @@ function edtChangeCreateSchema() {
 <body onload="initWindow()" >
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Application config</span></div>
 <div class="lhsMenuContainer">
-<% if (request.getAttribute("installOK")!=null) { %>
+<% if ("ok".equals(request.getAttribute("submitIcon"))) { %>
   <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="OK"/><div class="lhsMenuText">OK</div></div>
-<% } %>  
+<% } else if ("next".equals(request.getAttribute("submitIcon"))) { %>
+  <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/next.png" title="OK"/><div class="lhsMenuText">Next</div></div>
+<% }  %>  
 </div>
 
 <div id="rhsMessage"></div>
@@ -160,6 +177,7 @@ function edtChangeCreateSchema() {
       <col width="700px;" >
       <tr>
         <td colspan="2">
+        <% if (pageNum == 1 ) { %>
         <h1>Welcome to DMX-web.</h1>
         
         <p>In order to use this application, you must first configure this software.
@@ -197,17 +215,17 @@ function edtChangeCreateSchema() {
       <tr><td>Tomcat version:</td>
           <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("tomcatVersion") %></td></tr>
       <tr><td>RXTX JAR version:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("rxtxJarVersion") %></td></tr>
+          <td><%= getChecklistImg(request, "rxtxJarVersion") %> <%= request.getAttribute("rxtxJarVersion") %></td></tr>
       <tr><td>RXTX DLL version:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("rxtxDllVersion") %></td></tr>
+          <td><%= getChecklistImg(request, "rxtxDllVersion") %> <%= request.getAttribute("rxtxDllVersion") %></td></tr>
       <tr><td>Server config file writable:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("serverConfigFileWritable") %></td></tr>
+          <td><%= getChecklistImg(request, "serverConfigFileWritable") %> <%= request.getAttribute("serverConfigFileWritable") %></td></tr>
       <tr><td>DMX config file writable:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("dmxConfigFileWritable") %></td></tr>
+          <td><%= getChecklistImg(request, "dmxConfigFileWritable") %> <%= request.getAttribute("dmxConfigFileWritable") %></td></tr>
       <tr><td>JDBC drivers available:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("jdbcDriversAvailable") %></td></tr>
+          <td><%= getChecklistImg(request, "jdbcDriversAvailable") %> <%= request.getAttribute("jdbcDriversAvailable") %></td></tr>
       <tr><td>COM ports available:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("comPortsAvailable") %></td></tr>
+          <td><%= getChecklistImg(request, "comPortsAvailable") %> <%= request.getAttribute("comPortsAvailable") %></td></tr>
         <!-- TODO: VLC -->
       <% if (request.getAttribute("installOK")==null) { %>
       <tr>
@@ -221,10 +239,17 @@ function edtChangeCreateSchema() {
       <tr>
         <td colspan="2">
         <br/>
-        <p>That all looks fine. Now for some application configuration options:</p>
+        <p>That all looks fine. Now for some application configuration options</p>
         <br/>
         </td>
       </tr>
+      <tr>
+        <td colspan="2">
+        <div id="edtSubmit" class="edtSubmit"><img class="lhsMenuIcon" width="70" height="70" src="image/next.png" title="Next"/><div class="lhsMenuText">Next</div></div>
+        </td>
+      </tr>
+      <% } %>
+    <% } else if (pageNum == 2) { %>      
       <tr>
         <td colspan="2" class="configHeader">Database options</td>
       </tr>
@@ -272,7 +297,15 @@ function edtChangeCreateSchema() {
       <tr class="newSchema"><td>Create dmx user:</td><td>
         <r:input type="radio" name="createUser" trueValue="y" value="${createUser}" /> Yes - create the dmx user specified above<br/>
         <r:input type="radio" name="createUser" trueValue="n" value="${createUser}" /> No - new dmx user specified above already exists<br/>
-      </td></tr>
+      </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+        <div id="edtSubmit" class="edtSubmit"><img class="lhsMenuIcon" width="70" height="70" src="image/next.png" title="Next"/><div class="lhsMenuText">Next</div></div>
+        </td>
+      </tr>
+    <% } else if (pageNum == 3) { %>
+      
       <tr>
         <td colspan="2" class="configHeader">File locations</td>
       </tr>  

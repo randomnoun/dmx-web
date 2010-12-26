@@ -88,6 +88,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 		if (action==null) { action = ""; }
 		Exception e = (Exception) request.getAttribute("exception");
 		ErrorList errors = new ErrorList();
+		long page = -1;
 		
 		// other properties just used during configuration
 		String[] configProperties = new String[] {
@@ -331,7 +332,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 
 	        List audioSourceTypes = new ArrayList();
 	        audioSourceTypes.add("com.randomnoun.dmx.protocol.dmxWinamp.WinampAudioSource");
-	        request.setAttribute("audioSourceTypes", audioControllerTypes);
+	        request.setAttribute("audioSourceTypes", audioSourceTypes);
 	        request.setAttribute("audioSource_class", "com.randomnoun.dmx.protocol.dmxWinamp.WinampAudioSource");
 
 	        
@@ -398,7 +399,8 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 	        // prompt for WinAmpDMX/NGWinAmp properties
 	        // 
 	        // warn on browser size
-	        
+	        request.setAttribute("page", new Long(1));
+	        request.setAttribute("submitIcon", "next");
 			jspForward="config/config.jsp";
 		};
 		
