@@ -24,12 +24,14 @@ import com.randomnoun.dmx.dao.FixtureDefImageDAO;
 import com.randomnoun.dmx.to.FixtureDefImageTO;
 
 /**
- * Deliver a page containing multiple javascript files
+ * Deliver a fixture definition image
  *
- * Parameters:
- * js - csv list of javascript files. 
- *      in this list of files the ".js" extension is optional
- *      files will be retrieved from "/js" relative directory 
+ * PathInfo:
+ * 
+ * nnn/filename
+ * 
+ * where nnn is the fixtureDefId and filename is the attached file to that
+ * fixture definition.
  */
 public class FixtureImageServlet extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
 
@@ -71,7 +73,7 @@ public class FixtureImageServlet extends javax.servlet.http.HttpServlet implemen
 		String pathInfo = request.getPathInfo();
 		if (pathInfo==null) { pathInfo=""; }
 		if (pathInfo.startsWith("/")) { pathInfo = pathInfo.substring(1); }
-		logger.info("FixtureImageServlet " + pathInfo);
+		logger.debug("FixtureImageServlet " + pathInfo);
 		int pos = pathInfo.indexOf("/");
 		try {
 			if (pos!=-1) {
