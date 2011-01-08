@@ -37,6 +37,7 @@ import com.randomnoun.common.security.Permission;
 import com.randomnoun.common.security.SecurityContext;
 import com.randomnoun.common.timer.Benchmark;
 import com.randomnoun.dmx.config.AppConfig;
+import com.randomnoun.dmx.web.JmxUtils;
 //import com.randomnoun.facebook.dataAccess.WebClientDA;
 
 import javax.management.AttributeNotFoundException;
@@ -71,23 +72,6 @@ public class DebugAction extends Action {
 	/** Logger instance for this class */
 	public static Logger logger = Logger.getLogger(DebugAction.class);
 
-	/** Hopefully generic JMX functions */
-    public synchronized MBeanServer getMBeanServer() {
-        long t1=System.currentTimeMillis();
-        MBeanServer server = null;
-        if( MBeanServerFactory.findMBeanServer(null).size() > 0 ) {
-            server=(MBeanServer)MBeanServerFactory.findMBeanServer(null).get(0);
-            if( logger.isDebugEnabled() ) {
-            	logger.debug("Using existing MBeanServer " + (System.currentTimeMillis() - t1 ));
-            }
-        } else {
-            server = ManagementFactory.getPlatformMBeanServer();
-            if( logger.isDebugEnabled() ) {
-            	logger.debug("Creating MBeanServer "+ (System.currentTimeMillis() - t1 ));
-            }
-        }
-        return (server);
-    }
 	
 	public static class PermissionComparator implements Comparator {
 		/** 
@@ -309,48 +293,10 @@ public class DebugAction extends Action {
 			request.setAttribute("events", events);
         	*/
         } else if (debugTab.equals("jmx")) {
-        	MBeanServer mBeanServer = getMBeanServer();
-        	// from the tomcat source tree
-        	/*
-        	String qry = "*:*";	
-            Set names=mBeanServer.queryNames(new ObjectName(qry), null);
-            //writer.println("OK - Number of results: " + names.size());
-            Iterator it=names.iterator();
-            while( it.hasNext()) {
-                ObjectName oname=(ObjectName)it.next();
-                MBeanInfo minfo=mBeanServer.getMBeanInfo(oname);
-                String code=minfo.getClassName();
-                if ("org.apache.commons.modeler.BaseModelMBean".equals(code)) {
-                    code=(String)mBeanServer.getAttribute(oname, "modelerType");
-                }
-                //writer.println("modelerType: " + code);
-                MBeanAttributeInfo attrs[]=minfo.getAttributes();
-                Object value=null;
-                for( int i=0; i< attrs.length; i++ ) {
-                    if( ! attrs[i].isReadable() ) continue;
-                    String attName=attrs[i].getName();
-                    if( attName.indexOf( "=") >=0 ||
-                            attName.indexOf( ":") >=0 ||
-                            attName.indexOf( " ") >=0 ) {
-                        continue;
-                    }
-                    try {
-                        value=mBeanServer.getAttribute(oname, attName);
-                    } catch( Throwable t) {
-                        logger.error("Error getting attribute " + oname + " " + attName + " ", t);
-                        continue;
-                    }
-                    if( value==null ) continue;
-                    if( "modelerType".equals( attName)) continue;
-                    String valueString=value.toString();
-                    //writer.println( attName + ": " + escape(valueString));
-                }
-            }
-            */
-
-			Map objectNames = getObjectNames(mBeanServer);
+        	
+        	MBeanServer mBeanServer = JmxUtils.getMBeanServer();
+			Map objectNames = JmxUtils.getObjectNames(mBeanServer);
 			// System.out.println(Struct.structuredMapToString("result", objectNames));
-			
 			
 			if ("getNodes".equals(action)) {
 				ObjectName objectName;
@@ -371,7 +317,7 @@ public class DebugAction extends Action {
 						objectNames = (Map) object;
 					} else if (object instanceof ObjectName) {
 						// get a descriptor map
-						objectNames = describeObjectName(mBeanServer, (ObjectName) object);
+						objectNames = JmxUtils.describeObjectName(mBeanServer, (ObjectName) object);
 					} else if (object instanceof List) {
 						objectNames = new HashMap();
 						for (Iterator i = ((List) object).iterator(); i.hasNext(); ) {
@@ -485,187 +431,7 @@ public class DebugAction extends Action {
 	}
 
     
-	/**
-	 * Preloads the ObjectName instances and sorts them into a Map indexed by
-	 * domain. WAS only appears to have two built-in domains: "JMImplementation" and
-	 * "WebSphere". Within domains, a further map of types name to object names
-	 * are created; e.g. within the WebSphere domain, all applications are contained
-	 * in a List of ObjectNames contained in a Map with the key "Application"
-	 * 
-	 * @param server the JMX server to retrieve objects from
-	 *
-	 * @return map of mbeans in a structure of domain -> type -> list of objectNames
-	 * 
-	 * @throws MalforedObjectNameException
-	 */
-	protected Map getObjectNames( MBeanServer server )
-	throws MalformedObjectNameException
-	{
-		// this only ever appears to see resources that already exist (have been used)
-		// e.g. MessageManagerDataSource but not MessageManagerDataSourceNoXA
-		//   .. although XA will appear after a query has been run. Thanks Websphere. Thanks a lot.
-		
-	    Map objectNames = new TreeMap();
-        Set objectNameSet = server.queryNames( null, /*new ObjectName("WebSphere:type=DataSource,*"),*/ null );
-        for( Iterator i = objectNameSet.iterator(); i.hasNext(); ) {
-		     ObjectName name = (ObjectName) i.next();
-		     
-		 	 String domain = name.getDomain();
-		 	 Map typeNames = (Map) objectNames.get(domain);
-		 	 if (typeNames == null) {
-			     typeNames = new TreeMap();
-			     objectNames.put( domain, typeNames );
-			 }
-			 // Search the typeNames map to match the type of this object
-			 String typeName = name.getKeyProperty("type");
-			 if (typeName == null) typeName = "none";
-			 List v = (List) typeNames.get(typeName);
-			 if (v==null) {
-			 	 v = new ArrayList();
-				 typeNames.put(typeName, v);
-			 }
-			 v.add(name);
-        }
-	    return objectNames;
-	}
-	
-	/** Retrieves information regarding the JMX object passed in. Used to populate the
-	 * JMX tree in the debug pane.
-	 * 
-	 * This object returns a map with the following structure:
-	 * <attributes>
-	 * className - (String) the className of the object instance
-	 * attributes - a Map describing the attributes associated with this JMX MBean. The
-	 *   key for the map is the attribute name, and the value is a map with the following structure:
-	 *   <attributes>
-	 *     description - a text description of the attribute
-	 *     type - the class type of the attribute
-	 *     value - the current value of the attribute (or "" if the value is null)
-	 *   </attributes>
-	 * operations - a Map describing the operations that can be performed in this MBean.
-	 *   The key for the map is the operation name, and the value is a Map with the following
-	 *   structure:
-	 *   <attributes>
-	 *     impact - the impact of performing this MBean. This returns one of the
-	 *       MBeanOperationInfo constants as a String, i.e. "ACTION", "ACTION_INFO", "INFO" or
-	 *       "UNKNOWN"
-	 *     return type - the class name of the result of this operation
-	 *     params - a Map representing the parameters passed into this operation. The key
-	 *       of each entry in the map is the parameter name, and the value is another Map
-	 *       with the following structure:
-	 *       <attributes>
-	 *         name - name of the parameter
-	 *         type - the class name of the parameter
-	 *       </attributes>
-	 *     description - a text desription of the operation
-	 *     result - is only present for "INFO"-impact operations with no parameters. Contains 
-	 *       the result when the operation is invoked. Is set to "(null)" if the result is null.
-	 *   </attributes>
-	 * </attributes> 
-	 * 
-	 * @param server The JMX server to retrieve information from
-	 * @param objectName The object we are interested in
-	 * 
-	 * @return a structure as defined above
-	 * 
-	 * @throws AttributeNotFoundException
-	 * @throws IntrospectionException
-	 * @throws ReflectionException
-	 * @throws InstanceNotFoundException
-	 * @throws MBeanException
-	 */
-	protected Map describeObjectName(MBeanServer server, ObjectName objectName) 
-	throws AttributeNotFoundException, IntrospectionException, ReflectionException, InstanceNotFoundException, MBeanException {
-		Map result = new HashMap();
 
-		ObjectInstance objectInstance = server.getObjectInstance(objectName);
-		result.put("className", objectInstance.getClassName());
-
-		// list attributes
-		Map attributes = new HashMap();
-		result.put("attributes", attributes);
-		MBeanInfo info = server.getMBeanInfo(objectName);
-		MBeanAttributeInfo[] attrInfos = info.getAttributes();
-		for (int i = 0; i < attrInfos.length; i++) {
-			Map attribute = new HashMap();
-			
-			MBeanAttributeInfo attrInfo = attrInfos[i];
-			String name = attrInfo.getName();
-			String type = attrInfo.getType();
-			String description = attrInfo.getDescription();
-			Object value = server.getAttribute(objectName, name);
-
-			// attribute.put("name", name);
-			attribute.put("description", description==null ? "" : description);
-			attribute.put("type", type);
-			attribute.put("value", value==null ? "" : value);
-			attributes.put(name, attribute);
-			
-			// System.out.println(" attr " + name + " (" + type + ") " + value);
-			if (description!=null) { logger.debug("      " + description); } 
-		}
-		
-		// list operations
-		Map operations = new HashMap();
-		result.put("operations", operations);
-		MBeanOperationInfo[] operationInfos = info.getOperations();
-		for (int i = 0; i < operationInfos.length; i++) {
-			Map operation = new HashMap();
-			MBeanOperationInfo operationInfo = operationInfos[i];
-			operations.put(operationInfo.getName(), operation);
-			operation.put("return type", operationInfo.getReturnType());
-			// System.out.print(" op " + Text.getLastComponent(operationInfo.getReturnType()) + " " + operationInfo.getName() + "(");
-			Map params = new LinkedHashMap();
-			operation.put("params", params);
-			MBeanParameterInfo[] paramInfos = operationInfo.getSignature();
-			for (int j = 0; j < paramInfos.length; j++) {
-				MBeanParameterInfo paramInfo = paramInfos[j];
-				Map param = new HashMap();
-				param.put("name", paramInfo.getName());
-				param.put("type", paramInfo.getType());
-				params.put(paramInfo.getName(), param);
-			}
-			operation.put("impact", getImpact(operationInfo.getImpact()));
-			operation.put("description", operationInfo.getDescription());
-			Object opResult = null;
-			if (operationInfo.getImpact() == MBeanOperationInfo.INFO && paramInfos.length == 0) {
-				opResult = server.invoke(objectName, operationInfo.getName(), new Object[] {}, new String[] {});
-				if (opResult==null) {
-					// newList.add("(null)");
-					opResult = "(null)";
-				} else if (opResult instanceof ObjectName) {
-					List newList = new ArrayList(1);
-					newList.add(opResult);
-					opResult = newList;
-				}
-				/* if (opResult instanceof String[]) {
-					String[] stringArrayOpResult = (String[]) opResult;
-					for (int k = 0; k < stringArrayOpResult.length; k++) {
-						System.out.println("   " + k + ": " + stringArrayOpResult[k]);
-					}
-				} else {
-					System.out.println("   " + result);
-				} */
-			}
-			if (opResult!=null) { operation.put("result", opResult); } 
-		}
-		
-		return result;
-	}
-
-	private String getImpact(int impact) {
-		if (impact == MBeanOperationInfo.ACTION) {
-			return "ACTION";
-		} else if (impact == MBeanOperationInfo.ACTION_INFO) {
-			return "ACTION_INFO";
-		} else if (impact == MBeanOperationInfo.INFO) {
-			return "INFO";
-		} else if (impact == MBeanOperationInfo.UNKNOWN) {
-			return "UNKNOWN";
-		} else {
-			throw new IllegalStateException("Unknown impact '" + impact + "'");
-		}
-	}
     
 	
 }
