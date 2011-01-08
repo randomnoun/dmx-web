@@ -4,24 +4,30 @@
   contentType="text/html; charset=ISO-8859-1"
   pageEncoding="ISO-8859-1"
   errorPage="misc/errorPage.jsp"
-  import="java.util.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*"
+  import="java.util.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*,org.apache.log4j.Logger"
 %>
 <%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
 <%!
   String getChecklistImg(HttpServletRequest request, String attributeName) {
 	String img = (String) request.getAttribute(attributeName + ".img"); 
-	if (img.equals("ok")) {
-      return "<img src=\"image/config/icnOK.gif\" width=\"16\" height=\"16\"/>";
-	} else if (img.equals("warning")) {
-	  return "<img src=\"image/config/icnWarning.gif\" width=\"16\" height=\"16\"/>";
+	if (img==null) {
+	    Logger.getLogger("config.jsp").warn("Missing request attribute '" + attributeName + ".img'");
+	    return "";
 	} else {
-	  return "<img src=\"image/config/icnFail.gif\" width=\"16\" height=\"16\"/>";
+		if (img.equals("ok")) {
+	      return "<img src=\"image/config/icnOK.gif\" width=\"16\" height=\"16\"/>";
+		} else if (img.equals("warning") || img.equals("warn")) {
+		  return "<img src=\"image/config/icnWarning.gif\" width=\"16\" height=\"16\"/>";
+		} else {
+		  return "<img src=\"image/config/icnFail.gif\" width=\"16\" height=\"16\"/>";
+		}
 	}
   }
 %>
 <%
-  long pageNum = ((Long) request.getAttribute("page")).longValue();
+try {
+  long pageNum = ((Long) request.getAttribute("pageNumber")).longValue();
 %>
 <html>
 <head>
@@ -102,6 +108,7 @@ TH, TD { padding: 5px; line-height: 1; font-size: 10pt; vertical-align: top; }
 INPUT { font-size: 8pt; margin-bottom: 3px; }
 TR { line-height: 1; }
 SELECT { color: black; margin: 0px; font-size: 8pt; }
+H1 { margin-top: 0px; }
 .formHeader { color: white; font-weight: bold; padding: 2px; vertical-align: bottom; }
 .redrollover:hover { background-color: #FFAAAA; }
 .greenrollover:hover { background-color: #AAFFAA; }
@@ -120,16 +127,15 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
   font-weight: bold; text-align: center; padding-top: 16px;
   cursor: pointer
 }
-P { font-size: 10pt; }
+P { font-size: 10pt; line-height: 1.2; }
 LI { font-size: 10pt; line-height: 1.5; }
 .smallInput { width: 40px; }
 .textInput { width: 600px; }
 .textInput2 { width: 200px; }
 .configHeader { font-weight: bold; font-size: 12pt; }  
 </style>
-
 <script>
-
+<r:setJavascriptVar name="pageNumber" value="${pageNumber}"/>
 function edtInitPanel() {
     var edtSubmitEl = $("edtSubmit");
     Event.observe(edtSubmitEl, 'click', edtSubmitClick);
@@ -144,24 +150,38 @@ function lhsOKClick() {
     isSubmitting=true; 
     document.forms[0].submit();
 };
-function initWindow() {
-    edtInitPanel();
-}
 function edtChangeCreateSchema() {
 	var createSchema = document.forms[0].elements['createSchema'][0].checked;
 	$$(".newSchema").each(function(s){s.style.display=createSchema?'table-row':'none';});
 }
+function edtChangeDatabaseConfig() {
+	var databaseConfig = document.forms[0].elements['database_config'][0].checked;
+	$$(".standardDb").each(function(s){s.style.display=databaseConfig?'table-row':'none';});
+	$$(".customDb").each(function(s){s.style.display=databaseConfig?'none':'table-row';});	
+}
+function initWindow() {
+    edtInitPanel();
+    if (pageNumber==3) {
+        edtChangeCreateSchema();
+    	edtChangeDatabaseConfig();
+    }
+}
+
 </script>
 </head>
 
 <body onload="initWindow()" >
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Application config</span></div>
 <div class="lhsMenuContainer">
+<% if ("back".equals(request.getAttribute("backIcon"))) { %>
+  <div id="lhsBack" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/back.png" title="Back"/><div class="lhsMenuText">Back</div></div>
+<% } %>  
 <% if ("ok".equals(request.getAttribute("submitIcon"))) { %>
   <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="OK"/><div class="lhsMenuText">OK</div></div>
 <% } else if ("next".equals(request.getAttribute("submitIcon"))) { %>
   <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/next.png" title="OK"/><div class="lhsMenuText">Next</div></div>
 <% }  %>  
+
 </div>
 
 <div id="rhsMessage"></div>
@@ -175,13 +195,16 @@ function edtChangeCreateSchema() {
   <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
       <col width="300px;" >
       <col width="700px;" >
+      <% if (pageNum == 1 ) { %>
       <tr>
         <td colspan="2">
-        <% if (pageNum == 1 ) { %>
         <h1>Welcome to DMX-web.</h1>
+        <input type="hidden" name="pageNumber" value="1" />
         
-        <p>In order to use this application, you must first configure this software.
-        You will need to enter details for:</p>
+        <p>Hi there ! This appears to be the first time you've run this application. 
+        Before you can use DMX-web, we need to configure your software and hardware.</p>  
+        
+        <p>The following pages will step through the following details:</p>
         <ul><li>your database settings,
         <li>where you want to keep uploaded and temporary fixture definition files,
         <li>where you want to keep your audio files,
@@ -191,15 +214,29 @@ function edtChangeCreateSchema() {
         </ul>
         
         <p>Most of these properties will already have defaults set up,
-        please check to ensure that these are correct before hitting "OK".
-        If you want to update these properties later, then they will be 
+        please check to ensure that these are correct before hitting "Next".</p>
+        
+        <p>If you want to update these properties later, then they will be 
         contained in a text file in the following location:</p>
         
-        <p><%= request.getAttribute("configFileLocation") %></p>
-          
-        <p>First, a check to ensure that your application has been
-        installed correctly:</p>
+        <p><tt><%= request.getAttribute("configFileLocation") %></tt></p>
         
+        <p>Click 'Next' to continue the installation process</p>
+        </td>
+      </tr>
+      
+      <tr>
+        <td colspan="2">
+        <div id="edtSubmit" class="edtSubmit"><img class="lhsMenuIcon" width="70" height="70" src="image/next.png" title="Next"/><div class="lhsMenuText">Next</div></div>
+        </td>
+      </tr>
+      
+    
+    <% } else if (pageNum == 2) { %>
+      <tr>
+        <td colspan="2">
+        <input type="hidden" name="pageNumber" value="2" />
+        <p>First, a check to ensure that all DMX-Web components are available:</p>
         </td>
       </tr>
       <tr>
@@ -210,22 +247,79 @@ function edtChangeCreateSchema() {
           <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("dmxWebVersion") %></td></tr>
       <tr><td>DMX-web build:</td>
           <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("dmxWebBuild") %></td></tr>
+
       <tr><td>Java version:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("javaVersion") %></td></tr>
+          <td><%= getChecklistImg(request, "javaVersion") %> <%= request.getAttribute("javaVersion") %></td></tr>
+      <% if (request.getAttribute("javaVersion.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("javaVersion.text") %></td></tr>
+      <% } %>
+
       <tr><td>Tomcat version:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("tomcatVersion") %></td></tr>
+          <td><%= getChecklistImg(request, "tomcatVersion") %> <%= request.getAttribute("tomcatVersion") %></td></tr>
+      <% if (request.getAttribute("tomcatVersion.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("tomcatVersion.text") %></td></tr>
+      <% } %>
+          
       <tr><td>RXTX JAR version:</td>
           <td><%= getChecklistImg(request, "rxtxJarVersion") %> <%= request.getAttribute("rxtxJarVersion") %></td></tr>
+      <% if (request.getAttribute("rxtxJarVersion.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("rxtxJarVersion.text") %></td></tr>
+      <% } %>
+          
       <tr><td>RXTX DLL version:</td>
           <td><%= getChecklistImg(request, "rxtxDllVersion") %> <%= request.getAttribute("rxtxDllVersion") %></td></tr>
-      <tr><td>Server config file writable:</td>
+      <% if (request.getAttribute("rxtxDllVersion.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("rxtxDllVersion.text") %></td></tr>
+      <% } %>
+          
+      <tr><td>Server config file is writable:</td>
           <td><%= getChecklistImg(request, "serverConfigFileWritable") %> <%= request.getAttribute("serverConfigFileWritable") %></td></tr>
-      <tr><td>DMX config file writable:</td>
+      <% if (request.getAttribute("serverConfigFileWritable.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("serverConfigFileWritable.text") %></td></tr>
+      <% } %>    
+      
+      <tr><td>DMX config file is writable:</td>
           <td><%= getChecklistImg(request, "dmxConfigFileWritable") %> <%= request.getAttribute("dmxConfigFileWritable") %></td></tr>
+      <% if (request.getAttribute("dmxConfigFileWritable.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("dmxConfigFileWritable.text") %></td></tr>
+      <% } %>    
+
       <tr><td>JDBC drivers available:</td>
           <td><%= getChecklistImg(request, "jdbcDriversAvailable") %> <%= request.getAttribute("jdbcDriversAvailable") %></td></tr>
+      <% if (request.getAttribute("jdbcDriversAvailable.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("jdbcDriversAvailable.text") %></td></tr>
+      <% } %>    
+          
       <tr><td>COM ports available:</td>
           <td><%= getChecklistImg(request, "comPortsAvailable") %> <%= request.getAttribute("comPortsAvailable") %></td></tr>
+      <% if (request.getAttribute("comPortsAvailable.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("comPortsAvailable.text") %></td></tr>
+      <% } %>    
+
+      <tr><td>Web browser:</td>
+          <td><%= getChecklistImg(request, "userAgent") %> <%= request.getAttribute("userAgent") %></td></tr>
+      <% if (request.getAttribute("userAgent.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("userAgent.text") %></td></tr>
+      <% } %>    
+
+      <tr><td>Javascript enabled:</td>
+          <td><%= getChecklistImg(request, "javascriptEnabled") %> <%= request.getAttribute("javascriptEnabled") %></td></tr>
+      <% if (request.getAttribute("javascriptEnabled.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("javascriptEnabled.text") %></td></tr>
+      <% } %>    
+
+      <tr><td>Cookies enabled:</td>
+          <td><%= getChecklistImg(request, "cookiesEnabled") %> <%= request.getAttribute("cookiesEnabled") %></td></tr>
+      <% if (request.getAttribute("cookiesEnabled.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("cookiesEnabled.text") %></td></tr>
+      <% } %>    
+
+      <tr><td>Browser resolution:</td>
+          <td><%= getChecklistImg(request, "browserResolution") %> <%= request.getAttribute("browserResolution") %></td></tr>
+      <% if (request.getAttribute("browserResolution.text")!=null) { %>
+      <tr><td></td><td><%= request.getAttribute("browserResolution.text") %></td></tr>
+      <% } %>    
+
         <!-- TODO: VLC -->
       <% if (request.getAttribute("installOK")==null) { %>
       <tr>
@@ -249,52 +343,77 @@ function edtChangeCreateSchema() {
         </td>
       </tr>
       <% } %>
-    <% } else if (pageNum == 2) { %>      
+    <% } else if (pageNum == 3) { %>      
       <tr>
-        <td colspan="2" class="configHeader">Database options</td>
+        <td colspan="2" class="configHeader">
+        <input type="hidden" name="pageNumber" value="3" />
+        Database options
+        </td>
       </tr>
+      <tr><td>Database configuration:</td><td>
+        <r:input type="radio" name="database_config" trueValue="standard" value="${database_config}" onchange="edtChangeDatabaseConfig()"/> Standard configuration<br/>
+        <r:input type="radio" name="database_config" trueValue="custom" value="${database_config}" onchange="edtChangeDatabaseConfig()"/> Custom configuration<br/>
+      </td></tr>
+      </tr>
+      <tr class="standardDb"><td></td><td>
+        <p>All show, fixture and DMX patch data contained within DMX-Web is stored in a MySQL database.</p>
+        
+        <p>If you have an existing MySQL database, or you want to specify any custom
+        database settings, you can select the "Custom" option above, otherwise
+        just select "Standard" and then click Next.</p>
+        
+        <p>You will be able to review any database changes on the next page before they take place.</p>
+      </td>
+
+      <tr class="customDb">
+        <td colspan="2"><b>Custom configuration</b></td>
+      </tr>
+      <%--
       <tr><td>Database driver:</td>
           <td><r:select name="database_driver" value="${database_driver}" data="${databaseDrivers}"  />
           <br/><p>If you don't see your database here, you may need to install a JDBC JAR into the server's <tt>lib</tt> directory.</p>
           </td></tr>
-      <tr><td>Database connection string:</td>
+       --%>
+      <tr class="customDb"><td>Database connection string:</td>
           <td><r:input styleClass="textInput" type="text" name="database_url" value="${database_url}" />
           <p>This is the database string that will normally be used whilst running DMX-web.</p>
           <br/>
           </td></tr>
-      <tr><td>Database dmx username:</td>
+      <tr class="customDb"><td>Database dmx username:</td>
         <td><r:input styleClass="textInput2" type="text" name="database_username" value="${database_username}" />
         </td></tr>
-      <tr><td>Database dmx password:</td>
+      <tr class="customDb"><td>Database dmx password:</td>
         <td><r:input styleClass="textInput2" type="text" name="database_password" value="${database_password}" />
         </td></tr>
+      <%--
       <tr><td>Database connection type:</td><td>
         <r:input type="radio" name="database_connectionType" trueValue="simple" value="${database_connectionType}" /> Simple - single connection specified in property file<br/>
         <r:input type="radio" name="database_connectionType" trueValue="dbcp" value="${database_connectionType}" /> Pooled - pooled connection specified in property file<br/>
         <r:input type="radio" name="database_connectionType" trueValue="jndi" value="${database_connectionType}" /> JNDI - pooled connection specified in server.xml file<br/>
       </td></tr>
-
-      <tr><td>Create new schema:</td><td>
+       --%>
+       
+      <tr class="customDb"><td>Create new schema:</td><td>
         <r:input type="radio" name="createSchema" trueValue="y" value="${createSchema}" onchange="edtChangeCreateSchema()"/> Yes - create new schema<br/>
         <r:input type="radio" name="createSchema" trueValue="n" value="${createSchema}" onchange="edtChangeCreateSchema()"/> No - use existing schema (specified in connection string above)<br/>
       </td></tr>
       <tr>
-        <td colspan="2" class="newSchema"><b>New schema settings</b></td>
+        <td colspan="2" class="customDb newSchema"><b>New schema settings</b></td>
       </tr>
-      <tr class="newSchema"><td>Database admin username:</td>
+      <tr class="customDb newSchema"><td>Database admin username:</td>
         <td><r:input styleClass="textInput2" type="text" name="databaseAdminUsername" value="${databaseAdminUsername}" />
         <br/><p>This user should be granted CREATE USER, CREATE DATABASE, CREATE TABLE and CREATE TRIGGER permissions on the database.</p>
         </td></tr>
         </td></tr>
-      <tr class="newSchema"><td>Database admin password:</td>
+      <tr class="customDb newSchema"><td>Database admin password:</td>
         <td><r:input styleClass="textInput2" type="text" name="databaseAdminPassword" value="${databaseAdminPassword}" />
         </td></tr>
-      <tr class="newSchema"><td>Admin connection string:</td>
+      <tr class="customDb newSchema"><td>Admin connection string:</td>
          <td><r:input styleClass="textInput" type="text" name="databaseAdminUrl" value="${databaseAdminUrl}" />
          <br/><p>This connection string will only be used to create the DMX-web database users, tables and triggers.</p>
          </td></tr>
-      <tr class="newSchema"><td>Database dmx schema:</td><td><r:input styleClass="textInput2" type="text" name="databaseSchema" value="${databaseSchema}" /></td></tr>
-      <tr class="newSchema"><td>Create dmx user:</td><td>
+      <tr class="customDb newSchema"><td>Database dmx schema:</td><td><r:input styleClass="textInput2" type="text" name="databaseSchema" value="${databaseSchema}" /></td></tr>
+      <tr class="customDb newSchema"><td>Create dmx user:</td><td>
         <r:input type="radio" name="createUser" trueValue="y" value="${createUser}" /> Yes - create the dmx user specified above<br/>
         <r:input type="radio" name="createUser" trueValue="n" value="${createUser}" /> No - new dmx user specified above already exists<br/>
       </td>
@@ -304,7 +423,7 @@ function edtChangeCreateSchema() {
         <div id="edtSubmit" class="edtSubmit"><img class="lhsMenuIcon" width="70" height="70" src="image/next.png" title="Next"/><div class="lhsMenuText">Next</div></div>
         </td>
       </tr>
-    <% } else if (pageNum == 3) { %>
+    <% } else if (pageNum == 4) { %>
       
       <tr>
         <td colspan="2" class="configHeader">File locations</td>
@@ -345,3 +464,9 @@ function edtChangeCreateSchema() {
 
 </body>
 </html>
+<%
+  } catch (Exception e) {
+    org.apache.log4j.Logger.getLogger("config.jsp").error("Exception in config.jsp", e);
+    throw(e);
+  }
+%>
