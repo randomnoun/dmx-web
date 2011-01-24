@@ -19,7 +19,7 @@ public class FixtureDAO {
             FixtureTO f = new FixtureTO();
             f.setId(rs.getLong("id"));
             f.setFixtureDefId(rs.getLong("fixtureDefId"));
-            f.setName(rs.getString("name"));
+            f.setName(rs.getString("name")); if (rs.wasNull()) { f.setName(null); }
             f.setDmxOffset(rs.getLong("dmxOffset"));
             f.setX(rs.getLong("x")); if (rs.wasNull()) { f.setX(null); }
             f.setY(rs.getLong("y")); if (rs.wasNull()) { f.setY(null); }
@@ -50,8 +50,7 @@ public class FixtureDAO {
         String sql =
             "SELECT id, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder " +
             " FROM fixture " +
-            (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause) +
-            " ORDER BY sortOrder, dmxOffset";
+            (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<FixtureTO>) jt.query(sql, new FixtureDAORowMapper());
     }
 
@@ -65,7 +64,7 @@ public class FixtureDAO {
         return (FixtureTO) jt.queryForObject(
             "SELECT id, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder " +
             " FROM fixture " +
-            " WHERE id = ? ",
+            " WHERE id = ?",
             new Object[] { new Long(fixtureId) }, 
             new FixtureDAORowMapper());
     }
@@ -135,19 +134,20 @@ public class FixtureDAO {
         fixture.setId(fixtureId);
         return fixtureId;
     }
-    
-    /** Delete a fixture
+
+   /** Delete a fixture
     *
     * @param fixture the fixture to update
     */
-   public void deleteFixture(FixtureTO fixture) {
-       String sql =
-           "DELETE FROM fixture " +
-           " WHERE id = ?";
-       int updated = jt.update(sql, 
-           new Object[] { fixture.getId() } );
-       if (updated!=1) {
-           throw new DataIntegrityViolationException("fixture delete failed (" + updated + " rows updated)");
-       }
-   }
+    public void deleteFixture(FixtureTO fixture) {
+        String sql =
+            "DELETE FROM fixture " +
+            " WHERE id = ?";
+        int updated = jt.update(sql,
+          new Object[] { fixture.getId() } );
+        if (updated!=1) {
+            throw new DataIntegrityViolationException("fixture delete failed (" + updated + " rows updated)");
+        }
+    }
 }
+
