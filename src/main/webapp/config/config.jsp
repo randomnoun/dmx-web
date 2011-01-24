@@ -9,8 +9,8 @@
 <%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
 <%!
-  String getChecklistImg(HttpServletRequest request, String attributeName) {
-	String img = (String) request.getAttribute(attributeName + ".img"); 
+  String getChecklistImg(Map<String, String> form, String attributeName) {
+	String img = form.get(attributeName + ".img"); 
 	if (img==null) {
 	    Logger.getLogger("config.jsp").warn("Missing request attribute '" + attributeName + ".img'");
 	    return "";
@@ -28,6 +28,12 @@
 <%
 try {
   long pageNum = ((Long) request.getAttribute("pageNumber")).longValue();
+  // probably doesn't belong in session, but this should only execute once
+  Map<String, String> objects = (Map<String, String>) session.getAttribute("com.randomnoun.dmx.objects");
+  Map<String, String> form = (Map<String, String>) session.getAttribute("com.randomnoun.dmx.config");
+
+  request.setAttribute("form", form);
+  request.setAttribute("objects", objects);
 %>
 <html>
 <head>
@@ -161,7 +167,11 @@ function edtChangeDatabaseConfig() {
 }
 function initWindow() {
     edtInitPanel();
-    if (pageNumber==3) {
+    if (pageNumber==1) {
+    	document.forms[0].elements['jsCheck'].value="Y";
+    	document.forms[0].elements['screenResolution'].value=window.screen.width + "x" + window.screen.height;
+    	document.forms[0].elements['browserResolution'].value=document.viewport.getWidth() + "x" + document.viewport.getHeight();
+    } else if (pageNumber==3) {
         edtChangeCreateSchema();
     	edtChangeDatabaseConfig();
     }
@@ -198,6 +208,10 @@ function initWindow() {
       <% if (pageNum == 1 ) { %>
       <tr>
         <td colspan="2">
+        <input type="hidden" name="jsCheck" value="" />
+        <input type="hidden" name="screenResolution" value="" />
+        <input type="hidden" name="browserResolution" value="" />
+        
         <h1>Welcome to DMX-web.</h1>
         <input type="hidden" name="pageNumber" value="1" />
         
@@ -219,7 +233,7 @@ function initWindow() {
         <p>If you want to update these properties later, then they will be 
         contained in a text file in the following location:</p>
         
-        <p><tt><%= request.getAttribute("configFileLocation") %></tt></p>
+        <p><tt><%= form.get("configFileLocation") %></tt></p>
         
         <p>Click 'Next' to continue the installation process</p>
         </td>
@@ -244,84 +258,84 @@ function initWindow() {
       </tr>
       <tr>
       <tr><td>DMX-web version:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("dmxWebVersion") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= form.get("dmxWebVersion") %></td></tr>
       <tr><td>DMX-web build:</td>
-          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= request.getAttribute("dmxWebBuild") %></td></tr>
+          <td><img src="image/config/icnOK.gif" width="16" height="16"/> <%= form.get("dmxWebBuild") %></td></tr>
 
       <tr><td>Java version:</td>
-          <td><%= getChecklistImg(request, "javaVersion") %> <%= request.getAttribute("javaVersion") %></td></tr>
-      <% if (request.getAttribute("javaVersion.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("javaVersion.text") %></td></tr>
+          <td><%= getChecklistImg(form, "javaVersion") %> <%= form.get("javaVersion") %></td></tr>
+      <% if (form.get("javaVersion.text")!=null) { %>
+      <tr><td></td><td><%= form.get("javaVersion.text") %></td></tr>
       <% } %>
 
       <tr><td>Tomcat version:</td>
-          <td><%= getChecklistImg(request, "tomcatVersion") %> <%= request.getAttribute("tomcatVersion") %></td></tr>
-      <% if (request.getAttribute("tomcatVersion.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("tomcatVersion.text") %></td></tr>
+          <td><%= getChecklistImg(form, "tomcatVersion") %> <%= form.get("tomcatVersion") %></td></tr>
+      <% if (form.get("tomcatVersion.text")!=null) { %>
+      <tr><td></td><td><%= form.get("tomcatVersion.text") %></td></tr>
       <% } %>
           
       <tr><td>RXTX JAR version:</td>
-          <td><%= getChecklistImg(request, "rxtxJarVersion") %> <%= request.getAttribute("rxtxJarVersion") %></td></tr>
-      <% if (request.getAttribute("rxtxJarVersion.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("rxtxJarVersion.text") %></td></tr>
+          <td><%= getChecklistImg(form, "rxtxJarVersion") %> <%= form.get("rxtxJarVersion") %></td></tr>
+      <% if (form.get("rxtxJarVersion.text")!=null) { %>
+      <tr><td></td><td><%= form.get("rxtxJarVersion.text") %></td></tr>
       <% } %>
           
       <tr><td>RXTX DLL version:</td>
-          <td><%= getChecklistImg(request, "rxtxDllVersion") %> <%= request.getAttribute("rxtxDllVersion") %></td></tr>
-      <% if (request.getAttribute("rxtxDllVersion.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("rxtxDllVersion.text") %></td></tr>
+          <td><%= getChecklistImg(form, "rxtxDllVersion") %> <%= form.get("rxtxDllVersion") %></td></tr>
+      <% if (form.get("rxtxDllVersion.text")!=null) { %>
+      <tr><td></td><td><%= form.get("rxtxDllVersion.text") %></td></tr>
       <% } %>
           
       <tr><td>Server config file is writable:</td>
-          <td><%= getChecklistImg(request, "serverConfigFileWritable") %> <%= request.getAttribute("serverConfigFileWritable") %></td></tr>
-      <% if (request.getAttribute("serverConfigFileWritable.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("serverConfigFileWritable.text") %></td></tr>
+          <td><%= getChecklistImg(form, "serverConfigFileWritable") %> <%= form.get("serverConfigFileWritable") %></td></tr>
+      <% if (form.get("serverConfigFileWritable.text")!=null) { %>
+      <tr><td></td><td><%= form.get("serverConfigFileWritable.text") %></td></tr>
       <% } %>    
       
       <tr><td>DMX config file is writable:</td>
-          <td><%= getChecklistImg(request, "dmxConfigFileWritable") %> <%= request.getAttribute("dmxConfigFileWritable") %></td></tr>
-      <% if (request.getAttribute("dmxConfigFileWritable.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("dmxConfigFileWritable.text") %></td></tr>
+          <td><%= getChecklistImg(form, "dmxConfigFileWritable") %> <%= form.get("dmxConfigFileWritable") %></td></tr>
+      <% if (form.get("dmxConfigFileWritable.text")!=null) { %>
+      <tr><td></td><td><%= form.get("dmxConfigFileWritable.text") %></td></tr>
       <% } %>    
 
       <tr><td>JDBC drivers available:</td>
-          <td><%= getChecklistImg(request, "jdbcDriversAvailable") %> <%= request.getAttribute("jdbcDriversAvailable") %></td></tr>
-      <% if (request.getAttribute("jdbcDriversAvailable.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("jdbcDriversAvailable.text") %></td></tr>
+          <td><%= getChecklistImg(form, "jdbcDriversAvailable") %> <%= form.get("jdbcDriversAvailable") %></td></tr>
+      <% if (form.get("jdbcDriversAvailable.text")!=null) { %>
+      <tr><td></td><td><%= form.get("jdbcDriversAvailable.text") %></td></tr>
       <% } %>    
           
       <tr><td>COM ports available:</td>
-          <td><%= getChecklistImg(request, "comPortsAvailable") %> <%= request.getAttribute("comPortsAvailable") %></td></tr>
-      <% if (request.getAttribute("comPortsAvailable.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("comPortsAvailable.text") %></td></tr>
+          <td><%= getChecklistImg(form, "comPortsAvailable") %> <%= form.get("comPortsAvailable") %></td></tr>
+      <% if (form.get("comPortsAvailable.text")!=null) { %>
+      <tr><td></td><td><%= form.get("comPortsAvailable.text") %></td></tr>
       <% } %>    
 
       <tr><td>Web browser:</td>
-          <td><%= getChecklistImg(request, "userAgent") %> <%= request.getAttribute("userAgent") %></td></tr>
-      <% if (request.getAttribute("userAgent.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("userAgent.text") %></td></tr>
+          <td><%= getChecklistImg(form, "userAgent") %> <%= form.get("userAgent") %></td></tr>
+      <% if (form.get("userAgent.text")!=null) { %>
+      <tr><td></td><td><%= form.get("userAgent.text") %></td></tr>
       <% } %>    
 
       <tr><td>Javascript enabled:</td>
-          <td><%= getChecklistImg(request, "javascriptEnabled") %> <%= request.getAttribute("javascriptEnabled") %></td></tr>
-      <% if (request.getAttribute("javascriptEnabled.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("javascriptEnabled.text") %></td></tr>
+          <td><%= getChecklistImg(form, "javascriptEnabled") %> <%= form.get("javascriptEnabled") %></td></tr>
+      <% if (form.get("javascriptEnabled.text")!=null) { %>
+      <tr><td></td><td><%= form.get("javascriptEnabled.text") %></td></tr>
       <% } %>    
 
       <tr><td>Cookies enabled:</td>
-          <td><%= getChecklistImg(request, "cookiesEnabled") %> <%= request.getAttribute("cookiesEnabled") %></td></tr>
-      <% if (request.getAttribute("cookiesEnabled.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("cookiesEnabled.text") %></td></tr>
+          <td><%= getChecklistImg(form, "cookiesEnabled") %> <%= form.get("cookiesEnabled") %></td></tr>
+      <% if (form.get("cookiesEnabled.text")!=null) { %>
+      <tr><td></td><td><%= form.get("cookiesEnabled.text") %></td></tr>
       <% } %>    
 
       <tr><td>Browser resolution:</td>
-          <td><%= getChecklistImg(request, "browserResolution") %> <%= request.getAttribute("browserResolution") %></td></tr>
-      <% if (request.getAttribute("browserResolution.text")!=null) { %>
-      <tr><td></td><td><%= request.getAttribute("browserResolution.text") %></td></tr>
+          <td><%= getChecklistImg(form, "browserResolution") %> <%= form.get("browserResolution") %></td></tr>
+      <% if (form.get("browserResolution.text")!=null) { %>
+      <tr><td></td><td><%= form.get("browserResolution.text") %></td></tr>
       <% } %>    
 
         <!-- TODO: VLC -->
-      <% if (request.getAttribute("installOK")==null) { %>
+      <% if (form.get("installOK")==null) { %>
       <tr>
         <td colspan="2">
         <br/>
@@ -351,8 +365,8 @@ function initWindow() {
         </td>
       </tr>
       <tr><td>Database configuration:</td><td>
-        <r:input type="radio" name="database_config" trueValue="standard" value="${database_config}" onchange="edtChangeDatabaseConfig()"/> Standard configuration<br/>
-        <r:input type="radio" name="database_config" trueValue="custom" value="${database_config}" onchange="edtChangeDatabaseConfig()"/> Custom configuration<br/>
+        <r:input type="radio" name="database_config" trueValue="standard" value="${form.database_config}" onchange="edtChangeDatabaseConfig()"/> Standard configuration<br/>
+        <r:input type="radio" name="database_config" trueValue="custom" value="${form.database_config}" onchange="edtChangeDatabaseConfig()"/> Custom configuration<br/>
       </td></tr>
       </tr>
       <tr class="standardDb"><td></td><td>
@@ -375,15 +389,15 @@ function initWindow() {
           </td></tr>
        --%>
       <tr class="customDb"><td>Database connection string:</td>
-          <td><r:input styleClass="textInput" type="text" name="database_url" value="${database_url}" />
+          <td><r:input styleClass="textInput" type="text" name="database_url" value="${form.database_url}" />
           <p>This is the database string that will normally be used whilst running DMX-web.</p>
           <br/>
           </td></tr>
       <tr class="customDb"><td>Database dmx username:</td>
-        <td><r:input styleClass="textInput2" type="text" name="database_username" value="${database_username}" />
+        <td><r:input styleClass="textInput2" type="text" name="database_username" value="${form.database_username}" />
         </td></tr>
       <tr class="customDb"><td>Database dmx password:</td>
-        <td><r:input styleClass="textInput2" type="text" name="database_password" value="${database_password}" />
+        <td><r:input styleClass="textInput2" type="text" name="database_password" value="${form.database_password}" />
         </td></tr>
       <%--
       <tr><td>Database connection type:</td><td>
@@ -394,28 +408,28 @@ function initWindow() {
        --%>
        
       <tr class="customDb"><td>Create new schema:</td><td>
-        <r:input type="radio" name="createSchema" trueValue="y" value="${createSchema}" onchange="edtChangeCreateSchema()"/> Yes - create new schema<br/>
-        <r:input type="radio" name="createSchema" trueValue="n" value="${createSchema}" onchange="edtChangeCreateSchema()"/> No - use existing schema (specified in connection string above)<br/>
+        <r:input type="radio" name="createSchema" trueValue="y" value="${form.createSchema}" onchange="edtChangeCreateSchema()"/> Yes - create new schema<br/>
+        <r:input type="radio" name="createSchema" trueValue="n" value="${form.createSchema}" onchange="edtChangeCreateSchema()"/> No - use existing schema (specified in connection string above)<br/>
       </td></tr>
       <tr>
         <td colspan="2" class="customDb newSchema"><b>New schema settings</b></td>
       </tr>
       <tr class="customDb newSchema"><td>Database admin username:</td>
-        <td><r:input styleClass="textInput2" type="text" name="databaseAdminUsername" value="${databaseAdminUsername}" />
+        <td><r:input styleClass="textInput2" type="text" name="databaseAdminUsername" value="${form.databaseAdminUsername}" />
         <br/><p>This user should be granted CREATE USER, CREATE DATABASE, CREATE TABLE and CREATE TRIGGER permissions on the database.</p>
         </td></tr>
         </td></tr>
       <tr class="customDb newSchema"><td>Database admin password:</td>
-        <td><r:input styleClass="textInput2" type="text" name="databaseAdminPassword" value="${databaseAdminPassword}" />
+        <td><r:input styleClass="textInput2" type="text" name="databaseAdminPassword" value="${form.databaseAdminPassword}" />
         </td></tr>
       <tr class="customDb newSchema"><td>Admin connection string:</td>
-         <td><r:input styleClass="textInput" type="text" name="databaseAdminUrl" value="${databaseAdminUrl}" />
+         <td><r:input styleClass="textInput" type="text" name="databaseAdminUrl" value="${form.databaseAdminUrl}" />
          <br/><p>This connection string will only be used to create the DMX-web database users, tables and triggers.</p>
          </td></tr>
-      <tr class="customDb newSchema"><td>Database dmx schema:</td><td><r:input styleClass="textInput2" type="text" name="databaseSchema" value="${databaseSchema}" /></td></tr>
+      <tr class="customDb newSchema"><td>Database dmx schema:</td><td><r:input styleClass="textInput2" type="text" name="databaseSchema" value="${form.databaseSchema}" /></td></tr>
       <tr class="customDb newSchema"><td>Create dmx user:</td><td>
-        <r:input type="radio" name="createUser" trueValue="y" value="${createUser}" /> Yes - create the dmx user specified above<br/>
-        <r:input type="radio" name="createUser" trueValue="n" value="${createUser}" /> No - new dmx user specified above already exists<br/>
+        <r:input type="radio" name="createUser" trueValue="y" value="${form.createUser}" /> Yes - create the dmx user specified above<br/>
+        <r:input type="radio" name="createUser" trueValue="n" value="${form.createUser}" /> No - new dmx user specified above already exists<br/>
       </td>
       </tr>
       <tr>
@@ -428,30 +442,30 @@ function initWindow() {
       <tr>
         <td colspan="2" class="configHeader">File locations</td>
       </tr>  
-      <tr><td>Temporary directory:</td><td><r:input styleClass="textInput" type="text" name="webapp.fileUpload.tempDir" value="${webapp_fileUpload_tempDir}" /></td></tr>
-      <tr><td>Upload directory:</td><td><r:input styleClass="textInput" type="text" name="webapp.fileUpload.path" value="${webapp_fileUpload_path}" /></td></tr>
-      <tr><td>Audio directory:</td><td><r:input styleClass="textInput" type="text" name="audioController.defaultPath" value="${audioController_defaultPath}" /></td></tr>
-      <tr><td>Log directory:</td><td><r:input styleClass="textInput" type="text" name="log4j.logDirectory" value="${log4j_logDirectory}" /></td></tr>
+      <tr><td>Temporary directory:</td><td><r:input styleClass="textInput" type="text" name="webapp.fileUpload.tempDir" value="${form.webapp_fileUpload_tempDir}" /></td></tr>
+      <tr><td>Upload directory:</td><td><r:input styleClass="textInput" type="text" name="webapp.fileUpload.path" value="${form.webapp_fileUpload_path}" /></td></tr>
+      <tr><td>Audio directory:</td><td><r:input styleClass="textInput" type="text" name="audioController.defaultPath" value="${form.audioController_defaultPath}" /></td></tr>
+      <tr><td>Log directory:</td><td><r:input styleClass="textInput" type="text" name="log4j.logDirectory" value="${form.log4j_logDirectory}" /></td></tr>
       <tr>
         <td colspan="2" class="configHeader">DMX connectivity (Enttec USB Pro)</td>
       </tr>
-      <tr><td>Device type:</td><td><r:select name="dmxDevice_class" value="${dmxDevice_class}" data="${dmxDeviceTypes}"  /></td></tr>
-      <tr><td>COM port:</td><td><r:select name="dmxDevice_portName" value="${dmxDevice_portName}" data="${dmxDevicePortNames}"  /></td></tr>
+      <tr><td>Device type:</td><td><r:select name="dmxDevice_class" value="${form.dmxDevice_class}" data="${objects.dmxDeviceTypes}"  /></td></tr>
+      <tr><td>COM port:</td><td><r:select name="dmxDevice_portName" value="${form.dmxDevice_portName}" data="${objects.dmxDevicePortNames}"  /></td></tr>
       <tr>
         <td colspan="2" class="configHeader">Audio connectivity (WinAMP)</td>
       </tr>
-      <tr><td>Audio source type:</td><td><r:select name="audioSource_class" value="${audioSource_class}" data="${audioSourceTypes}"  /></td></tr>
-      <tr><td>DMX-web Visualisation hostname:</td><td><r:input styleClass="textInput2" type="text" name="audioSource_host" value="${audioSource_host}" /></td></tr>
-      <tr><td>DMX-web Visualisation port:</td><td><r:input styleClass="textInput2" type="text" name="audioSource_port" value="${audioSource_port}" /></td></tr>
-      <tr><td>Controller type:</td><td><r:select name="audioController_class" value="${audioController_class}" data="${audioControllerTypes}"  /></td></tr>
-      <tr><td>NGWinAmp control hostname:</td><td><r:input styleClass="textInput2" type="text" name="audioController_host" value="${audioController_host}" /></td></tr>
-      <tr><td>NGWinAmp control port:</td><td><r:input styleClass="textInput2" type="text" name="audioController_port" value="${audioController_port}" /></td></tr>
-      <tr><td>NGWinAmp control password:</td><td><r:input styleClass="textInput2" type="text" name="audioController_password" value="${audioController_password}" /></td></tr>
+      <tr><td>Audio source type:</td><td><r:select name="audioSource_class" value="${form.audioSource_class}" data="${objects.audioSourceTypes}"  /></td></tr>
+      <tr><td>DMX-web Visualisation hostname:</td><td><r:input styleClass="textInput2" type="text" name="audioSource_host" value="${form.audioSource_host}" /></td></tr>
+      <tr><td>DMX-web Visualisation port:</td><td><r:input styleClass="textInput2" type="text" name="audioSource_port" value="${form.audioSource_port}" /></td></tr>
+      <tr><td>Controller type:</td><td><r:select name="audioController_class" value="${form.audioController_class}" data="${objects.audioControllerTypes}"  /></td></tr>
+      <tr><td>NGWinAmp control hostname:</td><td><r:input styleClass="textInput2" type="text" name="audioController_host" value="${form.audioController_host}" /></td></tr>
+      <tr><td>NGWinAmp control port:</td><td><r:input styleClass="textInput2" type="text" name="audioController_port" value="${form.audioController_port}" /></td></tr>
+      <tr><td>NGWinAmp control password:</td><td><r:input styleClass="textInput2" type="text" name="audioController_password" value="${form.audioController_password}" /></td></tr>
       <tr>
         <td colspan="2">
         <p>If you're happy with the options above, click the 'OK' button below to verify these settings.</p>
         <p>Once successfully configured, this page will no longer be available.</p>
-        <p>Changes can be made by updating the <tt><%= request.getAttribute("configFileLocation") %></tt>
+        <p>Changes can be made by updating the <tt><%= form.get("configFileLocation") %></tt>
         configuration file manually.</p>
         <div id="edtSubmit" class="edtSubmit"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="Update"/><div class="lhsMenuText">OK</div></div>        
         </td>

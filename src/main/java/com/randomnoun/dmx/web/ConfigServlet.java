@@ -20,11 +20,15 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
@@ -34,6 +38,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
@@ -61,11 +66,19 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
     /** Logger for this class */
     public static final Logger logger = Logger.getLogger(ConfigServlet.class);
      
+    
+    public static final String SESS_CONFIG = "com.randomnoun.dmx.config";
+    public static final String SESS_OBJECTS = "com.randomnoun.dmx.objects";
 
 	// other properties just used during configuration
 	String[] configProperties = new String[] {
 			"pageNumber",
-			
+			"jsCheck",
+			"browserResolution",
+			"screenResolution",
+			"createSchema",
+			"createUser",
+			"database_config",
 			"databaseAdminUsername", 
 			"databaseAdminPassword",
 			"databaseAdminUrl"
@@ -116,24 +129,31 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
     {
 		try {
 			logger.info("ConfigServlet start");
+			HttpSession session = request.getSession(true);
 			String jspForward = "";
 			String action = request.getParameter("action");
 			if (action==null) { action = ""; }
 			Exception e = (Exception) request.getAttribute("exception");
 			ErrorList errors = new ErrorList();
 			long page = -1;
-			
+			request.setAttribute("errors", errors);
 			
 			if (action.equals("maintain")) {
-				Map<String, String> form = new HashMap<String, String>();
-				Struct.setFromRequest(form, request, configProperties);
-				Struct.setFromRequest(form, request, fileProperties);
-				
-
-				Map<String, Object> defaultAttributes = getDefaultAttributes();
-				for (String key : defaultAttributes.keySet()) {
-					request.setAttribute(key, defaultAttributes.get(key));
+				Map<String, Object> objects = (Map<String, Object>) session.getAttribute(SESS_OBJECTS);
+				if (objects==null) {
+					objects = getDefaultObjects();
+					session.setAttribute(SESS_OBJECTS, objects);
 				}
+				Map<String, String> form = (Map<String, String>) session.getAttribute(SESS_CONFIG);
+				if (form==null) {
+					form = getDefaultStrings(objects);
+					session.setAttribute(SESS_CONFIG, form);
+				}
+				
+				// @TODO don't set if not included in request
+				setFromRequest(form, request, configProperties);
+				setFromRequest(form, request, fileProperties);
+
 		        request.setAttribute("submitIcon", "next");
 		        request.setAttribute("backIcon", "back");
 		        jspForward="config/config.jsp";
@@ -144,6 +164,65 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 
 				} else if (pageNumber.equals("1")) {
 					// from initial page
+					if (session.isNew()) {
+						form.put("cookiesEnabled", "No");
+			        	form.put("cookiesEnabled.img", "error");
+			        	form.put("cookiesEnabled.text", "This site requires cookies - please enable before continuing");
+					} else {
+						form.put("cookiesEnabled", "Yes");
+						form.put("cookiesEnabled.img", "ok");
+						form.remove("cookiesEnabled.text");
+					}
+					if (!"Y".equals(form.get("jsCheck"))) {
+						form.put("javascriptEnabled", "No");
+			        	form.put("javascriptEnabled.img", "error");
+			        	form.put("javascriptEnabled.text", "This site requires javascript - please enable before continuing");
+					} else {
+						form.put("javascriptEnabled", "Yes");
+						form.put("javascriptEnabled.img", "ok");
+						form.remove("javascriptEnabled.text");
+					}
+					String browserResolution = form.get("browserResolution");
+					String screenResolution = form.get("screenResolution");
+					form.put("browserResolution", browserResolution + " (screen resolution " + screenResolution + ")");
+					form.put("browserResolution.img", "ok");
+					// @TODO check to see if it's set to the minimum size (1226x1050)
+					Pattern p = Pattern.compile("([0-9]+)x([0-9]+)");
+					Matcher m = p.matcher(screenResolution);
+					long width, height;
+					if (m.matches()) {
+						width=Long.parseLong(m.group(1));
+						height=Long.parseLong(m.group(2));
+						if (width<1230 || height<730) {
+							form.put("browserResolution.img", "warn");
+							form.put("browserResolution.text", "Visible browser area should be set to at least 1230x730 pixels; your screen resolution is set too low. Please increase your screen resolution.");
+						} else {
+							m = p.matcher(browserResolution);
+							if (m.matches()) {
+								width=Long.parseLong(m.group(1));
+								height=Long.parseLong(m.group(2));
+								if (width<1230 || height<730) {
+									form.put("browserResolution.img", "warn");
+									form.put("browserResolution.text", "Visible browser area should be set to at least 1230x730 pixels; you can press the F11 key to enable full-screen browser mode.");
+								} else {
+									form.remove("browserResolution.text");
+								}
+							} else {
+								form.put("browserResolution.img", "warn");
+								form.put("browserResolution.text", "Could not determine browser dimensions.");								
+							}
+						}
+					} else {
+						form.put("browserResolution.img", "warn");
+						form.put("browserResolution.text", "Could not determine screen dimensions.");								
+					}
+					
+					
+					String userAgent = request.getHeader("User-Agent");
+					form.put("userAgent", userAgent);
+					form.put("userAgent.img", "ok");
+					// @TODO check minimum versions
+					
 			        request.setAttribute("pageNumber", new Long(2));
 					
 				} else if (pageNumber.equals("2")) {
@@ -154,38 +233,38 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 					// from database page
 
 					// validate DB connection
+					String errorFields=null, errorText=null;
 					try {
 						Class.forName(form.get("database_driver"));
-						if (Text.isBlank(form.get("database_username")) && Text.isBlank(form.get("database_password"))) {
+						String dbCheckUsername, dbCheckPassword, dbCheckUrl;
+						if ("y".equals(form.get("createSchema"))) {
+							dbCheckUsername = form.get("databaseAdminUsername");
+							dbCheckPassword = form.get("databaseAdminPassword");
+							dbCheckUrl = form.get("databaseAdminUrl");
+							errorFields = "databaseAdminUrl,databaseAdminUsername,databaseAdminPassword";
+							errorText = "There was a problem connecting to the database using the admin credentials: ";
+						} else {
+							dbCheckUsername = form.get("database_username");
+							dbCheckPassword = form.get("database_password");
+							dbCheckUrl = form.get("database_url");
+							errorFields = "database_driver,database_url,database_username,database_password";
+							errorText = "There was a problem connecting to the database: ";
+						}
+						
+						if (Text.isBlank(dbCheckUsername) && Text.isBlank(form.get(dbCheckPassword))) {
 							Connection conn = DriverManager.getConnection(form.get("database_url"));
 							conn.close();
 						} else {
-							Connection conn = DriverManager.getConnection(form.get("database_url"), form.get("database_username"), form.get("database_password"));
+							Connection conn = DriverManager.getConnection(form.get("database_url"), form.get("dbCheckUsername"), form.get("dbCheckPassword"));
 							conn.close();
 						}
 					} catch (Exception e2) {
-						errors.addError("database_driver,database_url,database_username,database_password",
-							"Database error", "There was a problem connecting to the database: " +
+						errors.addError(errorFields,
+							"Database error", errorText +
 							ExceptionUtils.getStackTraceSummary(e2));
 					}
 					
-					// if creating database, validate admin connection
-					if ("y".equals(form.get("createSchema"))) {
-						try {
-							if (Text.isBlank(form.get("databaseAdminUsername")) && Text.isBlank(form.get("databaseAdminPassword"))) {
-								Connection conn = DriverManager.getConnection(form.get("databaseAdminUrl"));
-								conn.close();
-							} else {
-								Connection conn = DriverManager.getConnection(form.get("databaseAdminUrl"), form.get("databaseAdminUsername"), form.get("databaseAdminPassword"));
-								conn.close();
-							}
-						} catch (Exception e2) {
-							errors.addError("databaseAdminUrl,databaseAdminUsername,databaseAdminPassword",
-								"Database error", "There was a problem connecting to the database using the admin credentials: " +
-								ExceptionUtils.getStackTraceSummary(e2));
-						}
-					}
-		
+					
 					// check file paths look OK
 		        	String dirName = form.get("webapp_fileUpload_tempDir");
 		        	File file = new File(dirName);
@@ -257,11 +336,10 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 			} else if (!e.getMessage().equals("No appConfig")) {
 				jspForward = "misc/error.jsp";
 			} else {
-
-				Map<String, Object> defaultAttributes = getDefaultAttributes();
-				for (String key : defaultAttributes.keySet()) {
-					request.setAttribute(key, defaultAttributes.get(key));
-				}
+				Map<String, Object> objects = getDefaultObjects();
+				Map<String, String> form = (Map<String, String>) getDefaultStrings(objects);
+				session.setAttribute(SESS_OBJECTS, objects);
+				session.setAttribute(SESS_CONFIG, form);
 		        request.setAttribute("pageNumber", new Long(1));
 		        request.setAttribute("submitIcon", "next");
 				jspForward="config/config.jsp";
@@ -325,9 +403,68 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
     	return version;
     }
     
-    @SuppressWarnings("unchecked")
-	Map<String, Object> getDefaultAttributes() throws IOException, ParseException {
+    Map<String, Object> getDefaultObjects() throws IOException, ParseException {
     	Map<String, Object> defaultAttributes = new HashMap<String, Object>();
+
+        
+        List driversList = new ArrayList();;
+        defaultAttributes.put("databaseDrivers", driversList);
+        Map exampleConnectionStrings = new HashMap();
+        Map exampleAdminConnectionStrings = new HashMap();
+        for (Enumeration ed = DriverManager.getDrivers(); ed.hasMoreElements(); ) {
+        	Driver d = (Driver) ed.nextElement();
+        	String className = d.getClass().getName();
+        	driversList.add(d.getClass().getName());
+        	if (className.equals("com.mysql.jdbc.Driver")) {
+        		exampleConnectionStrings.put(className, "jdbc:mysql://localhost/dmxweb?zeroDateTimeBehavior=convertToNull&autoReconnect=true");
+        		exampleAdminConnectionStrings.put(className, "jdbc:mysql://localhost/information_schema");
+        	} else if (className.equals("sun.jdbc.odbc.JdbcOdbcDriver")) {
+        		exampleConnectionStrings.put(className, "jdbc:odbc:dsn_name");
+        		exampleAdminConnectionStrings.put(className, "jdbc:odbc:dsn_name");
+        	} else {
+        		exampleConnectionStrings.put(className, "Refer to driver documentation");
+        		exampleAdminConnectionStrings.put(className, "jdbc:odbc:dsn_name");
+        	}
+        }
+        defaultAttributes.put("exampleConnectionStrings", exampleConnectionStrings);
+        defaultAttributes.put("exampleAdminConnectionStrings", exampleAdminConnectionStrings);
+
+        List dmxDevicePortNames = new ArrayList();
+        Enumeration portList = CommPortIdentifier.getPortIdentifiers();
+		while (portList.hasMoreElements()) {
+			CommPortIdentifier portId = (CommPortIdentifier) portList.nextElement();
+		    if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+		    	dmxDevicePortNames.add(portId.getName());
+		    }
+		}
+		defaultAttributes.put("dmxDevicePortNames", dmxDevicePortNames);
+        
+        List deviceTypes = new ArrayList();
+        deviceTypes.add("com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidget");
+        defaultAttributes.put("dmxDeviceTypes", deviceTypes);
+
+        List audioControllerTypes = new ArrayList();
+        audioControllerTypes.add("com.randomnoun.dmx.protocol.ngWinamp.WinampAudioController");
+        defaultAttributes.put("audioControllerTypes", audioControllerTypes);
+        defaultAttributes.put("audioController_class", "com.randomnoun.dmx.protocol.ngWinamp.WinampAudioController");
+
+        List audioSourceTypes = new ArrayList();
+        audioSourceTypes.add("com.randomnoun.dmx.protocol.dmxWinamp.WinampAudioSource");
+        defaultAttributes.put("audioSourceTypes", audioSourceTypes);
+        defaultAttributes.put("audioSource_class", "com.randomnoun.dmx.protocol.dmxWinamp.WinampAudioSource");
+
+        
+        
+        
+        
+        return defaultAttributes;
+    	
+    }
+    
+    
+    @SuppressWarnings("unchecked")
+	Map<String, String> getDefaultStrings(Map<String, Object> defaultObjects) throws IOException, ParseException {
+    	Map<String, String> defaultAttributes = new HashMap<String, String>();
     	
 		String configPath = System.getProperty(AppConfig.SYSTEM_PROPERTY_KEY_CONFIG_PATH);
     	if (configPath==null) { configPath = "."; }
@@ -469,26 +606,12 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         }
         
         // get existing database types
-        List driversList = new ArrayList();;
-        Map exampleConnectionStrings = new HashMap();
-        Map exampleAdminConnectionStrings = new HashMap();
-        for (Enumeration ed = DriverManager.getDrivers(); ed.hasMoreElements(); ) {
-        	Driver d = (Driver) ed.nextElement();
-        	String className = d.getClass().getName();
-        	driversList.add(d.getClass().getName());
-        	if (className.equals("com.mysql.jdbc.Driver")) {
-        		exampleConnectionStrings.put(className, "jdbc:mysql://localhost/dmxweb?zeroDateTimeBehavior=convertToNull&autoReconnect=true");
-        		exampleAdminConnectionStrings.put(className, "jdbc:mysql://localhost/information_schema");
-        	} else if (className.equals("sun.jdbc.odbc.JdbcOdbcDriver")) {
-        		exampleConnectionStrings.put(className, "jdbc:odbc:dsn_name");
-        		exampleAdminConnectionStrings.put(className, "jdbc:odbc:dsn_name");
-        	} else {
-        		exampleConnectionStrings.put(className, "Refer to driver documentation");
-        		exampleAdminConnectionStrings.put(className, "jdbc:odbc:dsn_name");
-        	}
-        }
+
         // should put MySQL at top of list
         // TODO: try to register some common database types
+        List driversList = (List) defaultObjects.get("databaseDrivers");
+        Map exampleConnectionStrings = (Map) defaultObjects.get("exampleConnectionStrings");
+        Map exampleAdminConnectionStrings = (Map) defaultObjects.get("exampleAdminConnectionStrings");
         String defaultDriver = driversList.contains("com.mysql.jdbc.Driver") ? "com.mysql.jdbc.Driver" : (String) driversList.get(0);
         String defaultConnString = Text.strDefault((String) exampleConnectionStrings.get(defaultDriver), "Refer to driver documentation");
         String defaultAdminConnString = Text.strDefault((String) exampleAdminConnectionStrings.get(defaultDriver), "Refer to driver documentation");
@@ -504,8 +627,8 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         }
         
         defaultAttributes.put("createSchema", "y");
+        defaultAttributes.put("createUser", "y");
         defaultAttributes.put("databaseSchema", "dmxweb");
-        defaultAttributes.put("databaseDrivers", driversList);
         defaultAttributes.put("database_driver", defaultDriver);
         defaultAttributes.put("database_url", defaultConnString);
         defaultAttributes.put("database_username", "dmxweb");
@@ -516,14 +639,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         defaultAttributes.put("databaseAdminPassword", "abc123");
         defaultAttributes.put("databaseAdminUrl", defaultAdminConnString);
         
-        List dmxDevicePortNames = new ArrayList();
-        Enumeration portList = CommPortIdentifier.getPortIdentifiers();
-		while (portList.hasMoreElements()) {
-			CommPortIdentifier portId = (CommPortIdentifier) portList.nextElement();
-		    if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-		    	dmxDevicePortNames.add(portId.getName());
-		    }
-		}
+        List dmxDevicePortNames = (List) defaultObjects.get("dmxDevicePortNames");
         defaultAttributes.put("comPortsAvailable", Text.join(dmxDevicePortNames, ","));
         if (dmxDevicePortNames.size()==0) {
         	defaultAttributes.put("comPortsAvailable.img", "warn");
@@ -539,7 +655,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         defaultAttributes.put("log4j_logDirectory", logDir.getCanonicalPath());
         defaultAttributes.put("audioController_defaultPath", audioDir.getCanonicalPath());
         
-        
+        /*
         List deviceTypes = new ArrayList();
         deviceTypes.add("com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidget");
         defaultAttributes.put("dmxDeviceTypes", deviceTypes);
@@ -553,10 +669,15 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         audioSourceTypes.add("com.randomnoun.dmx.protocol.dmxWinamp.WinampAudioSource");
         defaultAttributes.put("audioSourceTypes", audioSourceTypes);
         defaultAttributes.put("audioSource_class", "com.randomnoun.dmx.protocol.dmxWinamp.WinampAudioSource");
-
+		*/
         
-        defaultAttributes.put("dmxDevicePortNames", dmxDevicePortNames);
-
+        List audioControllerTypes = (List) defaultObjects.get("audioControllerTypes");
+        defaultAttributes.put("audioController_class", (String) audioControllerTypes.get(0));
+        
+        List audioSourceTypes = (List) defaultObjects.get("audioSourceTypes");
+        defaultAttributes.put("audioSource_class", (String) audioControllerTypes.get(0));
+        
+        
         if (!"".equals(winAmpLocation)) {
 	        Properties ngPluginProperties = new Properties();
 	        if (ngPluginCfg.exists()) {
@@ -620,6 +741,32 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 			return false;
 		}
     	
+    }
+    
+    public static void setFromRequest(Object obj, HttpServletRequest request, String[] fields) {
+        Iterator paramListIter;
+
+        if (fields == null) {
+            paramListIter = request.getParameterMap().keySet().iterator();
+        } else {
+            paramListIter = Arrays.asList(fields).iterator();
+        }
+
+        while (paramListIter.hasNext()) {
+            String parameter = (String) paramListIter.next();
+            String value = request.getParameter(parameter);
+            
+            // convert CR-LFs into java newlines 
+            value = Text.replaceString(value, "\015\012", "\n");
+
+            // The null check below is commented out because we need to be able to pass
+            // null values through in order to set booleans values for checkboxes
+            // that are unchecked (these are represented in HTTP by missing (null) parameters)
+
+            if (value != null) { 
+            	Struct.setValue(obj, parameter, value, true, true, true);
+            }
+        }
     }
 
 	
