@@ -142,6 +142,9 @@ LI { font-size: 10pt; line-height: 1.5; }
 </style>
 <script>
 <r:setJavascriptVar name="pageNumber" value="${pageNumber}"/>
+<r:setJavascriptVar name="exampleConnectionStrings" value="${objects.exampleConnectionStrings}"/>
+<r:setJavascriptVar name="exampleAdminConnectionStrings" value="${objects.exampleAdminConnectionStrings}"/>
+
 function edtInitPanel() {
     var edtSubmitEl = $("edtSubmit");
     Event.observe(edtSubmitEl, 'click', edtSubmitClick);
@@ -163,7 +166,15 @@ function edtChangeCreateSchema() {
 function edtChangeDatabaseConfig() {
 	var databaseConfig = document.forms[0].elements['database_config'][0].checked;
 	$$(".standardDb").each(function(s){s.style.display=databaseConfig?'table-row':'none';});
-	$$(".customDb").each(function(s){s.style.display=databaseConfig?'none':'table-row';});	
+	$$(".customDb").each(function(s){s.style.display=databaseConfig?'none':'table-row';});
+}
+function edtChangeDatabaseDriver() {
+	var databaseDriver = document.forms[0].elements['database_driver'].value;
+	var exampleConnectionString = exampleConnectionStrings[databaseDriver];
+	var exampleAdminConnectionString = exampleAdminConnectionStrings[databaseDriver];
+	
+	$("exampleDatabaseUrl").update("<br/>Example " + databaseDriver + " connection string:<br/><br/><tt>" + exampleConnectionString + "</tt>");
+	$("exampleAdminUrl").update("<br/>Example " + databaseDriver + " admin connection string:<br/><br/><tt>" + exampleAdminConnectionString + "</tt>");
 }
 function initWindow() {
     edtInitPanel();
@@ -174,6 +185,7 @@ function initWindow() {
     } else if (pageNumber==3) {
         edtChangeCreateSchema();
     	edtChangeDatabaseConfig();
+    	edtChangeDatabaseDriver();
     }
 }
 
@@ -203,8 +215,8 @@ function initWindow() {
         <input type="hidden" name="action" value="maintain" /> 
 
   <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
-      <col width="300px;" >
-      <col width="700px;" >
+      <col width="200px;" >
+      <col width="800px;" >
       <% if (pageNum == 1 ) { %>
       <tr>
         <td colspan="2">
@@ -382,15 +394,14 @@ function initWindow() {
       <tr class="customDb">
         <td colspan="2"><b>Custom configuration</b></td>
       </tr>
-      <%--
-      <tr><td>Database driver:</td>
-          <td><r:select name="database_driver" value="${database_driver}" data="${databaseDrivers}"  />
+      <tr class="customDb"><td>Database driver:</td>
+          <td><r:select name="database_driver" value="${database_driver}" data="${objects.databaseDrivers}" onchange="edtChangeDatabaseDriver()" />
           <br/><p>If you don't see your database here, you may need to install a JDBC JAR into the server's <tt>lib</tt> directory.</p>
           </td></tr>
-       --%>
       <tr class="customDb"><td>Database connection string:</td>
           <td><r:input styleClass="textInput" type="text" name="database_url" value="${form.database_url}" />
-          <p>This is the database string that will normally be used whilst running DMX-web.</p>
+          <p>This is the database string that will normally be used whilst running DMX-web.
+          <br/><span id="exampleDatabaseUrl"></span></p>
           <br/>
           </td></tr>
       <tr class="customDb"><td>Database dmx username:</td>
@@ -416,7 +427,7 @@ function initWindow() {
       </tr>
       <tr class="customDb newSchema"><td>Database admin username:</td>
         <td><r:input styleClass="textInput2" type="text" name="databaseAdminUsername" value="${form.databaseAdminUsername}" />
-        <br/><p>This user should be granted CREATE USER, CREATE DATABASE, CREATE TABLE and CREATE TRIGGER permissions on the database.</p>
+        <br/><p>This user will be used to create the new schema. It should be granted CREATE USER, CREATE DATABASE, CREATE TABLE and CREATE TRIGGER permissions on the database.</p>
         </td></tr>
         </td></tr>
       <tr class="customDb newSchema"><td>Database admin password:</td>
@@ -424,7 +435,8 @@ function initWindow() {
         </td></tr>
       <tr class="customDb newSchema"><td>Admin connection string:</td>
          <td><r:input styleClass="textInput" type="text" name="databaseAdminUrl" value="${form.databaseAdminUrl}" />
-         <br/><p>This connection string will only be used to create the DMX-web database users, tables and triggers.</p>
+         <p>This connection string will only be used to create the DMX-web database users, tables and triggers.<br/>
+         <span id="exampleAdminUrl"></span></p>
          </td></tr>
       <tr class="customDb newSchema"><td>Database dmx schema:</td><td><r:input styleClass="textInput2" type="text" name="databaseSchema" value="${form.databaseSchema}" /></td></tr>
       <tr class="customDb newSchema"><td>Create dmx user:</td><td>
