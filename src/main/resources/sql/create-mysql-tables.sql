@@ -27,6 +27,7 @@ CREATE TABLE `fixture` (
    `upX` FLOAT DEFAULT NULL,
    `upY` FLOAT DEFAULT NULL,
    `upZ` FLOAT DEFAULT NULL,
+   `sortOrder` INT(10) DEFAULT NULL,
   PRIMARY KEY (`Id`)
 )
 ENGINE = InnoDB;
