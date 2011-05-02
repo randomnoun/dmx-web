@@ -453,10 +453,6 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         defaultAttributes.put("audioSourceTypes", audioSourceTypes);
         defaultAttributes.put("audioSource_class", "com.randomnoun.dmx.protocol.dmxWinamp.WinampAudioSource");
 
-        
-        
-        
-        
         return defaultAttributes;
     	
     }

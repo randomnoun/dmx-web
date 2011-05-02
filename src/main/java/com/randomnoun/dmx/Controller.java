@@ -53,6 +53,8 @@ public class Controller {
 		return audioController;
 	}
 	
+	// @TODO make these package private, and invoke them from a utility class
+	
 	/** Adds a Fixture to this Controller. 
 	 * 
 	 * @param f fixture to add
@@ -60,6 +62,16 @@ public class Controller {
 	public void addFixture(Fixture f) {
 		fixtures.add(f);
 	}
+
+	/** Removes a Fixture from this Controller. This should only ever be called internally
+	 * if the fixture or fixture controller cannot be instantiated correctly.
+	 * 
+	 * @param f fixture to add
+	 */
+	public void removeFixture(Fixture f) {
+		fixtures.remove(f);
+	}
+
 	
 	/** Removes all fixtures from this controller.
 	 * This method is used during reloads 

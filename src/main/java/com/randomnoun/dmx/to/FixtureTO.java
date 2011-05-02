@@ -212,7 +212,6 @@ public class FixtureTO {
     public void setSortOrder(Long sortOrder) {
         this.sortOrder = sortOrder;
     }
-    
-    
+
 }
 

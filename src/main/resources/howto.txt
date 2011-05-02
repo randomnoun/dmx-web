@@ -1,0 +1,357 @@
+DMX-Web
+
+Some documentation thereof
+
+DMX-Web allows you to control DMX-enabled lighting fixtures from a PC running a standard
+web browser. Because of it's networked design, it offers some levels of resilience against
+some types of hardware failure. Also because of it's networked design, it offers some
+more likelihood of other types of hardware failure, but it's not as if I'm going to tell you
+that. Think of it like some kind of cloud-enabled networking thing. That's currently what
+all the cool kids are doing.
+
+Fixtures can be designed, installed, manipulated and choreographed from the
+one browser instance.
+
+How does it work ?
+
+Some kind of diagram would work a treat here.
+
+              Browser1 Browser2 Browser3
+                  :      :      :
+                  :      :      :
+                  +-------------+
+                         :  
+    [fixture1]       [DMX-Web]        +---- Audio output
+        :                :            :
+    [fixture2]         [PC]-----------+---- Audio input
+        :                :            :
+    [fixture3]    [DMX adaptor]       +---- Video output
+        :                :            
+        :                :
+        +----------------+
+
+What is DMX ?
+
+A blurb copied from opendmx is what it is.
+or from http://www.pangolin.com/LD2000/dmx-about.htm
+
+Some description of some DMX terms (channel, universe, offsets) would be useful.
+Some explanation of DMX-web terms might be handy here as well.
+
+What hardware configurations are supported ?
+
+Currently, not that much. Donations welcome.
+
+
+How do I use it ?
+
+Well, let's just pretend that you've got the thing up and running somehow.
+
+What you'll see from the main page is a touch-screen-compatible view of the DMX-Web server.
+On the left is a list of Panels, which vary from low-level configuration, DMX values, and
+fixtures through to Shows, allowing you to trigger pre-programmed series of fixture
+changes from one location. 
+
+Once you have your lighting rig set up, then you should be
+spending most of your time in the 'Shows' panel, but until then you'll need to get things
+configured correctly.
+
+Probably worth going through each of these panels then:
+
+[Config] 
+
+The Config Panel is where you set up fixture definitions (i.e. types of lighting heads), fixtures
+(i.e. patched lighting heads), show definitions and shows. You can also reset your
+DMX hardware from here, and/or view any warning messages that have appeared in the logs.
+
+The configuration options are explained in more detail [on the page that this hyperlink will
+eventually go to]
+
+[DMX]
+
+The DMX Panel allows you to view all the raw DMX values in the DMX universe (each fixture takes up a 
+range of channels within the DMX universe, and each channel can have a value from 0 to 255).
+You can view which channels have been patched to a fixture, the types of output 
+that each channel generated, and the values for those channels. Updating DMX values through
+this panel is not the recommended way
+of performing fixture updates, but it is useful whilst determining what the hell a particular
+fixture is capable of doing.
+
+[Fixtures]
+
+This panel shows you a fixture-oriented view of the DMX universe. Each fixture is represented
+as a button on this panel, which can be selected individually or in groups. You can update
+your fixture output here using more natural terminology 
+(e.g. pan fixtures 1-4 45 degrees, rather than setting DMX channels 1, 5, 9, 13 to the value 80).
+
+In addition to general fixture output commands (dimming, strobe, color and pan/tilt controls),
+and depending on the types of fixtures being selected, you may be able to select a 'custom controls'
+panel, which is a dynamically generated panel specifically designed for that fixture.
+
+[Shows]
+
+The Shows Panel allows you to trigger a pre-programmed set of changes to your fixture output.
+Each show can either have a fixed duration or be set as continuous; once a show is complete
+a follow-up show can be preset, in order to have a more fool-proof show system. Shows can
+either have predetermined output or be based on external factors (e.g. audio output).
+
+It is also possible to run multiple shows at the same time; e.g. you could have a set of 
+shows which drive one type of fixture and another set of shows which drive a different 
+set of fixtures, allowing you to achieve more complex lighting scenarios.
+
+[Blackout]
+
+The blackout button does not bring up a separate panel, but is used to set all the values in the
+DMX universe to zero. Note that that this doesn't cancel any running shows; in order
+to stop a show, you need to go to the Shows Panel and cancel it from there. 
+
+
+
+
+
+
+*** the config page ***
+
+First, you'll need to add some fixture definitions. What I'm probably going to do
+is convert all the FDs from some other applications I've got into DMX-Web format.
+
+Or, as it happens, leave it as an Exercise for the Reader. And possibly get some kind of
+online fixture library thing going.
+
+
+
+
+
+
+
+
+Walk me step by step through pretty much everything ?
+
+Righteo. First you'll need a fixture definition, then a fixture, then a show definition, then a show.
+
+A fixture definition consists of
+
+- some metadata about what the fixture is (vendor/make/model), how many DMX channels it takes up,
+  and a Channel Definition for each of those channels.
+
+- a Channel Muxer, which can take the DMX values of the fixture and convert it to fixture output
+  (e.g. when channel 1 is set to the value 10, then the fixture is in strobe mode)
+
+- a Fixture Controller which can take requested output and convert it to channel values
+  (e.g. to set the fixture to green, set channel 3 and 4 to zero and set channel 5 to 255).
+
+Fixture definitions can either be created using the GUI that I haven't actually written yet,
+or by entering scripting code. The only scripting language currently supported is Java
+(using the Beanshell framework).
+
+A simple fixture definition looks like this:
+
+package com.example.dmx.fixture;
+
+import com.randomnoun.dmx.channel.MacroChannelDef;
+import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
+import com.randomnoun.dmx.channel.dimmer.BlueDimmerChannelDef;
+import com.randomnoun.dmx.channel.dimmer.GreenDimmerChannelDef;
+import com.randomnoun.dmx.channel.dimmer.MasterDimmerChannelDef;
+import com.randomnoun.dmx.channel.dimmer.RedDimmerChannelDef;
+import com.randomnoun.dmx.channel.SpeedChannelDef;
+import com.randomnoun.dmx.channel.StrobeChannelDef;
+import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureController;
+import com.randomnoun.dmx.fixture.FixtureDef;
+  
+/** Fixture definition for some PAR-64 spotlights found through the 
+ * magic of ebay.
+ *
+ * @author knoxg
+ */
+public class X0177FixtureDef extends FixtureDef {
+
+  public X0177FixtureDef() {
+    this.vendor = "Chinese sweatshop workers";
+    this.model = "X0177";
+    this.htmlLabel = "X0177 PAR 64";
+    this.htmlImg16 = "par_16x16.png";
+    this.htmlImg32 = "par_32x32.png";
+    this.maxWattage = 20;
+    
+    this.minimumStrobeHertz = 0.55;
+    this.maximumStrobeHertz = 4.0;
+    
+    this.numDmxChannels=7;
+    
+    this.addChannelDef(new MasterDimmerChannelDef(0));
+    this.addChannelDef(new RedDimmerChannelDef(1));
+    this.addChannelDef(new GreenDimmerChannelDef(2));
+    this.addChannelDef(new BlueDimmerChannelDef(3));
+    // 0.55Hz->4Hz strobe
+    this.addChannelDef(new StrobeChannelDef(4, 0,
+      minimumStrobeHertz, 8, maximumStrobeHertz, 250));
+    MacroChannelDef mcd = new MacroChannelDef(5);
+    mcd.addMacro(new Macro("rainbow color change, fade transition", 96, 127));
+    mcd.addMacro(new Macro("RBG color change, no transition", 128, 159));
+    mcd.addMacro(new Macro("RGB color change, flash each color to black 3 times", 160, 191));
+    mcd.addMacro(new Macro("rainbow color change, no transition", 192, 255));
+    this.addChannelDef(mcd);
+    this.addChannelDef(new SpeedChannelDef(6, 0, 255, 1.0, 3.0));
+  }
+  
+  
+  // TODO: this bit needs a GUI
+  public ChannelMuxer getChannelMuxer(Fixture fixture) {
+    return new X0177ChannelMuxer(fixture);
+  }
+  
+  public FixtureController getFixtureController(Fixture fixture) {
+    return new X0177FixtureController(fixture);
+  }
+  
+}
+
+
+(and then annotate this to the bejeesus)
+
+Possible fixture attributes are:
+
+....
+
+A simple fixture muxer looks like this:
+
+package com.example.dmx.fixture;
+
+import java.awt.Color;
+
+import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.ChannelMuxerWrapper;
+import com.randomnoun.dmx.channelMuxer.MacroChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.filter.MasterDimmerChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.primitive.ColorChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.timed.StrobeChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.timed.TimedColorGradientChannelMuxer;
+import com.randomnoun.dmx.channelMuxer.timed.ColorGradientTransition;
+import com.randomnoun.dmx.channelMuxer.timed.ColorGradientDef;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.timeSource.DistortedTimeSource;
+import com.randomnoun.dmx.timeSource.TimeSource;
+import com.randomnoun.dmx.timeSource.UniverseTimeSource;
+
+/** The channel muxer allows the application to determine what the fixture is
+ * doing based on the current values of it's DMX channels
+ */
+public class X0177ChannelMuxer extends ChannelMuxerWrapper {
+    
+  public X0177ChannelMuxer(Fixture fixture) {
+    super(fixture);
+    
+    TimeSource universeTimeSource = new UniverseTimeSource(fixture.getUniverse());
+    TimeSource distortedTimeSource = new DistortedTimeSource(fixture, universeTimeSource);
+
+    // these would be import static in Java  
+    ColorGradientTransition FADE = ColorGradientTransition.FADE;  
+    ColorGradientTransition SHARP = ColorGradientTransition.SHARP;
+  
+    // output is determined by
+    //   color DMX values + strobe DMX value
+    // which may be overridden by one of the macro DMX values, if set
+    // which can be sped up by the macro speed DMX value
+    //
+    // and the fixture can then be dimmed by the master dimmer DMX value
+    
+    ChannelMuxer colorMuxer = new ColorChannelMuxer(fixture);
+    StrobeChannelMuxer strobeMuxer =
+      new StrobeChannelMuxer(colorMuxer, universeTimeSource);
+    
+    ChannelMuxer macro0Muxer =
+      new TimedColorGradientChannelMuxer(fixture, distortedTimeSource,
+      new ColorGradientDef[] {
+      new ColorGradientDef(0, Color.BLUE, 1000,FADE),
+      new ColorGradientDef(1000, Color.GREEN, 1000, FADE),
+      new ColorGradientDef(2000, Color.CYAN, 1000, FADE),
+      new ColorGradientDef(3000, Color.RED, 1000, FADE),
+      new ColorGradientDef(4000, Color.MAGENTA, 1000, FADE),
+    });
+    ChannelMuxer macro1Muxer =
+      new TimedColorGradientChannelMuxer(fixture, distortedTimeSource,
+      new ColorGradientDef[] {
+      new ColorGradientDef(0, Color.RED, 1000, SHARP),
+      new ColorGradientDef(1000, Color.BLUE, 1000, SHARP),
+      new ColorGradientDef(2000, Color.GREEN, 1000, SHARP),
+    });
+    ChannelMuxer macro2Muxer =
+      new TimedColorGradientChannelMuxer(fixture, distortedTimeSource,
+      new ColorGradientDef[] {
+      new ColorGradientDef(0, Color.RED, 500, SHARP),
+      new ColorGradientDef(500, Color.BLACK, 500, SHARP),
+      new ColorGradientDef(1000, Color.RED, 500, SHARP),
+      new ColorGradientDef(1500, Color.BLACK, 500, SHARP),
+      new ColorGradientDef(2000, Color.RED, 500, SHARP),
+      new ColorGradientDef(2500, Color.BLACK, 500, SHARP),
+      new ColorGradientDef(3000, Color.GREEN, 500, SHARP),
+      new ColorGradientDef(3500, Color.BLACK, 500, SHARP),
+      new ColorGradientDef(4000, Color.GREEN, 500, SHARP),
+      new ColorGradientDef(4500, Color.BLACK, 500, SHARP),
+      new ColorGradientDef(5000, Color.GREEN, 500, SHARP),
+      new ColorGradientDef(5500, Color.BLACK, 500, SHARP),
+      new ColorGradientDef(6000, Color.BLUE, 500, SHARP),
+      new ColorGradientDef(6500, Color.BLACK, 500, SHARP),
+      new ColorGradientDef(7000, Color.BLUE, 500, SHARP),
+      new ColorGradientDef(7500, Color.BLACK, 500, SHARP),
+      new ColorGradientDef(8000, Color.BLUE, 500, SHARP),
+      new ColorGradientDef(8500, Color.BLACK, 500, SHARP),
+    });
+    ChannelMuxer macro3Muxer =
+      new TimedColorGradientChannelMuxer(fixture, distortedTimeSource,
+      new ColorGradientDef[] {
+      new ColorGradientDef(0, Color.BLUE, 1000, SHARP),
+      new ColorGradientDef(1000, Color.GREEN, 1000, SHARP),
+      new ColorGradientDef(2000, Color.CYAN, 1000, SHARP),
+      new ColorGradientDef(3000, Color.RED, 1000, SHARP),
+      new ColorGradientDef(4000, Color.MAGENTA, 1000, SHARP),
+    });
+    MacroChannelMuxer macroMuxer = new MacroChannelMuxer(strobeMuxer,
+      new ChannelMuxer[] { macro0Muxer, macro1Muxer, macro2Muxer, macro3Muxer });
+    
+    setChannelMuxer(new MasterDimmerChannelMuxer(macroMuxer));
+  }
+}
+
+
+[ describe this in some detail ]
+
+and a simple fixture controller would like like:
+
+package com.example.dmx.fixture;
+
+import com.randomnoun.dmx.channel.MacroChannelDef;
+import com.randomnoun.dmx.channel.MacroChannelDef.Macro;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureController;
+
+/** The X0177FixtureController can have it's color and strobe controlled
+ * by the default FixtureController.  t2
+ *
+ * <p>It adds additional methods for macros, but these could be generalised
+ * to the superclass.
+ *
+ * @author knoxg
+ */
+public class X0177FixtureController extends FixtureController {
+  public X0177FixtureController(Fixture fixture) {
+    super(fixture);
+  }
+  
+  public void setMacro(int index) {
+    // we know this is on channel 5 for this fixture
+    MacroChannelDef mcd = (MacroChannelDef) fixture.getFixtureDef().getChannelDefByOffset(5);
+    Macro m = mcd.getMacros().get(index);
+    fixture.setDmxChannelValue(5, (m.getLowValue() + m.getHighValue()) / 2);
+  }
+}
+
+
+
+
+
+
+

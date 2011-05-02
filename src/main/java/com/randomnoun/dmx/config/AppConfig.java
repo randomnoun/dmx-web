@@ -406,7 +406,12 @@ public class AppConfig extends AppConfigBase {
 		Class acClass = Class.forName(acClassname);
 		Constructor acConstructor = acClass.getConstructor(Map.class);
 		AudioController audioController = (AudioController) acConstructor.newInstance(acProperties);
-		audioController.open();
+		try {
+			audioController.open();
+		} catch (Exception e) {
+			// @TODO hmmmmmmmmmmmmmmmmmm.........
+			logger.error("Couldn't open audioController", e);
+		}
 
 		String asClassname = (String) this.get("audioSource.class");
 		if (asClassname==null) {
@@ -416,16 +421,20 @@ public class AppConfig extends AppConfigBase {
 		Class asClass = Class.forName(asClassname);
 		Constructor asConstructor = asClass.getConstructor(Map.class);
 		audioSource = (AudioSource) asConstructor.newInstance(asProperties);
-		audioSource.open();
-
-		
+		try {
+			audioSource.open();
+		} catch (Exception e) {
+			// @TODO hmmmmmmmmmmmmmmmmmm.........
+			logger.error("Couldn't open audioController", e);
+		}
+			
 		controller = new Controller();
 		controller.setUniverse(universe);
 		controller.setAudioController(audioController);
 		
     }
     
-    public void loadFixtures(ScriptContext fixtureScriptContext, Controller fixtureController) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public void loadFixtures(ScriptContext fixtureScriptContext, Controller scriptController) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		List fixturesFromProperties = (List) get("fixtures");
 		if (fixturesFromProperties == null || fixturesFromProperties.size()==0) {
 			logger.warn("No fixtures in appConfig properties");
@@ -442,8 +451,8 @@ public class AppConfig extends AppConfigBase {
 				}
 				// @TODO setImagePath() for fixtures in property files
 				Fixture fixtureObj = new Fixture(name, fixtureDef, controller.getUniverse(), Integer.parseInt(dmxOffset));
-				if (fixtureController!=null) {
-					fixtureController.addFixture(fixtureObj);
+				if (scriptController!=null) {
+					scriptController.addFixture(fixtureObj);
 				}
 			}
 		}
@@ -522,16 +531,25 @@ public class AppConfig extends AppConfigBase {
 					if (fixtureTO.getLookingAtX()!=null) { fixture.setLookingAt(fixtureTO.getLookingAtX(), fixtureTO.getLookingAtY(), fixtureTO.getLookingAtZ()); }
 					if (fixtureTO.getUpX()!=null) { fixture.setUpVector(fixtureTO.getUpX(), fixtureTO.getUpY(), fixtureTO.getUpZ()); }
 					try {
-						//hmm... might need to check that fixtureController==getController()
+						//hmm... might need to check that scriptController==getController()
 						//before doing this ?
 						//FixtureController thisFixtureController = fixture.getFixtureController();
-						if (fixtureController != null) {
-							fixtureController.addFixture(fixture);
+						if (scriptController != null) {
+							scriptController.addFixture(fixture);
 						}
+						/*
+						 * if the fixtureController contains a ref to the appConfig (bad),
+						 * then this prevents appConfig from initialising
+						 *
+						if (scriptController == getController()) {  // NB: intentionally not .equals()
+							FixtureController testFixtureController = fixture.getFixtureController();
+						}
+						*/
 					} catch (Exception e) {
 						AppConfigException ace = new AppConfigException("Exception in getFixtureController() for fixture " + fixtureTO.getId() + ": '" + fixtureTO.getName() + "'", e);
-						exceptionContainer.addException(ace);
 						logger.error(ace);
+						exceptionContainer.addException(ace);
+						scriptController.removeFixture(fixture);
 					}
 				}
 			}
