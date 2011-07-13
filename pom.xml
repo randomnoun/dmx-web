@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>parent-pom</artifactId>
 		<groupId>com.randomnoun.build</groupId>
-		<version>0.1-SNAPSHOT</version>
+		<version>1.0</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
   <groupId>com.randomnoun.dmx</groupId>
@@ -44,7 +44,7 @@
            <dependency>
             <groupId>com.randomnoun.common</groupId>
             <artifactId>common</artifactId>
-            <version>0.1.2-SNAPSHOT</version>
+            <version>1.0.0</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency> 
@@ -80,7 +80,7 @@
            <dependency>
            	<groupId>com.randomnoun.beanshell</groupId>
            	<artifactId>bsh</artifactId>
-           	<version>0.0.1-SNAPSHOT</version>
+           	<version>0.0.1</version>
            	<type>jar</type>
            	<scope>compile</scope>
            </dependency>
@@ -114,6 +114,11 @@
            	<scope>provided</scope>
            </dependency>
   </dependencies>
+    <scm>
+    <connection>scm:cvs:pserver:vmaint@cvs.dev.randomnoun:/randomnoun:dmx-web</connection>
+    <developerConnection>scm:cvs:pserver:vmaint@cvs.dev.randomnoun:/randomnoun:dmx-web</developerConnection>
+  </scm>
+  
   <build>
     <finalName>dmx-web</finalName>
   <resources>
