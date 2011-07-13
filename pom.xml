@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<artifactId>parent-pom</artifactId>
 		<groupId>com.randomnoun.build</groupId>
@@ -9,7 +8,7 @@
   <groupId>com.randomnoun.dmx</groupId>
   <artifactId>dmx-web</artifactId>
   <packaging>war</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <name>dmx-web</name>
   <url>http://maven.apache.org</url>
   <dependencies>
@@ -117,6 +116,7 @@
     <scm>
     <connection>scm:cvs:pserver:vmaint@cvs.dev.randomnoun:/randomnoun:dmx-web</connection>
     <developerConnection>scm:cvs:pserver:vmaint@cvs.dev.randomnoun:/randomnoun:dmx-web</developerConnection>
+    <tag>dmx-web-0_0_1</tag>
   </scm>
   
   <build>
