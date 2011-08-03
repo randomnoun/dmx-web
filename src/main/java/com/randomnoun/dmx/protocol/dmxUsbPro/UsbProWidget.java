@@ -79,6 +79,9 @@ public class UsbProWidget extends DmxDevice {
 		try {
 			javaWidgetTranslator = openPort();
 			connected = true;
+		} catch (java.lang.UnsatisfiedLinkError ule) {
+			logger.error("Error opening port '" + portName + "; java.library.path=" + System.getProperty("java.library.path"), ule);
+			exceptionContainer.addException(ule);
 		} catch (Exception e) {
 			logger.error("Error opening port '" + portName + "'", e);
 			exceptionContainer.addException(e);
