@@ -497,6 +497,20 @@ public class AppConfig extends AppConfigBase {
 						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureDefClassName() + "' does not extend com.randomnoun.dmx.fixture.FixtureDef"); 
 					}
 					
+					String testScript2 =
+						"import com.randomnoun.dmx.fixture.FixtureController;\n" +
+						"import " + fixtureDef.getFixtureControllerClassName() + ";\n" +
+						"return new " + fixtureDef.getFixtureControllerClassName() + "(null);\n" ;
+					// @TODO check class before instantiating
+					Object instance2 = (Object) getScriptEngine().eval(testScript2, fixtureScriptContext);
+					if (instance2 instanceof FixtureController) {
+						//((FixtureDef) instance).setImagePath("image/fixture/" + fixtureDef.getId() + "/");
+						//scriptedFixtureDefs.put(fixtureDef.getId(), instance);
+					} else {
+						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureControllerClassName() + "' does not extend com.randomnoun.dmx.fixture.FixtureController"); 
+					}
+
+					
 					// check for FixtureController will occur later
 					// (only occurs if a Fixture of this type has been registered at a DMX offset, though)
 				
@@ -504,7 +518,7 @@ public class AppConfig extends AppConfigBase {
 					AppConfigException ace = new AppConfigException("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", se);
 					exceptionContainer.addException(ace);
 					logger.error(ace);
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					AppConfigException ace = new AppConfigException("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", e);
 					exceptionContainer.addException(ace);
 					logger.error(ace);
