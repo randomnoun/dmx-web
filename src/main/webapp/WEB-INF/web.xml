@@ -4,7 +4,7 @@
     <display-name>DMX Web Application</display-name>
     
   <listener>
-    <listener-class>com.randomnoun.dmx.web.ServletContextListener</listener-class>
+    <listener-class>com.randomnoun.dmx.config.ServletContextListener</listener-class>
   </listener>
   <servlet>
     <servlet-name>action</servlet-name>

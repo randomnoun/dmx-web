@@ -325,7 +325,8 @@ public class AppConfig extends AppConfigBase {
     }
     
     
-    // used from within security framework; just returns null if no
+    // used from within security framework and ServletContextListener; 
+    // just returns null if no
     // appConfig has been initialised
     static AppConfig getAppConfigNoInit() {
     	return instance;

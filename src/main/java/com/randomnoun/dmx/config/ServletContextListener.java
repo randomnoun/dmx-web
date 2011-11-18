@@ -1,11 +1,10 @@
-package com.randomnoun.dmx.web;
+package com.randomnoun.dmx.config;
 
 import java.net.URLClassLoader;
 import java.security.Policy;
 
 import javax.servlet.ServletContextEvent;
 
-import com.randomnoun.dmx.config.AppConfig;
 
 /**
  * @author knoxg
@@ -34,12 +33,15 @@ public class ServletContextListener
 	 */
 	public void contextDestroyed(ServletContextEvent event) {
 		System.out.println("dmx-web servletContext destroy start");
-		AppConfig appConfig = AppConfig.getAppConfig();
-		appConfig.shutdownThreads();
-		appConfig.shutdownListeners();
-		appConfig.shutdownDevices();
-		if (System.getProperty("com.randomnoun.dmx.securityEnabled")!=null) {
-			Policy.setPolicy(oldPolicy);
+		// this shouldn't initialise the appConfig if it hasn't been referenced yet
+		AppConfig appConfig = AppConfig.getAppConfigNoInit();
+		if (appConfig!=null) {
+			appConfig.shutdownThreads();
+			appConfig.shutdownListeners();
+			appConfig.shutdownDevices();
+			if (System.getProperty("com.randomnoun.dmx.securityEnabled")!=null) {
+				Policy.setPolicy(oldPolicy);
+			}
 		}
 		System.out.println("dmx-web servletContext destroy complete");
 	}
