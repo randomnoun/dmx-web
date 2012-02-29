@@ -4,7 +4,7 @@
   pageEncoding="ISO-8859-1"
   errorPage="../misc/errorPage.jsp"
 %>
-<%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%-- 
   TODO: use tables less, use styles instead.
 --%>

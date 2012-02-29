@@ -6,8 +6,8 @@
   pageEncoding="ISO-8859-1"
   errorPage="../misc/errorPage.jsp"
 %>
-<%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
-<%@ taglib uri="/WEB-INF/fmt.tld" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="mm" %>
 <fmt:setLocale value="${locale}"/>
 <fmt:setBundle basename="resources.i18n.test" var="testBundle" scope="request"/>

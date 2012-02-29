@@ -7,8 +7,8 @@
   pageEncoding="ISO-8859-1"
   import="java.util.*,com.randomnoun.common.security.*,com.randomnoun.dmx.config.AppConfig"
 %>
-<%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
-<%@ taglib uri="/WEB-INF/fmt.tld" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
 <r:authCheck/>
 <html xmlns="http://www.w3.org/1999/xhtml">

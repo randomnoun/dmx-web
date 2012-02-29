@@ -5,8 +5,8 @@ see<%@ page
   pageEncoding="ISO-8859-1"
   import="java.util.*,com.randomnoun.dmx.config.AppConfig,com.randomnoun.common.*,com.randomnoun.common.security.*"
 %>
-<%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
-<%@ taglib uri="/WEB-INF/fmt.tld" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt" %>
 <%-- NB: authcheck is disabled for this page --%>
 <fmt:setLocale value="${locale}"/>
 <fmt:setBundle basename="resources.i18n.message" var="queryBundle" scope="request"/>

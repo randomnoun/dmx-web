@@ -6,7 +6,7 @@
   errorPage="misc/errorPage.jsp"
   import="java.util.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*,org.apache.log4j.Logger"
 %>
-<%@ taglib uri="/WEB-INF/c.tld" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
 <%!
   String getChecklistImg(Map<String, String> form, String attributeName) {
