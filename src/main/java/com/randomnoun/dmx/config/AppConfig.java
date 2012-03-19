@@ -185,7 +185,7 @@ public class AppConfig extends AppConfigBase {
      * @throws IllegalArgumentException 
      * @throws SecurityException */
     public synchronized static void initialise() {
-        logger.info("Initialising dmx-web...");
+    	System.out.println("Initialising dmx-web...");
 
         AppConfig newInstance = new AppConfig();
     	try {
