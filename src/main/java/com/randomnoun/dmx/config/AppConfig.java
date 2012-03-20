@@ -717,9 +717,14 @@ public class AppConfig extends AppConfigBase {
 				updateListener.startThread();
 				
 			} catch (UnknownHostException e) {
+				AppConfigException ace = new AppConfigException("Could not attach VLC listener (UnknownHostException)", e);
+				exceptionContainer.addException(ace);
+				logger.error(ace);
+			} catch (Exception e) {
 				AppConfigException ace = new AppConfigException("Could not attach VLC listener", e);
 				exceptionContainer.addException(ace);
 				logger.error(ace);
+				
 			}
 		}
     }
