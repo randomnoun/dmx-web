@@ -498,6 +498,59 @@ public class AppConfig extends AppConfigBase {
 						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureDefClassName() + "' does not extend com.randomnoun.dmx.fixture.FixtureDef"); 
 					}
 					
+					
+					 
+					/*
+					 still getting things like this on initialisation, so commenting out: 
+					 
+[dmx-web] 07:34:43,959 DEBUG [http-8080-4] com.randomnoun.dmx.config.AppConfig - Loading scripted channelMuxer 'Ceiling' from database
+bsh.InterpreterError: null fromValue
+        at bsh.Types.castObject(Types.java:303)
+        at bsh.BshMethod.invokeImpl(BshMethod.java:319)
+        at bsh.BshMethod.invoke(BshMethod.java:259)
+        at bsh.ClassGeneratorUtil.initInstance(ClassGeneratorUtil.java:1021)
+        at com.brisbanecomedy.dmx.fixture.CeilingFixtureController.<init>(BeanShell Generated via ASM (www.objectweb.org))
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+        at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+        at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+        at java.lang.reflect.Constructor.newInstance(Constructor.java:513)
+        at bsh.Reflect.constructObject(Reflect.java:620)
+        at bsh.BSHAllocationExpression.constructObject(BSHAllocationExpression.java:123)
+        at bsh.BSHAllocationExpression.objectAllocation(BSHAllocationExpression.java:114)
+        at bsh.BSHAllocationExpression.eval(BSHAllocationExpression.java:62)
+        at bsh.BSHPrimaryExpression.eval(BSHPrimaryExpression.java:102)
+        at bsh.BSHPrimaryExpression.eval(BSHPrimaryExpression.java:47)
+        at bsh.BSHReturnStatement.eval(BSHReturnStatement.java:48)
+        at bsh.Interpreter.eval(Interpreter.java:649)
+        at bsh.Interpreter.eval(Interpreter.java:743)
+        at bsh.Interpreter.eval(Interpreter.java:732)
+        at bsh.engine.BshScriptEngine.evalSource(BshScriptEngine.java:78)
+        at bsh.engine.BshScriptEngine.eval(BshScriptEngine.java:46)
+        at com.randomnoun.dmx.config.AppConfig.loadFixtures(AppConfig.java:506)
+        at com.randomnoun.dmx.config.AppConfig.reloadFixturesAndShows(AppConfig.java:264)
+        at com.randomnoun.dmx.web.action.MaintainFixtureDefAction.execute(MaintainFixtureDefAction.java:212)
+        at org.apache.struts.action.RequestProcessor.processActionPerform(RequestProcessor.java:425)
+        at com.randomnoun.common.webapp.struts.CustomRequestProcessor.processActionPerform(CustomRequestProcessor.java:589)
+        at org.apache.struts.action.RequestProcessor.process(RequestProcessor.java:228)
+        at com.randomnoun.common.webapp.struts.CustomRequestProcessor.process(CustomRequestProcessor.java:725)
+        at org.apache.struts.action.ActionServlet.process(ActionServlet.java:1913)
+        at org.apache.struts.action.ActionServlet.doGet(ActionServlet.java:449)
+        at com.randomnoun.common.webapp.struts.CustomActionServlet.doPost(CustomActionServlet.java:60)
+        at javax.servlet.http.HttpServlet.service(HttpServlet.java:637)
+        at javax.servlet.http.HttpServlet.service(HttpServlet.java:717)
+        at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:290)
+        at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:206)
+        at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:233)
+        at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:191)
+        at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:127)
+        at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:102)
+        at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:109)
+        at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:298)
+        at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:859)
+        at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:588)
+        at org.apache.tomcat.util.net.JIoEndpoint$Worker.run(JIoEndpoint.java:489)
+        at java.lang.Thread.run(Thread.java:619)
+
 					String testScript2 =
 						"import com.randomnoun.dmx.fixture.FixtureController;\n" +
 						"import " + fixtureDef.getFixtureControllerClassName() + ";\n" +
@@ -505,15 +558,14 @@ public class AppConfig extends AppConfigBase {
 					// @TODO check class before instantiating
 					Object instance2 = (Object) getScriptEngine().eval(testScript2, fixtureScriptContext);
 					if (instance2 instanceof FixtureController) {
-						//((FixtureDef) instance).setImagePath("image/fixture/" + fixtureDef.getId() + "/");
-						//scriptedFixtureDefs.put(fixtureDef.getId(), instance);
+						// fine
 					} else {
 						logger.error("Error instantiating object for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'; className='" + fixtureDef.getFixtureControllerClassName() + "' does not extend com.randomnoun.dmx.fixture.FixtureController"); 
 					}
+					 */
 
-					
-					// check for FixtureController will occur later
-					// (only occurs if a Fixture of this type has been registered at a DMX offset, though)
+					// check for FixtureController will occur later, perhaps
+					// (should only occur if a Fixture of this type has been registered at a DMX offset, though)
 				
 				} catch (ScriptException se) {
 					AppConfigException ace = new AppConfigException("Error evaluating script for fixtureDef " + fixtureDef.getId() + ": '" + fixtureDef.getName() + "'", se);
