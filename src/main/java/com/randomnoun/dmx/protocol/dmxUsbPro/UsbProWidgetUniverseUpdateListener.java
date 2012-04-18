@@ -30,6 +30,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 		long startTime = 0;
 		
 		public UsbProUpdaterThread(UsbProWidgetUniverseUpdateListener upuul) {
+			super("UsbProThread");
 			this.upuul = upuul;
 		}
 		
