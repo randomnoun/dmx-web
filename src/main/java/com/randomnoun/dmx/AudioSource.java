@@ -45,6 +45,7 @@ public abstract class AudioSource implements ExceptionContainer {
 	 * 
 	 * @return a float array, as described above
 	 */
+	// @TODO return these via getBass(), getMid(), getTreble() instead ?
 	public abstract float[] getBassMidTreble();
 	
 	/** Returns spectrum data for the currently playing audio.
