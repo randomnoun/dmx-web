@@ -16,6 +16,9 @@ public class Fixture {
 	String name;
 	int startDmxChannel;
 	
+	/** The order that this fixture appears on the 'fixture' panel */
+	int sortOrder;
+	
 	/*
 	long timeSinceLastPanUpdate;
 	long timeSInceLastTiltUpdate;
@@ -93,7 +96,8 @@ public class Fixture {
 	/** Returns this fixture's position in a three-element float array 
 	 * (x, y, z)
 	 * 
-	 * @return
+	 * @return this fixture's position in a three-element float array 
+	 * (x, y, z)
 	 */
 	public float[] getPosition() {
 		return new float[]{x, y, z};
@@ -102,7 +106,8 @@ public class Fixture {
 	/** Returns this fixture's looking-at location in a three-element float array 
 	 * (x, y, z)
 	 * 
-	 * @return
+	 * @return this fixture's looking-at location in a three-element float array 
+	 * (x, y, z)
 	 */
 	public float[] getLookingAt() {
 		return new float[]{lookingAtX, lookingAtY, lookingAtZ};
@@ -111,10 +116,27 @@ public class Fixture {
 	/** Returns this fixture's up vector in a three-element float array 
 	 * (x, y, z)
 	 * 
-	 * @return
+	 * @return this fixture's up vector in a three-element float array 
+	 * (x, y, z)
 	 */
 	public float[] getUpVector() {
 		return new float[]{upX, upY, upZ};
+	}
+	
+	/** Sets the order that this fixture appears on the 'fixture' panel
+	 * 
+	 * @param sortOrder the order that this fixture appears on the 'fixture' panel
+	 */
+	public void setSortOrder(int sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+	
+	/** Returns order that this fixture appears on the 'fixture' panel
+	 * 
+	 * @return the order that this fixture appears on the 'fixture' panel
+	 */
+	public int getSortOrder() { 
+		return sortOrder;
 	}
 
 	
