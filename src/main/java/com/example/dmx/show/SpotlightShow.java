@@ -18,6 +18,7 @@ import com.randomnoun.dmx.show.Show;
  */
 public class SpotlightShow extends Show {
 
+
 	Logger logger = Logger.getLogger(SpotlightShow.class);
 	
 	MiniWashFixtureController leftWash;

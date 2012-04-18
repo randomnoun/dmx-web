@@ -11,7 +11,8 @@ import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.show.Show;
 
-/** dim the lights based on the bass output
+/** dim the lights based on the bass output.
+ * also change the primary color if a beat is detected.
  * 
  * @author knoxg
  */
