@@ -125,6 +125,7 @@ public class FancyControllerAction
     			Map m = new HashMap();
     			m.put("dmxOffset", f.getStartDmxChannel());
     			m.put("name", f.getName());
+    			m.put("sortOrder", f.getSortOrder()); 
     			m.put("type", fdName);
     			fixtures.add(m);
     			if (!fixtureDefs.containsKey(fdName)) {
@@ -376,8 +377,17 @@ public class FancyControllerAction
 	    	
     	} else if (action.equals("blackOut")) {
     		if (fixtureId == -1) {
+    			boolean showsStopped = false;
 	    		controller.blackOut();
-	    		result.put("message", "controller blackOut");
+	    		for (Show s : appConfig.getShows()) {
+	    			// i.e. SHOW_RUNNING or SHOW_STOPPED_WITH_EXCEPTION
+	    			if (!appConfig.getShow(s.getId()).getState().equals(Show.State.SHOW_STOPPED)) {
+	    				appConfig.cancelShow(s.getId());
+	    				showsStopped = true;
+	    			}
+    			}
+    			result.put("message", "controller blackOut" + (showsStopped ? " and shows stopped" : ""));
+    			
     		} else {
 	    		fixtureController.blackOut();
 	    		result.put("message", "fixture " + fixtureId + " '" + fixture.getName() + "' blackOut");
@@ -582,8 +592,13 @@ public class FancyControllerAction
 	    	props.load(is);
 	    	is.close();
     	}
-    	version.put("release", props.get("maven.pom.version"));
-    	version.put("buildNumber", props.get("bamboo.buildNumber"));
+    	String v = (String) props.get("maven.pom.version");
+    	if (v==null || v.equals("${pom.version}")) { v="(development release)"; }
+    	version.put("release", v);
+    	
+    	v = (String) props.get("bamboo.buildNumber");
+    	if (v==null || v.equals("${bambooBuildNumber}")) { v="N/A"; }
+    	version.put("buildNumber", v);
     	String jarVersion = RXTXVersion.getVersion();
     	String dllVersion = "unknown";
     	try {
