@@ -90,6 +90,7 @@ public class MaintainShowPropertyAction
 			JdbcTemplate jt = AppConfig.getAppConfig().getJdbcTemplate();
 			ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(jt);
     		ShowPropertyTO showProperty = new ShowPropertyTO();
+    		showProperty.setShowId(showId);
     		Struct.setFromMap(showProperty, row, false, true, false, fieldNames);
     		showPropertyDAO.updateShowProperty(showProperty);
 		}
@@ -99,6 +100,7 @@ public class MaintainShowPropertyAction
 			JdbcTemplate jt = AppConfig.getAppConfig().getJdbcTemplate();
 			ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(jt);
 			ShowPropertyTO showProperty = new ShowPropertyTO();
+			showProperty.setShowId(showId);
     		Struct.setFromMap(showProperty, row, false, true, false, fieldNames);
     		showPropertyDAO.deleteShowProperty(showProperty);
 		}
@@ -130,7 +132,7 @@ public class MaintainShowPropertyAction
     		TableEditorResult result;
 		    List updateErrors;
 		    
-		    table = new Table(request, "showProperties", "id", String.class);
+		    table = new Table(request, "showProperties", "id", Long.class);
 		    table.setEditableKey(false);
 		    init();
 
