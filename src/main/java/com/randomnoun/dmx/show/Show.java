@@ -70,6 +70,8 @@ public abstract class Show {
 	public void setShowGroupId(long showGroupId) { this.showGroupId = showGroupId; }
 	public void setAudioSource(AudioSource audioSource) { this.audioSource = audioSource; }
 	public void setDescription(String description) { this.description = description; }
+	// you don't want to do this whilst a show is running. maybe.
+	public void setLength(long length) { this.length = length; }
 	
 	private long parsePropertyLong(Map properties, String key) {
 		String value = (String) properties.get(key);
