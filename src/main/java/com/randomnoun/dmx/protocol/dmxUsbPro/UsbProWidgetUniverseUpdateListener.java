@@ -17,6 +17,8 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 
 	static Logger logger = Logger.getLogger(UsbProWidgetUniverseUpdateListener.class);
 	
+	private static int threadCount = 0; // show always be 0
+	
 	UsbProWidgetTranslator translator = null;
 	byte dmxState[];
 		
@@ -30,8 +32,9 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 		long startTime = 0;
 		
 		public UsbProUpdaterThread(UsbProWidgetUniverseUpdateListener upuul) {
-			super("UsbProThread");
+			super("UsbProThread-" + threadCount);
 			this.upuul = upuul;
+			threadCount++;
 		}
 		
 		public void run() {
