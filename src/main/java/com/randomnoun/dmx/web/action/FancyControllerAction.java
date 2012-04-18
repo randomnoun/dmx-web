@@ -378,7 +378,6 @@ public class FancyControllerAction
     	} else if (action.equals("blackOut")) {
     		if (fixtureId == -1) {
     			boolean showsStopped = false;
-	    		controller.blackOut();
 	    		for (Show s : appConfig.getShows()) {
 	    			// i.e. SHOW_RUNNING or SHOW_STOPPED_WITH_EXCEPTION
 	    			if (!appConfig.getShow(s.getId()).getState().equals(Show.State.SHOW_STOPPED)) {
@@ -386,6 +385,7 @@ public class FancyControllerAction
 	    				showsStopped = true;
 	    			}
     			}
+	    		controller.blackOut();
     			result.put("message", "controller blackOut" + (showsStopped ? " and shows stopped" : ""));
     			
     		} else {
