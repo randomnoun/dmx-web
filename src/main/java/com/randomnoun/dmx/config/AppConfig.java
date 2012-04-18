@@ -597,6 +597,7 @@ bsh.InterpreterError: null fromValue
 					if (fixtureTO.getX()!=null) { fixture.setPosition(fixtureTO.getX(), fixtureTO.getY(), fixtureTO.getZ()); }
 					if (fixtureTO.getLookingAtX()!=null) { fixture.setLookingAt(fixtureTO.getLookingAtX(), fixtureTO.getLookingAtY(), fixtureTO.getLookingAtZ()); }
 					if (fixtureTO.getUpX()!=null) { fixture.setUpVector(fixtureTO.getUpX(), fixtureTO.getUpY(), fixtureTO.getUpZ()); }
+					if (fixtureTO.getSortOrder()!=null) { fixture.setSortOrder(fixtureTO.getSortOrder().intValue()); }
 					try {
 						//hmm... might need to check that scriptController==getController()
 						//before doing this ?
@@ -739,7 +740,9 @@ bsh.InterpreterError: null fromValue
 							if (showTO.getOnCancelShowId()!=null) { showObj.setOnCancelShowId(showTO.getOnCancelShowId().longValue()); }
 							if (showTO.getShowGroupId()!=null) { showObj.setShowGroupId(showTO.getShowGroupId().longValue()); }
 							if (!Text.isBlank(showTO.getName())) { showObj.setName(showTO.getName()); }
-							if (!Text.isBlank(javadoc)) { showObj.setDescription(removeCommentTokens(javadoc)); }
+							if (!Text.isBlank(javadoc) && showObj.getDescription()==null) { 
+								showObj.setDescription(removeCommentTokens(javadoc)); 
+							}
 							showConfigs.put(showTO.getId(), new ShowConfig(this, showTO.getId(), showObj));
 							shows.add(showObj);
 						}
