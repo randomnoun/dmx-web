@@ -221,6 +221,7 @@ function shwInitPanel() {
 
 function shwItemClick(event) {
     var shwItemEl = event.element();
+    if (shwItemEl.readAttribute("class")=="shwOverlay") { shwItemEl = shwItemEl.parentNode; }
     clickFx(shwItemEl);
     var showId = shwItemEl.readAttribute("showId");
     if (shwState[showId]=="RUNNING") {
@@ -335,8 +336,13 @@ function fixInitPanel() {
     var x,y,fixEl;
     var fp=$("fixPanel");
     var fic=$("fixItemContainer");
-    for (var i=0; i<fixtures.length; i++) {
-        x=10+(i%4)*200; y=10+Math.floor(i/4)*90;
+    
+    // display in sortOrder order
+    var fixOrder = new Array(); for (var i=0; i<fixtures.length; i++) { fixOrder[i] = i; };
+    fixOrder.sort(function(a,b) { fa=fixtures[a].sortOrder; fb=fixtures[b].sortOrder; return fa<fb ? -1 : (fa>fb ? 1 : 0); } );
+    for (var j=0; j<fixtures.length; j++) {
+    	i=fixOrder[j];
+        x=10+(j%4)*200; y=10+Math.floor(j/4)*90;
         f=fixtures[i]; fd=fixtureDefs[f.type];
         var fixEl = new Element("div", { 
             "id": "fixItem[" + i + "]", "fixtureId": i,
