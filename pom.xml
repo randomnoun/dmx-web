@@ -160,6 +160,9 @@
                     </execution>
                 </executions>
                 <configuration>
+                <!-- these settings don't appear to take effect in the javadoc
+                     transferred as part of javadoc-web
+                  -->
                     <doctitle>randomnoun DMX API ${project.version}</doctitle>
                     <version>testVersion</version>
                     <!--  was ../../src/main/resources/javadoc/stylesheet.css -->
@@ -190,6 +193,18 @@
 					    <packages>bsh.engine:com.jacobgen.dmx:com.randomnoun.dmx:com.randomnoun.dmx.config:com.randomnoun.dmx.dao:com.randomnoun.dmx.event:com.randomnoun.dmx.protocol*:com.randomnoun.dmx.to:com.randomnoun.dmx.web*</packages>
 					  </group>
 					</groups>
+					<tags>
+					  <tag>
+					    <name>TODO</name>
+					    <placement>a</placement>
+					    <head>To Do:</head>
+					  </tag>
+					  <tag>
+					    <!-- suppress jetbrains IDEA warning indicators -->
+					    <name>noinspection</name>
+					    <placement>X</placement>
+					  </tag>
+					</tags>
                 </configuration>
             </plugin>
      

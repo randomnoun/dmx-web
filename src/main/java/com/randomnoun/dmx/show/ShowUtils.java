@@ -20,7 +20,7 @@ public class ShowUtils {
 	 * 
 	 * @TODO HTML color names / other color spaces
 	 * 
-	 * @param colorName the name of the color
+	 * @param colorString the name of the color
 	 * 
 	 * @return a Color object containing the RGB values of this color.
 	 */

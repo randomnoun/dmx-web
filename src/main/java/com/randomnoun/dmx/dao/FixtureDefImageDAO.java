@@ -56,12 +56,11 @@ public class FixtureDefImageDAO {
 	    return (List<FixtureDefImageTO>) jt.query(sql, new FixtureDefImageDAORowMapper());
     }
 
-    /** Return a list of fixtureDefImages, using the supplied SQL WHERE clause. If a
-     * null sqlWhereClause if supplied, all clients are returned.
+    /** Return a list of fixtureDefImages for a given fixture.
      *
-     * @param sqlWhereClause a condition to apply to the SQL SELECT
+     * @param fixtureDef the fixtureDefTO to return images for
      *
-     * @return a list of FixtureDefImageTO objects that satisfy the supplied criteria
+     * @return a list of FixtureDefImageTO objects
      */
     public List<FixtureDefImageTO> getFixtureDefImages(FixtureDefTO fixtureDef) {
         String sql =
@@ -87,9 +86,10 @@ public class FixtureDefImageDAO {
             new FixtureDefImageDAORowMapper());
     }
 
-    /** Return a fixtureDefImage
+    /** Return a fixtureDefImage for a given fixture definition id / filename
     *
-    * @param fixtureDefImageId the fixtureDefImageId
+    * @param fixtureDefId the fixtureDefImageId
+    * @param filename the filename
     *
     * @return the requested FixtureDefImageTO object
     */
@@ -197,7 +197,7 @@ public class FixtureDefImageDAO {
     *
     * The id column of the object will be populated on return
     *
-    * @param fixtureDefImage the fixtureDefImage to insert
+    * @param fixtureDefImageTO the fixtureDefImage to delete
     *
     * @return the id of the record to delete
     */

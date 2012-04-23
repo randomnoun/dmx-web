@@ -48,7 +48,7 @@ public class FixtureDefTO {
     }
 
     /** Set the class name of the fixtureDef defined in the script
-     * @param class name of the fixtureDef defined in the script
+     * @param fixtureDefClassName class name of the fixtureDef defined in the script
      */
     public void setFixtureDefClassName(String fixtureDefClassName) {
         this.fixtureDefClassName = fixtureDefClassName;
@@ -62,7 +62,7 @@ public class FixtureDefTO {
     }
 
     /** Set the class name of the FixtureController defined in the script
-     * @param class name of the FixtureController defined in the script
+     * @param fixtureControllerClassName class name of the FixtureController defined in the script
      */
     public void setFixtureControllerClassName(String fixtureControllerClassName) {
         this.fixtureControllerClassName = fixtureControllerClassName;
@@ -105,7 +105,7 @@ public class FixtureDefTO {
     }
 
     /** Set the class name of the ChannelMuxer defined in the script
-     * @param class name of the ChannelMuxer defined in the script
+     * @param channelMuxerClassName class name of the ChannelMuxer defined in the script
      */
     public void setChannelMuxerClassName(String channelMuxerClassName) {
         this.channelMuxerClassName = channelMuxerClassName;

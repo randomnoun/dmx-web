@@ -217,7 +217,7 @@ public class UsbProWidgetTranslator {
 	 * when the Widget receives any request message other than the Output Only Send DMX Packet
 	 * request, or the Get Widget Parameters request.
      *
-     * @param the DMX startCode, typically 0. See 
+     * @param startCode the DMX startCode, typically 0. See 
      *   <a href="http://en.wikipedia.org/wiki/DMX512-A#Protocol">http://en.wikipedia.org/wiki/DMX512-A#Protocol</a>
      * @param dmxData DMX data to send, beginning with the start code. The overall
      *   message size specifies the size of the DMX data to send, and also
@@ -244,7 +244,7 @@ public class UsbProWidgetTranslator {
 	/** This message requests the Widget to send an RDM packet out of the Widget DMX port, and then
 	 * change the DMX port direction to input, so that RDM or DMX packets can be received.
 	 * 
-	 * @param the RDM startCode; typically zero 
+	 * @param startCode the RDM startCode; typically zero 
 	 * @param rdmData RDM data to send, beginning with the start code. The overall
 	 *   message size specifies the size of the RDM data to send.
 	 *   

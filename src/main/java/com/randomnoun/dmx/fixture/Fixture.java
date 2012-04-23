@@ -170,9 +170,10 @@ public class Fixture {
 	/** Returns the DMX value of one of this fixture's channels, 
 	 * relative to it's starting DMX channel.
 	 *  
-	 * @param offset
+	 * @param offset from the starting dmx channel (0=first channel of this fixture)
 	 * 
-	 * @return
+	 * @return DMX value of one of this fixture's channels, 
+	 * relative to it's starting DMX channel.
 	 */
 	public int getDmxChannelValue(int offset) {
 		return universe.getDmxChannelValue(startDmxChannel + offset);

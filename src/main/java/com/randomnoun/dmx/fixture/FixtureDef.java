@@ -109,7 +109,7 @@ public abstract class FixtureDef {
 	 * 
 	 * @param offset DMX offset from the fixture base
 	 * 
-	 * @return
+	 * @return the channelDef which has the supplied offset from the DMX base for this fixture
 	 */
 	public ChannelDef getChannelDefByOffset(int offset) {
 		for (ChannelDef cd : getChannelDefs()) {

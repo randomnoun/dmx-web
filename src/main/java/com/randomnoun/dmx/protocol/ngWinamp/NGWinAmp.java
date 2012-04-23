@@ -270,7 +270,7 @@ public class NGWinAmp {
 	/** Set playlist items (input is an array of filename)
 	 * 
 	 * @param files
-	 * @return
+	 * 
 	 * @throws IOException
 	 */
 	public void sendSetFiles(String[] files) throws IOException {
@@ -290,7 +290,7 @@ public class NGWinAmp {
 	/** Add playlist items (input is an array of filename)
 	 * 
 	 * @param files
-	 * @return
+	 * 
 	 * @throws IOException
 	 */
 	public void sendAddFiles(String[] files) throws IOException {
@@ -306,10 +306,10 @@ public class NGWinAmp {
 		ngsend(NGWINAMP_REQ_PLADDFILES, files.length, 0, 0.0, buffer.length, buffer);
 	}
 	
-	/** // Delete playlist items (input is an array of index ; between 0 and playlist's length)
+	/** Delete playlist items (input is an array of index ; between 0 and playlist's length)
 	 * 
-	 * @param index
-	 * @return
+	 * @param playListIds
+	 *
 	 * @throws IOException 
 	 */
 	public void sendDeletePlaylist(int[] playlistIds) throws IOException {

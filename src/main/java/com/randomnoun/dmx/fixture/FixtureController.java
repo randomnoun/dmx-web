@@ -21,7 +21,6 @@ import com.randomnoun.dmx.channel.rotation.TiltPositionChannelDef;
 /** An object which can be used to control a fixture using
  * relatively simple commands
  * 
- * @return
  */
 public abstract class FixtureController {
 
@@ -80,7 +79,7 @@ public abstract class FixtureController {
 	 * By default, this sets the major pan position to the 
 	 * closest setting to the desired angle. 
 	 * 
-	 * @param pan The pan position, in degrees.
+	 * @param panPosition The pan position, in degrees.
 	 */
 	public void panTo(double panPosition) {
 		FixtureDef fixtureDef = fixture.getFixtureDef();

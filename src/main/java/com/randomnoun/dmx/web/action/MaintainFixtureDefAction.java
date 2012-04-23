@@ -84,7 +84,7 @@ public class MaintainFixtureDefAction
      * class for more details.
      *
      * @param mapping The struts ActionMapping that triggered this Action
-     * @param form An ActionForm (if available) holding user input for this Action
+     * @param actionForm An ActionForm (if available) holding user input for this Action
      * @param request The HttpServletRequest for this action
      * @param response The HttpServletResponse for this action
      *

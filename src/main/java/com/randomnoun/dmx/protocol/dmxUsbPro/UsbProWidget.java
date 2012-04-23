@@ -66,7 +66,7 @@ public class UsbProWidget extends DmxDevice {
 	 * <p>On Windows, this will encapsulate a COM port, where port names
 	 * should appear similar to COM1, COM2, etc...
 	 * 
-	 * @param portName communications port name
+	 * @param properties set of properties; containing the key 'portName'
 	 */
 	public UsbProWidget(Map properties) {
 		super(properties);

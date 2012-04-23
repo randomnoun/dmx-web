@@ -125,7 +125,6 @@ public class FixtureDefDAO {
     *
     * @param fixtureDef the fixtureDef to delete
     *
-    * @return the id of the new record
     */
    public void deleteFixtureDef(FixtureDefTO fixtureDef) {
        String sql =

@@ -88,7 +88,7 @@ public class ShowTO {
     }
 
     /** Set the showGroup
-     * @param showGroup
+     * @param showGroupId the showGroup
      */
     public void setShowGroupId(Long showGroupId) {
         this.showGroupId = showGroupId;

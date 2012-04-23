@@ -119,12 +119,12 @@ public class ShowDAO {
     *
     * @param show the show to update
     */
-   public void deleteShow(ShowTO fixture) {
+   public void deleteShow(ShowTO show) {
        String sql =
            "DELETE FROM `show` " +
            " WHERE id = ?";
        int updated = jt.update(sql, 
-           new Object[] { fixture.getId() } );
+           new Object[] { show.getId() } );
        if (updated!=1) {
            throw new DataIntegrityViolationException("show delete failed (" + updated + " rows updated)");
        }

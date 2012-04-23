@@ -118,7 +118,7 @@ public abstract class TableEditor {
    * the current table name and row has been set, and validateRow() has already
    * been called for this row and returned true.
    *
-   * @param table The table to validate
+   * @param row The row to validate
    *
    * @return true if valid, false otherwise
    */
