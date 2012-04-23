@@ -162,8 +162,34 @@
                 <configuration>
                     <doctitle>randomnoun DMX API ${project.version}</doctitle>
                     <version>testVersion</version>
-                    <stylesheetfile>../../src/main/resources/javadoc/stylesheet.css</stylesheetfile>
+                    <!--  was ../../src/main/resources/javadoc/stylesheet.css -->
+                    <!--  eurgh 
+                    <stylesheetfile>src/main/resources/javadoc/stylesheet.css</stylesheetfile>
+                    -->
                     <author>true</author>
+                    <!-- 
+                    <javadocDirectory>src/main/javadoc</javadocDirectory>
+                    <docfilesubirs>true</docfilesubirs>
+                     -->
+                    <groups>
+					  <group>
+					    <title>dmx-web API Packages</title>
+					    <packages>com.randomnoun.dmx.channel*:com.randomnoun.dmx.channelMuxer*:com.randomnoun.dmx.fixture:com.randomnoun.dmx.lightSource:com.randomnoun.dmx.show:com.randomnoun.dmx.timeSource</packages>
+					  </group>
+					  <group>
+					    <title>Java Packages</title>
+					    <!--  to include the java.awt.Color class -->
+                        <packages>java.awt</packages>
+                      </group>
+					  <group>
+					    <title>Sample Packages</title>
+					    <packages>com.example*</packages>
+					  </group>
+					  <group>
+					    <title>Internal Packages</title>
+					    <packages>bsh.engine:com.jacobgen.dmx:com.randomnoun.dmx:com.randomnoun.dmx.config:com.randomnoun.dmx.dao:com.randomnoun.dmx.event:com.randomnoun.dmx.protocol*:com.randomnoun.dmx.to:com.randomnoun.dmx.web*</packages>
+					  </group>
+					</groups>
                 </configuration>
             </plugin>
      
