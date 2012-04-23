@@ -197,9 +197,8 @@ public class FixtureDefImageDAO {
     *
     * The id column of the object will be populated on return
     *
-    * @param fixtureDefImageTO the fixtureDefImage to delete
+    * @param fixtureDefImage the fixtureDefImage to delete
     *
-    * @return the id of the record to delete
     */
    public void deleteFixtureDefImage(FixtureDefImageTO fixtureDefImage) {
        String sql =

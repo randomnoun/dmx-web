@@ -308,7 +308,7 @@ public class NGWinAmp {
 	
 	/** Delete playlist items (input is an array of index ; between 0 and playlist's length)
 	 * 
-	 * @param playListIds
+	 * @param playlistIds the list of ids to remove from the playlist
 	 *
 	 * @throws IOException 
 	 */
