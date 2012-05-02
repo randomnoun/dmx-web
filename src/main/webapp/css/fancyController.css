@@ -1,4 +1,9 @@
-BODY { font-size: 8pt; font-family: Arial; }
+BODY { 
+  font-size: 8pt; font-family: Arial;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none; 
+}
 .lhsMenuContainer {
   position: absolute; top: 30px; left: 5px; width: 200px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue;
@@ -19,7 +24,10 @@ BODY { font-size: 8pt; font-family: Arial; }
 }
 .rhsPanel {
   position: absolute; top: 30px; left: 210px; width: 1020px; height: 700px;
-  background-color: #EEEEFF; border: solid 1px blue; 
+  background-color: #EEEEFF; border: solid 1px blue;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;  
 }
 #rhsMessage {
   position: absolute; top: 5px; left: 210px; width: 1016px; height: 16px;
