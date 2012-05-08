@@ -9,25 +9,36 @@ public class ShowUtils {
 
 	static Map colorMap;
 	
-	public static Color toColor(String colorString) {
-		Color color = (Color) colorMap.get(colorString);
-		if (color!=null) { return color; }
-		throw new IllegalArgumentException("Could not parse color '" + colorString + "'");
+	/** @deprecated use {@link #getColorByName(String)} instead */
+	public static Color toColor(String colorName) {
+		return getColorByName(colorName);
 	}
 
-	/** Return a Color given it's string name. Only standard Java Color names are
-	 * currently recognised.
+	/** Return a Color given it's string name. If the name does not match a standard Java
+	 * Color name, then it is evaluated as a hexadecimal RGB value (with an optional leading '#'
+	 * character). 
 	 * 
-	 * @TODO HTML color names / other color spaces
+	 * @TODO HTML colour names / other colourspace names
 	 * 
-	 * @param colorString the name of the color
+	 * @param colorName the name of the colour
 	 * 
-	 * @return a Color object containing the RGB values of this color.
+	 * @return a Color object containing the RGB values of this colour.
 	 */
-	public static Color getColorByName(String colorString) {
-		Color color = (Color) colorMap.get(colorString);
+	public static Color getColorByName(String colorName) {
+		colorName = colorName.toUpperCase().trim();
+		Color color = (Color) colorMap.get(colorName);
 		if (color!=null) { return color; }
-		throw new IllegalArgumentException("Could not parse color '" + colorString + "'");
+		// try decoding as hex
+		// @TODO: interpret 3-digit colors as per HTML spec 
+		if (colorName.startsWith("#")) { colorName = colorName.substring(1); }
+		try {
+			long hexValue = Long.parseLong(colorName, 16);
+			return new Color((int) hexValue);
+		} catch (NumberFormatException nfe) {
+			// intentional fallthrough
+		}
+		
+		throw new IllegalArgumentException("Could not parse color '" + colorName + "'");
 	}
 	
 	/** Return a color that is a directly-proportional fade from one color to another,
