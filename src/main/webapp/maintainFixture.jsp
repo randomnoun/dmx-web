@@ -9,6 +9,7 @@
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
 <% 
+    //@TODO the onchange javascript for the empty row for the dmxOffset field isn't set.
     AppConfig appConfig = AppConfig.getAppConfig();
 %>
 <html>
