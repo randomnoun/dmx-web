@@ -53,6 +53,7 @@ import com.randomnoun.dmx.to.FixtureTO;
 import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowPropertyTO;
 import com.randomnoun.dmx.to.ShowTO;
+import com.randomnoun.dmx.to.StageTO;
 
 import org.apache.log4j.Logger;
 
@@ -95,7 +96,7 @@ public class AppConfig extends AppConfigBase {
     private AudioSource audioSource;
 
     /** The active stage (not used) */
-    private Stage stage = null;
+    private Stage activeStage = null;
     
     public enum AppConfigState { UNINITIALISED, RUNNING, STOPPING, STOPPED };
     
@@ -203,6 +204,7 @@ public class AppConfig extends AppConfigBase {
 	        newInstance.initSecurityContext();
 	        newInstance.initScriptContext();
 	        newInstance.initController();
+	        newInstance.loadActiveStage();
 	        newInstance.loadFixtures(newInstance.getScriptContext(), newInstance.getController());
 	        newInstance.loadShowConfigs(newInstance.getScriptContext(), true);
 	        newInstance.loadListeners();
@@ -266,6 +268,7 @@ public class AppConfig extends AppConfigBase {
     	logger.info("reloadFixturesAndShows(): reloading scriptContext");
         initScriptContext();
         try {
+        	loadActiveStage();
 	        loadFixtures(getScriptContext(), getController());
 	        loadShowConfigs(getScriptContext(), true);
 	        loadListeners();
@@ -280,6 +283,8 @@ public class AppConfig extends AppConfigBase {
     }
 
     /** Call this after any show definitions or shows have been modified. 
+     * 
+     * <p>This method assumes that the active stage (and any fixtures for it) have not been changed.
      * 
      * <p>This method will kill all show threads, reset the controller,
      * stop any audio that's playing, and reload the show definitions.
@@ -590,7 +595,12 @@ bsh.InterpreterError: null fromValue
 			}
 		}
 
-		List fixturesFromDatabase = new FixtureDAO(getJdbcTemplate()).getFixtures(null);
+		if (activeStage==null) {
+			logger.warn("No active stage; not loading fixtures from database");
+			return;
+		}
+		
+		List fixturesFromDatabase = new FixtureDAO(getJdbcTemplate()).getFixtures("stageId=" + activeStage.getId());
 		if (fixturesFromDatabase == null || fixturesFromDatabase.size()==0) {
 			logger.warn("No fixtures in database");
 		} else {
@@ -636,6 +646,20 @@ bsh.InterpreterError: null fromValue
 		
     }
     
+    public void loadActiveStage() {
+		// @TODO may just want to load show definitions that have shows in active stages
+		StageDAO stageDAO = new StageDAO(getJdbcTemplate());
+		Long activeStageId = stageDAO.getActiveStageId();
+		
+		if (activeStageId==null) {
+			activeStage = null;
+		} else {
+			StageTO activeStageTO = stageDAO.getStage(activeStageId);
+			activeStage = new Stage(activeStageTO.getId(), activeStageTO.getName(), true);
+		}
+
+    }
+    
     public void loadShowConfigs(ScriptContext showScriptContext, boolean addToAppConfig) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
     	showConfigs = new HashMap<Long, ShowConfig>();
     	shows = new ArrayList<Show>();
@@ -671,10 +695,6 @@ bsh.InterpreterError: null fromValue
 				}
 			}
 		}
-
-		// @TODO may just want to load show definitions that have shows in active stages
-		StageDAO stageDAO = new StageDAO(getJdbcTemplate());
-		long activeStageId = stageDAO.getActiveStageId();	
 		
 		// I'm assuming all this needs to go into a separate classLoader eventually
 		// @TODO see all the comments above for fixture defs
@@ -714,7 +734,12 @@ bsh.InterpreterError: null fromValue
 			}
 		}
 
-		List showsFromDatabase = new ShowDAO(getJdbcTemplate()).getShowsWithPropertyCounts(null);
+		if (activeStage==null) {
+			logger.warn("No active stage; not loading shows from database");
+			return;
+		}
+		
+		List showsFromDatabase = new ShowDAO(getJdbcTemplate()).getShowsWithPropertyCounts("stageId=" + activeStage.getId());
 		ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(getJdbcTemplate());
 		if (showsFromDatabase == null || showsFromDatabase.size()==0) {
 			logger.warn("No show instances in database");
@@ -1023,7 +1048,9 @@ bsh.InterpreterError: null fromValue
 		}
 	}
 	
-	
+	public Stage getActiveStage() {
+		return activeStage;
+	}
 	
 	
 
