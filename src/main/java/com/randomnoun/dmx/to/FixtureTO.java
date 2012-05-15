@@ -3,6 +3,7 @@ package com.randomnoun.dmx.to;
 public class FixtureTO {
 
     private long id;
+    private long stageId;
     private long fixtureDefId;
     private String name;
     private long dmxOffset;
@@ -16,6 +17,9 @@ public class FixtureTO {
     private Long upY;
     private Long upZ;
     private Long sortOrder;
+    private String fixPanelType;
+    private Long fixPanelX;
+    private Long fixPanelY;
 
     /** Returns the id
      * @return the id
@@ -212,6 +216,62 @@ public class FixtureTO {
     public void setSortOrder(Long sortOrder) {
         this.sortOrder = sortOrder;
     }
+
+	/** 
+	 * @return the stageId
+	 */
+	public long getStageId() {
+		return stageId;
+	}
+
+	/**
+	 * @param stageId the stageId to set
+	 */
+	public void setStageId(long stageId) {
+		this.stageId = stageId;
+	}
+
+	/**
+	 * @return the fixPanelType
+	 */
+	public String getFixPanelType() {
+		return fixPanelType;
+	}
+
+	/**
+	 * @param fixPanelType the fixPanelType to set
+	 */
+	public void setFixPanelType(String fixPanelType) {
+		this.fixPanelType = fixPanelType;
+	}
+
+	/**
+	 * @return the fixPanelX
+	 */
+	public Long getFixPanelX() {
+		return fixPanelX;
+	}
+
+	/**
+	 * @param fixPanelX the fixPanelX to set
+	 */
+	public void setFixPanelX(Long fixPanelX) {
+		this.fixPanelX = fixPanelX;
+	}
+
+	/**
+	 * @return the fixPanelY
+	 */
+	public Long getFixPanelY() {
+		return fixPanelY;
+	}
+
+	/**
+	 * @param fixPanelY the fixPanelY to set
+	 */
+	public void setFixPanelY(Long fixPanelY) {
+		this.fixPanelY = fixPanelY;
+	}
 
 }
 

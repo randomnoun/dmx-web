@@ -38,6 +38,8 @@ import com.randomnoun.dmx.web.TableEditor.TableEditorResult;
  * <attributes>
  * success - displays entry page
  * </attributes>
+ * 
+ * @TODO allow stage to be selected in interface
  *
  * @version         $Id$
  * @author          knoxg
@@ -65,10 +67,15 @@ public class MaintainFixtureAction
 
     	private final static String[] fieldNames = 
     		new String[] { "id", "fixtureDefId", "name", "dmxOffset", "sortOrder", "x", "y", "z",
-    		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ" };
+    		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ", "fixPanelType", "fixPanelX", "fixPanelY" };
     	
     	Map fixtureDefMap = null;
     	int[] occupiedDmxValues = new int[Universe.MAX_CHANNELS];
+    	long activeStageId = -1;
+    			
+    	public FixtureTableEditor(long activeStageId) {
+    		this.activeStageId = activeStageId;
+    	}
     	
     	@Override
 		public void createRow(Map row) throws Exception {
@@ -77,6 +84,7 @@ public class MaintainFixtureAction
     		FixtureDAO fixtureDAO = new FixtureDAO(jt);
     		FixtureTO fixture = new FixtureTO();
     		Struct.setFromMap(fixture, row, false, true, false, fieldNames);
+    		fixture.setStageId(activeStageId);
     		fixtureDAO.createFixture(fixture);
 		}
 
@@ -86,6 +94,7 @@ public class MaintainFixtureAction
     		FixtureDAO fixtureDAO = new FixtureDAO(jt);
     		FixtureTO fixture = new FixtureTO();
     		Struct.setFromMap(fixture, row, false, true, false, fieldNames);
+    		fixture.setStageId(activeStageId);
     		fixtureDAO.updateFixture(fixture);
 		}
 
@@ -124,6 +133,8 @@ public class MaintainFixtureAction
     	    valid = valid & table.checkMandatory("dmxOffset", 10, "DMX offset");
     	    valid = valid & table.checkNumeric("dmxOffset", "DMX offset");
     	    valid = valid & table.checkNumeric("sortOrder", "Sort order");
+    	    valid = valid & table.checkNumeric("fixPanelX", "Fixture panel X position");
+    	    valid = valid & table.checkNumeric("fixPanelY", "Fixture panel Y position");
     	    valid = valid & table.checkFloat("x", "X Position");
     	    valid = valid & table.checkFloat("y", "Y Position");
     	    valid = valid & table.checkFloat("z", "Z Position");
@@ -142,7 +153,12 @@ public class MaintainFixtureAction
     	    valid = valid & table.checkMandatoryInclusive(
     	    	new String[] { "upX", "upY", "upZ" },
     	    	new String[] { "Up X Vector", "Up Y Vector", "Up Z Vector" });
+    	    valid = valid & table.checkMandatoryInclusive(
+    	    	new String[] { "fixPanelX", "fixPanelY" },
+    	    	new String[] { "Fixture panel X position", "Fixture panel Y position" });
     	    if (valid) {
+    	    	// @TODO sanity checks on fixture panel location
+    	    	
 	    	    long fixtureDefId = Long.parseLong(table.getRowValue("fixtureDefId"));
 	    	    long dmxOffset = Long.parseLong(table.getRowValue("dmxOffset"));
 	    	    long numChannels = ((Long) fixtureDefMap.get(fixtureDefId)).longValue();
@@ -237,6 +253,7 @@ public class MaintainFixtureAction
 			form.put("fixtureDefMap", getFixtureDefMap());
 			form.put("fixtures", fixtures);
 			form.put("fixtures_size", fixtures.size());
+			form.put("fixPanelTypes", getFixPanelTypes());
 			return form;
     	}
     	
@@ -244,7 +261,7 @@ public class MaintainFixtureAction
     		AppConfig appConfig = AppConfig.getAppConfig();
     		JdbcTemplate jt = appConfig.getJdbcTemplate();
     		FixtureDAO fixtureDAO = new FixtureDAO(jt);
-    		List<FixtureTO> fixtures = fixtureDAO.getFixtures(null);
+    		List<FixtureTO> fixtures = fixtureDAO.getFixtures("stageId=" + activeStageId);
     		// holy freaking christ. This is 12 types of wrong. Or 1:02AM types of wrong. Take your pick.
     		List fixturesAsMaps = new ArrayList();
     		for (FixtureTO fixture : fixtures) {
@@ -272,6 +289,21 @@ public class MaintainFixtureAction
     			fixtureDefMap.put(new Long(fixture.getId()), new Long(fixture.getDmxChannels()));
     		}
     		return fixtureDefMap;
+    	}
+    	
+    	public List getFixPanelTypes() {
+    		ArrayList fixPanelTypes = new ArrayList();
+    		addElement(fixPanelTypes, "L", "Large (default)");
+    		addElement(fixPanelTypes, "S", "Small (half-size)");
+    		addElement(fixPanelTypes, "M", "Matrix (5x5 px)");
+    		return fixPanelTypes;
+    	}
+    	
+    	public void addElement(List list, String key, String value) {
+    		Map m = new HashMap();
+    		m.put("id", key);
+    		m.put("name", value);
+    		list.add(m);
     	}
     	
    }
@@ -302,10 +334,13 @@ public class MaintainFixtureAction
 		JdbcTemplate jt = appConfig.getJdbcTemplate();
 		String action = request.getParameter("action");
 		
+		// @TODO deal with no active stages
+		long activeStageId = appConfig.getActiveStage().getId();
+		
 		if (action==null) { action = ""; }
 		if (action.equals("")) {
 			// default action displays entry page
-			FixtureTableEditor tableEditor = new FixtureTableEditor();
+			FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
 			request.setAttribute("form", tableEditor.readFixtures(null));
 			
 		} else if (action.equals("maintain")) {
@@ -313,7 +348,7 @@ public class MaintainFixtureAction
 			Struct.setFromRequest(form, request);
 			
 			//System.out.println(Struct.structuredMapToString("form", form));
-			FixtureTableEditor tableEditor = new FixtureTableEditor();
+			FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
 			tableEditor.removeEmptyRows(form);
 			TableEditorResult result = tableEditor.maintainFixtures(form);
 			//System.out.println("======================================");
@@ -321,6 +356,7 @@ public class MaintainFixtureAction
 			//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
 			form.put("fixtureDefs", tableEditor.getFixtureDefs());
 			form.put("fixtureDefMap", tableEditor.getFixtureDefMap());
+			form.put("fixPanelTypes", tableEditor.getFixPanelTypes());
 			form.put("fixtures", result.getRows());
 			form.put("fixtures_size", result.getRows().size());
 			request.setAttribute("errors", result.getErrors());
