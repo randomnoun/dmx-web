@@ -18,6 +18,7 @@ public class FixtureDAO {
         public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
             FixtureTO f = new FixtureTO();
             f.setId(rs.getLong("id"));
+            f.setStageId(rs.getLong("stageId"));
             f.setFixtureDefId(rs.getLong("fixtureDefId"));
             f.setName(rs.getString("name")); if (rs.wasNull()) { f.setName(null); }
             f.setDmxOffset(rs.getLong("dmxOffset"));
@@ -31,6 +32,9 @@ public class FixtureDAO {
             f.setUpY(rs.getLong("upY")); if (rs.wasNull()) { f.setUpY(null); }
             f.setUpZ(rs.getLong("upZ")); if (rs.wasNull()) { f.setUpZ(null); }
             f.setSortOrder(rs.getLong("sortOrder")); if (rs.wasNull()) { f.setSortOrder(null); }
+            f.setFixPanelType(rs.getString("fixPanelType"));
+            f.setFixPanelX(rs.getLong("fixPanelX")); if (rs.wasNull()) { f.setFixPanelX(null); }
+            f.setFixPanelY(rs.getLong("fixPanelY")); if (rs.wasNull()) { f.setFixPanelY(null); }
             return f;
         }
     }
@@ -48,7 +52,7 @@ public class FixtureDAO {
      */
     public List<FixtureTO> getFixtures(String sqlWhereClause) {
         String sql =
-            "SELECT id, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder " +
+            "SELECT id, stageId, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder, fixPanelType, fixPanelX, fixPanelY " +
             " FROM fixture " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<FixtureTO>) jt.query(sql, new FixtureDAORowMapper());
@@ -62,7 +66,7 @@ public class FixtureDAO {
      */
     public FixtureTO getFixture(long fixtureId) {
         return (FixtureTO) jt.queryForObject(
-            "SELECT id, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder " +
+            "SELECT id, stageId, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder, fixPanelType, fixPanelX, fixPanelY " +
             " FROM fixture " +
             " WHERE id = ?",
             new Object[] { new Long(fixtureId) }, 
@@ -76,10 +80,11 @@ public class FixtureDAO {
     public void updateFixture(FixtureTO fixture) {
         String sql =
             "UPDATE fixture " +
-            " SET fixtureDefId=?, name=?, dmxOffset=?, x=?, y=?, z=?, lookingAtX=?, lookingAtY=?, lookingAtZ=?, upX=?, upY=?, upZ=?, sortOrder=? " + 
+            " SET stageId=?, fixtureDefId=?, name=?, dmxOffset=?, x=?, y=?, z=?, lookingAtX=?, lookingAtY=?, lookingAtZ=?, upX=?, upY=?, upZ=?, sortOrder=?, fixPanelType=?, fixPanelX=?, fixPanelY=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
+        		fixture.getStageId(),
                 fixture.getFixtureDefId(),
                 fixture.getName(),
                 fixture.getDmxOffset(),
@@ -93,6 +98,9 @@ public class FixtureDAO {
                 fixture.getUpY(),
                 fixture.getUpZ(),
                 fixture.getSortOrder(),
+                fixture.getFixPanelType(),
+                fixture.getFixPanelX(),
+                fixture.getFixPanelY(),
                 fixture.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixture update failed (" + updated + " rows updated)");
@@ -110,10 +118,11 @@ public class FixtureDAO {
     public long createFixture(FixtureTO fixture) {
         String sql =
             "INSERT INTO fixture " + 
-            " (fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder) " +
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+            " (stageId, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder, fixPanelType, fixPanelX, fixPanelY) " +
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
         long updated = jt.update(sql,
-            new Object[] { 
+            new Object[] {
+        		fixture.getStageId(),
                 fixture.getFixtureDefId(),
                 fixture.getName(),
                 fixture.getDmxOffset(),
@@ -126,7 +135,10 @@ public class FixtureDAO {
                 fixture.getUpX(),
                 fixture.getUpY(),
                 fixture.getUpZ(),
-                fixture.getSortOrder()});
+                fixture.getSortOrder(),
+                fixture.getFixPanelType(),
+                fixture.getFixPanelX(),
+                fixture.getFixPanelY()});
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixture insert failed (" + updated + " rows updated)");
         }
