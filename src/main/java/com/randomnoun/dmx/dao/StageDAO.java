@@ -3,8 +3,10 @@ package com.randomnoun.dmx.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -123,11 +125,18 @@ public class StageDAO {
         }
     }
     
-    public long getActiveStageId() {
-    	return jt.queryForLong(
-            "SELECT MIN(id) " +
+    public Long getActiveStageId() {
+    	Map result =  (Map) DataAccessUtils.requiredSingleResult(jt.queryForList(
+            "SELECT MIN(id) AS minId, COUNT(id) AS countId " +
             " FROM stage " +
-            " WHERE active = 'Y'");
+            " WHERE active = 'Y'"));
+    	long count = ((Number) result.get("countId")).longValue();
+    	if (count==0) {
+    		return null;
+    	} else {
+    		return ((Number) result.get("minId")).longValue();
+    	}
+    	
     }
 }
 
