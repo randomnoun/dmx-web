@@ -107,26 +107,11 @@
           <forward name="success" path="/maintainShowProperty.jsp"/>
         </action>
 
-<!-- 
-        <action path="/stocktakeDateSelection" 
-          type="com.randomnoun.stocktake.action.main.DateSelectionAction"
-          className="com.randomnoun.common.webapp.struts.PermissionMapping" 
+        <action path="/maintainStage" 
+          type="com.randomnoun.dmx.web.action.MaintainStageAction"
         >
-          <set-property property="permission" value="login.appConfig" />
-          <forward name="success" path="/stocktake-date-selection.jsp"/>
+          <forward name="success" path="/maintainStage.jsp"/>
         </action>
-
-
-	    <action path="/stocktakeEntry" 
-	      type="com.randomnoun.stocktake.action.main.EntryAction"
-	      className="com.randomnoun.common.webapp.struts.PermissionMapping" 
-	    >
-	      <set-property property="permission" value="login.appConfig" />
-          <forward name="success" path="/stocktake-entry.jsp"/>
-          <forward name="json" path="/misc/json.jsp"/>
-	    </action>
--->
-
 
     	<action path="/test/testException" type="com.randomnoun.common.webapp.struts.TestExceptionAction">
     	  <forward name="success" path="/thisForwardNeverRunsSinceTheActionWillAlwaysFireAnException.jsp" />

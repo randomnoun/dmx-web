@@ -407,7 +407,8 @@ function fixInitPanel() {
 
     //jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
     fixColorPicker=jQuery.farbtastic(jQuery('#fixColorPicker'), fixColorChange);
-    fixUpdateControls(0);
+    
+    if (fixtures.length>0) { fixUpdateControls(0); }
 } 
 
 function fixPageDownClick(event) {
@@ -1300,10 +1301,12 @@ function cnfInitPanel() {
     Event.observe($("cnfFixture"), 'click', cnfFixtureClick);
     Event.observe($("cnfShowDef"), 'click', cnfShowDefClick);
     Event.observe($("cnfShow"), 'click', cnfShowClick);
+    Event.observe($("cnfStage"), 'click', cnfStageClick);
     Event.observe($("cnfResetAudio"), 'click', cnfResetAudioClick);
     //Event.observe($("cnfResetDMX"), 'click', cnfResetDMXClick);
     Event.observe($("cnfSimple"), 'click', cnfSimpleClick);
     Event.observe($("cnfVideo"), 'click', cnfVideoClick);
+    
     
 }
 
@@ -1318,6 +1321,9 @@ function cnfShowDefClick() {
 }
 function cnfShowClick() {
     document.location="maintainShow.html";
+}
+function cnfStageClick() {
+    document.location="maintainStage.html";
 }
 function cnfResetAudioClick() {
 	sendRequest("fancyController.html?action=resetAudio");
