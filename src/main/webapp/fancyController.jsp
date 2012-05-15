@@ -152,6 +152,7 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="cnfShowDef" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfShows.png" title="Show definitions"/><div class="cnfMenuText">Show definitions</div></div>
   <div id="cnfShow" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/lhsShows.png" title="Shows"/><div class="cnfMenuText">Shows</div></div>
 <%--  <div id="cnfResetDMX" class="cnfControl">Reset DMX device</div>  --%>
+  <div id="cnfStage" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfStage.png" title="Stages"/><div class="cnfMenuText">Stages</div></div>
   <div id="cnfResetAudio" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfResetAudio.png" title="Reset audio controller"/><div class="cnfMenuText">Reset audio controller</div></div>
   
   <div id="cnfSimple" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfSimpleController.png" title="Simple controller"/><div class="cnfMenuText">Simple controller</div></div>
