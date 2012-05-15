@@ -37,6 +37,7 @@ import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.dao.ShowPropertyDAO;
+import com.randomnoun.dmx.dao.StageDAO;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 import com.randomnoun.dmx.event.VlcUniverseUpdateListener;
 import com.randomnoun.dmx.fixture.Fixture;
@@ -45,6 +46,7 @@ import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.ShowAudioSource;
 import com.randomnoun.dmx.show.ShowThread;
+import com.randomnoun.dmx.stage.Stage;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
 import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
@@ -91,6 +93,9 @@ public class AppConfig extends AppConfigBase {
 
     /** DMX device reference */
     private AudioSource audioSource;
+
+    /** The active stage (not used) */
+    private Stage stage = null;
     
     public enum AppConfigState { UNINITIALISED, RUNNING, STOPPING, STOPPED };
     
@@ -436,6 +441,9 @@ public class AppConfig extends AppConfigBase {
     }
     
     public void loadFixtures(ScriptContext fixtureScriptContext, Controller scriptController) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    	
+    	// @TODO may just want to load fixture definitions that have fixtures in active stages
+    	
 		List fixturesFromProperties = (List) get("fixtures");
 		if (fixturesFromProperties == null || fixturesFromProperties.size()==0) {
 			logger.warn("No fixtures in appConfig properties");
@@ -462,7 +470,10 @@ public class AppConfig extends AppConfigBase {
 		// I'm assuming all this needs to go into a separate classLoader eventually
 		Map scriptedFixtureDefs = new HashMap(); // id -> scripted fixtureDef instance
 		FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(getJdbcTemplate());
-		List fixtureDefsFromDatabase = fixtureDefDAO.getFixtureDefs(null);
+		List fixtureDefsFromDatabase = fixtureDefDAO.getFixtureDefs(
+			"id IN " +
+			" (SELECT DISTINCT fixtureDefId FROM fixture WHERE stageId IN " +
+			"   (SELECT id FROM stage WHERE active='Y'))");
 		if (fixtureDefsFromDatabase == null || fixtureDefsFromDatabase.size()==0) {
 			logger.warn("No fixture definitions in database");
 		} else {
@@ -660,13 +671,22 @@ bsh.InterpreterError: null fromValue
 				}
 			}
 		}
+
+		// @TODO may just want to load show definitions that have shows in active stages
+		StageDAO stageDAO = new StageDAO(getJdbcTemplate());
+		long activeStageId = stageDAO.getActiveStageId();	
 		
 		// I'm assuming all this needs to go into a separate classLoader eventually
 		// @TODO see all the comments above for fixture defs
 		Map scriptedShowDefs = new HashMap(); // id -> scripted show class object
 		Map scriptedShowDescriptions = new HashMap(); // id -> scripted show javadoc
 		ShowDefDAO showDefDAO = new ShowDefDAO(getJdbcTemplate());
-		List showDefsFromDatabase = showDefDAO.getShowDefs(null);
+		
+		// NB: slightly different SQL for JET here
+		List showDefsFromDatabase = showDefDAO.getShowDefs(
+			"id IN " +
+			" (SELECT DISTINCT showDefId FROM `show` WHERE stageId IN " +
+			"   (SELECT id FROM stage WHERE active='Y'))");
 		if (showDefsFromDatabase == null || showDefsFromDatabase.size()==0) {
 			logger.warn("No show definitions in database");
 		} else {
