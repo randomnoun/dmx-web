@@ -58,6 +58,16 @@ public class Fixture {
 	/** Up Z vector of this fixture */
 	float upZ;
 	
+	/** If set, the X-position of this fixture on the fixture panel */
+	Long fixPanelX;
+
+	/** If set, the Y-position of this fixture on the fixture panel */
+	Long fixPanelY;
+
+	/** The representation of this fixture on the fixture panel */
+	String fixPanelType;
+
+
 	// could generate these on demand, perhaps
 	FixtureController fixtureController;
 	ChannelMuxer muxer;
@@ -224,5 +234,31 @@ public class Fixture {
 		}
 		return muxer;
 	}
+
+	public void setFixPanelPosition(Long fixPanelX, Long fixPanelY) {
+		this.fixPanelX = fixPanelX;
+		this.fixPanelY = fixPanelY;
+	}
+	
+	public Long[] getFixPanelPosition() {
+		return new Long[] { fixPanelX, fixPanelY };
+	}
+	
+
+	/**
+	 * @return the fixPanelType
+	 */
+	public void setFixPanelType(String fixPanelType) {
+		this.fixPanelType = fixPanelType;
+	}
+
+	/**
+	 * @return the fixPanelType
+	 */
+	public String getFixPanelType() {
+		return fixPanelType;
+	}
+	
+	
 	
 }
