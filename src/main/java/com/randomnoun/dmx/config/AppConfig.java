@@ -201,6 +201,8 @@ public class AppConfig extends AppConfigBase {
 	        newInstance.initSecurityManager();
 	        newInstance.initLogger();      // logger depends on properties
 	        newInstance.initDatabase();    // db settings also depend on properties
+	        // if you were really keen, you could do database schema upgrades here
+	        
 	        newInstance.initSecurityContext();
 	        newInstance.initScriptContext();
 	        newInstance.initController();
@@ -619,6 +621,8 @@ bsh.InterpreterError: null fromValue
 					if (fixtureTO.getLookingAtX()!=null) { fixture.setLookingAt(fixtureTO.getLookingAtX(), fixtureTO.getLookingAtY(), fixtureTO.getLookingAtZ()); }
 					if (fixtureTO.getUpX()!=null) { fixture.setUpVector(fixtureTO.getUpX(), fixtureTO.getUpY(), fixtureTO.getUpZ()); }
 					if (fixtureTO.getSortOrder()!=null) { fixture.setSortOrder(fixtureTO.getSortOrder().intValue()); }
+					if (fixtureTO.getFixPanelX()!=null) { fixture.setFixPanelPosition(fixtureTO.getFixPanelX(), fixtureTO.getFixPanelY()); }
+					fixture.setFixPanelType(fixtureTO.getFixPanelType()); 
 					try {
 						//hmm... might need to check that scriptController==getController()
 						//before doing this ?
