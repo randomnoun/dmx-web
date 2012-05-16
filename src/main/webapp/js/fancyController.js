@@ -332,10 +332,12 @@ var fixCustomControlsVisible = false;
 var fixCustomControlFixtureDef = null;
 var fixCustomControls = new Array();
 var fixScrollFx = null;
+var fixItemEls = new Array();
 function fixInitPanel() {
     var x,y,fixEl;
     var fp=$("fixPanel");
     var fic=$("fixItemContainer");
+    var fixEl;
     
     // display in sortOrder order
     var fixOrder = new Array(); for (var i=0; i<fixtures.length; i++) { fixOrder[i] = i; };
@@ -344,18 +346,43 @@ function fixInitPanel() {
     	i=fixOrder[j];
         x=10+(j%4)*200; y=10+Math.floor(j/4)*90;
         f=fixtures[i]; fd=fixtureDefs[f.type];
-        var fixEl = new Element("div", { 
-            "id": "fixItem[" + i + "]", "fixtureId": i,
-            "class" : "fixItem" }).update(
-            f.name +
-            "<div class=\"fixOutput\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
-            (fd.panRange==0 ? "" : "&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>") +
-            (fd.tiltRange==0 ? "" : "&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div>") +
-            "&nbsp;<div class=\"fixOutputStrobe\"></div>" +
-            "</div>" +
-            "<div class=\"fixItemIcon\"><img src=\"" + fd["img32"] + "\"></div>"
-            );
+        if (f.x) { x=f.x; y=f.y; }
+        if (f.fpType=="L") {
+	        fixEl = new Element("div", { 
+	            "id": "fixItem[" + i + "]", "fixtureId": i,
+	            "class" : "fixItem",
+	            "selectClass" : "fixSelect" }).update(
+	            f.name +
+	            "<div class=\"fixOutput\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
+	            (fd.panRange==0 ? "" : "&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>") +
+	            (fd.tiltRange==0 ? "" : "&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div>") +
+	            "&nbsp;<div class=\"fixOutputStrobe\"></div>" +
+	            "</div>" +
+	            "<div class=\"fixItemIcon\"><img src=\"" + fd["img32"] + "\"></div>"
+	            );
+        } else if (f.fpType=="S") {
+        	fixEl = new Element("div", { 
+	            "id": "fixItem[" + i + "]", "fixtureId": i,
+	            "class" : "fixItemHalf",
+	            "selectClass" : "fixSelectHalf"}).update(
+	            f.name +
+	            "<div class=\"fixOutputHalf\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
+	            (fd.panRange==0 ? "" : "&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>") +
+	            (fd.tiltRange==0 ? "" : "&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div>") +
+	            "&nbsp;<div class=\"fixOutputStrobe\"></div>" +
+	            "</div>" +
+	            "<div class=\"fixItemIcon\"><img src=\"" + fd["img16"] + "\"></div>"
+	            );
+        } else if (f.fpType=="M") {
+        	fixEl = new Element("div", { 
+	            "id": "fixItem[" + i + "]", "fixtureId": i,
+	            "class" : "fixItemMatrix",
+	            "selectClass" : "fixSelectMatrix" }).update(
+	            "<div class=\"fixOutputColorMatrix\"></div>"
+	            );
+        }
         fixEl.style.left=x+"px"; fixEl.style.top=y+"px";
+        fixItemEls.push(fixEl);
         fic.appendChild(fixEl);
         Event.observe(fixEl, 'click', fixItemClick);
     }
@@ -442,10 +469,11 @@ function fixAimClick(event) {
 }
 
 function fixToggleEl(el) {
-    if (el.hasClassName("fixSelect")) {
-        el.removeClassName("fixSelect"); return false;
+	var selectClass = el.readAttribute("selectClass");
+    if (el.hasClassName(selectClass)) {
+        el.removeClassName(selectClass); return false;
     } else {
-        el.addClassName("fixSelect"); return true;
+        el.addClassName(selectClass); return true;
     }
 }
 
@@ -453,16 +481,16 @@ var fixLastFixSelectedEl = null;
 var fixSelectIndividual = false;
 function fixItemClick(event) {
     var fixItemEl = event.element();
-    while (!fixItemEl.hasClassName("fixItem")) { fixItemEl=fixItemEl.parentNode; }
+    while (fixItemEls.indexOf(fixItemEl)==-1) { fixItemEl=fixItemEl.parentNode; }
     if (fixSelectIndividual) {
         if (fixLastFixSelectedEl!=null && fixLastFixSelectedEl!=fixItemEl) { 
-            fixLastFixSelectedEl.removeClassName("fixSelect"); 
+            fixLastFixSelectedEl.removeClassName(fixLastFixSelectedEl.readAttribute("selectClass")); 
         }
     }
     fixLastFixSelectedEl = fixToggleEl(fixItemEl) ? fixItemEl : null;
 
     var fixItems=new Array();
-    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
+    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixItems.push(f.readAttribute("fixtureId"))};});
     if (fixItems.length==1) {
     	var fd = fixtureDefs[fixtures[fixItems[0]].type];
     	var cn=$("fixAim").childNodes;
@@ -653,8 +681,8 @@ function fixGroupClick(event) {
     	fixGroupEl.removeClassName("fixSmallSelect"); 
     }
     if (fixSelectIndividual) {
-        $$(".fixItem").each(function(f){f.removeClassName("fixSelect");});
-        if (fixLastFixSelectedEl!=null) { fixLastFixSelectedEl.addClassName("fixSelect"); }
+    	fixItemEls.each(function(f){f.removeClassName(f.readAttribute("selectClass"));});
+        if (fixLastFixSelectedEl!=null) { fixLastFixSelectedEl.addClassName(fixLastFixSelectedEl.readAttribute("selectClass")); }
     }
     if (fixCustomControlsVisible) { fixUpdateCustomControls(); }
 }
@@ -662,13 +690,13 @@ function fixGroupClick(event) {
 function fixAllNoneClick(event) {
     var fixAllNoneEl = event.element();
     var countFixSelected=0;
-    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){countFixSelected++;};});
+    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){countFixSelected++;};});
     if (countFixSelected==fixtures.length) {
     	fixAllNoneEl.removeClassName("fixSmallSelect");
-    	$$(".fixItem").each(function(f){f.removeClassName("fixSelect");});
+    	fixItemEls.each(function(f){f.removeClassName(f.readAttribute("selectClass"));});
     } else {
     	fixAllNoneEl.addClassName("fixSmallSelect");
-    	$$(".fixItem").each(function(f){f.addClassName("fixSelect");});
+    	fixItemEls.each(function(f){f.addClassName(f.readAttribute("selectClass"));});
     	if (fixSelectIndividual) {
     		fixSelectIndividual=false;
     		$("fixGroup").removeClassName("fixSmallSelect"); 
@@ -697,7 +725,7 @@ function fixUpdateCustomControls() {
 	var cc,tmft=false,i,fixtureId,fd=null;
     var fixItems=new Array();
     var ccEl=$("fixCustomControls");
-    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixtureId=f.readAttribute("fixtureId");if(fd==null){fd=fixtureDefs[fixtures[fixtureId].type]}else if (fd!=fixtureDefs[fixtures[fixtureId].type]){tmft=true;}};});
+    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixtureId=f.readAttribute("fixtureId");if(fd==null){fd=fixtureDefs[fixtures[fixtureId].type]}else if (fd!=fixtureDefs[fixtures[fixtureId].type]){tmft=true;}};});
     if (fd==null) {
     	ccEl.update("Select a fixture or set of fixtures of the same type.");
     	fixCustomControlFixtureDef=null;
@@ -779,7 +807,7 @@ function fixUpdateCustomControls() {
 
 function fixGetItems() {
     var fixItems=new Array();
-    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
+    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixItems.push(f.readAttribute("fixtureId"))};});
     return fixItems;
 }
 
@@ -906,22 +934,27 @@ function fixUpdatePanel(json) {
     fixValues = json.fixValues;
     for (var i=0; i<fixValues.length; i++) {
         var fixValue = fixValues[i];
-        var fd=fixtureDefs[fixtures[i].type];
+        var fpType = fixtures[i].fpType;
         var el = $("fixItem[" + i + "]");
-        var divEls = el.getElementsByTagName("DIV");
-        var divElIdx = 2;
-        divEls[divElIdx++].style.height=(1-fixValue["d"])*15 + "px";
-        divEls[divElIdx++].style.backgroundColor=fixValue["c"];
-        if (fd.panRange!=0) { divEls[divElIdx++].innerHTML=twoDigits(fixValue["p"]); }
-        if (fd.tiltRange!=0) { divEls[divElIdx++].innerHTML=twoDigits(fixValue["t"]); }
-        if (fixValue["s"]) {
+        if (fpType=="L" || fpType=="S") {
+          var fd=fixtureDefs[fixtures[i].type];
+          var divEls = el.getElementsByTagName("DIV");
+          var divElIdx = 2;
+          divEls[divElIdx++].style.height=(1-fixValue["d"])*15 + "px";
+          divEls[divElIdx++].style.backgroundColor=fixValue["c"];
+          if (fd.panRange!=0) { divEls[divElIdx++].innerHTML=twoDigits(fixValue["p"]); }
+          if (fd.tiltRange!=0) { divEls[divElIdx++].innerHTML=twoDigits(fixValue["t"]); }
+          if (fixValue["s"]) {
         	divEls[divElIdx++].innerHTML=twoDigits(fixValue["s"]);
-        } else {
+          } else {
         	divEls[divElIdx++].innerHTML="";
-        }
+          }
+        } else if (fpType=="M") {
+          el.getElementsByTagName("DIV")[0].style.backgroundColor=fixValue["c"];
+        }  
     }
     var fixItems=new Array();
-    $$(".fixItem").each(function(f){if (f.hasClassName("fixSelect")){fixItems.push(f.readAttribute("fixtureId"))};});
+    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixItems.push(f.readAttribute("fixtureId"))};});
     if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
     else if (fixItems.length>1) { fixUpdateControlsArray(fixItems); }
 }

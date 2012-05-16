@@ -29,9 +29,7 @@ import org.apache.struts.action.ActionMapping;
 import com.randomnoun.common.ExceptionUtils;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
-import com.randomnoun.common.ThreadContext;
 import com.randomnoun.common.security.User;
-import com.randomnoun.common.servlet.VersionServlet;
 import com.randomnoun.common.timer.Benchmark;
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.AudioSource;
@@ -127,6 +125,12 @@ public class FancyControllerAction
     			m.put("name", f.getName());
     			m.put("sortOrder", f.getSortOrder()); 
     			m.put("type", fdName);
+    			m.put("fpType",  f.getFixPanelType());
+    			Long[] fixPanelPosition = f.getFixPanelPosition();
+    			if (fixPanelPosition[0]!=null) {
+    				m.put("x", fixPanelPosition[0]); 
+    				m.put("y", fixPanelPosition[0]);
+    			}
     			fixtures.add(m);
     			if (!fixtureDefs.containsKey(fdName)) {
     				Map m2 = new HashMap();
