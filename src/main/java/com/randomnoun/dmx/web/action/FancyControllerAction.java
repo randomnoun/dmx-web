@@ -272,7 +272,7 @@ public class FancyControllerAction
     			Long[] fixPanelPosition = f.getFixPanelPosition();
     			if (fixPanelPosition[0]!=null) {
     				m.put("x", fixPanelPosition[0]); 
-    				m.put("y", fixPanelPosition[0]);
+    				m.put("y", fixPanelPosition[1]);
     			}
     			fixtures.add(m);
     			if (!fixtureDefs.containsKey(fdName)) {
