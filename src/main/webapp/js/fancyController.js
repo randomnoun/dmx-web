@@ -362,7 +362,7 @@ var fixCustomControls = new Array();
 var fixScrollFx = null;
 var fixItemEls = new Array();
 function fixInitPanel() {
-    var x,y,fixEl;
+    var x,y,i,j,f,fd,fixEl;
     var fp=$("fixPanel");
     var fic=$("fixItemContainer");
     var fixEl;
@@ -374,7 +374,7 @@ function fixInitPanel() {
     	i=fixOrder[j];
         x=10+(j%4)*200; y=10+Math.floor(j/4)*90;
         f=fixtures[i]; fd=fixtureDefs[f.type];
-        if (f.x) { x=f.x; y=f.y; }
+        if (f.x!=null && f.y!=null) { x=f.x; y=f.y; }
         if (f.fpType=="L") {
 	        fixEl = new Element("div", { 
 	            "id": "fixItem[" + i + "]", "fixtureId": i,
