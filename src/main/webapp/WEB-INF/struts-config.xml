@@ -53,6 +53,7 @@
         >
           <forward name="success" path="/fancyController.jsp"/>
           <forward name="json" path="/misc/json.jsp"/>
+          <forward name="null" className="com.randomnoun.common.webapp.struts.NullForward" path=""/>
         </action>
 
         <action path="/index" 

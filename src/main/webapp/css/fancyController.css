@@ -50,6 +50,9 @@ BODY {
   background-color: white;
 }
 
+/**** COMET stuff ***/
+#cometFrame { display: none; }
+
 /**** LOGO panel ***/
 #lgoPanel {
   position: relative; width: 900px; height: 700px; 
@@ -519,8 +522,6 @@ BODY {
   cursor: pointer;  
 }
 
-
-
 /*** CONFIG panel ***/
 .cnfControl {
   display: inline-block;
@@ -530,11 +531,26 @@ BODY {
   margin: 20px 20px 0px 20px;
   cursor: pointer;
 }
+.cnfControlSelect {
+  background-image: url("../image/cnfControlBack2.png");
+}
 .cnfMenuIcon {
   float: left;
 }
 .cnfMenuText {
   padding-top: 18px;
 }
+
+
+/*** RECORD SHOW container (in lhs panel) ***/
+#recContainer { visibility: hidden; }
+.recContainerLabel { width: 180px; height: 30px; margin-left: 10px;  }
+.recButtonAdd { display: inline-block; width: 53px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/rbutton-green.png"); }
+.recButtonDel { display: inline-block; width: 53px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/rbutton-red.png"); }
+.recButtonPlay { display: inline-block; width: 53px; height: 45px; margin-left: 10px; background-image: url("../image/rbutton-blue.png"); }
+.recButtonL { display: inline-block; width: 53px; height: 45px; background-image: url("../image/rbutton-blue.png"); }
+.recButtonR { display: inline-block; float: right; width: 53px; height: 45px; background-image: url("../image/rbutton-blue.png"); }
+.recFrameContainer { width: 180px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/recFrame-back.png"); } 
+.recFrame { display: inline-block;  }
 
 

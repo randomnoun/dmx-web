@@ -7,6 +7,8 @@ import gnu.io.RXTXVersion;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +34,8 @@ import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
 import com.randomnoun.common.timer.Benchmark;
+import com.randomnoun.common.webapp.upload.MonitoredOutputStream;
+import com.randomnoun.common.webapp.upload.OutputStreamListener;
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.AudioSource;
 import com.randomnoun.dmx.Controller;
@@ -66,6 +71,143 @@ public class FancyControllerAction
     /** Logger instance for this class */
     private static final Logger logger = Logger.getLogger(FancyControllerAction.class);
 
+    public static final long RELOAD_THRESHOLD = 1024 * 1024; // reload iframe after 1MB data sent
+    
+    /** Thing that sends updates to a webpage without using polling. 
+     * 
+     * @author knoxg
+     *
+     */
+    public static class CometPipe implements OutputStreamListener {
+    	long pageId;
+    	String panel;
+    	long bytesSent; // possibly reload the iframe when an excessive amount of data has been sent
+    	boolean open;
+    	
+    	public CometPipe(long pageId, String panel) {
+    		this.pageId = pageId;
+    		this.panel = panel;
+    		this.bytesSent = 0;
+    		this.open = true;
+    	}
+    	
+    	public boolean isOpen() { return open; }
+    	public void close() { open = false; }
+
+    	
+    	// OutputStreamListener methods. error() is never invoked
+		public void start() { }
+		public void bytesWritten(int bytesWritten) { bytesSent += bytesWritten; }
+		public void error(String message) {	}
+		public void done() { }
+    	
+    	//HttpServletRequest request;
+    	//HttpServletResponse response;
+    	 
+    }
+    
+    static long lastOpenPage=0;
+    
+    /* We have one cometPipe per page */
+    ConcurrentHashMap<Long, CometPipe> cometPipes = new ConcurrentHashMap();
+
+    
+    public void setPanelAttributes(Map result, String panel) {
+    	AppConfig appConfig = AppConfig.getAppConfig();
+    	Controller controller = appConfig.getController();
+		if (panel.equals("dmxPanel")) {
+			Universe u = controller.getUniverse();
+    		String dmxValues = "";
+    		for (int i=1; i<=255; i++) {
+    			dmxValues+=u.getDmxChannelValue(i) + ",";
+    		}
+    		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+    		result.put("now", sdf.format(new Date(u.getTime())));
+    		result.put("dmxValues", dmxValues);
+
+			/*
+			int[] d = u.getAllDmxChannelValues();
+			String j = "";
+			for (int i=1; i<=255; i++) { j += d[i] + ","; }; 
+			j += "";
+			result.put("dmxValues", j);
+			*/ 
+			
+		} else if (panel.equals("shwPanel")) {
+			List<Show> shows = appConfig.getShows();
+			List showResult = new ArrayList();
+			for (int i=0; i<shows.size(); i++) {
+				Show show = shows.get(i);
+				HashMap m = new HashMap();
+				m.put("id", show.getId());
+				m.put("state", show.getState().toString());
+				if (show.getState()!=Show.State.SHOW_STOPPED) { 
+    				m.put("time", show.getShowTime());
+    				m.put("label", show.getLabel());
+    				m.put("length", show.getLength());
+				}
+				showResult.add(m);
+			}
+			AudioSource audioSource = appConfig.getAudioSource();
+			float[] bmt = audioSource.getBassMidTreble();
+			HashMap m = new HashMap();
+			m.put("b", bmt[0]);
+			m.put("m", bmt[1]);
+			m.put("t", bmt[2]);
+			result.put("audio", m);
+			result.put("shows", showResult);
+
+		} else if (panel.equals("fixPanel")) {
+			List fixValues = new ArrayList();
+		    for (Fixture f : controller.getFixtures()) {
+    			FixtureController fc = f.getFixtureController();
+		    	ChannelMuxer cm = f.getChannelMuxer();
+		    	FixtureOutput fo = cm.getOutput();
+		    	HashMap m = new HashMap();
+		    	Color c = fo.getColor();
+		    	m.put("c", getColorHexString(c));
+		    	m.put("d", fo.getDim());
+		    	Double pan = fo.getPan(); 
+		    	if (pan!=null) { 
+		    		m.put("p", twoDigits(fo.getPan())); 
+		    		m.put("ap", twoDigits(fo.getActualPan()));
+		    	}
+		    	Double tilt = fo.getTilt(); 
+		    	if (tilt!=null) { 
+		    		m.put("t", twoDigits(fo.getTilt()));
+		    		m.put("at", twoDigits(fo.getActualTilt()));
+		    	}
+		    	Double strobe = fo.getStrobe(); 
+		    	if (strobe!=null) { 
+		    		m.put("s", twoDigits(strobe)); 
+		    	}
+		    	fixValues.add(m);
+		    	if (fc.getCustomControls()!=null && fc.getCustomControls().size()>0) {
+		    		ArrayList ccs = new ArrayList();
+		    		for (CustomControl cc : fc.getCustomControls()) {
+		    			ccs.add(cc.getValue());
+		    		}
+		    		m.put("ccs", ccs);
+		    	}
+		    }
+		    result.put("fixValues", fixValues);
+
+		} else if (panel.equals("logPanel")) {
+    		List exceptions = new ArrayList();
+    		addExceptions(exceptions, "appConfig", appConfig.getAppConfigExceptions());
+    		addExceptions(exceptions, "audio", controller.getAudioController().getExceptions());
+    		addExceptions(exceptions, "audioSource", appConfig.getAudioSourceExceptions());
+    		addExceptions(exceptions, "dmx", appConfig.getDmxDeviceExceptions());
+    		addShowExceptions(exceptions, appConfig.getShowExceptions());
+    		result.put("exceptions", exceptions);
+    		result.put("stopPollRequests", Boolean.TRUE);
+
+		} else if (panel.equals("cnfPanel") || panel.equals("lgoPanel")) {
+			result.put("stopPollRequests", Boolean.TRUE);
+		}
+    }
+    
+    
     /**
      * Perform this struts action. See the javadoc for this
      * class for more details.
@@ -113,6 +255,7 @@ public class FancyControllerAction
     	}
     	
     	if (action.equals("")) {
+    		long thisPageId=lastOpenPage++;  // probably a race condition
     		List shows = new ArrayList();
     		List fixtures = new ArrayList();
     		Map fixtureDefs = new HashMap();
@@ -231,104 +374,25 @@ public class FancyControllerAction
     		request.setAttribute("version", version);
     		request.setAttribute("panel", request.getParameter("panel"));
     		request.setAttribute("javadocUrl", appConfig.getProperty("fancyController.javadocUrl"));
+    		request.setAttribute("pageId", thisPageId);
     		forward="success";
 
     	} else if (action.equals("poll")) {
     		// just poll the goddamn thing every second or so.
     		String panel = request.getParameter("panel");
-    		result.put("panel", panel);
-    		if (panel.equals("dmxPanel")) {
-    			Universe u = appConfig.getController().getUniverse();
-        		String dmxValues = "";
-        		for (int i=1; i<=255; i++) {
-        			dmxValues+=u.getDmxChannelValue(i) + ",";
-        		}
-        		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
-        		result.put("now", sdf.format(new Date(u.getTime())));
-        		result.put("dmxValues", dmxValues);
-
-    			/*
-    			int[] d = u.getAllDmxChannelValues();
-    			String j = "";
-    			for (int i=1; i<=255; i++) { j += d[i] + ","; }; 
-    			j += "";
-    			result.put("dmxValues", j);
-    			*/ 
-    			
-    		} else if (panel.equals("shwPanel")) {
-    			List<Show> shows = appConfig.getShows();
-    			List showResult = new ArrayList();
-    			for (int i=0; i<shows.size(); i++) {
-    				Show show = shows.get(i);
-    				HashMap m = new HashMap();
-    				m.put("id", show.getId());
-    				m.put("state", show.getState().toString());
-    				if (show.getState()!=Show.State.SHOW_STOPPED) { 
-	    				m.put("time", show.getShowTime());
-	    				m.put("label", show.getLabel());
-	    				m.put("length", show.getLength());
-    				}
-    				showResult.add(m);
-    			}
-    			AudioSource audioSource = appConfig.getAudioSource();
-    			float[] bmt = audioSource.getBassMidTreble();
-    			HashMap m = new HashMap();
-    			m.put("b", bmt[0]);
-    			m.put("m", bmt[1]);
-    			m.put("t", bmt[2]);
-    			result.put("audio", m);
-    			result.put("shows", showResult);
-
-    		} else if (panel.equals("fixPanel")) {
-    			List fixValues = new ArrayList();
-    		    for (Fixture f : controller.getFixtures()) {
-        			FixtureController fc = f.getFixtureController();
-    		    	ChannelMuxer cm = f.getChannelMuxer();
-    		    	FixtureOutput fo = cm.getOutput();
-    		    	HashMap m = new HashMap();
-    		    	Color c = fo.getColor();
-    		    	m.put("c", getColorHexString(c));
-    		    	m.put("d", fo.getDim());
-    		    	Double pan = fo.getPan(); 
-    		    	if (pan!=null) { 
-    		    		m.put("p", twoDigits(fo.getPan())); 
-    		    		m.put("ap", twoDigits(fo.getActualPan()));
-    		    	}
-    		    	Double tilt = fo.getTilt(); 
-    		    	if (tilt!=null) { 
-    		    		m.put("t", twoDigits(fo.getTilt()));
-    		    		m.put("at", twoDigits(fo.getActualTilt()));
-    		    	}
-    		    	Double strobe = fo.getStrobe(); 
-    		    	if (strobe!=null) { 
-    		    		m.put("s", twoDigits(strobe)); 
-    		    	}
-    		    	fixValues.add(m);
-    		    	if (fc.getCustomControls()!=null && fc.getCustomControls().size()>0) {
-    		    		ArrayList ccs = new ArrayList();
-    		    		for (CustomControl cc : fc.getCustomControls()) {
-    		    			ccs.add(cc.getValue());
-    		    		}
-    		    		m.put("ccs", ccs);
-    		    	}
-    		    }
-    		    result.put("fixValues", fixValues);
-
-    		} else if (panel.equals("logPanel")) {
-        		List exceptions = new ArrayList();
-        		addExceptions(exceptions, "appConfig", appConfig.getAppConfigExceptions());
-        		addExceptions(exceptions, "audio", controller.getAudioController().getExceptions());
-        		addExceptions(exceptions, "audioSource", appConfig.getAudioSourceExceptions());
-        		addExceptions(exceptions, "dmx", appConfig.getDmxDeviceExceptions());
-        		addShowExceptions(exceptions, appConfig.getShowExceptions());
-        		result.put("exceptions", exceptions);
-        		result.put("stopPollRequests", Boolean.TRUE);
-
-    		} else if (panel.equals("cnfPanel") || panel.equals("lgoPanel")) {
-    			result.put("stopPollRequests", Boolean.TRUE);
+    		long pageId = Long.parseLong(request.getParameter("pageId"));
+    		CometPipe cometPipe = cometPipes.get(pageId);
+    		if (cometPipe==null) { result.put("reloadIframe", true); }
+    		else if (!cometPipe.panel.equals(panel)) {
+    			// alternatively, could change the panel of this cometPipe
+    			// English. I've heard of it.
+    			// @TODO rename all these things as IFrameResponses before I commit it to CVS
+    			result.put("reloadIframe", true); 
     		}
     		
-    		
+    		result.put("panel", panel);
+    		result.put("serverTime", System.currentTimeMillis());
+    		setPanelAttributes(result, panel);
     		
     		/*
     		String eventMaskString = request.getParameter("eventMask");
@@ -345,6 +409,56 @@ public class FancyControllerAction
     		}
     		forward="json";
     		*/
+    	
+    	} else if (action.equals("iframe")) {
+    		// keep a connection open to the browser (CometPipe) until 
+    		//   a) we start getting IOExceptions (flag the pipe as invalid and reopen it on the next poll), or
+    		//   b) we send an excessive amount of data (reload the containing iframe, which hopefully frees up any memory taken up by the page)
+    		//   c) we send a response for the wrong panel, which will also trigger an iframe reload
+    		String panel = request.getParameter("panel");
+    		long pageId = Long.parseLong(request.getParameter("pageId"));
+    		CometPipe cometPipe = cometPipes.get(pageId);
+    		if (cometPipe!=null) {
+    			// this should never happen. maybe. could just terminate the other one.
+    			logger.warn("Two cometPipes requested on pageId " + pageId + "; closing existing pipe");
+    			cometPipe.close();
+    		}
+    		cometPipe = new CometPipe(pageId, panel);
+    		logger.info("CometPipe for pageId=" + pageId + " opened");
+    		OutputStream os = response.getOutputStream();
+    		MonitoredOutputStream mos = new MonitoredOutputStream(os, cometPipe);
+    		PrintWriter pw = new PrintWriter(mos);
+    		//pw.println("Content-Encoding: UTF8 or something");
+    		//PrintWriter pw = response.getWriter(); // I suspect this isn't going to work.
+    		while (cometPipe.isOpen()) {
+    			Map resultMap = new HashMap();
+    			resultMap.put("panel", panel);
+    			resultMap.put("serverTime", System.currentTimeMillis());
+    			setPanelAttributes(resultMap, panel);
+    			pw.println("<script>top.updatePanelComet(" + Struct.structuredMapToJson(resultMap) + ");</script>\n");
+    			pw.flush();
+    			Boolean b = (Boolean) resultMap.get("stopPollRequests");
+    			if (pw.checkError()) { cometPipe.close(); }
+    			else if (b!=null && b.booleanValue()) { cometPipe.close(); }
+    			else if (cometPipe.bytesSent > RELOAD_THRESHOLD) {
+    				pw.println("<script>top.reloadCometIframe();</script>");
+    				pw.flush();
+    				logger.info("CometPipe for pageId=" + pageId + " has sent " + cometPipe.bytesSent + " bytes; reloading");
+    				cometPipe.close(); 
+    			} else {
+    				// logger.info("Written " + cometPipe.bytesSent + " bytes to pipe " + pageId);
+	    			// @TODO should wait until the cometPipe closes, or we see a state change in this panel
+    				// or we hit a timeout
+	    			try {
+	    				Thread.sleep(50);
+	    			} catch (InterruptedException ie) {
+	    				
+	    			}
+	    			
+    			}
+    		}
+    		logger.info("CometPipe for pageId=" + pageId + " closed");
+    		forward = "null"; // maps to NullForward
     		
     	} else if (action.equals("setDmxValues")) {
 			// old method (one parameter per value)

@@ -14,6 +14,9 @@ var prfEndPanelUpdateTime = null;
 var longPollRequest=null;
 var currentPanelName=null;
 var MAX_LENGTH=9223372036854775807;
+// timestamp of last useful server response (i.e. response for current panel)
+var lastServerResponse = 0; // to prevent iframe & polls rolling back changes from the other 
+var disableIframe = true;
 
 function initLookups() {
     for (var i=0; i<fixtures.length; i++) {
@@ -96,7 +99,7 @@ function lhsShowPanel(panelName) {
     var el=$(panelName); if (el) { 
         el.style.display = "block";
     }
-    
+    if (!disableIframe) { reloadCometIframe(); }
     // @TODO update with current state
 }
 function lhsSelect(el) {
@@ -119,7 +122,8 @@ function lhsConfig() { lhsSelect($("lhsConfig")); lhsShowPanel("cnfPanel"); }
 
 
 function startPollRequests() {
-	var pollUrl = 'fancyController.html?action=poll&panel=' + currentPanelName; 
+	/*
+	var pollUrl = "fancyController.html?action=poll&pageId=" + pageId + "&panel=" + currentPanelName; 
 	if (prfEnabled) {
 	    pollUrl += "&lrid=" + prfRequestId + "&lrd=" + (prfEndPollRequestTime-prfStartPollRequestTime) + "&lru=" + (prfEndPanelUpdateTime-prfEndPollRequestTime)
 		prfRequestId++;
@@ -137,19 +141,43 @@ function startPollRequests() {
         	prfEndPanelUpdateTime=0;
         }
     })
+    */
 }
 
 function updatePanel(json) {
     var jsonPanel = json.panel;
+    var serverTime = json.serverTime;
     if (jsonPanel==currentPanelName) {
-        if (jsonPanel=="shwPanel") { shwUpdatePanel(json); }
-        else if (jsonPanel=="dmxPanel") { dmxUpdatePanel(json); }
-        else if (jsonPanel=="fixPanel") { fixUpdatePanel(json); }
-        else if (jsonPanel=="logPanel") { logUpdatePanel(json); }
-        if (!json.stopPollRequests) {
-            window.setTimeout(startPollRequests, 500);
-        }
+        if (serverTime > lastServerResponse) {
+	    	lastServerResponse = serverTime;
+	        if (jsonPanel=="shwPanel") { shwUpdatePanel(json); }
+	        else if (jsonPanel=="dmxPanel") { dmxUpdatePanel(json); }
+	        else if (jsonPanel=="fixPanel") { fixUpdatePanel(json); }
+	        else if (jsonPanel=="logPanel") { logUpdatePanel(json); }
+	        if (!json.stopPollRequests) {
+	            window.setTimeout(startPollRequests, 500);
+	        }
+	    }
+	    if (json.reloadIframe) {
+	    	$("cometFrame").setAttribute("src", "fancyController.html?action=iframe&pageId=" + pageId + "&panel=" + currentPanelName);
+	    }
     }
+}
+function updatePanelComet(json) {
+	var jsonPanel = json.panel;
+	var serverTime = json.serverTime;
+    if (jsonPanel==currentPanelName) {
+    	if (serverTime > lastServerResponse) {
+    		lastServerResponse = serverTime;
+	        if (jsonPanel=="shwPanel") { shwUpdatePanel(json); }
+	        else if (jsonPanel=="dmxPanel") { dmxUpdatePanel(json); }
+	        else if (jsonPanel=="fixPanel") { fixUpdatePanel(json); }
+	        else if (jsonPanel=="logPanel") { logUpdatePanel(json); }
+    	}
+    }
+}
+function reloadCometIframe() {
+	$("cometFrame").setAttribute("src", "fancyController.html?action=iframe&pageId=" + pageId + "&panel=" + currentPanelName);
 }
 
 /******************************* CONFIG PANEL ******************************/
@@ -1330,19 +1358,38 @@ function logUpdatePanel(json) {
 /******************************* CONFIG PANEL ******************************/
 
 function cnfInitPanel() {
-    Event.observe($("cnfFixtureDef"), 'click', cnfFixtureDefClick);
+	Event.observe($("cnfStage"), 'click', cnfStageClick);
+	Event.observe($("cnfRecord"), 'click', cnfRecordClick);
+	Event.observe($("cnfFixtureDef"), 'click', cnfFixtureDefClick);
     Event.observe($("cnfFixture"), 'click', cnfFixtureClick);
     Event.observe($("cnfShowDef"), 'click', cnfShowDefClick);
     Event.observe($("cnfShow"), 'click', cnfShowClick);
-    Event.observe($("cnfStage"), 'click', cnfStageClick);
     Event.observe($("cnfResetAudio"), 'click', cnfResetAudioClick);
     //Event.observe($("cnfResetDMX"), 'click', cnfResetDMXClick);
     Event.observe($("cnfSimple"), 'click', cnfSimpleClick);
     Event.observe($("cnfVideo"), 'click', cnfVideoClick);
     
+    if (isRecording) {
+    	$("cnfRecordText").update("Stop recording");
+    	$("cnfRecord").addClassName("cnfControlSelect");
+    	$("recContainer").style.visibility = "visible";
+    }
     
 }
 
+function cnfStageClick() {
+    document.location="maintainStage.html";
+}
+function cnfRecordClick() {
+	isRecording=!isRecording;
+	$("recContainer").style.visibility = isRecording ? "visible" : "hidden";
+	$("cnfRecordText").update(isRecording ? "Stop recording" : "Start recording");
+	if (isRecording) {
+		$("cnfRecord").addClassName("cnfControlSelect");
+	} else {
+		$("cnfRecord").removeClassName("cnfControlSelect");
+	}
+}
 function cnfFixtureDefClick() {
     document.location="maintainFixtureDef.html";
 }
@@ -1354,9 +1401,6 @@ function cnfShowDefClick() {
 }
 function cnfShowClick() {
     document.location="maintainShow.html";
-}
-function cnfStageClick() {
-    document.location="maintainStage.html";
 }
 function cnfResetAudioClick() {
 	sendRequest("fancyController.html?action=resetAudio");
@@ -1397,6 +1441,7 @@ function initLongPolling() {
 
 function initWindow() {
     // lhsFixtures(); // need fixtures to be visible during init, or dimmer slider breaks (?)
+	disableIframe=true;
     initLookups();
     initLhsMenu();
 
@@ -1411,5 +1456,6 @@ function initWindow() {
     } else {
         lhsLogo();
     }
+    disableIframe=false;
 }
 

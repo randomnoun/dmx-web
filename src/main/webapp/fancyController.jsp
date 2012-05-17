@@ -46,6 +46,8 @@
 <r:setJavascriptVar name="version" value="${version}" />
 <r:setJavascriptVar name="origPanel" value="${panel}" />
 <r:setJavascriptVar name="javadocUrl" value="${javadocUrl}" />
+<r:setJavascriptVar name="pageId" value="${pageId}" />
+<r:setJavascriptVar name="isRecording" value="${isRecording}" />
 var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %>";
 <%-- this will be a client-side include eventually --%>
 <jsp:include page="js/fancyController.js" />
@@ -60,6 +62,12 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="lhsDMX" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsDmx.png" title="DMX"/><div class="lhsMenuText">DMX</div></div>
   <div id="lhsLogs" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsLogs.png" title="Logs"/><div class="lhsMenuText">Logs</div></div>
   <div id="lhsConfig" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsConfig.png" title="Config"/><div class="lhsMenuText">Config</div></div>
+  
+  <div id="recContainer">
+    <div class="recContainerLabel"><img class="recContainerIcon" width="70" height="29" src="image/recRecordAnim.gif"/></div>
+    <div class="recFrameContainer"><div class="recButtonL" style="margin-left: 0px; "><img src="image/rbutton-prev.png" width="53" height="45"/></div><div class="recFrame"></div><div class="recButtonR"><img src="image/rbutton-next.png" width="53" height="45"/></div></div>
+    <div class="recButtonDel"><img src="image/rbutton-del.png" width="53" height="45"/></div><div class="recButtonPlay"><img src="image/rbutton-play.png" width="53" height="45"/></div><div class="recButtonAdd"><img src="image/rbutton-add.png" width="53" height="45"/></div>
+  </div>
 </div>
 
 <div id="rhsMessage">Messages</div>
@@ -147,15 +155,15 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 </div>
 
 <div id="cnfPanel" style="display: none;">
+  <div id="cnfStage" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfStage.png" title="Stages"/><div class="cnfMenuText">Stages</div></div>
+  <div id="cnfRecord" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfRecord.png" title="Stages" style="margin-left:3px;"/><div id="cnfRecordText" class="cnfMenuText">Start recording</div></div>
   <div id="cnfFixtureDef" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfFixtures.png" title="Fixture definitions"/><div class="cnfMenuText">Fixture definitions</div></div>
   <div id="cnfFixture" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/lhsFixtures.png" title="Fixtures"/><div class="cnfMenuText">Fixtures</div></div>
   <div id="cnfShowDef" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfShows.png" title="Show definitions"/><div class="cnfMenuText">Show definitions</div></div>
   <div id="cnfShow" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/lhsShows.png" title="Shows"/><div class="cnfMenuText">Shows</div></div>
 <%--  <div id="cnfResetDMX" class="cnfControl">Reset DMX device</div>  --%>
-  <div id="cnfStage" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfStage.png" title="Stages"/><div class="cnfMenuText">Stages</div></div>
-  <div id="cnfResetAudio" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfResetAudio.png" title="Reset audio controller"/><div class="cnfMenuText">Reset audio controller</div></div>
   
-  <div id="cnfSimple" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfSimpleController.png" title="Simple controller"/><div class="cnfMenuText">Simple controller</div></div>
+  <div id="cnfResetAudio" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfResetAudio.png" title="Reset audio controller"/><div class="cnfMenuText">Reset audio controller</div></div>
 <% 
     if (appConfig.getProperty("dev.vlc.streamingUrl")!=null &&
 	  !appConfig.getProperty("dev.vlc.streamingUrl").equals("")) {
@@ -163,13 +171,12 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="cnfVideo" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfVLC.png" title="Video stream"/><div class="cnfMenuText">Video stream</div></div>
 <%
     }
-%>  
+%>
+  <div id="cnfSimple" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfSimpleController.png" title="Simple controller"/><div class="cnfMenuText">Simple controller</div></div>
+    
 </div>
-
-
-
 </div>
-
+<iframe id="cometFrame" src="about:blank"></iframe>
 
 
 </body>

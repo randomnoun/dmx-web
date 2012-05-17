@@ -102,6 +102,8 @@ public class MultiJavascriptServlet extends javax.servlet.http.HttpServlet imple
         String js = request.getParameter("js");
         if (js==null || js.equals("")) { return; }
         
+        response.setContentType("text/javascript");
+        
         PrintWriter pw = response.getWriter();
         
         result = (String) cache.get(js);
