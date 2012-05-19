@@ -112,6 +112,10 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 }
 .smallInput { width: 40px; }
 .smallInput2 { width: 30px; }
+#repeatFixtureDiv { width: 400px; height: 450px; padding: 10px; border: solid 2px black; display: none; }
+#repeatFixtureTable TD { vertical-align: top; }
+.rfInput { font-family: Courier New; font-size: 8pt; width: 120px; }
+.rfTitle { font-size: 14pt; font-weight: bold; padding-bottom: 15px;  }
 </style>
 
 <script>
@@ -165,7 +169,7 @@ function lhsOKClick() {
 	document.forms[0].submit();
 };
 function lhsRepeat() {
-	alert("Some dialog box, probably");
+	$("repeatFixtureDiv").style.display = "block";
 }
 function initWindow() {
 	initRnTable(tblObj);
@@ -283,7 +287,7 @@ function initWindow() {
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].lookingAtX" value="<c:out value='${rowData.lookingAtX}'/>" >
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].lookingAtY' text='errorBg' />"> 
-                                  <input type="text" class="fsmallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].lookingAtY" value="<c:out value='${rowData.lookingAtY}'/>" >
+                                  <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].lookingAtY" value="<c:out value='${rowData.lookingAtY}'/>" >
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].lookingAtZ' text='errorBg' />"> 
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].lookingAtZ" value="<c:out value='${rowData.lookingAtZ}'/>" >
@@ -400,6 +404,37 @@ function initWindow() {
                </tr>
            </table>
        </form>
+</div>
+
+<div id="repeatFixtureDiv" style="position: absolute; z-order:10; top:100px; left:100px; background-color: white;">
+<table id="repeatFixtureTable" style="width:400px;">
+<col style="width: 140px;">
+<col style="width: 30px;">
+<col style="width: 230px;">
+<tr><td class="rfTitle" colspan="3">Repeating fixtures</td></tr>
+<tr><td colspan="2">Type of fixture:</td><td><r:select data="${form.fixtureDefs}" name="rfFixtureDefId" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)"/></td></tr>
+<tr><td colspan="2">Number of fixtures:</td><td><input class="rfInput" style="width: 30px;" type="text" name="rfCount" value="1" /> x <input class="rfInput" style="width:30px;" type="text" name="repeatFixtureCount" value="1" /> columns (<span style="font-family: Courier New; font-size: 8pt;">x</span>) x rows (<span style="font-family: Courier New; font-size: 8pt;">y</span>)</td></tr>
+<tr><td colspan="2">Names of fixtures:</td><td><input class="rfInput" type="text" name="rfName" value="something-{x}-{y}" /></td></tr>
+<tr><td colspan="2">Starting DMX offset:</td><td><input class="rfInput" type="text" name="rfDmxOffset" value="15" /></td></tr>
+<tr><td colspan="2">DMX offset gap between fixtures:</td><td><input class="rfInput" type="text" name="rfDmxOffsetGap" value="0" /></td></tr>
+<tr><td colspan="2">DMX allocation:</td><td><r:select data="${rfDmxAllocations}" name="rfDmxAllocation" value="" displayColumn="name" valueColumn="id" /></td></tr>
+<tr><td rowspan="2">Fixture panel <img src="image/help-icon.png" title="Display settings for this fixture on the fixture panel" /></td>
+    <td>X:</td><td><input class="rfInput" type="text" name="rfPanelX" value="x * 10" /></td></tr>
+<tr><td>Y:</td><td><input class="rfInput" type="text" name="rfPanelY" value="y * 10" /></td></tr>
+<tr><td rowspan="3">3D Position <img src="image/help-icon.png" title="The location of the fixture" /></td>
+    <td>X:</td><td><input class="rfInput" type="text" name="rfPositionX" value="x * 10" /></td></tr>
+<tr><td>Y:</td><td><input class="rfInput" type="text" name="rfPositionY" value="y * 10" /></td></tr>
+<tr><td>Z:</td><td><input class="rfInput" type="text" name="rfPositionZ" value="1" /></td></tr>
+<tr><td rowspan="3">3D looking at position <img src="image/help-icon.png" title="A point that this fixture is looking towards (in it's initial state)" /></td>
+    <td>X:</td><td><input class="rfInput" type="text" name="rfLookingAtX" value="x + 1" /></td></tr>
+<tr><td>Y:</td><td><input class="rfInput" type="text" name="rfLookingAtY" value="y" /></td></tr>
+<tr><td>Z:</td><td><input class="rfInput" type="text" name="rfLookingAtZ" value="0" /></td></tr>
+<tr><td rowspan="3">3D up vector <img src="image/help-icon.png" title="The direction of up, taking the fixture as being at co-ordinates (0,0,0)" /></td>
+    <td>X:</td><td><input class="rfInput" type="text" name="rfUpX" value="0" /></td></tr>
+<tr><td>Y:</td><td><input class="rfInput" type="text" name="rfUpY" value="0" /></td></tr>
+<tr><td>Z:</td><td><input class="rfInput" type="text" name="rfUpZ" value="1" /></td></tr>
+<tr><td colspan="2"></td><td><input type="button" name="rfOK" value="OK" /> <input type="button" name="rfCancel" value="Cancel" /></td></tr>
+</table>
 
 </div>
 
