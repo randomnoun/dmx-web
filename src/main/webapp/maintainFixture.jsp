@@ -68,6 +68,10 @@ BODY { font-size: 8pt; font-family: Arial; }
 .lhsMenuText {
   padding-top: 18px;
 }
+.lhsMenuText2 {
+  padding-top: 6px;
+}
+
 .lhsMenuItemGreen {
   width: 180px; height: 70px; background-image: url("image/button-green.png");
   /*background-color: #AAAAFF; */ ; margin: 10px;
@@ -135,6 +139,7 @@ function edtInitPanel() {
     Event.observe(edtSubmitEl, 'click', edtSubmitClick);
     Event.observe($("lhsCancel"), 'click', lhsCancelClick);
     Event.observe($("lhsOK"), 'click', lhsOKClick);
+    Event.observe($("lhsRepeat"), 'click', lhsRepeat);
     for (var i = 0; i < fixtures_size; i++) {
     	edtUpdateDmxOffset(i);
     }
@@ -159,6 +164,9 @@ function lhsOKClick() {
 	checkModify('mainForm',tblObj); 
 	document.forms[0].submit();
 };
+function lhsRepeat() {
+	alert("Some dialog box, probably");
+}
 function initWindow() {
 	initRnTable(tblObj);
     edtInitPanel();
@@ -174,6 +182,7 @@ function initWindow() {
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Fixture config</span></div>
 <div class="lhsMenuContainer">
   <div id="lhsCancel" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/back.png" title="Back"/><div class="lhsMenuText">Back</div></div>
+  <div id="lhsRepeat" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsFixtureRepeat.png" title="Repeat Fixture"/><div class="lhsMenuText2">Repeat Fixture</div></div>
   <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="OK"/><div class="lhsMenuText">OK</div></div>
 </div>
 

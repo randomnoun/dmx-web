@@ -22,6 +22,7 @@ BODY {
 .lhsMenuText {
   padding-top: 18px;
 }
+
 .rhsPanel {
   position: absolute; top: 30px; left: 210px; width: 1020px; height: 700px;
   background-color: #EEEEFF; border: solid 1px blue;
