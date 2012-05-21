@@ -112,10 +112,30 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 }
 .smallInput { width: 40px; }
 .smallInput2 { width: 30px; }
-#repeatFixtureDiv { width: 400px; height: 450px; padding: 10px; border: solid 2px black; display: none; }
+#repeatFixtureDiv { 
+  width: 800px; height: 450px; 
+  padding: 10px; 
+  border: solid 2px black; 
+  display: none; 
+}
 #repeatFixtureTable TD { vertical-align: top; }
 .rfInput { font-family: Courier New; font-size: 8pt; width: 120px; }
-.rfTitle { font-size: 14pt; font-weight: bold; padding-bottom: 15px;  }
+.rfTitle1 { font-size: 14pt; font-weight: bold; padding-bottom: 15px;  }
+.rfTitle2 { position: absolute; font-size: 14pt; font-weight: bold; padding-bottom: 15px; left: 420px; top: 10px;}
+.rfPreviewContainer { 
+  position: absolute; top: 40px; left: 420px; width: 380px; height: 380px;
+  overflow: scroll;  
+}  
+.rfPreview {
+  display: inline-block;
+  width: 80px; height: 30px; 
+  color: #7369b5;
+  background-color: #b5a6ef;
+  margin: 3px; padding: 2px; 
+}
+.rfPreviewName {
+  color: #000042;
+}
 </style>
 
 <script>
@@ -139,11 +159,13 @@ var tblObj = new rnTable(
 
 
 function edtInitPanel() {
-    var edtSubmitEl = $("edtSubmit");
-    Event.observe(edtSubmitEl, 'click', edtSubmitClick);
+    
+    Event.observe($("edtSubmit"), 'click', edtSubmitClick);
     Event.observe($("lhsCancel"), 'click', lhsCancelClick);
     Event.observe($("lhsOK"), 'click', lhsOKClick);
     Event.observe($("lhsRepeat"), 'click', lhsRepeat);
+    Event.observe($("rfOKButton"), 'click', rfOKButtonClick);
+    Event.observe($("rfCancelButton"), 'click', rfCancelButtonClick);
     for (var i = 0; i < fixtures_size; i++) {
     	edtUpdateDmxOffset(i);
     }
@@ -170,6 +192,12 @@ function lhsOKClick() {
 };
 function lhsRepeat() {
 	$("repeatFixtureDiv").style.display = "block";
+}
+function rfOKButtonClick() {
+	$("repeatFixtureDiv").style.display = "none";
+}
+function rfCancelButtonClick() {
+	$("repeatFixtureDiv").style.display = "none";
 }
 function initWindow() {
 	initRnTable(tblObj);
@@ -411,7 +439,7 @@ function initWindow() {
 <col style="width: 140px;">
 <col style="width: 30px;">
 <col style="width: 230px;">
-<tr><td class="rfTitle" colspan="3">Repeating fixtures</td></tr>
+<tr><td class="rfTitle1" colspan="3">Repeating fixtures</td></tr>
 <tr><td colspan="2">Type of fixture:</td><td><r:select data="${form.fixtureDefs}" name="rfFixtureDefId" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)"/></td></tr>
 <tr><td colspan="2">Number of fixtures:</td><td><input class="rfInput" style="width: 30px;" type="text" name="rfCount" value="1" /> x <input class="rfInput" style="width:30px;" type="text" name="repeatFixtureCount" value="1" /> columns (<span style="font-family: Courier New; font-size: 8pt;">x</span>) x rows (<span style="font-family: Courier New; font-size: 8pt;">y</span>)</td></tr>
 <tr><td colspan="2">Names of fixtures:</td><td><input class="rfInput" type="text" name="rfName" value="something-{x}-{y}" /></td></tr>
@@ -433,8 +461,23 @@ function initWindow() {
     <td>X:</td><td><input class="rfInput" type="text" name="rfUpX" value="0" /></td></tr>
 <tr><td>Y:</td><td><input class="rfInput" type="text" name="rfUpY" value="0" /></td></tr>
 <tr><td>Z:</td><td><input class="rfInput" type="text" name="rfUpZ" value="1" /></td></tr>
-<tr><td colspan="2"></td><td><input type="button" name="rfOK" value="OK" /> <input type="button" name="rfCancel" value="Cancel" /></td></tr>
+<tr><td colspan="2"></td><td><input type="button" id="rfOKButton" name="rfOKButton" value="OK" /> <input type="button" id="rfCancelButton" name="rfCancelButton" value="Cancel" /></td></tr>
 </table>
+
+<div class="rfTitle2">Preview</div>
+<div class="rfPreviewContainer">
+<div class="rfPreview"><div class="rfPreviewName">something-1-1</div>1</div>
+<div class="rfPreview"><div class="rfPreviewName">something-1-2</div>5</div>
+<div class="rfPreview"><div class="rfPreviewName">something-1-3</div>9</div>
+<br/>
+<div class="rfPreview"><div class="rfPreviewName">something-2-1</div>13</div>
+<div class="rfPreview"><div class="rfPreviewName">something-2-2</div>17</div>
+<div class="rfPreview"><div class="rfPreviewName">something-2-3</div>21</div>
+<br/>
+<div class="rfPreview"><div class="rfPreviewName">something-3-1</div>25</div>
+<div class="rfPreview"><div class="rfPreviewName">something-3-2</div>29</div>
+<div class="rfPreview"><div class="rfPreviewName">something-3-3</div>33</div>
+</div>
 
 </div>
 
