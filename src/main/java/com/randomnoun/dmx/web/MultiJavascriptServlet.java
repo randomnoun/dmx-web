@@ -47,31 +47,6 @@ public class MultiJavascriptServlet extends javax.servlet.http.HttpServlet imple
 	}
 	
 	
-    public static String classLoaderToString(ClassLoader classLoader) {
-    	
-    	if (classLoader instanceof URLClassLoader) {
-    		URLClassLoader c = (URLClassLoader ) classLoader;
-    		String result = "urls:\n";
-    		for (int i=0; i<c.getURLs().length; i++) {
-    			result += "  " + c.getURLs()[i] + "\n";
-    		}
-    		return result;
-    	} else {
-    		return classLoader.toString();
-    	}
-    }
-    
-    public static String getClassLoaderTrace(Class clazz) {
-        String result = "";
-        ClassLoader classLoader = clazz.getClassLoader();
-        while (classLoader!=null) {
-            result += "(" + classLoader.getClass().getName() + ") " + classLoaderToString(classLoader) + "\n";
-            classLoader = classLoader.getParent();
-        }
-        return result;
-    }
-
-	
 	/** Post method; just defers to get
 	 * 
 	 * @see javax.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
