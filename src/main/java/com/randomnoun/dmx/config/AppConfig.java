@@ -168,6 +168,9 @@ public class AppConfig extends AppConfigBase {
     /** List of shows that this application knows about, and their threads */
     private Map<Long, ShowConfig> showConfigs;
     
+    /** Same set, with showName as key */
+    private Map<String, ShowConfig> showConfigsByName;
+    
     /** List of shows */
     private List<Show> shows;
     
@@ -666,6 +669,8 @@ bsh.InterpreterError: null fromValue
     
     public void loadShowConfigs(ScriptContext showScriptContext, boolean addToAppConfig) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
     	showConfigs = new HashMap<Long, ShowConfig>();
+    	showConfigsByName = new HashMap<String, ShowConfig>();
+    	
     	shows = new ArrayList<Show>();
     	showExceptions = Collections.synchronizedList(new ArrayList<TimestampedShowException>());
     	
@@ -690,7 +695,9 @@ bsh.InterpreterError: null fromValue
 					if (onCompleteShowId!=null) { showObj.setOnCompleteShowId(Long.parseLong(onCompleteShowId)); }
 					if (onCancelShowId!=null) { showObj.setOnCancelShowId(Long.parseLong(onCancelShowId)); }
 					if (!Text.isBlank(name)) { showObj.setName(name); }
-					showConfigs.put(new Long(i), new ShowConfig(this, i, showObj));
+					ShowConfig showConfig = new ShowConfig(this, i, showObj);
+					showConfigs.put(new Long(i), showConfig);
+					showConfigsByName.put(name, showConfig);
 					shows.add(showObj);
 				} catch (Exception e) {
 					AppConfigException ace = new AppConfigException("Error whilst instantiating compiled show " + id + ": '" + name + "'", e);
@@ -792,7 +799,9 @@ bsh.InterpreterError: null fromValue
 							if (!Text.isBlank(javadoc) && showObj.getDescription()==null) { 
 								showObj.setDescription(removeCommentTokens(javadoc)); 
 							}
-							showConfigs.put(showTO.getId(), new ShowConfig(this, showTO.getId(), showObj));
+							ShowConfig showConfig = new ShowConfig(this, showTO.getId(), showObj);
+							showConfigs.put(showTO.getId(), showConfig);
+							showConfigsByName.put(showObj.getName(), showConfig); 
 							shows.add(showObj);
 						}
 					} catch (Exception e) {
@@ -843,6 +852,18 @@ bsh.InterpreterError: null fromValue
     
     public Show getShow(long showId) {
     	return showConfigs.get(showId).getShow();
+    }
+    
+    public Show getShowNoEx(long showId) {
+    	ShowConfig sc = showConfigs.get(showId); 
+    	if (sc==null) { return null; }
+    	return sc.getShow();
+    }
+
+    public Show getShowByNameNoEx(String showName) {
+    	ShowConfig sc = showConfigsByName.get(showName); 
+    	if (sc==null) { return null; }
+    	return sc.getShow();
     }
     
     public void startShow(long showId) {
