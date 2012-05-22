@@ -112,6 +112,189 @@ public class FancyControllerAction
     ConcurrentHashMap<Long, CometPipe> cometPipes = new ConcurrentHashMap();
 
     
+    public abstract static class Command {
+    	Frame frame;
+    	public abstract void run();      // run this command
+    	public abstract String toJava(); // this command, as represented in a Show definition class
+    }
+    public static class DmxValueCommand extends Command {
+    	int channel, value;
+    	public DmxValueCommand(Frame frame, int channel, int value) {
+    		this.frame = frame;
+    		this.channel = channel;
+    		this.value = value;
+    		frame.recording.addDmxChannel(channel); // @TODO omit this for temp recordings
+    	}
+		public void run() {
+			frame.recording.controller.getUniverse().setDmxChannelValue(channel, value);
+			// TODO Auto-generated method stub
+		}
+		@Override
+		public String toJava() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+    }
+    public abstract static class FixtureCommand extends Command {
+    	List<Fixture> fixtures;
+    	public FixtureCommand(Frame frame, List<Fixture> fixtures) {
+    		this.frame = frame;
+    		this.fixtures = fixtures;
+    		frame.recording.addFixtures(fixtures); // @TODO omit this for temp recordings
+    	}
+    }
+    public static class FixtureDimCommand extends FixtureCommand {
+    	int value;
+    	public FixtureDimCommand(Frame frame, List<Fixture> fixtures, int value) {
+    		super(frame, fixtures);
+    		this.value = value;
+    	}
+    	public void run() {
+    		for (Fixture f : fixtures) { f.getFixtureController().setMasterDimmer(value); }
+    	}
+    	public String toJava() {
+    		return "// dim a bunch of fixtures\n";
+    	}
+    }
+    public static class FixtureBlackoutCommand extends FixtureCommand {
+    	public FixtureBlackoutCommand(Frame frame, List<Fixture> fixtures) {
+    		super(frame, fixtures);
+    	}
+    	public void run() {
+    		for (Fixture f : fixtures) { f.getFixtureController().blackOut(); }
+    	}
+    	public String toJava() {
+    		return "// blackout a bunch of fixtures\n";
+    	}
+    }
+    public static class FixtureStrobeCommand extends FixtureCommand {
+    	int value;
+    	public FixtureStrobeCommand(Frame frame, List<Fixture> fixtures, int value) {
+    		super(frame, fixtures);
+    		this.value = value;
+    	}
+    	public void run() {
+    		for (Fixture f : fixtures) { f.getFixtureController().setStrobe(value); }
+    	}
+    	public String toJava() {
+    		return "// strobe a bunch of fixtures\n";
+    	}
+    }
+    public static class FixtureColorCommand extends FixtureCommand {
+    	Color color;
+    	public FixtureColorCommand(Frame frame, List<Fixture> fixtures, Color color) {
+    		super(frame, fixtures);
+    		this.color = color;
+    	}
+    	public void run() {
+    		for (Fixture f : fixtures) { f.getFixtureController().setColor(color); }
+    	}
+    	public String toJava() {
+    		return "// color a bunch of fixtures\n";
+    	}
+    }
+    public static class FixturePanTiltCommand extends FixtureCommand {
+    	double panPosition, tiltPosition;
+    	public FixturePanTiltCommand(Frame frame, List<Fixture> fixtures, double panPosition, double tiltPosition) {
+    		super(frame, fixtures);
+    		this.panPosition = panPosition;
+    		this.tiltPosition = tiltPosition;
+    	}
+    	public void run() {
+    		for (Fixture f : fixtures) { 
+    			// @TODO as %age of pan/tilt range; see below
+    			f.getFixtureController().panTo(panPosition); 
+    			f.getFixtureController().tiltTo(tiltPosition);
+    		}
+    	}
+    	public String toJava() {
+    		return "// pan/tilt a bunch of fixtures\n";
+    	}
+    }
+    public static class FixtureCustomControlCommand extends FixtureCommand {
+    	int controlId, value;
+    	public FixtureCustomControlCommand(Frame frame, List<Fixture> fixtures, int controlId, int value) {
+    		super(frame, fixtures);
+    		this.controlId = controlId;
+    		this.value = value;
+    	}
+    	public void run() {
+    		for (Fixture f : fixtures) { 
+    			FixtureController fc = f.getFixtureController();
+    			fc.getCustomControls().get(controlId).setValueWithCallback(value);
+    		}
+    	}
+    	public String toJava() {
+    		return "// pan/tilt a bunch of fixtures\n";
+    	}
+    }
+    
+    
+    public static class Frame {
+    	Recording recording;
+    	List<Command> commands; // list of commands to perform in this frame
+    	public Frame(Recording recording) { this.recording = recording; }
+    	public void addCommand(Command c) {
+    		commands.add(c);
+    	}
+    }
+    
+    public static class Recording {
+    	Controller controller;  // for playback
+    	List<Fixture> fixtures; // fixtures affected by this recording
+    	List<Integer> dmxChannels; // dmx channels affected by this recording
+    	List<Frame> frames;  // list of frames in this recording
+    	int currentFrame;   // current frame number
+    	public Recording(Controller controller) {
+    		this.controller = controller;
+    		frames = new ArrayList<Frame>(1);
+    		fixtures = new ArrayList<Fixture>(1);
+    		dmxChannels = new ArrayList<Integer>(1);
+    		frames.add(new Frame(this));
+    		currentFrame = 0;
+    	}
+    	public void addFixtures(List<Fixture> fixtures) {
+    		fixtures.addAll(fixtures); // @TODO only unique
+    	}
+    	public void addDmxChannel(int dmxChannel) { 
+    		dmxChannels.add(dmxChannel);  // @TODO HashSet this
+    	}
+    	public void addCommand(Command c) {
+    		getCurrentFrame().addCommand(c);
+    	}
+    	public Frame getCurrentFrame() { return frames.get(currentFrame); }
+    }
+    
+    public static class RecordingShow extends Show {
+    	Recording recording;
+    	public RecordingShow(Recording recording) {
+    		super(-1, recording.controller, "Recording", 0L, null);
+    		this.recording = recording;
+    	}
+    	@Override
+		public void play() {
+    		while (!isCancelled()) {
+	    		for (Frame f : recording.frames) {
+	    			for (Command c : f.commands) {
+	    				c.run();
+	    			}
+	    			if (isCancelled()) { break; }
+	    			waitFor(100); // @TODO allow speed to be set somewhere
+		    		// @TODO update current frame number in web UI as well
+	    		}
+    		}
+		}
+		@Override
+		public void pause() {
+			// TODO Auto-generated method stub
+		}
+		@Override
+		public void stop() {
+			// TODO Auto-generated method stub
+		}
+    }
+
+    
     public void setPanelAttributes(Map result, String panel) {
     	AppConfig appConfig = AppConfig.getAppConfig();
     	Controller controller = appConfig.getController();
@@ -208,6 +391,7 @@ public class FancyControllerAction
     }
     
     
+    
     /**
      * Perform this struts action. See the javadoc for this
      * class for more details.
@@ -227,6 +411,10 @@ public class FancyControllerAction
     {
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
+		
+		// possibly put this in, say, the CometPipe
+		Recording recording = (Recording) session.getAttribute("recording");
+		Command command = null;
 		AppConfig appConfig = AppConfig.getAppConfig();
 		String forward = "json";
     	Map form = new HashMap();
@@ -234,6 +422,14 @@ public class FancyControllerAction
     	Map result = new HashMap();
 
     	Controller controller = appConfig.getController();
+		Frame currentFrame = null;
+		if (recording!=null) { 
+			currentFrame = recording.getCurrentFrame(); 
+		} else {
+			Recording dummyRecording = new Recording(controller);
+			currentFrame = dummyRecording.getCurrentFrame();
+		}
+    	
     	String action = request.getParameter("action");
     	String fixtureIdString = request.getParameter("fixtureId");
     	int fixtureId = -1;
@@ -482,12 +678,22 @@ public class FancyControllerAction
 				}
 			}
 			result.put("message", "DMX channels set");
+
+			
+		//*************************************************
+		// All recordable actions below should execute by calling the
+		// .run() method on the command object, to ensure that what we're
+		// recording is what is executing.
+		//*************************************************
 			
     	} else if (action.equals("setDmxValue")) {
     		int channel = Integer.parseInt(request.getParameter("channel"));
     		int value = Integer.parseInt(request.getParameter("value"));
     		if (value>=0 && value<=255) {
-    			controller.getUniverse().setDmxChannelValue(channel, value);
+    			command = new DmxValueCommand(currentFrame, channel, value);
+    			if (recording!=null) { recording.addCommand(command); }
+    			// controller.getUniverse().setDmxChannelValue(channel, value);
+    			command.run(); 
     			result.put("message", "DMX channel " + channel + " set to " + value);
     		} else {
     			result.put("message", "Value out of range");
@@ -558,6 +764,7 @@ public class FancyControllerAction
     	} else if (action.equals("fixtureBlackout")) {
     		int c=0;
     		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		if (recording!=null) { recording.addCommand(new FixtureBlackoutCommand(currentFrame, getFixtureList(fixtureIdStrings))); }
     		for (String iterationId : fixtureIdStrings) {
     			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
     			f.blackOut();
@@ -569,6 +776,7 @@ public class FancyControllerAction
     		int c=0;
     		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
     		int v = Integer.parseInt(request.getParameter("v"));
+    		if (recording!=null) { recording.addCommand(new FixtureDimCommand(currentFrame, getFixtureList(fixtureIdStrings), v)); }
     		for (String iterationId : fixtureIdStrings) {
     			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
     			f.getFixtureController().setMasterDimmer(v);
@@ -580,6 +788,7 @@ public class FancyControllerAction
     		int c=0, failed=0;
     		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
     		int v = Integer.parseInt(request.getParameter("v"));
+    		if (recording!=null) { recording.addCommand(new FixtureStrobeCommand(currentFrame, getFixtureList(fixtureIdStrings), v)); }
     		if (v==0) {
         		for (String iterationId : fixtureIdStrings) {
         			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
@@ -608,6 +817,7 @@ public class FancyControllerAction
     			Integer.parseInt(colorString.substring(0, 2), 16),
     			Integer.parseInt(colorString.substring(2, 4), 16),
     			Integer.parseInt(colorString.substring(4, 6), 16));
+    		if (recording!=null) { recording.addCommand(new FixtureColorCommand(currentFrame, getFixtureList(fixtureIdStrings), color)); }
     		for (String iterationId : fixtureIdStrings) {
     			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
     			f.getFixtureController().setColor(color);
@@ -620,6 +830,7 @@ public class FancyControllerAction
     		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
     		double x = Double.parseDouble(request.getParameter("x"));
     		double y = Double.parseDouble(request.getParameter("y"));
+    		if (recording!=null) { recording.addCommand(new FixturePanTiltCommand(currentFrame, getFixtureList(fixtureIdStrings), x, y)); }
     		// TODO: probably express this as minPan/maxPan later
     		// if same pan/tilt range for all fixtures, keep degrees info for message
     		boolean sameRange = true;
@@ -668,6 +879,31 @@ public class FancyControllerAction
     		audioController.open();
     		result.put("message", "Audio controller re-initialised");
     		*/
+    	
+    	} else if (action.equals("startRecording")) {
+    		// triggered by cnfPanel 
+    		result.put("message", "Recording started");
+    		
+    	} else if (action.equals("stopRecording")) {
+    		// triggered by cnfPanel.
+    		result.put("message", "Recording stopped; saved as show def xxx");
+
+    	} else if (action.equals("addFrame")) {
+    		// do that
+    		result.put("message", "Recording frame n of nn");
+
+    	} else if (action.equals("nextFrame")) {
+    		// do that
+    		result.put("message", "Recording frame n of nn");
+
+    	} else if (action.equals("prevFrame")) {
+    		// do that
+    		result.put("message", "Recording frame n of nn");
+
+    	} else if (action.equals("playRecording")) {
+    		// play/pause recording
+    		// create a temporary Show object, stick it in the appConfig, and run it.
+    		result.put("message", "This should be fun");
     		
     	} else if (action.equals("clearLogs")) {
     		// startPollRequests();
@@ -772,6 +1008,10 @@ public class FancyControllerAction
     
     Double twoDigits(Double input) {
     	return new Double(Math.floor(input.doubleValue()*100)/100);
+    }
+    
+    public List<Fixture> getFixtureList(String[] fixtureIds) {
+    	return null;
     }
     
     
