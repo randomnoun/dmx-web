@@ -46,7 +46,10 @@
     <servlet-name>configServlet</servlet-name>
     <servlet-class>com.randomnoun.dmx.web.ConfigServlet</servlet-class>
   </servlet>
-
+  <servlet>
+    <servlet-name>apiServlet</servlet-name>
+    <servlet-class>com.randomnoun.dmx.web.ApiServlet</servlet-class>
+  </servlet>
 
   <servlet-mapping>
     <servlet-name>action</servlet-name>
@@ -59,6 +62,10 @@
   <servlet-mapping>
     <servlet-name>configServlet</servlet-name>
     <url-pattern>/config</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>apiServlet</servlet-name>
+    <url-pattern>/api</url-pattern>
   </servlet-mapping>
 
   
