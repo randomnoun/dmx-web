@@ -366,8 +366,19 @@ public class MaintainFixtureAction
 			throw new IllegalArgumentException("Invalid action '" + action + "'");
 		}
 
+		List rfDmxAllocations = new ArrayList();
+		addElement(rfDmxAllocations, "R", "rows then columns");
+		addElement(rfDmxAllocations, "C", "columns then rows");
+		request.setAttribute("rfDmxAllocations", rfDmxAllocations);
 		
         return mapping.findForward(forward);
+    }
+    
+    private void addElement(List list, String id, String name) {
+    	Map row = new HashMap();
+    	row.put("id", id);
+    	row.put("name", name);
+    	list.add(row);
     }
     
 }
