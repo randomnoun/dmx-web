@@ -69,6 +69,12 @@ public class MaintainFixtureAction
     		new String[] { "id", "fixtureDefId", "name", "dmxOffset", "sortOrder", "x", "y", "z",
     		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ", "fixPanelType", "fixPanelX", "fixPanelY" };
     	
+    	// for row removal
+    	private final static String[] fieldNames2 = 
+    		new String[] { "id", "fixtureDefId", "name", "dmxOffset", "sortOrder", "x", "y", "z",
+    		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ", "fixPanelX", "fixPanelY" };
+        	
+    	
     	Map fixtureDefMap = null;
     	int[] occupiedDmxValues = new int[Universe.MAX_CHANNELS];
     	long activeStageId = -1;
@@ -115,7 +121,7 @@ public class MaintainFixtureAction
     	}
 
     	public void removeEmptyRows(Map form) {
-    		removeEmptyRows(form, fieldNames, "fixtures");
+    		removeEmptyRows(form, fieldNames2, "fixtures");
     	}
     	
     	/**
