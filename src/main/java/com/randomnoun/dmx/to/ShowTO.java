@@ -9,6 +9,7 @@ public class ShowTO {
     private Long onCompleteShowId;
     private Long showGroupId;
     private long showPropertyCount;
+    private long stageId;
 
     /** Returns the id
      * @return the id
@@ -107,6 +108,20 @@ public class ShowTO {
     public void setShowPropertyCount(long showPropertyCount) {
         this.showPropertyCount = showPropertyCount;
     }
+
+	/**
+	 * @return the stageid
+	 */
+	public long getStageId() {
+		return stageId;
+	}
+
+	/**
+	 * @param stageid the stageid to set
+	 */
+	public void setStageId(long stageid) {
+		this.stageId = stageid;
+	}
 
     
 }

@@ -28,6 +28,7 @@ public class ShowDAO {
             if (rs.wasNull()) { s.setOnCompleteShowId(null); }
             s.setShowGroupId(rs.getLong("showGroupId"));
             if (rs.wasNull()) { s.setShowGroupId(null); }
+            s.setStageId(rs.getLong("stageId"));
             return s;
         }
     }
@@ -54,7 +55,7 @@ public class ShowDAO {
      */
     public List<ShowTO> getShows(String sqlWhereClause) {
         String sql =
-            "SELECT id, showDefId, name, onCancelShowId, onCompleteShowId, showGroupId " +
+            "SELECT id, showDefId, name, onCancelShowId, onCompleteShowId, showGroupId, stageId " +
             " FROM `show` " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<ShowTO>) jt.query(sql, new ShowDAORowMapper());
@@ -69,7 +70,7 @@ public class ShowDAO {
      */
     public List<ShowTO> getShowsWithPropertyCounts(String sqlWhereClause) {
         String sql =
-            "SELECT `show`.id, showDefId, name, onCancelShowId, onCompleteShowId, showGroupId, COUNT(showProperty.id) AS showPropertyCount " +
+            "SELECT `show`.id, showDefId, name, onCancelShowId, onCompleteShowId, showGroupId, stageId, COUNT(showProperty.id) AS showPropertyCount " +
             " FROM `show` LEFT JOIN `showProperty` " +
             " ON `show`.id = `showProperty`.showId " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause) +
@@ -86,7 +87,7 @@ public class ShowDAO {
      */
     public ShowTO getShow(long showId) {
         return (ShowTO) jt.queryForObject(
-            "SELECT id, showDefId, name, onCancelShowId, onCompleteShowId, showGroupId " +
+            "SELECT id, showDefId, name, onCancelShowId, onCompleteShowId, showGroupId, stageId " +
             " FROM `show` " +
             " WHERE id = ?",
             new Object[] { new Long(showId) }, 
@@ -100,7 +101,7 @@ public class ShowDAO {
     public void updateShow(ShowTO show) {
         String sql =
             "UPDATE `show` " +
-            " SET showDefId=?, name=?, onCancelShowId=?, onCompleteShowId=?, showGroupId=? " + 
+            " SET showDefId=?, name=?, onCancelShowId=?, onCompleteShowId=?, showGroupId=?, stageId=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
@@ -109,6 +110,7 @@ public class ShowDAO {
                 show.getOnCancelShowId(),
                 show.getOnCompleteShowId(),
                 show.getShowGroupId(),
+                show.getStageId(),
                 show.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("show update failed (" + updated + " rows updated)");
@@ -142,15 +144,16 @@ public class ShowDAO {
     public long createShow(ShowTO show) {
         String sql =
             "INSERT INTO `show` " + 
-            " (showDefId, name, onCancelShowId, onCompleteShowId, showGroupId) " +
-            " VALUES (?, ?, ?, ?, ? )";
+            " (showDefId, name, onCancelShowId, onCompleteShowId, showGroupId, stageid) " +
+            " VALUES (?, ?, ?, ?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] { 
                 show.getShowDefId(),
                 show.getName(),
                 show.getOnCancelShowId(),
                 show.getOnCompleteShowId(),
-                show.getShowGroupId()});
+                show.getShowGroupId(),
+                show.getStageId()});
         if (updated!=1) {
             throw new DataIntegrityViolationException("show insert failed (" + updated + " rows updated)");
         }

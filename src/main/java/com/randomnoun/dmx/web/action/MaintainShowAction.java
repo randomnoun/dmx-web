@@ -67,6 +67,12 @@ public class MaintainShowAction
     	private final static String[] fieldNames2 = 
     		new String[] { "id", "showDefId", "name", "onCompleteShowId", "onCancelShowId", "showGroupId", "showPropertyCount" };
 
+    	long activeStageId = -1;
+		
+    	public ShowTableEditor(long activeStageId) {
+    		this.activeStageId = activeStageId;
+    	}
+    	
     	// @TODO this is all rather silly...
     	
     	@Override
@@ -76,6 +82,7 @@ public class MaintainShowAction
     		ShowDAO showDAO = new ShowDAO(jt);
     		ShowTO show = new ShowTO();
     		Struct.setFromMap(show, row, false, true, false, fieldNames);
+    		show.setStageId(activeStageId);
     		showDAO.createShow(show);
 		}
 
@@ -85,6 +92,7 @@ public class MaintainShowAction
     		ShowDAO showDAO = new ShowDAO(jt);
     		ShowTO show = new ShowTO();
     		Struct.setFromMap(show, row, false, true, false, fieldNames);
+    		show.setStageId(activeStageId);
     		showDAO.updateShow(show);
 		}
 
@@ -165,7 +173,7 @@ public class MaintainShowAction
     		AppConfig appConfig = AppConfig.getAppConfig();
     		JdbcTemplate jt = appConfig.getJdbcTemplate();
     		ShowDAO showDAO = new ShowDAO(jt);
-    		List<ShowTO> shows = showDAO.getShowsWithPropertyCounts(null);
+    		List<ShowTO> shows = showDAO.getShowsWithPropertyCounts("stageId=" + activeStageId);
     		// holy freaking christ. This is 12 types of wrong. Or 1:02AM types of wrong. Take your pick.
     		List showsAsMaps = new ArrayList();
     		for (ShowTO show : shows) {
@@ -190,6 +198,7 @@ public class MaintainShowAction
     		return showDAO.getShows(null);
     	}
 
+    	// @TODO deal with stageIds here
     	public List getShowGroups() {
     		List showGroups = new ArrayList();
     		AppConfig appConfig = AppConfig.getAppConfig();
@@ -235,10 +244,13 @@ public class MaintainShowAction
 		JdbcTemplate jt = appConfig.getJdbcTemplate();
 		String action = request.getParameter("action");
 		
+		// @TODO deal with no active stages
+		long activeStageId = appConfig.getActiveStage().getId();
+		
 		if (action==null) { action = ""; }
 		if (action.equals("")) {
 			// default action displays entry page
-			ShowTableEditor tableEditor = new ShowTableEditor();
+			ShowTableEditor tableEditor = new ShowTableEditor(activeStageId);
 			request.setAttribute("form", tableEditor.readShows(null));
 			
 		} else if (action.equals("maintain") || action.equals("editProperties")) {
@@ -246,7 +258,7 @@ public class MaintainShowAction
 			Struct.setFromRequest(form, request);
 			
 			//System.out.println(Struct.structuredMapToString("form", form));
-			ShowTableEditor tableEditor = new ShowTableEditor();
+			ShowTableEditor tableEditor = new ShowTableEditor(activeStageId);
 			tableEditor.removeEmptyRows(form);
 			TableEditorResult result = tableEditor.maintainShows(form);
 			//System.out.println("======================================");
