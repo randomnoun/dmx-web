@@ -89,6 +89,7 @@ function initLhsMenu() {
 function lhsShowPanel(panelName) {
     if (currentPanelName==panelName) { return; }
     //if (currentPanelName=="dmxPanel") { dmxHideHighlight2(); }
+    Event.stopObserving(document, 'keypress', dmxSliderKeypress);
     for (var i=0; i<lhsMenuPanels.length; i++) {
         if (panelName!=lhsMenuPanels[i]) {
             $(lhsMenuPanels[i]).style.display = "none";
@@ -1184,6 +1185,19 @@ function dmxKeypress(event) {
 
 }
 
+function dmxSliderKeypress(event) {
+	dmxTest++;
+    switch (event.keyCode) {
+      case Event.KEY_UP:
+    	  // alert("up");
+    	  break;
+      case Event.KEY_DOWN:
+    	  // alert("down");
+    	  break;
+    }
+
+}
+
 function dmxValueOnMouseOver(event) {
 	var dmxValueEl, el, ch, f, off, dc, j, cds, cd = null, dmxSliderEl;
 	if (dmxSlider.dragging) { return; }
@@ -1205,6 +1219,8 @@ function dmxValueOnMouseOver(event) {
     	el.update(dmxTimeSourceText);
     	dmxSelectedFixture=null;
     	$("dmxSliderScrollArea").style.visibility="hidden";
+    	// TODO: possibly do this on panel change as well ?
+    	Event.stopObserving(document, 'keypress', dmxSliderKeypress);
     	return;
     };
     off=f["dmxOffset"];
@@ -1242,6 +1258,7 @@ function dmxValueOnMouseOver(event) {
 	dmxSlider.setValue(1-dmxValues[dmxHighlightedChannel-1]/255);
 	dmxUIUpdateOnly=false;
     dmxSelectedFixture=f;
+    Event.observe(document, 'keypress', dmxSliderKeypress);
 }
 function dmxValueOnMouseOut(event) {
     var dmxValueEl = event.element();
