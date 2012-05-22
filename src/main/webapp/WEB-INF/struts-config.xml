@@ -56,6 +56,13 @@
           <forward name="null" className="com.randomnoun.common.webapp.struts.NullForward" path=""/>
         </action>
 
+        <action path="/api" 
+          type="com.randomnoun.dmx.web.action.ApiAction"
+        >
+          <forward name="null" className="com.randomnoun.common.webapp.struts.NullForward" path=""/>
+        </action>
+
+
         <action path="/index" 
           type="com.randomnoun.dmx.web.action.FancyControllerAction"
         >
