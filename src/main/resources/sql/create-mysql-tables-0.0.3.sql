@@ -18,8 +18,8 @@ ALTER TABLE `stage` ADD COLUMN `active` VARCHAR(1) NOT NULL AFTER `filename`;
 
 
 -- create default stage and assign all existing shows/fixtures to it
-INSERT INTO stage(id, name, filename, active) VALUES (1, 'Default', 'default.dws', 'Y')
-UPDATE fixture SET stageId=1, fixPanelType='L', fixPanelX=NULL, fixPanelY=NULL
-UPDATE `show` SET stageId=1
+INSERT INTO stage(id, name, filename, active) VALUES (1, 'Default', 'default.dws', 'Y');
+UPDATE fixture SET stageId=1, fixPanelType='L', fixPanelX=NULL, fixPanelY=NULL;
+UPDATE `show` SET stageId=1;
 
  
