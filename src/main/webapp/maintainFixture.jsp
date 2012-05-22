@@ -293,7 +293,7 @@ function initWindow() {
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].sortOrder" value="<c:out value='${rowData.sortOrder}'/>">
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].fixPanelType' text='errorBg' />"> 
-                                  <r:select data="${form.fixPanelTypes}" name="fixtures[${rowStatus.index}].fixPanelType" value="${rowData.fixPanelType}" displayColumn="name" valueColumn="id" firstOption="(please select...)" />
+                                  <r:select data="${form.fixPanelTypes}" name="fixtures[${rowStatus.index}].fixPanelType" value="${rowData.fixPanelType}" displayColumn="name" valueColumn="id"  />
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].fixPanelX' text='errorBg' />"> 
                                   <input type="text" class="smallInput2 formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].fixPanelX" value="<c:out value='${rowData.fixPanelX}'/>" >
@@ -354,7 +354,7 @@ function initWindow() {
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].sortOrder" value="<c:out value='${rowData.sortOrder}'/>">
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].fixPanelType' text='errorBg' />"> 
-                                  <r:select data="${form.fixPanelTypes}" name="fixtures[${rowStatus.index}].fixPanelType" value="${rowData.fixPanelType}" displayColumn="name" valueColumn="id" firstOption="(please select...)" />
+                                  <r:select data="${form.fixPanelTypes}" name="fixtures[${rowStatus.index}].fixPanelType" value="${rowData.fixPanelType}" displayColumn="name" valueColumn="id"  />
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].fixPanelX' text='errorBg' />"> 
                                   <input type="text" class="smallInput2 formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].fixPanelX" value="<c:out value='${rowData.fixPanelX}'/>" >
@@ -404,7 +404,7 @@ function initWindow() {
                    <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].dmxOffset" value="" ></td>
                    <td></td>
                    <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].sortOrder" value="" ></td>
-                   <td><r:select data="${form.fixPanelTypes}" name="fixtures[${form.fixtures_size}].fixPanelType" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)"/></td>
+                   <td><r:select data="${form.fixPanelTypes}" name="fixtures[${form.fixtures_size}].fixPanelType" value="" displayColumn="name" valueColumn="id" /></td>
                    <td><input type="text" class="smallInput2 formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].fixPanelX" value="" ></td>
                    <td><input type="text" class="smallInput2 formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].fixPanelY" value="" ></td>
                    <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].x" value="" ></td>
