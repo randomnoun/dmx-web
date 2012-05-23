@@ -602,7 +602,11 @@ function fixUpdateControls(fixtureId) {
 	    			if (v["ccs"][i]==1) { ccEl.addClassName("fixSmallSelect"); }
 	    			else { ccEl.removeClassName("fixSmallSelect"); }
 	    		} else if (ccs[i].uiType=="SLIDER") {
-	    			fixCustomControls[i].setValue(1-(v["ccs"][i]/255));
+	    			try {
+	    				fixCustomControls[i].setValue(1-(v["ccs"][i]/255));
+	    			} catch (e) {
+	    				// TypeError can occur if custom control display is still being shown for wrong fixture
+	    			} 
 	    		} else if (ccs[i].uiType=="GRID") {
 	    			var x=Math.floor(v["ccs"][i]/160); var y=(v["ccs"][i]%160); 
 	    			x=x<0?0:(x>159?159:x); y=y<0?0:(y>159?159:y);
