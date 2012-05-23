@@ -381,7 +381,7 @@ function fixInitPanel() {
 	            "id": "fixItem[" + i + "]", "fixtureId": i,
 	            "class" : "fixItem",
 	            "selectClass" : "fixSelect" }).update(
-	            f.name +
+	            "<div class=\"fixItemLabel\">" + f.name + "</div>" +
 	            "<div class=\"fixOutput\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
 	            (fd.panRange==0 ? "" : "&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>") +
 	            (fd.tiltRange==0 ? "" : "&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div>") +
@@ -394,13 +394,13 @@ function fixInitPanel() {
 	            "id": "fixItem[" + i + "]", "fixtureId": i,
 	            "class" : "fixItemHalf",
 	            "selectClass" : "fixSelectHalf"}).update(
-	            f.name +
+	            "<div class=\"fixItemHalfLabel\">" + f.name + "</div>" +
 	            "<div class=\"fixOutputHalf\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
 	            (fd.panRange==0 ? "" : "&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>") +
 	            (fd.tiltRange==0 ? "" : "&nbsp;&#8597;<div class=\"fixOutputTilt\">0</div>") +
 	            "&nbsp;<div class=\"fixOutputStrobe\"></div>" +
 	            "</div>" +
-	            "<div class=\"fixItemIcon\"><img src=\"" + fd["img16"] + "\"></div>"
+	            "<div class=\"fixItemHalfIcon\"><img src=\"" + fd["img16"] + "\"></div>"
 	            );
         } else if (f.fpType=="M") {
         	fixEl = new Element("div", { 
@@ -968,7 +968,7 @@ function fixUpdatePanel(json) {
         if (fpType=="L" || fpType=="S") {
           var fd=fixtureDefs[fixtures[i].type];
           var divEls = el.getElementsByTagName("DIV");
-          var divElIdx = 2;
+          var divElIdx = 3;
           divEls[divElIdx++].style.height=(1-fixValue["d"])*15 + "px";
           divEls[divElIdx++].style.backgroundColor=fixValue["c"];
           if (fd.panRange!=0) { divEls[divElIdx++].innerHTML=twoDigits(fixValue["p"]); }

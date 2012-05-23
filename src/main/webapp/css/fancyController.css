@@ -187,13 +187,13 @@ BODY {
   text-align: center; color: #000044;
   cursor: pointer; 
 }
-.fixItem { width: 180px; height: 70px; background-image: url("../image/button-blue.png"); font-size: 18pt; }
+.fixItem { width: 180px; height: 70px; background-image: url("../image/button-blue.png"); font-size: 14pt; }
 .fixItemHalf { width: 80px; height: 70px; background-image: url("../image/sbutton-blue.png"); font-size: 8pt; }
 .fixItemMatrix { width: 10px; height: 10px; background-color: red; border: 1px solid #EEEEFF; }
-
-.fixItemIcon {
-  position: absolute; top: 2px; left: 2px; width: 32px; height: 32px; 
-}
+.fixItemLabel { position: absolute; left: 35px; top: 0px; width: 145px; height: 38px; font-size: 14pt; overflow: hidden; }
+.fixItemHalfLabel { position: absolute; left: 17px; top: 0px; width: 63px; height: 38px; font-size: 8pt; overflow: hidden; }
+.fixItemIcon { position: absolute; top: 2px; left: 2px; width: 32px; height: 32px; }
+.fixItemHalfIcon { position: absolute; top: 0px; left: 0px; width: 16px; height: 16px; }
 #fixBlackout {
   position: absolute; top: 20px; left: 20px; width: 80px; height: 52px;
   background-image: url("../image/sbutton-red.png");
@@ -347,6 +347,7 @@ BODY {
   display: inline-block;
   background-color: white; width: 15px; height: 15px;
   border: solid 1px white;
+  top: 0px;
 }
 .fixOutputDim2 {
   display: absolute; top:0px; left:0px;
