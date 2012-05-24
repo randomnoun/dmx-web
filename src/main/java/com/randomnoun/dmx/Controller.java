@@ -123,6 +123,49 @@ public class Controller {
 		return fixtures.get(fixtureNumber);
 	}
 
+	/** Returns a list of fixtures with the supplied fixture definition name; if a fixture with that name
+	 * is not found, this method will return an empty list
+	 * 
+	 * @param fixtureDefName The name of the fixture definition
+	 * 
+	 * @return the requested fixture
+	 * 
+	 * @throws IllegalArgumentException if a fixture with that name
+	 * is not found. 
+	 */
+	public List<Fixture> getFixturesByFixtureDef(String fixtureDefName) {
+		List result = new ArrayList<Fixture>();
+		
+		for (Fixture fixture : fixtures) {
+			if (fixture.getFixtureDef().getName().equals(fixtureDefName)) {
+				result.add(fixture);
+			}
+		}
+		return result;
+	}
+
+	/** Returns a list of fixtureControllers with the supplied fixture definition name; if a fixture with that name
+	 * is not found, this method will return an empty list
+	 * 
+	 * @param fixtureDefName The name of the fixture definition
+	 * 
+	 * @return the requested fixture
+	 * 
+	 * @throws IllegalArgumentException if a fixture with that name
+	 * is not found. 
+	 */
+	public List<FixtureController> getFixtureControllersByFixtureDef(String fixtureDefName) {
+		List result = new ArrayList<FixtureController>();
+		
+		for (Fixture fixture : fixtures) {
+			if (fixture.getFixtureDef().getName().equals(fixtureDefName)) {
+				result.add(fixture.getFixtureController());
+			}
+		}
+		return result;
+	}
+
+	
 	/** Returns a fixture by name; if a fixture with that name
 	 * is not found, this method will return null  
 	 * 
