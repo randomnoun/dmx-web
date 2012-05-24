@@ -509,7 +509,7 @@ public class AppConfig extends AppConfigBase {
 					String testScript =
 						"import com.randomnoun.dmx.fixture.FixtureDef;\n" +
 						"import " + fixtureDef.getFixtureDefClassName() + ";\n" +
-						"return new " + fixtureDef.getFixtureDefClassName() + "();\n" ;
+						"return new " + fixtureDef.getFixtureDefClassName() + "().init(\"" + fixtureDef.getName() + "\");\n" ;
 					// @TODO check class before instantiating
 					Object instance = (Object) getScriptEngine().eval(testScript, fixtureScriptContext);
 					if (instance instanceof FixtureDef) {

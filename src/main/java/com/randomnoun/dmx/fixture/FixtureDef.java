@@ -13,6 +13,7 @@ import com.randomnoun.dmx.lightSource.LightSourceDef;
  */
 public abstract class FixtureDef {
 
+	protected String name;
 	protected String vendor;
 	protected String model;
 	protected String htmlImg16;
@@ -63,6 +64,13 @@ public abstract class FixtureDef {
 	
 	public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 	
+	/** Called from with appConfig constructor */
+	public FixtureDef init(String name) {
+		this.name = name;
+		return this;
+	}
+	
+	public String getName() { return name; }
 	public String getImagePath() { return imagePath; }
 	public String getVendor() { return vendor; }
 	public String getModel() { return model; }
