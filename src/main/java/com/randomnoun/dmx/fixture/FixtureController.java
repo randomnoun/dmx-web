@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.randomnoun.common.ExceptionUtils;
 import com.randomnoun.dmx.channel.BitResolution;
 import com.randomnoun.dmx.channel.ChannelDef;
@@ -24,6 +26,8 @@ import com.randomnoun.dmx.channel.rotation.TiltPositionChannelDef;
  */
 public abstract class FixtureController {
 
+	Logger logger = Logger.getLogger(FixtureController.class);
+	
 	protected Fixture fixture;
 	protected List<CustomControl> customControls = null;
 	
@@ -97,7 +101,9 @@ public abstract class FixtureController {
 		}
 		// @TODO sanity checks
 		if (pcdHigh==null) {
-			throw new UnsupportedOperationException("Default setPan implementation requires pan position channel definition for this fixture");
+			// throw new UnsupportedOperationException("Default setPan implementation requires pan position channel definition for this fixture");
+			logger.error("Default setPan implementation requires pan position channel definition for this fixture");
+			return;
 		}
 		if (panPosition < pcdHigh.getMinAngle()) { throw new IllegalArgumentException("panPosition must be equal or greater than " + pcdHigh.getMinAngle()); }
 		if (panPosition > pcdHigh.getMaxAngle()) { throw new IllegalArgumentException("panPosition must be equal or less than " + pcdHigh.getMaxAngle()); }
@@ -140,7 +146,9 @@ public abstract class FixtureController {
 		}
 		// @TODO sanity checks
 		if (pcdHigh==null) {
-			throw new UnsupportedOperationException("Default setTilt implementation requires tilt position channel definition for this fixture");
+			//throw new UnsupportedOperationException("Default setTilt implementation requires tilt position channel definition for this fixture");
+			logger.error("Default setPan implementation requires pan position channel definition for this fixture");
+			return;
 		}
 		if (tiltPosition < pcdHigh.getMinAngle()) { throw new IllegalArgumentException("tiltPosition must be equal or greater than " + pcdHigh.getMinAngle()); }
 		if (tiltPosition > pcdHigh.getMaxAngle()) { throw new IllegalArgumentException("tiltPosition must be equal or less than " + pcdHigh.getMaxAngle()); }
