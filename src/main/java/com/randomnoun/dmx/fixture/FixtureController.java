@@ -53,7 +53,9 @@ public abstract class FixtureController {
 			greenDimmerChannelDef==null ||
 			blueDimmerChannelDef==null) 
 		{
-			throw new UnsupportedOperationException("Default setColor implementation requires red, green and blue dimmers for this fixture");
+			// throw new UnsupportedOperationException("Default setColor implementation requires red, green and blue dimmers for this fixture");
+			logger.error("Default setColor implementation requires red, green and blue dimmers for this fixture");
+			return;
 		}
 		fixture.setDmxChannelValue(redDimmerChannelDef.getOffset(), color.getRed());
 		fixture.setDmxChannelValue(greenDimmerChannelDef.getOffset(), color.getGreen());
@@ -313,7 +315,9 @@ public abstract class FixtureController {
 		FixtureDef fixtureDef = fixture.getFixtureDef();
 		StrobeChannelDef strobeChannelDef = (StrobeChannelDef) fixtureDef.getChannelDefByClass(StrobeChannelDef.class);
 		if (strobeChannelDef==null) {
-			throw new UnsupportedOperationException("Default strobe implementation requires strobe channel for this fixture");
+			//throw new UnsupportedOperationException("Default strobe implementation requires strobe channel for this fixture");
+			logger.error("Default strobe implementation requires strobe channel for this fixture");
+			return;
 		}
 		fixture.setDmxChannelValue(strobeChannelDef.getOffset(), strobeChannelDef.getMaximumStrobeValue());
 	}
@@ -327,7 +331,9 @@ public abstract class FixtureController {
 		DimmerChannelDef masterDimmerChannelDef = (DimmerChannelDef) fixtureDef.getChannelDefByClass(MasterDimmerChannelDef.class);		
 		// 
 		if (masterDimmerChannelDef==null) {
-			throw new UnsupportedOperationException("Default setMasterDimmer implementation requires a master dimmer channel for this fixture");
+			// throw new UnsupportedOperationException("Default setMasterDimmer implementation requires a master dimmer channel for this fixture");
+			logger.error("Default setMasterDimmer implementation requires master dimmer channel definition for this fixture");
+			return;
 		}
 		fixture.setDmxChannelValue(masterDimmerChannelDef.getOffset(), value);
 	}
@@ -343,7 +349,9 @@ public abstract class FixtureController {
 		FixtureDef fixtureDef = fixture.getFixtureDef();
 		StrobeChannelDef strobeChannelDef = (StrobeChannelDef) fixtureDef.getChannelDefByClass(StrobeChannelDef.class);
 		if (strobeChannelDef==null) {
-			throw new UnsupportedOperationException("Default setStrobe implementation requires a strobe channel for this fixture");
+			// throw new UnsupportedOperationException("Default setStrobe implementation requires a strobe channel for this fixture");
+			logger.error("Default setStrobe implementation requires a strobe channel definition for this fixture");
+			return;
 		}
 		fixture.setDmxChannelValue(strobeChannelDef.getOffset(),
 			strobeChannelDef.getLowDmxValue() + 
@@ -355,7 +363,9 @@ public abstract class FixtureController {
 		FixtureDef fixtureDef = fixture.getFixtureDef();
 		StrobeChannelDef strobeChannelDef = (StrobeChannelDef) fixtureDef.getChannelDefByClass(StrobeChannelDef.class);
 		if (strobeChannelDef==null) {
-			throw new UnsupportedOperationException("Default setStrobe implementation requires a strobe channel for this fixture");
+			// throw new UnsupportedOperationException("Default unsetStrobe implementation requires a strobe channel for this fixture");
+			logger.error("Default unsetStrobe implementation requires a strobe channel definition for this fixture");
+			return;
 		}
 		fixture.setDmxChannelValue(strobeChannelDef.getOffset(), strobeChannelDef.getDisableStrobeValue());
 	}

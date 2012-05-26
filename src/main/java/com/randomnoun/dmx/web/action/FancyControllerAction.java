@@ -30,6 +30,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
 import com.randomnoun.common.ExceptionUtils;
+import com.randomnoun.common.StreamUtils;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
@@ -45,12 +46,26 @@ import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.config.AppConfig.TimestampedShowException;
+import com.randomnoun.dmx.dao.ShowDAO;
+import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.fixture.CustomControl;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.fixture.FixtureOutput;
 import com.randomnoun.dmx.show.Show;
+import com.randomnoun.dmx.show.editor.Command;
+import com.randomnoun.dmx.show.editor.DmxValueCommand;
+import com.randomnoun.dmx.show.editor.FixtureBlackoutCommand;
+import com.randomnoun.dmx.show.editor.FixtureColorCommand;
+import com.randomnoun.dmx.show.editor.FixtureCustomControlCommand;
+import com.randomnoun.dmx.show.editor.FixtureDimCommand;
+import com.randomnoun.dmx.show.editor.FixturePanTiltCommand;
+import com.randomnoun.dmx.show.editor.FixtureStrobeCommand;
+import com.randomnoun.dmx.show.editor.Frame;
+import com.randomnoun.dmx.show.editor.Recording;
+import com.randomnoun.dmx.to.ShowDefTO;
+import com.randomnoun.dmx.to.ShowTO;
 
 /**
  * Fancy controller action.
@@ -113,160 +128,7 @@ public class FancyControllerAction
     /* We have one cometPipe per page */
     ConcurrentHashMap<Long, CometPipe> cometPipes = new ConcurrentHashMap();
 
-    
-    public abstract static class Command {
-    	Frame frame;
-    	public abstract void run();      // run this command
-    	public abstract String toJava(); // this command, as represented in a Show definition class
-    }
-    public static class DmxValueCommand extends Command {
-    	int channel, value;
-    	public DmxValueCommand(Frame frame, int channel, int value) {
-    		this.frame = frame;
-    		this.channel = channel;
-    		this.value = value;
-    		frame.recording.addDmxChannel(channel); // @TODO omit this for temp recordings
-    	}
-		public void run() {
-			frame.recording.controller.getUniverse().setDmxChannelValue(channel, value);
-			// TODO Auto-generated method stub
-		}
-		@Override
-		public String toJava() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-    }
-    public abstract static class FixtureCommand extends Command {
-    	List<Fixture> fixtures;
-    	public FixtureCommand(Frame frame, List<Fixture> fixtures) {
-    		this.frame = frame;
-    		this.fixtures = fixtures;
-    		frame.recording.addFixtures(fixtures); // @TODO omit this for temp recordings
-    	}
-    }
-    public static class FixtureDimCommand extends FixtureCommand {
-    	int value;
-    	public FixtureDimCommand(Frame frame, List<Fixture> fixtures, int value) {
-    		super(frame, fixtures);
-    		this.value = value;
-    	}
-    	public void run() {
-    		for (Fixture f : fixtures) { f.getFixtureController().setMasterDimmer(value); }
-    	}
-    	public String toJava() {
-    		return "// dim a bunch of fixtures\n";
-    	}
-    }
-    public static class FixtureBlackoutCommand extends FixtureCommand {
-    	public FixtureBlackoutCommand(Frame frame, List<Fixture> fixtures) {
-    		super(frame, fixtures);
-    	}
-    	public void run() {
-    		for (Fixture f : fixtures) { f.getFixtureController().blackOut(); }
-    	}
-    	public String toJava() {
-    		return "// blackout a bunch of fixtures\n";
-    	}
-    }
-    public static class FixtureStrobeCommand extends FixtureCommand {
-    	int value;
-    	public FixtureStrobeCommand(Frame frame, List<Fixture> fixtures, int value) {
-    		super(frame, fixtures);
-    		this.value = value;
-    	}
-    	public void run() {
-    		for (Fixture f : fixtures) { f.getFixtureController().setStrobe(value); }
-    	}
-    	public String toJava() {
-    		return "// strobe a bunch of fixtures\n";
-    	}
-    }
-    public static class FixtureColorCommand extends FixtureCommand {
-    	Color color;
-    	public FixtureColorCommand(Frame frame, List<Fixture> fixtures, Color color) {
-    		super(frame, fixtures);
-    		this.color = color;
-    	}
-    	public void run() {
-    		for (Fixture f : fixtures) { f.getFixtureController().setColor(color); }
-    	}
-    	public String toJava() {
-    		return "// color a bunch of fixtures\n";
-    	}
-    }
-    public static class FixturePanTiltCommand extends FixtureCommand {
-    	double panPosition, tiltPosition;
-    	public FixturePanTiltCommand(Frame frame, List<Fixture> fixtures, double panPosition, double tiltPosition) {
-    		super(frame, fixtures);
-    		this.panPosition = panPosition;
-    		this.tiltPosition = tiltPosition;
-    	}
-    	public void run() {
-    		for (Fixture f : fixtures) { 
-    			// @TODO as %age of pan/tilt range; see below
-    			f.getFixtureController().panTo(panPosition); 
-    			f.getFixtureController().tiltTo(tiltPosition);
-    		}
-    	}
-    	public String toJava() {
-    		return "// pan/tilt a bunch of fixtures\n";
-    	}
-    }
-    public static class FixtureCustomControlCommand extends FixtureCommand {
-    	int controlId, value;
-    	public FixtureCustomControlCommand(Frame frame, List<Fixture> fixtures, int controlId, int value) {
-    		super(frame, fixtures);
-    		this.controlId = controlId;
-    		this.value = value;
-    	}
-    	public void run() {
-    		for (Fixture f : fixtures) { 
-    			FixtureController fc = f.getFixtureController();
-    			fc.getCustomControls().get(controlId).setValueWithCallback(value);
-    		}
-    	}
-    	public String toJava() {
-    		return "// pan/tilt a bunch of fixtures\n";
-    	}
-    }
-    
-    
-    public static class Frame {
-    	Recording recording;
-    	List<Command> commands; // list of commands to perform in this frame
-    	public Frame(Recording recording) { this.recording = recording; }
-    	public void addCommand(Command c) {
-    		commands.add(c);
-    	}
-    }
-    
-    public static class Recording {
-    	Controller controller;  // for playback
-    	List<Fixture> fixtures; // fixtures affected by this recording
-    	List<Integer> dmxChannels; // dmx channels affected by this recording
-    	List<Frame> frames;  // list of frames in this recording
-    	int currentFrame;   // current frame number
-    	public Recording(Controller controller) {
-    		this.controller = controller;
-    		frames = new ArrayList<Frame>(1);
-    		fixtures = new ArrayList<Fixture>(1);
-    		dmxChannels = new ArrayList<Integer>(1);
-    		frames.add(new Frame(this));
-    		currentFrame = 0;
-    	}
-    	public void addFixtures(List<Fixture> fixtures) {
-    		fixtures.addAll(fixtures); // @TODO only unique
-    	}
-    	public void addDmxChannel(int dmxChannel) { 
-    		dmxChannels.add(dmxChannel);  // @TODO HashSet this
-    	}
-    	public void addCommand(Command c) {
-    		getCurrentFrame().addCommand(c);
-    	}
-    	public Frame getCurrentFrame() { return frames.get(currentFrame); }
-    }
-    
+    /*
     public static class RecordingShow extends Show {
     	Recording recording;
     	public RecordingShow(Recording recording) {
@@ -295,6 +157,7 @@ public class FancyControllerAction
 			// TODO Auto-generated method stub
 		}
     }
+    */
 
     
     public void setPanelAttributes(Map result, String panel) {
@@ -429,6 +292,7 @@ public class FancyControllerAction
 			currentFrame = recording.getCurrentFrame(); 
 		} else {
 			Recording dummyRecording = new Recording(controller);
+			dummyRecording.addFrame(new Frame(dummyRecording));
 			currentFrame = dummyRecording.getCurrentFrame();
 		}
     	
@@ -504,6 +368,9 @@ public class FancyControllerAction
 	    					if (cc.getLeft()!=null) {
 	    						m4.put("left", cc.getLeft());
 	    						m4.put("top", cc.getTop());
+	    					}
+	    					if (cc.getImage()!=null) {
+	    						m4.put("image", fd.getImagePath() + cc.getImage());
 	    					}
 	    					ccs.add(m4);
 	    				}
@@ -622,7 +489,7 @@ public class FancyControllerAction
     			cometPipe.close();
     		}
     		cometPipe = new CometPipe(pageId, panel);
-    		logger.info("CometPipe for pageId=" + pageId + " opened");
+    		logger.debug("CometPipe for pageId=" + pageId + " opened");
     		OutputStream os = response.getOutputStream();
     		MonitoredOutputStream mos = new MonitoredOutputStream(os, cometPipe);
     		PrintWriter pw = new PrintWriter(mos);
@@ -641,7 +508,7 @@ public class FancyControllerAction
     			else if (cometPipe.bytesSent > RELOAD_THRESHOLD) {
     				pw.println("<script>top.reloadCometIframe();</script>");
     				pw.flush();
-    				logger.info("CometPipe for pageId=" + pageId + " has sent " + cometPipe.bytesSent + " bytes; reloading");
+    				logger.debug("CometPipe for pageId=" + pageId + " has sent " + cometPipe.bytesSent + " bytes; reloading");
     				cometPipe.close(); 
     			} else {
     				// logger.info("Written " + cometPipe.bytesSent + " bytes to pipe " + pageId);
@@ -655,7 +522,7 @@ public class FancyControllerAction
 	    			
     			}
     		}
-    		logger.info("CometPipe for pageId=" + pageId + " closed");
+    		logger.debug("CometPipe for pageId=" + pageId + " closed");
     		forward = "null"; // maps to NullForward
     		
     	} else if (action.equals("setDmxValues")) {
@@ -764,33 +631,41 @@ public class FancyControllerAction
     		result.put("message", "ShowGroup " + showGroupId + " cancel requested");
     		
     	} else if (action.equals("fixtureBlackout")) {
-    		int c=0;
-    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
-    		if (recording!=null) { recording.addCommand(new FixtureBlackoutCommand(currentFrame, getFixtureList(fixtureIdStrings))); }
+    		List<Fixture> fixtures = getFixtureList(controller, request.getParameter("fixtureIds"));
+    		Command c = new FixtureBlackoutCommand(currentFrame, fixtures);
+    		if (recording!=null) { recording.addCommand(c); }
+    		c.run();
+    		/*
     		for (String iterationId : fixtureIdStrings) {
     			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
     			f.blackOut();
     			c++;
     		}
-    		result.put("message", c + " fixture(s) blacked out");
+    		*/
+    		result.put("message", fixtures.size() + " fixture(s) blacked out");
 
     	} else if (action.equals("fixtureDim")) {
-    		int c=0;
-    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		List<Fixture> fixtures = getFixtureList(controller, request.getParameter("fixtureIds"));
     		int v = Integer.parseInt(request.getParameter("v"));
-    		if (recording!=null) { recording.addCommand(new FixtureDimCommand(currentFrame, getFixtureList(fixtureIdStrings), v)); }
+    		Command c = new FixtureDimCommand(currentFrame, fixtures, v);
+    		if (recording!=null) { recording.addCommand(c); }
+    		c.run();
+    		/*
     		for (String iterationId : fixtureIdStrings) {
     			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
     			f.getFixtureController().setMasterDimmer(v);
     			c++;
     		}
-    		result.put("message", c + " fixture(s) set to " + (100*v/255) + "%");
+    		*/
+    		result.put("message", fixtures.size() + " fixture(s) set to " + (100*v/255) + "%");
 
     	} else if (action.equals("fixtureStrobe")) {
-    		int c=0, failed=0;
-    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		List<Fixture> fixtures = getFixtureList(controller, request.getParameter("fixtureIds"));
     		int v = Integer.parseInt(request.getParameter("v"));
-    		if (recording!=null) { recording.addCommand(new FixtureStrobeCommand(currentFrame, getFixtureList(fixtureIdStrings), v)); }
+    		Command c = new FixtureStrobeCommand(currentFrame, fixtures, v);
+    		if (recording!=null) { recording.addCommand(c); }
+    		c.run();
+    		/*
     		if (v==0) {
         		for (String iterationId : fixtureIdStrings) {
         			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
@@ -799,7 +674,7 @@ public class FancyControllerAction
         				c++;
         			} catch (Exception e) { failed++; }
         		}
-        		result.put("message", c + " fixture(s) strobe disabled" + (failed==0 ? "" : " (" + failed + " unsupported)"));
+        		result.put("message", fixtures.size() + " fixture(s) strobe disabled" + (failed==0 ? "" : " (" + failed + " unsupported)"));
     		} else {
         		for (String iterationId : fixtureIdStrings) {
         			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
@@ -808,55 +683,64 @@ public class FancyControllerAction
         				c++;
         			} catch (Exception e) { failed++; }
         		}
-        		result.put("message", c + " fixture(s) strobe set to " + (100*v/255) + "%" + (failed==0 ? "" : " (" + failed + " unsupported)"));
+        		result.put("message", fixtures.size() + " fixture(s) strobe set to " + (100*v/255) + "%" + (failed==0 ? "" : " (" + failed + " unsupported)"));
     		}
+    		*/
+    		result.put("message", fixtures.size() + " fixture(s) strobe " +
+    		  (v==0 ? "disabled" : "set to " + (100*v/255) + "%"));
     		
     	} else if (action.equals("fixtureColor")) {
-    		int c=0;
-    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		List<Fixture> fixtures = getFixtureList(controller, request.getParameter("fixtureIds"));
     		String colorString = request.getParameter("color");
     		Color color = new Color(
-    			Integer.parseInt(colorString.substring(0, 2), 16),
-    			Integer.parseInt(colorString.substring(2, 4), 16),
-    			Integer.parseInt(colorString.substring(4, 6), 16));
-    		if (recording!=null) { recording.addCommand(new FixtureColorCommand(currentFrame, getFixtureList(fixtureIdStrings), color)); }
+        			Integer.parseInt(colorString.substring(0, 2), 16),
+        			Integer.parseInt(colorString.substring(2, 4), 16),
+        			Integer.parseInt(colorString.substring(4, 6), 16));
+    		Command c = new FixtureColorCommand(currentFrame, fixtures, color);
+    		if (recording!=null) { recording.addCommand(c); }
+    		c.run();
+    		/*
     		for (String iterationId : fixtureIdStrings) {
     			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
     			f.getFixtureController().setColor(color);
     			c++;
     		}
-    		result.put("message", c + " fixture(s) set to #" + colorString);
+    		*/
+    		result.put("message", fixtures.size() + " fixture(s) set to #" + colorString);
 
     	} else if (action.equals("fixtureAim")) {
-    		int c=0;
-    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		List<Fixture> fixtures = getFixtureList(controller, request.getParameter("fixtureIds"));
     		double x = Double.parseDouble(request.getParameter("x"));
     		double y = Double.parseDouble(request.getParameter("y"));
-    		if (recording!=null) { recording.addCommand(new FixturePanTiltCommand(currentFrame, getFixtureList(fixtureIdStrings), x, y)); }
+    		Command c = new FixturePanTiltCommand(currentFrame, fixtures, x, y);
+    		if (recording!=null) { recording.addCommand(c); }
+    		c.run();
     		// TODO: probably express this as minPan/maxPan later
     		// if same pan/tilt range for all fixtures, keep degrees info for message
+    		
     		boolean sameRange = true;
     		int lastPanRange=-1, lastTiltRange=-1;
     		FixtureDef fd = null;
-    		for (String iterationId : fixtureIdStrings) {
-    			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
+    		for (Fixture f : fixtures) {
     			fd = f.getFixtureDef();
-    			f.getFixtureController().panTo(fd.getPanRange() * x / 100);
-    			f.getFixtureController().tiltTo(fd.getTiltRange() * y / 100);
+    			//f.getFixtureController().panTo(fd.getPanRange() * x / 100);
+    			//f.getFixtureController().tiltTo(fd.getTiltRange() * y / 100);
     			if (lastPanRange==-1) { lastPanRange=fd.getPanRange(); } else { sameRange &= fd.getPanRange()==lastPanRange; };
     			if (lastTiltRange==-1) { lastTiltRange=fd.getTiltRange(); } else { sameRange &= fd.getTiltRange()==lastTiltRange; };
-    			c++;
     		}
     		DecimalFormat df = new DecimalFormat("0.00");
-			result.put("message", c + " fixture(s) set to " +
+			result.put("message", fixtures.size() + " fixture(s) set to " +
 				"pan " + (sameRange ? " " + df.format(fd.getPanRange()*x/100) + "&deg;" : "") + "(" + df.format(x) + "%)" + 
 				", tilt " + (sameRange ? " " + df.format(fd.getTiltRange()*y/100) + "&deg;" : "") + "(" + df.format(y) + "%)");
     	
     	} else if (action.equals("customControl")) {
-    		int c=0;
-    		String[] fixtureIdStrings = request.getParameter("fixtureIds").split(",");
+    		List<Fixture> fixtures = getFixtureList(controller, request.getParameter("fixtureIds"));
     		int controlId = Integer.parseInt(request.getParameter("controlId"));
     		int value=Integer.parseInt(request.getParameter("value"));
+    		Command c = new FixtureCustomControlCommand(currentFrame, fixtures, controlId, value);
+    		if (recording!=null) { recording.addCommand(c); }
+    		c.run();
+    		/*
     		FixtureDef fd = null;
     		for (String iterationId : fixtureIdStrings) {
     			Fixture f = controller.getFixture(Integer.parseInt(iterationId));
@@ -864,9 +748,9 @@ public class FancyControllerAction
     			else if ( fd != f.getFixtureDef()) { logger.warn("Inconsistent fixtureDefs setting customControls (fixtureIds=" + request.getParameter("fixtureIds") + ")"); }
     			FixtureController fc = f.getFixtureController();
     			fc.getCustomControls().get(controlId).setValueWithCallback(value);
-    			c++;
     		}
-    		result.put("message", c + " fixture(s) updated");
+    		*/
+    		result.put("message", fixtures.size() + " fixture(s) updated");
 			
     	} else if (action.equals("resetAudio")) {
     		AudioController audioController = appConfig.getController().getAudioController();
@@ -884,24 +768,117 @@ public class FancyControllerAction
     	
     	} else if (action.equals("startRecording")) {
     		// triggered by cnfPanel 
+    		recording = new Recording(controller);
+    		recording.addFrame(new Frame(recording));
     		result.put("message", "Recording started");
+    		result.put("currentFrame", recording.getCurrentFrameIndex());
+    		result.put("totalFrames", recording.getFrames().size());
+    		session.setAttribute("recording", recording);
     		
     	} else if (action.equals("stopRecording")) {
     		// triggered by cnfPanel.
-    		result.put("message", "Recording stopped; saved as show def xxx");
+    		String defaultPackage = AppConfig.getAppConfig().getProperty("recordedShow.defaultPackage");
+        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.example.dmx.show.editor"; }
+        	
+    		InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/recordedShowDef.java");
+    		if (is==null) { throw new IllegalStateException("Could not find resource 'default/recordedShowDef.java'"); }
+    		String showRecordingTemplate = new String(StreamUtils.getByteArray(is), "UTF-8");
+    		
+    		String showName = request.getParameter("showName");
+    		String className = ""; 
+    		boolean upper = true;
+    		for (int i=0; i<showName.length(); i++) {
+    			char ch = showName.charAt(i);
+    			if (ch == ' ') {
+    				upper = true;
+    			} else {
+    				if (Character.isJavaIdentifierPart(ch)) {
+    					className += upper ? Character.toUpperCase(ch) : Character.toLowerCase(ch);
+    				} else {
+    					className += "_";
+    				}
+    				upper = false;
+    			}
+    		}
+    		if (!Character.isJavaIdentifierStart(className.charAt(0))) { className = "_" + className; } 
+    		className += "Show";
+    		
+    		ShowDefDAO showDefDAO = new ShowDefDAO(appConfig.getJdbcTemplate());
+    		ShowDefTO showDefTO = new ShowDefTO();
+    		showDefTO.setName(showName);
+    		showDefTO.setClassName(className);
+    		showDefTO.setJavadoc("A show recorded by " + request.getRemoteHost() + " on " + (new Date()).toString());
+    		
+    		String script = Text.replaceString(showRecordingTemplate, "{PACKAGENAME_GOES_HERE}", defaultPackage);
+    		script = Text.replaceString(script, "{USERNAME_GOES_HERE}", request.getRemoteHost());
+    		script = Text.replaceString(script, "{TIMESTAMP_GOES_HERE}", (new Date()).toString());
+    		script = Text.replaceString(script, "{CODE_GOES_HERE}", Text.indent("    ", recording.toJava()));
+    		script = Text.replaceString(script, "{SHOWNAME_GOES_HERE}", showName);
+    		script = Text.replaceString(script, "{CLASSNAME_GOES_HERE}", className);
+    		showDefTO.setScript(script);
+    		
+    		long showDefId = showDefDAO.createShowDef(showDefTO);
+    		
+    		/*
+    		ShowDAO showDAO = new ShowDAO(appConfig.getJdbcTemplate());
+    		ShowTO showTO = new ShowTO();
+    		showTO.setName(showName);
+    		showTO.setShowDefId(showDefId);
+    		showTO.setShowGroupId(showDAO.getLastShowGroupId());
+    		showTO.setStageId(appConfig.getActiveStage().getId());
+    		long showId = showDAO.createShow(showTO);
+    		*/
+    		
+    		appConfig.reloadShows();
+    		
+    		// repopulate the show panel
+    		List shows = new ArrayList();
+    		for (int i=0; i<appConfig.getShows().size(); i++) {
+    			Show s = appConfig.getShows().get(i);
+    			Map m = new HashMap();
+    			m.put("id", new Long(s.getId()));
+    			m.put("name", s.getName());
+    			m.put("description", s.getDescription());
+    			m.put("showGroupId", s.getShowGroupId());
+    			shows.add(m);
+    		}
+    		Struct.sortStructuredList(shows, "showGroupId");
+    		result.put("shows", shows);
+    		result.put("message", "Recording stopped; saved as show definition '" + showName + "' in show group n" /*+ showTO.getShowGroupId()*/);
+    		
+    		for (int i=0; i<recording.getFrames().size(); i++) {
+    			Frame f = recording.getFrames().get(i);
+    			logger.info("Frame " + i + ": " + f.toString());
+    		}
+    		logger.info("=== or, in java:");
+    		logger.info(recording.toJava());
+
 
     	} else if (action.equals("addFrame")) {
-    		// do that
-    		result.put("message", "Recording frame n of nn");
+    		Frame frame = new Frame(recording);
+    		recording.addFrame(frame);
+    		result.put("message", "Recording frame " + (recording.getCurrentFrameIndex()+1) + " of " + recording.getFrames().size());
+    		result.put("currentFrame", recording.getCurrentFrameIndex());
+    		result.put("totalFrames", recording.getFrames().size());
 
     	} else if (action.equals("nextFrame")) {
-    		// do that
-    		result.put("message", "Recording frame n of nn");
+    		recording.setCurrentFrameIndex((recording.getCurrentFrameIndex() + 1) % recording.getFrames().size());
+    		logger.info("Running " + recording.getCurrentFrame().getCommands().size() + " commands on nextFrame");
+    		for (Command c : recording.getCurrentFrame().getCommands()) { c.run(); }
+    		result.put("message", "Recording frame " + (recording.getCurrentFrameIndex()+1) + " of " + recording.getFrames().size());
+    		result.put("currentFrame", recording.getCurrentFrameIndex());
+    		result.put("totalFrames", recording.getFrames().size());
 
     	} else if (action.equals("prevFrame")) {
-    		// do that
-    		result.put("message", "Recording frame n of nn");
-
+    		int newFrameIndex = recording.getCurrentFrameIndex()-1;
+    		if (newFrameIndex < 0) { newFrameIndex = recording.getFrames().size() - 1; }
+    		recording.setCurrentFrameIndex(newFrameIndex);
+    		logger.info("Running " + recording.getCurrentFrame().getCommands().size() + " commands on prevFrame");
+    		for (Command c : recording.getCurrentFrame().getCommands()) { c.run(); }
+    		result.put("message", "Recording frame " + (recording.getCurrentFrameIndex()+1) + " of " + recording.getFrames().size());
+    		result.put("currentFrame", recording.getCurrentFrameIndex());
+    		result.put("totalFrames", recording.getFrames().size());
+    		
     	} else if (action.equals("playRecording")) {
     		// play/pause recording
     		// create a temporary Show object, stick it in the appConfig, and run it.
@@ -1011,10 +988,27 @@ public class FancyControllerAction
     Double twoDigits(Double input) {
     	return new Double(Math.floor(input.doubleValue()*100)/100);
     }
-    
-    public List<Fixture> getFixtureList(String[] fixtureIds) {
-    	return null;
+
+    	/*
+    public List<Fixture> getFixtureList(Controller controller, String[] fixtureIds) {
+    	List<Fixture> result = new ArrayList<Fixture>();
+		for (String fixtureId : fixtureIds) {
+			Fixture f = controller.getFixture(Integer.parseInt(fixtureId));
+			result.add(f);
+		}
+		return result;
     }
-    
+    */
+
+    public List<Fixture> getFixtureList(Controller controller, String fixtureIds) {
+    	List<Fixture> result = new ArrayList<Fixture>();
+    	String[] fixtureIdStrings = fixtureIds.split(",");
+		for (String fixtureId : fixtureIdStrings) {
+			Fixture f = controller.getFixture(Integer.parseInt(fixtureId));
+			result.add(f);
+		}
+		return result;
+    }
+
     
 }
