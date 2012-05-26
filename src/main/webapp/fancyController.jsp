@@ -65,8 +65,8 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   
   <div id="recContainer">
     <div class="recContainerLabel"><img class="recContainerIcon" width="70" height="29" src="image/recRecordAnim.gif"/></div>
-    <div class="recFrameContainer"><div class="recButtonL" style="margin-left: 0px; "><img src="image/rbutton-prev.png" width="53" height="45"/></div><div class="recFrame"></div><div class="recButtonR"><img src="image/rbutton-next.png" width="53" height="45"/></div></div>
-    <div class="recButtonDel"><img src="image/rbutton-del.png" width="53" height="45"/></div><div class="recButtonPlay"><img src="image/rbutton-play.png" width="53" height="45"/></div><div class="recButtonAdd"><img src="image/rbutton-add.png" width="53" height="45"/></div>
+    <div class="recFrameContainer"><div id="recPrevFrame" class="recButtonL" style="margin-left: 0px; "><img src="image/rbutton-prev.png" width="53" height="45"/></div><div id="recCurrentFrame"></div><div id="recTotalFrames"></div><div id="recNextFrame" class="recButtonR"><img src="image/rbutton-next.png" width="53" height="45"/></div></div>
+    <div id="recDeleteFrame" class="recButtonDel"><img src="image/rbutton-del.png" width="53" height="45"/></div><div id="recPlay" class="recButtonPlay"><img src="image/rbutton-play.png" width="53" height="45"/></div><div id="recAddFrame" class="recButtonAdd"><img src="image/rbutton-add.png" width="53" height="45"/></div>
   </div>
 </div>
 
