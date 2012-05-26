@@ -1541,10 +1541,8 @@ function recCallback(json) {
 	if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
 	// set fixture/dmx value highlights for this frame ?
 	if (json.shows) {
-		// recreate the show panel
-		document.location = document.location; // who knows, might work
-		
-		
+		// recreate the show panel. or just load the whole thing again.
+		window.location.reload()
 	}
 }
 
