@@ -249,7 +249,11 @@ public class AppConfig extends AppConfigBase {
     	}
     	
     	logger.info("reloadFixturesAndShows(): resetting controller");
-    	controller.blackOut();
+    	try {
+    		controller.blackOut();
+    	} catch (Exception e) {
+    		// this might fail if the blackOut() method for a fixture is farged
+    	}
     	
     	logger.info("reloadFixturesAndShows(): stopping audio");
     	controller.getAudioController().stopAudio();
