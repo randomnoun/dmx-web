@@ -3,6 +3,8 @@ package com.randomnoun.dmx;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
@@ -18,6 +20,8 @@ public class Controller {
 	List<Fixture> fixtures;
 	AudioController audioController;
 	AudioSource audioSource;
+
+	Logger logger = Logger.getLogger(Controller.class);
 	
 	/** Create a new Controller instance */
 	public Controller() {
@@ -165,6 +169,30 @@ public class Controller {
 		return result;
 	}
 
+	
+	/** Returns a list of fixtures given an array of names; used by the RecordedShow
+	 * class (possibly should go in there ?)
+	 * 
+	 * <p>Does not throw exceptions on unknown fixtures.
+	 * 
+	 * @param fixtureName The fixture name
+	 * 
+	 * @return the requested fixture, or null
+	 */
+	public List<Fixture> getFixturesByName(String[] names) {
+		List<Fixture> result = new ArrayList<Fixture>();
+		for (int i=0; i<names.length; i++) {
+			String name = names[i];
+			for (Fixture fixture : fixtures) {
+				if (fixture.getName().equals(name)) {
+					result.add(fixture);
+					break;
+				}
+			}
+		}
+		// logger.info("Returning " + result.size() + " fixtures");
+		return result;
+	}
 	
 	/** Returns a fixture by name; if a fixture with that name
 	 * is not found, this method will return null  
