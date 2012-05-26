@@ -24,6 +24,7 @@ public class CustomControl {
 	private int value;
 	private CustomControlCallback callback;
 	private String top, left;
+	private String image;
 	
 	public CustomControl(String label, UIType uiType, CustomControlCallback callback) {
 		this.label = label;
@@ -42,6 +43,8 @@ public class CustomControl {
 	public void setLeft(long left) { this.left = String.valueOf(left) + "px"; }
 	public String getTop() { return top; }
 	public String getLeft() { return left; }
+	public void setImage(String image) { this.image = image; }
+	public String getImage() { return image; }
 	
 	// sets the value of this control, non-user initiated
 	// (e.g. to clear a set of mutually-exclusive toggles)
