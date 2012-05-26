@@ -305,7 +305,7 @@ public class MaintainFixtureDefAction
     private String getFixtureDefScriptTemplate() {
     	try {
     		String defaultPackage = AppConfig.getAppConfig().getProperty("fixture.defaultPackage");
-        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
+        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.example.dmx.fixture.script"; }
 	    	InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/defaultFixtureDef.java");
 	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			StreamUtils.copyStream(is, baos);

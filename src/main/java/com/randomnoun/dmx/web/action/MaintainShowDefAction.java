@@ -187,8 +187,8 @@ public class MaintainShowDefAction
     
     private String getScriptTemplate() {
     	try {
-        	String defaultPackage = AppConfig.getAppConfig().getProperty("fixture.defaultPackage");
-        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
+        	String defaultPackage = AppConfig.getAppConfig().getProperty("show.defaultPackage");
+        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.example.dmx.show.script"; }
 	    	InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/defaultShowDef.java");
 	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			StreamUtils.copyStream(is, baos);
