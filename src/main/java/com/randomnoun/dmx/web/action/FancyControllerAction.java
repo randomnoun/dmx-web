@@ -88,7 +88,7 @@ public class FancyControllerAction
     /** Logger instance for this class */
     private static final Logger logger = Logger.getLogger(FancyControllerAction.class);
 
-    public static final long RELOAD_THRESHOLD = 1024 * 1024; // reload iframe after 1MB data sent
+    public static final long RELOAD_THRESHOLD = 5 * 1024 * 1024; // reload iframe after 5MB data sent
     
     /** Thing that sends updates to a webpage without using polling. 
      * 
