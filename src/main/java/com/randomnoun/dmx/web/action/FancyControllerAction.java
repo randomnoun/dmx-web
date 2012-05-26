@@ -806,7 +806,7 @@ public class FancyControllerAction
     		ShowDefDAO showDefDAO = new ShowDefDAO(appConfig.getJdbcTemplate());
     		ShowDefTO showDefTO = new ShowDefTO();
     		showDefTO.setName(showName);
-    		showDefTO.setClassName(className);
+    		showDefTO.setClassName(defaultPackage + "." + className);
     		showDefTO.setJavadoc("A show recorded by " + request.getRemoteHost() + " on " + (new Date()).toString());
     		
     		String script = Text.replaceString(showRecordingTemplate, "{PACKAGENAME_GOES_HERE}", defaultPackage);
@@ -818,8 +818,6 @@ public class FancyControllerAction
     		showDefTO.setScript(script);
     		
     		long showDefId = showDefDAO.createShowDef(showDefTO);
-    		
-    		/*
     		ShowDAO showDAO = new ShowDAO(appConfig.getJdbcTemplate());
     		ShowTO showTO = new ShowTO();
     		showTO.setName(showName);
@@ -827,7 +825,7 @@ public class FancyControllerAction
     		showTO.setShowGroupId(showDAO.getLastShowGroupId());
     		showTO.setStageId(appConfig.getActiveStage().getId());
     		long showId = showDAO.createShow(showTO);
-    		*/
+    		
     		
     		appConfig.reloadShows();
     		
