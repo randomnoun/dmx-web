@@ -43,9 +43,10 @@ function sendRequest(url,completedFunction) {
         method:'get', // evalJSON:true,
         onSuccess: function(transport) {
             setRhsMessageHTML(transport.responseJSON.message);
+            completedFunction(transport.responseJSON);
         },
         onComplete: function(transport) {
-            completedFunction();
+            //completedFunction(transport.responseJSON);
         }});
 }
 
@@ -55,9 +56,10 @@ function sendPostRequest(url,parameters,completedFunction) {
         parameters:parameters,
         onSuccess: function(transport) {
             setRhsMessageHTML(transport.responseJSON.message);
+            completedFunction(transport.responseJSON);
         },
         onComplete: function(transport) {
-            completedFunction();
+            //completedFunction(transport.responseJSON);
         }});
 }
 
@@ -82,6 +84,7 @@ function initLhsMenu() {
     Event.observe($("lhsDMX"), 'click', lhsDMX);
     Event.observe($("lhsLogs"), 'click', lhsLogs);
     Event.observe($("lhsConfig"), 'click', lhsConfig);
+    
     $$(".lhsMenuItem").each(function(s){noSelect(s);});
     noSelect($("lhsLogo"));
 }
@@ -381,6 +384,7 @@ function fixInitPanel() {
 	            "id": "fixItem[" + i + "]", "fixtureId": i,
 	            "class" : "fixItem",
 	            "selectClass" : "fixSelect" }).update(
+	            "<div class=\"fixItemRecBack\"></div>" +
 	            "<div class=\"fixItemLabel\">" + f.name + "</div>" +
 	            "<div class=\"fixOutput\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
 	            (fd.panRange==0 ? "" : "&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>") +
@@ -394,6 +398,7 @@ function fixInitPanel() {
 	            "id": "fixItem[" + i + "]", "fixtureId": i,
 	            "class" : "fixItemHalf",
 	            "selectClass" : "fixSelectHalf"}).update(
+	            "<div class=\"fixItemRecBack\"></div>" +
 	            "<div class=\"fixItemHalfLabel\">" + f.name + "</div>" +
 	            "<div class=\"fixOutputHalf\"><div class=\"fixOutputDim\"><div class=\"fixOutputDim2\"></div></div>&nbsp;<div class=\"fixOutputColor\"></div>" +
 	            (fd.panRange==0 ? "" : "&nbsp;&#8596;<div class=\"fixOutputPan\">0</div>") +
@@ -777,7 +782,9 @@ function fixUpdateCustomControls() {
 	    		        ctrlEl = new Element("div", { 
 	    		            "id": "fixCC[" + i + "]", 
 	    		            "controlId": i,
-	    		            "class" : "fixCustomToggle" }).update(cc.label);
+	    		            "class" : "fixCustomToggle" }).update(
+	    		          cc.image ? ("<img src=\"" + cc.image + "\" />") : cc.label
+	    		        );
 	    		        ccEl.appendChild(ctrlEl);
 	    		        if (cc.top) { ctrlEl.absolutize(); ctrlEl.style.top=cc.top; ctrlEl.style.left=cc.left; }
 	    		        Event.observe(ctrlEl, 'click', fixCustomToggleClick.curry(i));
@@ -882,6 +889,9 @@ var AjaxLimitter = Class.create({
         } else {
             if (this.newValueTimeoutId==-1) {
                 this.newValueTimeoutId=window.setTimeout(this.sendRequest.curry(url), this.finalRequestInterval);
+            } else {
+            	window.clearTimeout(this.newValueTimeoutId);
+            	this.newValueTimeoutId=window.setTimeout(this.sendRequest.curry(url), this.finalRequestInterval);
             }
         }
     }
@@ -895,7 +905,9 @@ function fixDimChange(v) {
     if (fixItemIds!="") {
         fixDimLimitter.sendRequest( 
            'fancyController.html?action=fixtureDim&v=' + v + '&fixtureIds=' + fixItemIds);
+        if (isRecording) { fixRecTouch(fixGetItems()); }
     }
+    
 }
 
 var fixStrobeLimitter = new AjaxLimitter(100, 200);
@@ -906,7 +918,9 @@ function fixStrobeChange(v) {
     if (fixItemIds!="") {
         fixDimLimitter.sendRequest( 
            'fancyController.html?action=fixtureStrobe&v=' + v + '&fixtureIds=' + fixItemIds);
+        if (isRecording) { fixRecTouch(fixGetItems()); }
     }
+    
 }
 
 var fixColorLimitter = new AjaxLimitter(100, 200);
@@ -916,7 +930,9 @@ function fixColorChange(color) {
     if (fixItemIds!="") {
         fixColorLimitter.sendRequest( 
            'fancyController.html?action=fixtureColor&color=' + color.substring(1) + '&fixtureIds=' + fixItemIds);
+        if (isRecording) { fixRecTouch(fixGetItems()); }
     }
+    
 }
 
 var fixAimLimitter = new AjaxLimitter(100, 200);
@@ -926,7 +942,9 @@ function fixAimDrag(x, y) {
     if (fixItemIds!="") {
        fixAimLimitter.sendRequest( 
            'fancyController.html?action=fixtureAim&x=' + (x*100) + '&y=' + (y*100) + '&fixtureIds=' + fixItemIds);
+       if (isRecording) { fixRecTouch(fixGetItems()); }
     }
+    
 }
 
 function fixCustomToggleClick(controlId) {
@@ -937,7 +955,9 @@ function fixCustomToggleClick(controlId) {
     if (fixItems.length > 0) {
     	var newValue = 1-fixValues[fixItems[0]]["ccs"][controlId];
     	sendRequest('fancyController.html?action=customControl&controlId=' + controlId + '&value=' + newValue + '&fixtureIds=' + fixItems.join(","));
+    	if (isRecording) { fixRecTouch(fixItems); }
 	}
+    
 }
 
 var fixCustomSliderLimitter = new AjaxLimitter(100, 200);
@@ -948,6 +968,7 @@ function fixCustomSliderChange(controlId, value) {
 	var fixItems=fixGetItems();
     if (fixItems.length > 0) {
     	fixCustomSliderLimitter.sendRequest('fancyController.html?action=customControl&controlId=' + controlId + '&value=' + newValue + '&fixtureIds=' + fixItems.join(","));
+    	if (isRecording) { fixRecTouch(fixItems); }
 	}
 }
 
@@ -958,10 +979,23 @@ function fixCustomGridChange(controlId, draggable, event) {
     //var x = (handlePos[0]+handleDimensions.width/2)/(parentDimensions.width);
     //var y = (handlePos[1]+handleDimensions.height/2)/(parentDimensions.height);
 	var fixItemIds=fixGetItemIds();
-    fixCustomGridLimitter.sendRequest( 
-       'fancyController.html?action=customControl&controlId=' + controlId + '&value=' + ((handlePos[0]+10)*160 + handlePos[1]+10) + '&fixtureIds=' + fixItemIds);
+	if (fixItems.length > 0) {
+       fixCustomGridLimitter.sendRequest( 
+          'fancyController.html?action=customControl&controlId=' + controlId + '&value=' + ((handlePos[0]+10)*160 + handlePos[1]+10) + '&fixtureIds=' + fixItemIds);
+       if (isRecording) { fixRecTouch(fixItems); }     
+  	}
 }
 
+function fixRecTouch(fixtureIds) {
+	var fixItemEl, fpType, i;
+	for (i=0; i<fixtureIds.length; i++) {
+	  var fixItemEl = $("fixItem[" + fixtureIds[i] + "]").childNodes.item(0);
+	  var fpType = fixtures[fixtureIds[i]].fpType;
+	  if (fpType == "L") { fixItemEl.addClassName("fixItemRec"); }
+	  else if (fpType == "S") { fixItemEl.addClassName("fixItemHalfRec"); }
+	  else if (fpType == "M") { /*fixItemEl.addClassName("fixItemHalf"); something else probably */ }
+	}  
+}
 
 function fixUpdatePanel(json) {
     fixValues = json.fixValues;
@@ -972,7 +1006,7 @@ function fixUpdatePanel(json) {
         if (fpType=="L" || fpType=="S") {
           var fd=fixtureDefs[fixtures[i].type];
           var divEls = el.getElementsByTagName("DIV");
-          var divElIdx = 3;
+          var divElIdx = 4;
           divEls[divElIdx++].style.height=(1-fixValue["d"])*15 + "px";
           divEls[divElIdx++].style.backgroundColor=fixValue["c"];
           if (fd.panRange!=0) { divEls[divElIdx++].innerHTML=twoDigits(fixValue["p"]); }
@@ -1407,8 +1441,11 @@ function cnfRecordClick() {
 	$("cnfRecordText").update(isRecording ? "Stop recording" : "Start recording");
 	if (isRecording) {
 		$("cnfRecord").addClassName("cnfControlSelect");
+		sendRequest('fancyController.html?action=startRecording', recCallback);
 	} else {
+		var showName = prompt("And the showname is?", "something");
 		$("cnfRecord").removeClassName("cnfControlSelect");
+		sendRequest('fancyController.html?action=stopRecording&showName=' + escape(showName), recCallback);
 	}
 }
 function cnfFixtureDefClick() {
@@ -1440,6 +1477,77 @@ function cnfVideoClick() {
 }
 
 
+/******************************* RECORDING ******************************/
+var recCurrentFrame = 0; // 0-based
+var recTotalFrames = 0;
+
+function recInitPanel() {
+	$("recContainer").style.visibility = isRecording ? "visible" : "hidden";
+	$("cnfRecordText").update(isRecording ? "Stop recording" : "Start recording");
+	if (isRecording) {
+		$("cnfRecord").addClassName("cnfControlSelect");
+	}
+	
+	recSetFrames(0,1);
+
+    Event.observe($("recPrevFrame"), 'click', recPrevFrame);
+    Event.observe($("recNextFrame"), 'click', recNextFrame);
+    Event.observe($("recAddFrame"), 'click', recAddFrame);
+    Event.observe($("recDeleteFrame"), 'click', recDeleteFrame);
+    Event.observe($("recPlay"), 'click', recPlay);
+}
+
+function recUpdatePanel(json) {
+	
+}
+
+function recSetFrames(newRecActiveFrame, newRecTotalFrames) {
+	recCurrentFrame=newRecActiveFrame;
+	recTotalFrames=newRecTotalFrames;
+	$("recCurrentFrame").update(recCurrentFrame+1);
+	$("recTotalFrames").update(recTotalFrames);
+}
+
+function recPrevFrame() {
+	sendRequest('fancyController.html?action=prevFrame', recCallback);
+	//recCurrentFrame--;
+	recSetFrames(recCurrentFrame, recTotalFrames);
+}
+
+function recNextFrame() {
+	sendRequest('fancyController.html?action=nextFrame', recCallback);
+	//recCurrentFrame++; 
+	//if (recCurrentFrame+1 > recTotalFrames) { recTotalFrames = recCurrentFrame+1; }
+	//recSetFrames(recCurrentFrame, recTotalFrames);
+}
+
+function recAddFrame() {
+	sendRequest('fancyController.html?action=addFrame', recCallback);
+	//alert("recAddFrame");
+}
+
+function recDeleteFrame() {
+	sendRequest('fancyController.html?action=deleteFrame', recCallback);
+	//alert("recDeleteFrame");
+}
+
+function recPlay() {
+	sendRequest('fancyController.html?action=playRecording', recCallback);
+	// alert("recPlay");
+}
+
+// call this recUpdatePanel ?
+function recCallback(json) {
+	if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
+	// set fixture/dmx value highlights for this frame ?
+	if (json.shows) {
+		// recreate the show panel
+		document.location = document.location; // who knows, might work
+		
+		
+	}
+}
+
 
 /******************************* LONG POLLING ******************************/
 
@@ -1465,8 +1573,9 @@ function initWindow() {
 	disableIframe=true;
     initLookups();
     initLhsMenu();
-
+    
     lgoInitPanel();
+    recInitPanel();
     lhsDMX(); dmxInitPanel();
     shwInitPanel();
     lhsFixtures(); fixInitPanel();

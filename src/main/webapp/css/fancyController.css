@@ -194,6 +194,9 @@ BODY {
 .fixItemHalfLabel { position: absolute; left: 17px; top: 0px; width: 63px; height: 38px; font-size: 8pt; overflow: hidden; }
 .fixItemIcon { position: absolute; top: 2px; left: 2px; width: 32px; height: 32px; }
 .fixItemHalfIcon { position: absolute; top: 0px; left: 0px; width: 16px; height: 16px; }
+.fixItemRec { position: absolute; top: 0px; left: 0px; width: 180px; height: 70px; background-image: url("../image/button-rec.png"); }
+.fixItemHalfRec { position: absolute; top: 0px; left: 0px; width: 80px; height: 70px; background-image: url("../image/sbutton-rec.png"); }
+
 #fixBlackout {
   position: absolute; top: 20px; left: 20px; width: 80px; height: 52px;
   background-image: url("../image/sbutton-red.png");
@@ -547,12 +550,12 @@ BODY {
 /*** RECORD SHOW container (in lhs panel) ***/
 #recContainer { visibility: hidden; }
 .recContainerLabel { width: 180px; height: 30px; margin-left: 10px;  }
-.recButtonAdd { display: inline-block; width: 53px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/rbutton-green.png"); }
-.recButtonDel { display: inline-block; width: 53px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/rbutton-red.png"); }
-.recButtonPlay { display: inline-block; width: 53px; height: 45px; margin-left: 10px; background-image: url("../image/rbutton-blue.png"); }
-.recButtonL { display: inline-block; width: 53px; height: 45px; background-image: url("../image/rbutton-blue.png"); }
-.recButtonR { display: inline-block; float: right; width: 53px; height: 45px; background-image: url("../image/rbutton-blue.png"); }
-.recFrameContainer { width: 180px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/recFrame-back.png"); } 
+.recButtonAdd { display: inline-block; cursor: pointer; width: 53px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/rbutton-green.png"); }
+.recButtonDel { display: inline-block; cursor: pointer; width: 53px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/rbutton-red.png"); }
+.recButtonPlay { display: inline-block; cursor: pointer; width: 53px; height: 45px; margin-left: 10px; background-image: url("../image/rbutton-blue.png"); }
+.recButtonL { display: inline-block; cursor: pointer; width: 53px; height: 45px; background-image: url("../image/rbutton-blue.png"); }
+.recButtonR { display: inline-block; cursor: pointer; float: right; width: 53px; height: 45px; background-image: url("../image/rbutton-blue.png"); }
+.recFrameContainer { position: relative; width: 180px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/recFrame-back.png"); } 
 .recFrame { display: inline-block;  }
-
-
+#recCurrentFrame { position: absolute; display: block; left: 56px; top: -4px; width: 66px; height: 20px; text-align: right; color: #7369b5; font-family: "LcdD"; font-size: 20pt; }
+#recTotalFrames { position: absolute; display: block; left: 56px; top: 17px; width: 66px; height: 20px; text-align: right; color: #7369b5; font-family: "LcdD"; font-size: 20pt; }
