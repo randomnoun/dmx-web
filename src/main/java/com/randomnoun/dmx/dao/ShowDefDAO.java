@@ -22,6 +22,7 @@ public class ShowDefDAO {
             s.setClassName(rs.getString("className"));
             s.setScript(rs.getString("script"));
             s.setJavadoc(rs.getString("javadoc"));
+            s.setRecorded(rs.getBoolean("ynRecorded"));
             return s;
         }
     }
@@ -39,7 +40,7 @@ public class ShowDefDAO {
      */
     public List<ShowDefTO> getShowDefs(String sqlWhereClause) {
         String sql =
-            "SELECT id, name, className, script, javadoc " +
+            "SELECT id, name, className, script, javadoc, ynRecorded " +
             " FROM showDef " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<ShowDefTO>) jt.query(sql, new ShowDefDAORowMapper());
@@ -53,7 +54,7 @@ public class ShowDefDAO {
      */
     public ShowDefTO getShowDef(long showDefId) {
         return (ShowDefTO) jt.queryForObject(
-            "SELECT id, name, className, script, javadoc " +
+            "SELECT id, name, className, script, javadoc, ynRecorded " +
             " FROM showDef " +
             " WHERE id = ?",
             new Object[] { new Long(showDefId) }, 
@@ -67,7 +68,7 @@ public class ShowDefDAO {
     public void updateShowDef(ShowDefTO showDef) {
         String sql =
             "UPDATE showDef " +
-            " SET name=?, className=?, script=?, javadoc=? " + 
+            " SET name=?, className=?, script=?, javadoc=?, ynRecorded=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
@@ -75,6 +76,7 @@ public class ShowDefDAO {
                 showDef.getClassName(),
                 showDef.getScript(),
                 showDef.getJavadoc(),
+                showDef.isRecorded(),
                 showDef.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("showDef update failed (" + updated + " rows updated)");
@@ -92,14 +94,15 @@ public class ShowDefDAO {
     public long createShowDef(ShowDefTO showDef) {
         String sql =
             "INSERT INTO showDef " + 
-            " (name, className, script, javadoc) " +
+            " (name, className, script, javadoc, ynRecorded) " +
             " VALUES (?, ?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] { 
                 showDef.getName(),
                 showDef.getClassName(),
                 showDef.getScript(),
-                showDef.getJavadoc()});
+                showDef.getJavadoc(),
+                showDef.isRecorded()});
         if (updated!=1) {
             throw new DataIntegrityViolationException("showDef insert failed (" + updated + " rows updated)");
         }

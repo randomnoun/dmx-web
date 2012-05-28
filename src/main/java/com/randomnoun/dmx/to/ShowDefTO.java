@@ -7,6 +7,7 @@ public class ShowDefTO {
     private String className;
     private String script;
     private String javadoc;
+    private boolean isRecorded;
 
     /** Returns the id
      * @return the id
@@ -77,6 +78,14 @@ public class ShowDefTO {
     public void setJavadoc(String javadoc) {
         this.javadoc = javadoc;
     }
+
+	public boolean isRecorded() {
+		return isRecorded;
+	}
+
+	public void setRecorded(boolean isRecorded) {
+		this.isRecorded = isRecorded;
+	}
     
     
 }

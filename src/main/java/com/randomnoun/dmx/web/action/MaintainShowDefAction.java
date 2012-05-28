@@ -43,6 +43,7 @@ import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.show.Show;
+import com.randomnoun.dmx.show.editor.RecordedShow;
 import com.randomnoun.dmx.to.FixtureDefImageTO;
 import com.randomnoun.dmx.to.FixtureTO;
 import com.randomnoun.dmx.to.ShowDefTO;
@@ -142,11 +143,12 @@ public class MaintainShowDefAction
     		String txtScript = (String) showDefMap.get("script");
     		String className = null;
     		String javadoc = null;
+    		boolean isRecorded = false;
     		errors.addErrors(validateScriptSyntax(txtScript));
     		if (!errors.hasErrors()) {
     			className = getClassName(txtScript);
     			javadoc = getJavadoc(txtScript);
-    			errors.addErrors(validateScriptInstance(txtScript, className));
+    			isRecorded = validateScriptInstance(errors, txtScript, className);
     		}
     		if (errors.hasErrors()) {
     			Struct.setFromRequest(form, request);
@@ -158,6 +160,7 @@ public class MaintainShowDefAction
     			Struct.setFromMap(showDef, showDefMap, false, true, false);
     			showDef.setClassName(className);
     			showDef.setJavadoc(javadoc);
+    			showDef.setRecorded(isRecorded);
 	    		if (lngId==-1) {
 	    			showDefDAO.createShowDef(showDef);
 	    			errors.addError("Show created", "Show definition created", ErrorList.SEVERITY_OK);
@@ -308,9 +311,10 @@ public class MaintainShowDefAction
 		return javadoc;
     }
 
-    
-    public ErrorList validateScriptInstance(String script, String className) {
-    	ErrorList errors = new ErrorList();
+    // return true if this show definition is a recorded show, false otherwise
+    // errors instantiating the class are added to the errors list
+    public boolean validateScriptInstance(ErrorList errors, String script, String className) {
+    	//ErrorList errors = new ErrorList();
     	AppConfig appConfig = AppConfig.getAppConfig();
 		Show showObj;
 		try {
@@ -328,14 +332,16 @@ public class MaintainShowDefAction
 				errors.addError("script", "Invalid class", "Class " + className + " does not extend com.randomnoun.dmx.Show"); 
 			} else {
 				Properties nullProperties = new Properties();
+				@SuppressWarnings("unchecked")
 				Constructor constructor = clazz.getConstructor(long.class, Controller.class, Properties.class);
 				showObj = (Show) constructor.newInstance(0L, testController, nullProperties);
 			}
+			return RecordedShow.class.isAssignableFrom(clazz);
 		} catch (Exception e) {
 			logger.error("Exception validating scripted show", e);
 			errors.addError("script", "Invalid class", "Error whilst instantiating show: " + getStackSummary(e));
 		}
-    	return errors;
+    	return false;
     }
     
     public String getStackSummary(Throwable e) {
