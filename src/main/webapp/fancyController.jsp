@@ -56,6 +56,10 @@
 <r:setJavascriptVar name="recModifiedFixtureIds" value="${recModifiedFixtureIds}" />
 <r:setJavascriptVar name="recModifiedDmxChannels" value="${recModifiedDmxChannels}" />
 </c:if>
+<c:if test="${recording==null}">
+var recCurrentFrame = 0;
+var recTotalFrames = 1;
+</c:if>
 <r:setJavascriptVar name="initMessage" value="${initMessage}" />
 
 var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %>";
