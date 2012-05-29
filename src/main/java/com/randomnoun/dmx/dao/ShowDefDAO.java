@@ -2,12 +2,14 @@ package com.randomnoun.dmx.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.randomnoun.common.spring.StringRowMapper;
 import com.randomnoun.dmx.to.ShowDefTO;
 
 public class ShowDefDAO {
@@ -125,4 +127,18 @@ public class ShowDefDAO {
            throw new DataIntegrityViolationException("showDef insert failed (" + updated + " rows updated)");
        }
    }
+   
+   public int getUniqueClassNameSuffix(String packageName, String className) {
+	   List classes = jt.query(
+	       "SELECT className " +
+	       " FROM showDef " +
+	       " WHERE className LIKE ?",
+	       new Object[] { packageName + "." + className + "%" }, new int[] { Types.VARCHAR },
+	       new StringRowMapper() );
+	   if (!classes.contains(packageName + "." + className)) { return 0; }
+	   int maxClass = 2;
+	   while (classes.contains(packageName + "." + className + maxClass)) { maxClass++; }
+	   return maxClass;
+   }
+   
 }

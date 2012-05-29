@@ -47,8 +47,8 @@
 <r:setJavascriptVar name="origPanel" value="${panel}" />
 <r:setJavascriptVar name="javadocUrl" value="${javadocUrl}" />
 <r:setJavascriptVar name="pageId" value="${pageId}" />
-<r:setJavascriptVar name="isRecording" value="${recording!=null}" />
-<c:if test="${recording!=null}">
+<r:setJavascriptVar name="isRecording" value="${reqRecording!=null}" />
+<c:if test="${reqRecording!=null}">
 <r:setJavascriptVar name="recCurrentFrame" value="${recCurrentFrame}" />
 <r:setJavascriptVar name="recTotalFrames" value="${recTotalFrames}" />
 <r:setJavascriptVar name="recShowDefId" value="${recShowDefId}" />
@@ -56,7 +56,7 @@
 <r:setJavascriptVar name="recModifiedFixtureIds" value="${recModifiedFixtureIds}" />
 <r:setJavascriptVar name="recModifiedDmxChannels" value="${recModifiedDmxChannels}" />
 </c:if>
-<c:if test="${recording==null}">
+<c:if test="${reqRecording==null}">
 var recCurrentFrame = 0;
 var recTotalFrames = 1;
 </c:if>
@@ -78,7 +78,7 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
   <div id="lhsConfig" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsConfig.png" title="Config"/><div class="lhsMenuText">Config</div></div>
   
   <div id="recContainer">
-    <div class="recContainerLabel"><img class="recContainerIcon" width="70" height="29" src="image/recRecordAnim.gif"/></div>
+    <div class="recContainerLabel"><img id="recRecordAnim" class="recContainerIcon" width="70" height="29" src="image/recRecordAnim.gif"/></div>
     <div class="recFrameContainer"><div id="recPrevFrame" class="recButtonL" style="margin-left: 0px; "><img src="image/rbutton-prev.png" width="53" height="45"/></div><div id="recCurrentFrame"></div><div id="recTotalFrames"></div><div id="recNextFrame" class="recButtonR"><img src="image/rbutton-next.png" width="53" height="45"/></div></div>
     <div id="recDeleteFrame" class="recButtonDel"><img src="image/rbutton-del.png" width="53" height="45"/></div><div id="recPlay" class="recButtonPlay"><img src="image/rbutton-play.png" width="53" height="45"/></div><div id="recAddFrame" class="recButtonAdd"><img src="image/rbutton-add.png" width="53" height="45"/></div>
   </div>

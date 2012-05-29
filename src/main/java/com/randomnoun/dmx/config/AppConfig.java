@@ -102,6 +102,11 @@ public class AppConfig extends AppConfigBase {
     
     private AppConfigState appConfigState = AppConfigState.UNINITIALISED;
     
+    // NB: because this thing takes so long to populate, it might be worth
+    // have a copy created in the background 'in reserve' so if we change
+    // something we can just update that rather than recreating everything from
+    // scratch. maybe. dunno. or actually profile the thing and see
+    // what the issue is.
     /** Script context containing scripted fixture definitions, fixtures, and shows */
     private ScriptContext scriptContext;
     
@@ -387,9 +392,11 @@ public class AppConfig extends AppConfigBase {
     
     // @TODO cache this ?
     public ScriptEngine getScriptEngine() {
+    	logger.info("getScriptEngine() start");
     	ScriptEngineManager factory = new ScriptEngineManager();
         factory.registerEngineName("Beanshell", new BshScriptEngineFactory());
         ScriptEngine scriptEngine = factory.getEngineByName("Beanshell");
+        logger.info("getScriptEngine() end");
         return scriptEngine;
     }
     

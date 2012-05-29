@@ -19,7 +19,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 	
 	private static int threadCount = 0; // show always be 0
 	
-	UsbProWidgetTranslator translator = null;
+	private UsbProWidgetTranslator translator = null;
 	byte dmxState[];
 		
 	UsbProUpdaterThread t = null;
@@ -44,14 +44,18 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 					hasChanged = false;
 					try {
 						logger.debug("Sending DMX data");
-						upuul.translator.sendOutputOnlySendDMXPacketRequest((byte) 0, upuul.dmxState);
+						upuul.getTranslator().sendOutputOnlySendDMXPacketRequest((byte) 0, upuul.dmxState);
 					} catch (IOException e) {
 						done = true;
 						e.printStackTrace();
+					} catch (NullPointerException npe) {
+						logger.debug("No UsbProWidgetTranslator instance; stopping UsbProUpdaterThread");
+						done = true;
 					}
 				}
 				try {
-					// sleeping here so that we're not sending a universe DMX update for every individual channel update 
+					// sleeping here so that we're not sending a universe DMX update for every individual channel update
+					// @TODO sync with whatever update rate the device wants
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
 				}
@@ -85,5 +89,6 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 	public void stopThread() {
 		if (t!=null) { t.done(); }
 	}
+	public UsbProWidgetTranslator getTranslator() { return translator; }
 
 }

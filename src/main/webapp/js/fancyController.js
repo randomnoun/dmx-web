@@ -1436,9 +1436,8 @@ function cnfStageClick() {
     document.location="maintainStage.html";
 }
 function cnfRecordClick() {
+	// NB: may be called when cnfPanel not visible
 	isRecording=!isRecording;
-	$("recContainer").style.visibility = isRecording ? "visible" : "hidden";
-	$("cnfRecordText").update(isRecording ? "Stop recording" : "Start recording");
 	if (isRecording) {
 		recShowDefId = null;
 		$("cnfRecord").addClassName("cnfControlSelect");
@@ -1446,14 +1445,23 @@ function cnfRecordClick() {
 	} else {
 		if (recShowDefId == null) {
 			var showName = prompt("And the showname is?", "something");
-			$("cnfRecord").removeClassName("cnfControlSelect");
-			sendRequest('fancyController.html?action=stopRecording&showName=' + escape(showName), recCallback);
+			if (showName==null) {
+				sendRequest('fancyController.html?action=stopRecording', recCallback);
+			} else {
+				sendRequest('fancyController.html?action=stopRecording&showName=' + escape(showName), recCallback);
+			}
+			
 		} else {
 			var showName = prompt("And the showname is? (change default here to save as a new show)", recShowDefName);
-			$("cnfRecord").removeClassName("cnfControlSelect");
-			sendRequest('fancyController.html?action=stopRecording&recShowDefId=' + recShowDefId + '&showName=' + escape(showName), recCallback);
+			if (showName==null) {
+				sendRequest('fancyController.html?action=stopRecording', recCallback);
+			} else {
+				sendRequest('fancyController.html?action=stopRecording&recShowDefId=' + recShowDefId + '&showName=' + escape(showName), recCallback);
+			}
 		}
 	}
+	$("recContainer").style.visibility = isRecording ? "visible" : "hidden";
+	$("cnfRecordText").update(isRecording ? "Stop recording" : "Start recording");
 }
 function cnfFixtureDefClick() {
     document.location="maintainFixtureDef.html";
@@ -1503,6 +1511,7 @@ function recInitPanel() {
     Event.observe($("recAddFrame"), 'click', recAddFrame);
     Event.observe($("recDeleteFrame"), 'click', recDeleteFrame);
     Event.observe($("recPlay"), 'click', recPlay);
+    Event.observe($("recRecordAnim"), 'click', cnfRecordClick);
 }
 
 function recUpdatePanel(json) {
@@ -1552,6 +1561,20 @@ function recCallback(json) {
 		// recreate the show panel. or just load the whole thing again.
 		window.location = 'fancyController.html?panel=shwPanel'; // .reload()
 	}
+	if (json.hideRecFrame) { 
+		$("cnfRecord").removeClassName("cnfControlSelect");
+		$("recContainer").style.visibility = "hidden";
+		$("cnfRecordText").update("Start recording");
+		recCurrentFrame=0;
+		recTotalFrames=1;
+		for (i=0; i<fixtures.length; i++) {
+		  var fixItemEl = $("fixItem[" + i + "]").childNodes.item(0);
+		  var fpType = fixtures[i].fpType;
+		  if (fpType == "L") { fixItemEl.removeClassName("fixItemRec"); }
+		  else if (fpType == "S") { fixItemEl.removeClassName("fixItemHalfRec"); }
+		  else if (fpType == "M") { /*fixItemEl.removeClassName("fixItemHalf"); something else probably */ }
+	    }
+	}
 }
 
 
@@ -1591,8 +1614,8 @@ function initWindow() {
     disableIframe=false;
     if (origPanel=='cnfPanel') {  // from cancel buttons in editor pages
     	lhsConfig();
-    } else if (origPanel=='fixPanel') {
-    	lhsFixtures();            // from 'edit recorded show'
+    } else if (origPanel=='fixPanel' || isRecording) {
+    	lhsFixtures(); reloadCometIframe();  // from 'edit recorded show'
     } else if (origPanel=='shwPanel') {
     	lhsShows();               // after show recording 
     } else {

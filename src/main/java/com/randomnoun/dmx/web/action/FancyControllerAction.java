@@ -474,19 +474,29 @@ public class FancyControllerAction
 		    	// recording = new Recording(controller);
 				if (recording==null) {
 					request.setAttribute("initMessage", "Could not load recording; view Logs panel for details");
+					// remove from session ?
+					
 					
 				} else {
+					for (Show s : appConfig.getShows()) {
+		    			if (!appConfig.getShow(s.getId()).getState().equals(Show.State.SHOW_STOPPED)) {
+		    				appConfig.cancelShow(s.getId());
+		    			}
+					}
+					ArrayList fixtureIds = new ArrayList();
+		    		for (Fixture f : recording.getModifiedFixtures()) { fixtureIds.add(controller.getFixtures().indexOf(f)); }
 					recording.setCurrentFrameIndex(0);
-		    		request.setAttribute("initMessage", "Updating recording " + showDefId + ": '" + showDef.getName() + "'");
+		    		logger.info("Running " + recording.getCurrentFrame().getCommands().size() + " commands on initial frame");
+		    		for (Command c : recording.getCurrentFrame().getCommands()) { c.run(); }
+					request.setAttribute("initMessage", "Updating recording " + showDefId + ": '" + showDef.getName() + "'");
 		    		request.setAttribute("recCurrentFrame", recording.getCurrentFrameIndex());
 		    		request.setAttribute("recTotalFrames", recording.getFrames().size());
 		    		request.setAttribute("panel", "fixPanel");
 		    		request.setAttribute("recShowDefId", showDefId);
 		    		request.setAttribute("recShowDefName", showDef.getName());
-		    		ArrayList fixtureIds = new ArrayList();
-		    		for (Fixture f : recording.getModifiedFixtures()) { fixtureIds.add(controller.getFixtures().indexOf(f)); }
 		    		request.setAttribute("recModifiedFixtureIds", fixtureIds);
 		    		request.setAttribute("recModifiedDmxChannels", recording.getModifiedDmxChannels());
+		    		request.setAttribute("reqRecording", recording); // request.recording doesn't work in JSTL
 		    		session.setAttribute("recording", recording);
 				}
 		    };
@@ -856,125 +866,145 @@ public class FancyControllerAction
     		// triggered by cnfPanel.
     		String showDefIdString = request.getParameter("recShowDefId");
     		String showName = request.getParameter("showName");
-    		String className = ""; 
-
-    		String defaultPackage = AppConfig.getAppConfig().getProperty("recordedShow.defaultPackage");
-        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.example.dmx.show.editor"; }    		
+    		String className = "";
     		
-    		ShowDefDAO showDefDAO = new ShowDefDAO(appConfig.getJdbcTemplate());
-    		long showDefId=-1;
-    		if (!Text.isBlank(showDefIdString)) { showDefId = Long.parseLong(showDefIdString); }    			
-    		ShowDefTO showDefTO = null;
-    		if (showDefId!=-1) { 
-    			showDefTO = showDefDAO.getShowDef(showDefId);
-    			if (!showDefTO.getName().equals(showName)) {
-    				// different show name; create a new show rather than updating existing
-    				showDefTO = null;
-    			}
-    		}
-    		if (showDefTO == null) {
-    			showDefTO = new ShowDefTO();
-        		boolean upper = true;
-        		for (int i=0; i<showName.length(); i++) {
-        			char ch = showName.charAt(i);
-        			if (ch == ' ') {
-        				upper = true;
-        			} else {
-        				if (Character.isJavaIdentifierPart(ch)) {
-        					className += upper ? Character.toUpperCase(ch) : Character.toLowerCase(ch);
-        				} else {
-        					className += "_";
-        				}
-        				upper = false;
-        			}
-        		}
-        		if (!Character.isJavaIdentifierStart(className.charAt(0))) { className = "_" + className; } 
-        		className += "Show";
-        		showDefTO.setId(-1);
-    			showDefTO.setName(showName);
-        		showDefTO.setClassName(defaultPackage + "." + className);
-        		showDefTO.setJavadoc("A show recorded by " + request.getRemoteHost() + " on " + (new Date()).toString());    			
-    		}
-    		
-    		if (showDefTO.getId()==-1) {
-    			// new show
-	    		InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/recordedShowDef.java");
-	    		if (is==null) { throw new IllegalStateException("Could not find resource 'default/recordedShowDef.java'"); }
-	    		String showRecordingTemplate = new String(StreamUtils.getByteArray(is), "UTF-8");
-	    		
-	    		String script = Text.replaceString(showRecordingTemplate, "{PACKAGENAME_GOES_HERE}", defaultPackage);
-	    		script = Text.replaceString(script, "{USERNAME_GOES_HERE}", request.getRemoteHost());
-	    		script = Text.replaceString(script, "{TIMESTAMP_GOES_HERE}", (new Date()).toString());
-	    		script = Text.replaceString(script, "{CODE_GOES_HERE}", Text.indent("    ", recording.toJava()));
-	    		script = Text.replaceString(script, "{SHOWNAME_GOES_HERE}", showName);
-	    		script = Text.replaceString(script, "{CLASSNAME_GOES_HERE}", className);
-	    		showDefTO.setScript(script);
-	    		showDefId = showDefDAO.createShowDef(showDefTO);
-
-	    		ShowDAO showDAO = new ShowDAO(appConfig.getJdbcTemplate());
-	    		ShowTO showTO = new ShowTO();
-	    		showTO.setName(showName);
-	    		showTO.setShowDefId(showDefId);
-	    		showTO.setShowGroupId(showDAO.getLastShowGroupId());
-	    		showTO.setStageId(appConfig.getActiveStage().getId());
-	    		long showId = showDAO.createShow(showTO);
-    		} else {
-    			// update existing show
-    			List<String> lines = new ArrayList(Arrays.asList(showDefTO.getScript().split("\n")));
-    			int startIdx=-1, endIdx=-1;
-    			for (int i=0; i<lines.size(); i++) {
-    				if (startIdx==-1 && lines.get(i).indexOf("*** RECORDING DEFINITION START")!=-1) {
-    					startIdx = i;
-    				}
-    				if (endIdx==-1 && lines.get(i).indexOf("*** RECORDING DEFINITION END")!=-1) {
-    					endIdx = i;
-    				}
-    			}
-    			if (startIdx!=-1 && endIdx!=-1 && endIdx>startIdx) {
-    				for (int d = 0; d < endIdx - startIdx - 1; d++) {
-    					lines.remove(startIdx + 1);
-    				}
-    				lines.add(startIdx + 1, Text.indent("    ", recording.toJava()));
-    			} else {
-    				// arg.
-    			}
-    			logger.info("=================== old show def:");
-    			logger.info(showDefTO.getScript());
-    			logger.info("=================== new show def:");
-    			logger.info(Text.join(lines, "\n"));
+    		if (showName==null) {
+    			result.put("hideRecFrame", Boolean.TRUE);
+    			result.put("message", "Recording cancelled");
+    			session.removeAttribute("recording");
     			
-    			showDefTO.setScript(Text.join(lines, "\n"));
-	    		showDefDAO.updateShowDef(showDefTO);
+    		} else {
+
+	    		String defaultPackage = AppConfig.getAppConfig().getProperty("recordedShow.defaultPackage");
+	        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.example.dmx.show.editor"; }    		
 	    		
-    			// TODO: create a show instance if one does not exist ?
+	    		ShowDefDAO showDefDAO = new ShowDefDAO(appConfig.getJdbcTemplate());
+	    		long showDefId=-1;
+	    		if (!Text.isBlank(showDefIdString)) { showDefId = Long.parseLong(showDefIdString); }    			
+	    		ShowDefTO showDefTO = null;
+	    		if (showDefId!=-1) { 
+	    			showDefTO = showDefDAO.getShowDef(showDefId);
+	    			if (!showDefTO.getName().equals(showName)) {
+	    				// different show name; create a new show rather than updating existing
+	    				showDefTO = null;
+	    			}
+	    		}
+	    		if (showDefTO == null) {
+	    			showDefTO = new ShowDefTO();
+	        		boolean upper = true;
+	        		for (int i=0; i<showName.length(); i++) {
+	        			char ch = showName.charAt(i);
+	        			if (ch == ' ') {
+	        				upper = true;
+	        			} else {
+	        				if (Character.isJavaIdentifierPart(ch)) {
+	        					className += upper ? Character.toUpperCase(ch) : Character.toLowerCase(ch);
+	        				} else {
+	        					className += "_";
+	        				}
+	        				upper = false;
+	        			}
+	        		}
+	        		if (!Character.isJavaIdentifierStart(className.charAt(0))) { className = "_" + className; }
+	        		className = className + "Show";
+	        		
+	        		// if className exists, then append numbers to it until it's unique
+	        		int suffix = showDefDAO.getUniqueClassNameSuffix(defaultPackage, className);
+	        		className = suffix == 0 ? className : className + suffix;
+	        		showName = suffix == 0 ? showName : showName + " (" + suffix + ")";
+	        		logger.info("Unique className='" + className + "'");
+	        		
+	        		showDefTO.setId(-1);
+	    			showDefTO.setName(showName);
+	        		showDefTO.setClassName(defaultPackage + "." + className);
+	        		showDefTO.setRecorded(true);
+	        		showDefTO.setJavadoc("/** A show recorded by " + request.getRemoteHost() + " on " + (new Date()).toString() + " */");    			
+	    		}
+	    		
+	    		if (showDefTO.getId()==-1) {
+	    			// new show
+		    		InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/recordedShowDef.java");
+		    		if (is==null) { throw new IllegalStateException("Could not find resource 'default/recordedShowDef.java'"); }
+		    		String showRecordingTemplate = new String(StreamUtils.getByteArray(is), "UTF-8");
+		    		
+		    		String script = Text.replaceString(showRecordingTemplate, "{PACKAGENAME_GOES_HERE}", defaultPackage);
+		    		script = Text.replaceString(script, "{USERNAME_GOES_HERE}", request.getRemoteHost());
+		    		script = Text.replaceString(script, "{TIMESTAMP_GOES_HERE}", (new Date()).toString());
+		    		script = Text.replaceString(script, "{CODE_GOES_HERE}", Text.indent("    ", recording.toJava()));
+		    		script = Text.replaceString(script, "{SHOWNAME_GOES_HERE}", showName);
+		    		script = Text.replaceString(script, "{CLASSNAME_GOES_HERE}", className);
+		    		showDefTO.setScript(script);
+		    		showDefId = showDefDAO.createShowDef(showDefTO);
+	
+		    		ShowDAO showDAO = new ShowDAO(appConfig.getJdbcTemplate());
+		    		ShowTO showTO = new ShowTO();
+		    		showTO.setName(showName);
+		    		showTO.setShowDefId(showDefId);
+		    		showTO.setShowGroupId(showDAO.getLastShowGroupId());
+		    		showTO.setStageId(appConfig.getActiveStage().getId());
+		    		logger.info("Creating recorded show name='" + showName + "'");
+		    		long showId = showDAO.createShow(showTO);
+		    		logger.info("Created recorded show id=" + showId + ", name='" + showName + "'");
+	    		} else {
+	    			// update existing show
+	    			List<String> lines = new ArrayList(Arrays.asList(showDefTO.getScript().split("\n")));
+	    			int startIdx=-1, endIdx=-1;
+	    			for (int i=0; i<lines.size(); i++) {
+	    				if (startIdx==-1 && lines.get(i).indexOf("*** RECORDING DEFINITION START")!=-1) {
+	    					startIdx = i;
+	    				}
+	    				if (endIdx==-1 && lines.get(i).indexOf("*** RECORDING DEFINITION END")!=-1) {
+	    					endIdx = i;
+	    				}
+	    			}
+	    			if (startIdx!=-1 && endIdx!=-1 && endIdx>startIdx) {
+	    				for (int d = 0; d < endIdx - startIdx - 1; d++) {
+	    					lines.remove(startIdx + 1);
+	    				}
+	    				lines.add(startIdx + 1, Text.indent("    ", recording.toJava()));
+	    			} else {
+	    				// arg.
+	    			}
+	    			logger.info("=================== old show def:");
+	    			logger.info(showDefTO.getScript());
+	    			logger.info("=================== new show def:");
+	    			logger.info(Text.join(lines, "\n"));
+	    			
+	    			showDefTO.setScript(Text.join(lines, "\n"));
+	    			logger.info("Updating recorded show id=" + showDefTO.getId() + ", name='" + showDefTO.getName() + "'");
+		    		showDefDAO.updateShowDef(showDefTO);
+	    			logger.info("Updated recorded show id=" + showDefTO.getId() + ", name='" + showDefTO.getName() + "'");
+		    		
+	    			// TODO: create a show instance if one does not exist ?
+	    		}
+	    		session.removeAttribute("recording");
+	    		// @TODO deal with any other recordings in progress by other users
+	    		appConfig.reloadShows();
+	    		
+	    		// repopulate the show panel
+	    		List shows = new ArrayList();
+	    		for (int i=0; i<appConfig.getShows().size(); i++) {
+	    			Show s = appConfig.getShows().get(i);
+	    			Map m = new HashMap();
+	    			m.put("id", new Long(s.getId()));
+	    			m.put("name", s.getName());
+	    			m.put("description", s.getDescription());
+	    			m.put("showGroupId", s.getShowGroupId());
+	    			shows.add(m);
+	    		}
+	    		Struct.sortStructuredList(shows, "showGroupId");
+	    		result.put("shows", shows);
+	    		result.put("message", "Recording stopped; saved as show definition '" + showName + "' in show group n" /*+ showTO.getShowGroupId()*/);
+	    		
+	    		/*
+	    		for (int i=0; i<recording.getFrames().size(); i++) {
+	    			Frame f = recording.getFrames().get(i);
+	    			logger.info("Frame " + i + ": " + f.toString());
+	    		}
+	    		logger.info("=== or, in java:");
+	    		logger.info(recording.toJava());
+				*/
     		}
-    		session.removeAttribute("recording");
-    		// @TODO deal with any other recordings in progress by other users
-    		appConfig.reloadShows();
-    		
-    		// repopulate the show panel
-    		List shows = new ArrayList();
-    		for (int i=0; i<appConfig.getShows().size(); i++) {
-    			Show s = appConfig.getShows().get(i);
-    			Map m = new HashMap();
-    			m.put("id", new Long(s.getId()));
-    			m.put("name", s.getName());
-    			m.put("description", s.getDescription());
-    			m.put("showGroupId", s.getShowGroupId());
-    			shows.add(m);
-    		}
-    		Struct.sortStructuredList(shows, "showGroupId");
-    		result.put("shows", shows);
-    		result.put("message", "Recording stopped; saved as show definition '" + showName + "' in show group n" /*+ showTO.getShowGroupId()*/);
-    		
-    		/*
-    		for (int i=0; i<recording.getFrames().size(); i++) {
-    			Frame f = recording.getFrames().get(i);
-    			logger.info("Frame " + i + ": " + f.toString());
-    		}
-    		logger.info("=== or, in java:");
-    		logger.info(recording.toJava());
-			*/
 
     	} else if (action.equals("addFrame")) {
     		Frame frame = new Frame(recording);
