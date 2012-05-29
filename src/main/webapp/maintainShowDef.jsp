@@ -112,6 +112,8 @@ BODY { font-size: 8pt; font-family: Arial; }
 <script>
 <r:setJavascriptVar name="errorLines" value="${errorLines}" />
 <r:setJavascriptVar name="showDefId" value="${showDef.id}" />
+<r:setJavascriptVar name="recordedShowDefIds" value="${recordedShowDefIds}" />
+
 var edtScriptEditor;
 
 function edtGetShowDef() {
@@ -122,8 +124,23 @@ function edtGetShowDef() {
 	    document.location = "maintainShowDef.html?action=getShowDef&showDefId=" + showDefId;
 	}
 }
+function edtGetShowRecording() {
+	var showDefIdEl = document.getElementById("showDefId");
+	var showDefId = showDefIdEl.value;
+	if (showDefId != '') {
+	    //alert("Retrieving showDef " + showDefId);
+	    document.location = "fancyController.html?action=editRecording&showDefId=" + showDefId;
+	}
+}
 function edtNewShowDef() {
     document.location = "maintainShowDef.html?action=newShowDef";
+}
+
+function edtChangeShowDef() {
+	var showDefIdEl = document.getElementById("showDefId");
+	var showDefId = new Number(showDefIdEl.value).valueOf();
+	$("getShowRecording").style.display = 
+		(recordedShowDefIds.indexOf(showDefId)==-1) ? "none" : "inline";
 }
 
 
@@ -177,6 +194,9 @@ function edtInitPanel() {
     );		
     Event.observe(edtSubmitEl, 'click', edtSubmitClick);
     </c:if>
+    <c:if test="${showDef==null}" >
+    edtChangeShowDef();
+    </c:if>
     
     Event.observe($("lhsCancel"), 'click', lhsCancelClick);
     Event.observe($("lhsOK"), 'click', lhsOKClick);
@@ -223,8 +243,11 @@ function initWindow() {
 <c:if test="${showDef==null}" >
 <tr><td>Select show definition:</td>
     <td><r:select name="showDefId" value="${showDefId}" data="${showDefs}" 
-  displayColumn="name" valueColumn="id"  /></td>
-    <td><input type="button" name="getShowDef" value="Get show definition" onclick="edtGetShowDef()" /></td>
+  displayColumn="name" valueColumn="id"  onchange="edtChangeShowDef()" /></td>
+    <td>
+    <input type="button" id="getShowRecording" name="getShowRecording" value="Get show recording" onclick="edtGetShowRecording()" />
+    <input type="button" name="getShowDef" value="Get show definition" onclick="edtGetShowDef()" />
+    </td>
 </tr><tr>    
     <td></td>
     <td></td>

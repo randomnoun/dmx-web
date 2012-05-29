@@ -32,6 +32,6 @@ public abstract class RecordedShow extends Show {
 	}
 
 	/** This method is used by the web UI to load a recording for playback and modification */ 
-	public abstract Recording getRecording();
+	public abstract Recording getRecording(Controller controller);
 	
 }	

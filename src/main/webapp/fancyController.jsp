@@ -47,7 +47,17 @@
 <r:setJavascriptVar name="origPanel" value="${panel}" />
 <r:setJavascriptVar name="javadocUrl" value="${javadocUrl}" />
 <r:setJavascriptVar name="pageId" value="${pageId}" />
-<r:setJavascriptVar name="isRecording" value="${isRecording}" />
+<r:setJavascriptVar name="isRecording" value="${recording!=null}" />
+<c:if test="${recording!=null}">
+<r:setJavascriptVar name="recCurrentFrame" value="${recCurrentFrame}" />
+<r:setJavascriptVar name="recTotalFrames" value="${recTotalFrames}" />
+<r:setJavascriptVar name="recShowDefId" value="${recShowDefId}" />
+<r:setJavascriptVar name="recShowDefName" value="${recShowDefName}" />
+<r:setJavascriptVar name="recModifiedFixtureIds" value="${recModifiedFixtureIds}" />
+<r:setJavascriptVar name="recModifiedDmxChannels" value="${recModifiedDmxChannels}" />
+</c:if>
+<r:setJavascriptVar name="initMessage" value="${initMessage}" />
+
 var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %>";
 <%-- this will be a client-side include eventually --%>
 <jsp:include page="js/fancyController.js" />

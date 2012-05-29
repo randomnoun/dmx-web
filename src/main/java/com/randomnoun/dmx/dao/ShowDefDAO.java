@@ -22,7 +22,7 @@ public class ShowDefDAO {
             s.setClassName(rs.getString("className"));
             s.setScript(rs.getString("script"));
             s.setJavadoc(rs.getString("javadoc"));
-            s.setRecorded(rs.getBoolean("ynRecorded"));
+            s.setRecorded("Y".equals(rs.getString("ynRecorded")));
             return s;
         }
     }
@@ -76,7 +76,7 @@ public class ShowDefDAO {
                 showDef.getClassName(),
                 showDef.getScript(),
                 showDef.getJavadoc(),
-                showDef.isRecorded(),
+                showDef.isRecorded() ? "Y" : "N",
                 showDef.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("showDef update failed (" + updated + " rows updated)");
@@ -95,14 +95,14 @@ public class ShowDefDAO {
         String sql =
             "INSERT INTO showDef " + 
             " (name, className, script, javadoc, ynRecorded) " +
-            " VALUES (?, ?, ?, ? )";
+            " VALUES (?, ?, ?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] { 
                 showDef.getName(),
                 showDef.getClassName(),
                 showDef.getScript(),
                 showDef.getJavadoc(),
-                showDef.isRecorded()});
+                showDef.isRecorded() ? "Y" : "N"});
         if (updated!=1) {
             throw new DataIntegrityViolationException("showDef insert failed (" + updated + " rows updated)");
         }

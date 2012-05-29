@@ -1029,7 +1029,9 @@ bsh.InterpreterError: null fromValue
 	public List<ExceptionContainer.TimestampedException> getAppConfigExceptions() {
 		return exceptionContainer.getExceptions();
 	}
-	
+	public void addAppConfigException(Throwable t) {
+		exceptionContainer.addException(t);
+	}
 	public void clearAppConfigExceptions() {
 		exceptionContainer.clearExceptions();
 	}

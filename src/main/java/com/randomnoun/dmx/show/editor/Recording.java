@@ -1,26 +1,38 @@
 package com.randomnoun.dmx.show.editor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.fixture.Fixture;
 
 public class Recording {
 	Controller controller;  // for playback
-	List<Fixture> fixtures; // fixtures affected by this recording
-	List<Integer> dmxChannels; // dmx channels affected by this recording
+	Set<Fixture> fixtures; // fixtures affected by this recording
+	Set<Integer> dmxChannels; // dmx channels affected by this recording
+	
 	List<Frame> frames;  // list of frames in this recording
 	int currentFrame;   // current frame number
 	public Recording(Controller controller) {
 		this.controller = controller;
-		frames = new ArrayList<Frame>(1);
-		fixtures = new ArrayList<Fixture>(1);
-		dmxChannels = new ArrayList<Integer>(1);
+		frames = new ArrayList<Frame>();
+		fixtures = new HashSet<Fixture>();
+		dmxChannels = new HashSet<Integer>();
 		currentFrame = -1;
 	}
+	// invoked by FancyControllerAction to assign a real controller
+	// after object construction (we delay assign the real controller
+	// to prevent any show actions taking place during object initialisation)
+	
+	public void setController(Controller controller) {
+		this.controller = controller;
+	}
+	public List<Fixture> getModifiedFixtures() { return new ArrayList(fixtures); }
+	public List<Integer> getModifiedDmxChannels() { return new ArrayList(dmxChannels); }
 	public void addFixtures(List<Fixture> fixtures) {
-		this.fixtures.addAll(fixtures); // @TODO only unique
+		this.fixtures.addAll(fixtures); 
 	}
 	public void addDmxChannel(int dmxChannel) { 
 		dmxChannels.add(dmxChannel);  // @TODO HashSet this

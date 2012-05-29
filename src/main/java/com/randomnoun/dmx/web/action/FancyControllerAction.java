@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -45,6 +48,7 @@ import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
+import com.randomnoun.dmx.config.AppConfigException;
 import com.randomnoun.dmx.config.AppConfig.TimestampedShowException;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
@@ -63,6 +67,7 @@ import com.randomnoun.dmx.show.editor.FixtureDimCommand;
 import com.randomnoun.dmx.show.editor.FixturePanTiltCommand;
 import com.randomnoun.dmx.show.editor.FixtureStrobeCommand;
 import com.randomnoun.dmx.show.editor.Frame;
+import com.randomnoun.dmx.show.editor.RecordedShow;
 import com.randomnoun.dmx.show.editor.Recording;
 import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowTO;
@@ -316,7 +321,7 @@ public class FancyControllerAction
     		if (benchmark!=null) { benchmark.annotate("lrid=" + lrid + ",lrd=" + lrd + ",lru=" + lru + ",trst=" + trst); }
     	}
     	
-    	if (action.equals("")) {
+    	if (action.equals("") || action.equals("editRecording")) {
     		long thisPageId=lastOpenPage++;  // probably a race condition
     		List shows = new ArrayList();
     		List fixtures = new ArrayList();
@@ -427,8 +432,70 @@ public class FancyControllerAction
 		    	fixValues.add(m);
 		    }
 
-		    Map version = getVersionData();
+		    request.setAttribute("initMessage", "Messages");
+		    recording = null;
+		    if (action.equals("editRecording")) {
+		    	// stop all shows
+		    	
+		    	long showDefId = Long.parseLong(request.getParameter("showDefId"));
+		    	ShowDefDAO showDefDAO = new ShowDefDAO(appConfig.getJdbcTemplate());
+		    	ShowDefTO showDef = showDefDAO.getShowDef(showDefId);
+		    	RecordedShow showObj = null;
+		    	
+		    	// this could fail if the active stage was not the same
+		    	// active stage when the show was recorded
+		    	
+				try {
+					//logger.debug("Loading scripted show class '" + showDef.getName() + "' from database");
+					//getScriptEngine().eval(showDef.getScript(), showScriptContext);
+					String testScript =
+						//"import com.randomnoun.dmx.Show;\n" +
+						"import " + showDef.getClassName() + ";\n" +
+						"return " + showDef.getClassName() + ".class;\n" ;
+					Class clazz = (Class) appConfig.getScriptEngine().eval(testScript, appConfig.getScriptContext());
+					if (RecordedShow.class.isAssignableFrom(clazz)) {
+						Controller testController = new Controller();
+						Properties nullProperties = new Properties();
+						Constructor constructor = clazz.getConstructor(long.class, Controller.class, Properties.class);
+						showObj = (RecordedShow) constructor.newInstance(0L, testController, nullProperties);
+						recording = showObj.getRecording(controller);
+						
+					} else {
+						AppConfigException ace = new AppConfigException("Error instantiating recorded show " + showDef.getId() + ": '" + showDef.getName() + "'; className='" + showDef.getClassName() + "' does not extend com.randomnoun.dmx.editor.RecordedShow");
+						appConfig.addAppConfigException(ace);
+						logger.error(ace.getMessage()); 
+					}
+					// AppConfigException ace = new AppConfigException("Error instantiating recorded show " + showDef.getId() + ": '" + showDef.getName() + "'");
+				} catch (Exception e) {
+					appConfig.addAppConfigException(new AppConfigException("Error instantiating recorded show " + showDef.getId() + ": '" + showDef.getName() + "'", e));
+					logger.error(e);
+				}
 
+		    	// recording = new Recording(controller);
+				if (recording==null) {
+					request.setAttribute("initMessage", "Could not load recording; view Logs panel for details");
+					
+				} else {
+					recording.setCurrentFrameIndex(0);
+		    		request.setAttribute("initMessage", "Updating recording " + showDefId + ": '" + showDef.getName() + "'");
+		    		request.setAttribute("recCurrentFrame", recording.getCurrentFrameIndex());
+		    		request.setAttribute("recTotalFrames", recording.getFrames().size());
+		    		request.setAttribute("panel", "fixPanel");
+		    		request.setAttribute("recShowDefId", showDefId);
+		    		request.setAttribute("recShowDefName", showDef.getName());
+		    		ArrayList fixtureIds = new ArrayList();
+		    		for (Fixture f : recording.getModifiedFixtures()) { fixtureIds.add(controller.getFixtures().indexOf(f)); }
+		    		request.setAttribute("recModifiedFixtureIds", fixtureIds);
+		    		request.setAttribute("recModifiedDmxChannels", recording.getModifiedDmxChannels());
+		    		session.setAttribute("recording", recording);
+				}
+		    };
+		    if (recording==null) {
+		    	request.setAttribute("recCurrentFrame", 0L);
+	    		request.setAttribute("recTotalFrames", 0L);
+		    }
+		    
+		    Map version = getVersionData();
 	    	request.setAttribute("dmxValues", dmxValues);
     		request.setAttribute("fixValues", fixValues);
     		request.setAttribute("fixtures", fixtures);
@@ -603,11 +670,16 @@ public class FancyControllerAction
     		result.put("message", "fixture " + fixtureId + " '" + fixture.getName() + "' tilt set to " + tilt);
     		
     	} else if (action.equals("startShow")) {
-    		int showId = Integer.parseInt(request.getParameter("showId"));
-    		Show show = appConfig.getShow(showId);
-    		appConfig.startShow(showId);
-    		result.put("message", "Show " + showId + " '" + show.getName() + "' started " +
-    			(show.getLength()==Long.MAX_VALUE ? " (continuous)" : " (length=" + show.getLength() + "msec)"));
+    		// TODO: don't start if recording in progress
+    		if (recording==null) {
+	    		int showId = Integer.parseInt(request.getParameter("showId"));
+	    		Show show = appConfig.getShow(showId);
+	    		appConfig.startShow(showId);
+	    		result.put("message", "Show " + showId + " '" + show.getName() + "' started " +
+	    			(show.getLength()==Long.MAX_VALUE ? " (continuous)" : " (length=" + show.getLength() + "msec)"));
+    		} else {
+    			result.put("message", "Cannot play shows whilst recording is in progress");
+    		}
     		
     	} else if (action.equals("cancelShow")) {
     		int showId = -1;
@@ -768,6 +840,11 @@ public class FancyControllerAction
     	
     	} else if (action.equals("startRecording")) {
     		// triggered by cnfPanel 
+    		for (Show s : appConfig.getShows()) {
+    			if (!appConfig.getShow(s.getId()).getState().equals(Show.State.SHOW_STOPPED)) {
+    				appConfig.cancelShow(s.getId());
+    			}
+			}	
     		recording = new Recording(controller);
     		recording.addFrame(new Frame(recording));
     		result.put("message", "Recording started");
@@ -777,56 +854,102 @@ public class FancyControllerAction
     		
     	} else if (action.equals("stopRecording")) {
     		// triggered by cnfPanel.
-    		String defaultPackage = AppConfig.getAppConfig().getProperty("recordedShow.defaultPackage");
-        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.example.dmx.show.editor"; }
-        	
-    		InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/recordedShowDef.java");
-    		if (is==null) { throw new IllegalStateException("Could not find resource 'default/recordedShowDef.java'"); }
-    		String showRecordingTemplate = new String(StreamUtils.getByteArray(is), "UTF-8");
-    		
+    		String showDefIdString = request.getParameter("recShowDefId");
     		String showName = request.getParameter("showName");
     		String className = ""; 
-    		boolean upper = true;
-    		for (int i=0; i<showName.length(); i++) {
-    			char ch = showName.charAt(i);
-    			if (ch == ' ') {
-    				upper = true;
-    			} else {
-    				if (Character.isJavaIdentifierPart(ch)) {
-    					className += upper ? Character.toUpperCase(ch) : Character.toLowerCase(ch);
-    				} else {
-    					className += "_";
-    				}
-    				upper = false;
-    			}
-    		}
-    		if (!Character.isJavaIdentifierStart(className.charAt(0))) { className = "_" + className; } 
-    		className += "Show";
+
+    		String defaultPackage = AppConfig.getAppConfig().getProperty("recordedShow.defaultPackage");
+        	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.example.dmx.show.editor"; }    		
     		
     		ShowDefDAO showDefDAO = new ShowDefDAO(appConfig.getJdbcTemplate());
-    		ShowDefTO showDefTO = new ShowDefTO();
-    		showDefTO.setName(showName);
-    		showDefTO.setClassName(defaultPackage + "." + className);
-    		showDefTO.setJavadoc("A show recorded by " + request.getRemoteHost() + " on " + (new Date()).toString());
+    		long showDefId=-1;
+    		if (!Text.isBlank(showDefIdString)) { showDefId = Long.parseLong(showDefIdString); }    			
+    		ShowDefTO showDefTO = null;
+    		if (showDefId!=-1) { 
+    			showDefTO = showDefDAO.getShowDef(showDefId);
+    			if (!showDefTO.getName().equals(showName)) {
+    				// different show name; create a new show rather than updating existing
+    				showDefTO = null;
+    			}
+    		}
+    		if (showDefTO == null) {
+    			showDefTO = new ShowDefTO();
+        		boolean upper = true;
+        		for (int i=0; i<showName.length(); i++) {
+        			char ch = showName.charAt(i);
+        			if (ch == ' ') {
+        				upper = true;
+        			} else {
+        				if (Character.isJavaIdentifierPart(ch)) {
+        					className += upper ? Character.toUpperCase(ch) : Character.toLowerCase(ch);
+        				} else {
+        					className += "_";
+        				}
+        				upper = false;
+        			}
+        		}
+        		if (!Character.isJavaIdentifierStart(className.charAt(0))) { className = "_" + className; } 
+        		className += "Show";
+        		showDefTO.setId(-1);
+    			showDefTO.setName(showName);
+        		showDefTO.setClassName(defaultPackage + "." + className);
+        		showDefTO.setJavadoc("A show recorded by " + request.getRemoteHost() + " on " + (new Date()).toString());    			
+    		}
     		
-    		String script = Text.replaceString(showRecordingTemplate, "{PACKAGENAME_GOES_HERE}", defaultPackage);
-    		script = Text.replaceString(script, "{USERNAME_GOES_HERE}", request.getRemoteHost());
-    		script = Text.replaceString(script, "{TIMESTAMP_GOES_HERE}", (new Date()).toString());
-    		script = Text.replaceString(script, "{CODE_GOES_HERE}", Text.indent("    ", recording.toJava()));
-    		script = Text.replaceString(script, "{SHOWNAME_GOES_HERE}", showName);
-    		script = Text.replaceString(script, "{CLASSNAME_GOES_HERE}", className);
-    		showDefTO.setScript(script);
-    		
-    		long showDefId = showDefDAO.createShowDef(showDefTO);
-    		ShowDAO showDAO = new ShowDAO(appConfig.getJdbcTemplate());
-    		ShowTO showTO = new ShowTO();
-    		showTO.setName(showName);
-    		showTO.setShowDefId(showDefId);
-    		showTO.setShowGroupId(showDAO.getLastShowGroupId());
-    		showTO.setStageId(appConfig.getActiveStage().getId());
-    		long showId = showDAO.createShow(showTO);
-    		
-    		
+    		if (showDefTO.getId()==-1) {
+    			// new show
+	    		InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/recordedShowDef.java");
+	    		if (is==null) { throw new IllegalStateException("Could not find resource 'default/recordedShowDef.java'"); }
+	    		String showRecordingTemplate = new String(StreamUtils.getByteArray(is), "UTF-8");
+	    		
+	    		String script = Text.replaceString(showRecordingTemplate, "{PACKAGENAME_GOES_HERE}", defaultPackage);
+	    		script = Text.replaceString(script, "{USERNAME_GOES_HERE}", request.getRemoteHost());
+	    		script = Text.replaceString(script, "{TIMESTAMP_GOES_HERE}", (new Date()).toString());
+	    		script = Text.replaceString(script, "{CODE_GOES_HERE}", Text.indent("    ", recording.toJava()));
+	    		script = Text.replaceString(script, "{SHOWNAME_GOES_HERE}", showName);
+	    		script = Text.replaceString(script, "{CLASSNAME_GOES_HERE}", className);
+	    		showDefTO.setScript(script);
+	    		showDefId = showDefDAO.createShowDef(showDefTO);
+
+	    		ShowDAO showDAO = new ShowDAO(appConfig.getJdbcTemplate());
+	    		ShowTO showTO = new ShowTO();
+	    		showTO.setName(showName);
+	    		showTO.setShowDefId(showDefId);
+	    		showTO.setShowGroupId(showDAO.getLastShowGroupId());
+	    		showTO.setStageId(appConfig.getActiveStage().getId());
+	    		long showId = showDAO.createShow(showTO);
+    		} else {
+    			// update existing show
+    			List<String> lines = new ArrayList(Arrays.asList(showDefTO.getScript().split("\n")));
+    			int startIdx=-1, endIdx=-1;
+    			for (int i=0; i<lines.size(); i++) {
+    				if (startIdx==-1 && lines.get(i).indexOf("*** RECORDING DEFINITION START")!=-1) {
+    					startIdx = i;
+    				}
+    				if (endIdx==-1 && lines.get(i).indexOf("*** RECORDING DEFINITION END")!=-1) {
+    					endIdx = i;
+    				}
+    			}
+    			if (startIdx!=-1 && endIdx!=-1 && endIdx>startIdx) {
+    				for (int d = 0; d < endIdx - startIdx - 1; d++) {
+    					lines.remove(startIdx + 1);
+    				}
+    				lines.add(startIdx + 1, Text.indent("    ", recording.toJava()));
+    			} else {
+    				// arg.
+    			}
+    			logger.info("=================== old show def:");
+    			logger.info(showDefTO.getScript());
+    			logger.info("=================== new show def:");
+    			logger.info(Text.join(lines, "\n"));
+    			
+    			showDefTO.setScript(Text.join(lines, "\n"));
+	    		showDefDAO.updateShowDef(showDefTO);
+	    		
+    			// TODO: create a show instance if one does not exist ?
+    		}
+    		session.removeAttribute("recording");
+    		// @TODO deal with any other recordings in progress by other users
     		appConfig.reloadShows();
     		
     		// repopulate the show panel
@@ -844,13 +967,14 @@ public class FancyControllerAction
     		result.put("shows", shows);
     		result.put("message", "Recording stopped; saved as show definition '" + showName + "' in show group n" /*+ showTO.getShowGroupId()*/);
     		
+    		/*
     		for (int i=0; i<recording.getFrames().size(); i++) {
     			Frame f = recording.getFrames().get(i);
     			logger.info("Frame " + i + ": " + f.toString());
     		}
     		logger.info("=== or, in java:");
     		logger.info(recording.toJava());
-
+			*/
 
     	} else if (action.equals("addFrame")) {
     		Frame frame = new Frame(recording);

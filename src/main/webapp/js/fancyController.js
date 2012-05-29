@@ -982,7 +982,7 @@ function fixCustomGridChange(controlId, draggable, event) {
 	if (fixItems.length > 0) {
        fixCustomGridLimitter.sendRequest( 
           'fancyController.html?action=customControl&controlId=' + controlId + '&value=' + ((handlePos[0]+10)*160 + handlePos[1]+10) + '&fixtureIds=' + fixItemIds);
-       if (isRecording) { fixRecTouch(fixItems); }     
+       if (isRecording) { fixRecTouch(fixGetItems()); }     
   	}
 }
 
@@ -1088,7 +1088,7 @@ function dmxImmediateClick(event) {
 		$("dmxImmediate").update("Immediate ON");
 		$("dmxUpdateAll").addClassName("dmxControlDisabled");
 		Event.stopObserving($("dmxUpdateAll"), 'click', dmxUpdateAllClick);
-		dmxUpdateAllClick
+		// dmxUpdateAllClick
 	} else {
 		$("dmxImmediate").update("Immediate OFF");
 		$("dmxUpdateAll").removeClassName("dmxControlDisabled");
@@ -1440,12 +1440,19 @@ function cnfRecordClick() {
 	$("recContainer").style.visibility = isRecording ? "visible" : "hidden";
 	$("cnfRecordText").update(isRecording ? "Stop recording" : "Start recording");
 	if (isRecording) {
+		recShowDefId = null;
 		$("cnfRecord").addClassName("cnfControlSelect");
 		sendRequest('fancyController.html?action=startRecording', recCallback);
 	} else {
-		var showName = prompt("And the showname is?", "something");
-		$("cnfRecord").removeClassName("cnfControlSelect");
-		sendRequest('fancyController.html?action=stopRecording&showName=' + escape(showName), recCallback);
+		if (recShowDefId == null) {
+			var showName = prompt("And the showname is?", "something");
+			$("cnfRecord").removeClassName("cnfControlSelect");
+			sendRequest('fancyController.html?action=stopRecording&showName=' + escape(showName), recCallback);
+		} else {
+			var showName = prompt("And the showname is? (change default here to save as a new show)", recShowDefName);
+			$("cnfRecord").removeClassName("cnfControlSelect");
+			sendRequest('fancyController.html?action=stopRecording&recShowDefId=' + recShowDefId + '&showName=' + escape(showName), recCallback);
+		}
 	}
 }
 function cnfFixtureDefClick() {
@@ -1478,17 +1485,18 @@ function cnfVideoClick() {
 
 
 /******************************* RECORDING ******************************/
-var recCurrentFrame = 0; // 0-based
-var recTotalFrames = 0;
+//var recCurrentFrame = 0; // 0-based
+//var recTotalFrames = 0;
 
 function recInitPanel() {
 	$("recContainer").style.visibility = isRecording ? "visible" : "hidden";
 	$("cnfRecordText").update(isRecording ? "Stop recording" : "Start recording");
 	if (isRecording) {
 		$("cnfRecord").addClassName("cnfControlSelect");
+		fixRecTouch(recModifiedFixtureIds);
 	}
 	
-	recSetFrames(0,1);
+	recSetFrames(recCurrentFrame, recTotalFrames);  // 0, 1
 
     Event.observe($("recPrevFrame"), 'click', recPrevFrame);
     Event.observe($("recNextFrame"), 'click', recNextFrame);
@@ -1542,7 +1550,7 @@ function recCallback(json) {
 	// set fixture/dmx value highlights for this frame ?
 	if (json.shows) {
 		// recreate the show panel. or just load the whole thing again.
-		window.location.reload()
+		window.location = 'fancyController.html?panel=shwPanel'; // .reload()
 	}
 }
 
@@ -1573,17 +1581,23 @@ function initWindow() {
     initLhsMenu();
     
     lgoInitPanel();
-    recInitPanel();
     lhsDMX(); dmxInitPanel();
     shwInitPanel();
-    lhsFixtures(); fixInitPanel();
+    lhsFixtures(); fixInitPanel(); 
+    recInitPanel(); // needs fixtures in place
     logInitPanel();
     cnfInitPanel();
+    if (initMessage!=null) { setRhsMessageHTML(initMessage); }
+    disableIframe=false;
     if (origPanel=='cnfPanel') {  // from cancel buttons in editor pages
     	lhsConfig();
+    } else if (origPanel=='fixPanel') {
+    	lhsFixtures();            // from 'edit recorded show'
+    } else if (origPanel=='shwPanel') {
+    	lhsShows();               // after show recording 
     } else {
         lhsLogo();
     }
-    disableIframe=false;
+
 }
 

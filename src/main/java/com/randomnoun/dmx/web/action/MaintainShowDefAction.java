@@ -179,8 +179,18 @@ public class MaintainShowDefAction
     	}
     	
     	if (forward.equals("success")) {
+    		// @TODO is just used for select box; could be made more efficient
     		List showDefs = showDefDAO.getShowDefs(null);
     		request.setAttribute("showDefs", showDefs);
+    		
+    		List recordedShowDefIds = new ArrayList();
+    		for (int i=0; i<showDefs.size(); i++) {
+    			ShowDefTO s = (ShowDefTO) showDefs.get(i);
+    			if (s.isRecorded()) {
+    				recordedShowDefIds.add(s.getId());
+    			}
+    		}
+    		request.setAttribute("recordedShowDefIds", recordedShowDefIds);
     	}
 
     	request.setAttribute("errors", errors);
