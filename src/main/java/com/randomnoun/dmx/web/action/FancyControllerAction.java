@@ -1175,6 +1175,7 @@ public class FancyControllerAction
 
     public List<Fixture> getFixtureList(Controller controller, String fixtureIds) {
     	List<Fixture> result = new ArrayList<Fixture>();
+    	if (Text.isBlank(fixtureIds)) { return result; }
     	String[] fixtureIdStrings = fixtureIds.split(",");
 		for (String fixtureId : fixtureIdStrings) {
 			Fixture f = controller.getFixture(Integer.parseInt(fixtureId));
