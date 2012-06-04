@@ -371,6 +371,13 @@ function fixInitPanel() {
     var fic=$("fixItemContainer");
     var fixEl;
     
+    // set background
+    if (stage.fixPanelBackgroundImage) {
+    	$("fixItemContainer").setAttribute("style", "background-image: url('" + stage.fixPanelBackgroundImage + "'); background-repeat: no-repeat; ");
+    } else {
+    	$("fixItemContainer").removeAttribute("style");
+    }
+    
     // display in sortOrder order
     var fixOrder = new Array(); for (var i=0; i<fixtures.length; i++) { fixOrder[i] = i; };
     fixOrder.sort(function(a,b) { fa=fixtures[a].sortOrder; fb=fixtures[b].sortOrder; return fa<fb ? -1 : (fa>fb ? 1 : 0); } );
