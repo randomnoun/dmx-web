@@ -38,6 +38,7 @@
     
     <%-- <script src="mjs?js=prototype,slider" type="text/javascript"></script>  --%>
 <script>
+<r:setJavascriptVar name="stage" value="${stage}" />
 <r:setJavascriptVar name="shows" value="${shows}" />
 <r:setJavascriptVar name="fixtures" value="${fixtures}" />
 <r:setJavascriptVar name="fixtureDefs" value="${fixtureDefs}" />
