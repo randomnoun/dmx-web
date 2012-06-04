@@ -69,6 +69,7 @@ import com.randomnoun.dmx.show.editor.FixtureStrobeCommand;
 import com.randomnoun.dmx.show.editor.Frame;
 import com.randomnoun.dmx.show.editor.RecordedShow;
 import com.randomnoun.dmx.show.editor.Recording;
+import com.randomnoun.dmx.stage.Stage;
 import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowTO;
 
@@ -325,7 +326,13 @@ public class FancyControllerAction
     		long thisPageId=lastOpenPage++;  // probably a race condition
     		List shows = new ArrayList();
     		List fixtures = new ArrayList();
+    		Map stage = new HashMap();
     		Map fixtureDefs = new HashMap();
+    		Stage activeStage = appConfig.getActiveStage();
+    		if (activeStage!=null) {
+    			stage.put("fixPanelBackgroundImage", activeStage.getFixPanelBackgroundImage());
+    		}
+    		
     		for (Fixture f : controller.getFixtures()) {
     			FixtureDef fd = f.getFixtureDef();
     			FixtureController fc = f.getFixtureController();
@@ -403,32 +410,53 @@ public class FancyControllerAction
 		    for (Fixture f : controller.getFixtures()) {
     			FixtureController fc = f.getFixtureController();
 		    	ChannelMuxer cm = f.getChannelMuxer();
-		    	FixtureOutput fo = cm.getOutput();
+		    	FixtureOutput fo = null;
 		    	HashMap m = new HashMap();
-		    	Color c = fo.getColor();
-		    	m.put("c", getColorHexString(c));
-		    	m.put("d", fo.getDim());
-		    	Double pan = fo.getPan(); 
-		    	if (pan!=null) { 
-		    		m.put("p", twoDigits(fo.getPan())); 
-		    		m.put("ap", twoDigits(fo.getActualPan()));
+		    	try {
+		    		fo = cm.getOutput();
+			    	Color c = fo.getColor();
+			    	m.put("c", getColorHexString(c));
+			    	m.put("d", fo.getDim());
+			    	Double pan = fo.getPan(); 
+			    	if (pan!=null) { 
+			    		m.put("p", twoDigits(fo.getPan())); 
+			    		m.put("ap", twoDigits(fo.getActualPan()));
+			    	}
+			    	Double tilt = fo.getTilt(); 
+			    	if (tilt!=null) { 
+			    		m.put("t", twoDigits(fo.getTilt()));
+			    		m.put("at", twoDigits(fo.getActualTilt()));
+			    	}
+			    	Double strobe = fo.getStrobe(); 
+			    	if (strobe!=null) { 
+			    		m.put("s", twoDigits(strobe)); 
+			    	}
+			    	if (fc.getCustomControls()!=null && fc.getCustomControls().size()>0) {
+			    		ArrayList ccs = new ArrayList();
+			    		for (CustomControl cc : fc.getCustomControls()) {
+			    			ccs.add(cc.getValue());
+			    		}
+			    		m.put("ccs", ccs);
+			    	}
+		    	} catch (Exception e) {
+		    		// faulty channel muxer, just send zeroes for everything
+		    		appConfig.addAppConfigException(e);
+		    		m.put("c", "000000");
+		    		m.put("d", 0);
+		    		m.put("p", 0); m.put("ap", 0);
+		    		m.put("t", 0); m.put("at", 0);
+		    		// @TODO: this could also break
+		    		m.put("s", 0); 
+		    		if (fc.getCustomControls()!=null && fc.getCustomControls().size()>0) {
+			    		ArrayList ccs = new ArrayList();
+			    		for (CustomControl cc : fc.getCustomControls()) {
+			    			ccs.add(0);
+			    		}
+			    		m.put("ccs", ccs);
+			    	}
+		    		
 		    	}
-		    	Double tilt = fo.getTilt(); 
-		    	if (tilt!=null) { 
-		    		m.put("t", twoDigits(fo.getTilt()));
-		    		m.put("at", twoDigits(fo.getActualTilt()));
-		    	}
-		    	Double strobe = fo.getStrobe(); 
-		    	if (strobe!=null) { 
-		    		m.put("s", twoDigits(strobe)); 
-		    	}
-		    	if (fc.getCustomControls()!=null && fc.getCustomControls().size()>0) {
-		    		ArrayList ccs = new ArrayList();
-		    		for (CustomControl cc : fc.getCustomControls()) {
-		    			ccs.add(cc.getValue());
-		    		}
-		    		m.put("ccs", ccs);
-		    	}
+
 		    	fixValues.add(m);
 		    }
 
@@ -512,6 +540,7 @@ public class FancyControllerAction
 	    	request.setAttribute("controller", controller);
 	    	request.setAttribute("universe", controller.getUniverse());
     		request.setAttribute("fixtureDefs", fixtureDefs);
+    		request.setAttribute("stage", stage);
     		request.setAttribute("shows", shows);
     		request.setAttribute("version", version);
     		request.setAttribute("panel", request.getParameter("panel"));
@@ -565,6 +594,8 @@ public class FancyControllerAction
     			logger.warn("Two cometPipes requested on pageId " + pageId + "; closing existing pipe");
     			cometPipe.close();
     		}
+    		
+    		// @TODO we don't keep these around. which i guess is fair enough ?
     		cometPipe = new CometPipe(pageId, panel);
     		logger.debug("CometPipe for pageId=" + pageId + " opened");
     		OutputStream os = response.getOutputStream();
@@ -1141,16 +1172,6 @@ public class FancyControllerAction
     	return new Double(Math.floor(input.doubleValue()*100)/100);
     }
 
-    	/*
-    public List<Fixture> getFixtureList(Controller controller, String[] fixtureIds) {
-    	List<Fixture> result = new ArrayList<Fixture>();
-		for (String fixtureId : fixtureIds) {
-			Fixture f = controller.getFixture(Integer.parseInt(fixtureId));
-			result.add(f);
-		}
-		return result;
-    }
-    */
 
     public List<Fixture> getFixtureList(Controller controller, String fixtureIds) {
     	List<Fixture> result = new ArrayList<Fixture>();
