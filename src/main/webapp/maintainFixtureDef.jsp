@@ -357,10 +357,12 @@ function edtDeleteFixtureDef() {
 }
 
 function edtSetTab(newTab) {
+	<c:if test="${fixtureDef!=null}" >
 	for (var i=0; i<edtTabNames.length; i++) {
 		$(edtTabNames[i] + "TabSheet").style.visibility = (newTab==edtTabNames[i] ? "visible" : "hidden");
 		$(edtTabNames[i] + "Tab").className = (newTab==edtTabNames[i] ? "current" : "");
 	}
+	</c:if>
 	return false;
 }
 
