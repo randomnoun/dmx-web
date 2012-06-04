@@ -43,6 +43,10 @@
     <servlet-class>com.randomnoun.dmx.web.FixtureImageServlet</servlet-class>
   </servlet>
   <servlet>
+    <servlet-name>stageImageServlet</servlet-name>
+    <servlet-class>com.randomnoun.dmx.web.StageImageServlet</servlet-class>
+  </servlet>
+  <servlet>
     <servlet-name>configServlet</servlet-name>
     <servlet-class>com.randomnoun.dmx.web.ConfigServlet</servlet-class>
   </servlet>
@@ -58,6 +62,10 @@
   <servlet-mapping>
     <servlet-name>fixtureImageServlet</servlet-name>
     <url-pattern>/image/fixture/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>stageImageServlet</servlet-name>
+    <url-pattern>/image/stage/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>configServlet</servlet-name>
