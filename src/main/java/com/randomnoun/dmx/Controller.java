@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
+import com.randomnoun.dmx.stage.Stage;
 
 /** The controller contains all the interfaces a Show needs to
  * update the audio and lighting environment, and to receive
@@ -16,6 +17,8 @@ import com.randomnoun.dmx.fixture.FixtureController;
  * @author knoxg
  */
 public class Controller {
+	
+	Stage stage;
 	Universe universe;
 	List<Fixture> fixtures;
 	AudioController audioController;
@@ -263,6 +266,24 @@ public class Controller {
 			throw new IllegalArgumentException("No fixture found with name '" + fixtureName + "'");
 		}
 		return fixture;
+	}
+
+	/** Returns the stage containing the fixtures and show definitions for this 
+	 * controller.
+	 * 
+	 * @return the active stage
+	 */
+	public Stage getStage() {
+		return stage;
+	}
+
+	/** Sets the stage containing the fixtures and show definitions for this 
+	 * controller.
+	 * 
+	 * @param stage the active stage
+     */
+	public void setStage(Stage stage) {
+		this.stage = stage;
 	}
 	
 	

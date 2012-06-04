@@ -214,7 +214,7 @@ public class AppConfig extends AppConfigBase {
 	        newInstance.initSecurityContext();
 	        newInstance.initScriptContext();
 	        newInstance.initController();
-	        newInstance.loadActiveStage();
+	        // newInstance.loadActiveStage(); called by initController()
 	        newInstance.loadFixtures(newInstance.getScriptContext(), newInstance.getController());
 	        newInstance.loadShowConfigs(newInstance.getScriptContext(), true);
 	        newInstance.loadListeners();
@@ -270,6 +270,7 @@ public class AppConfig extends AppConfigBase {
     	shutdownListeners();
 
     	controller.removeAllFixtures();
+    	controller.setStage(null);
     	
     	// reset scriptContext classloader 
     	// see http://www.beanshell.org/manual/classpath.html#Reloading_Classes
@@ -454,10 +455,13 @@ public class AppConfig extends AppConfigBase {
 			// @TODO hmmmmmmmmmmmmmmmmmm.........
 			logger.error("Couldn't open audioController", e);
 		}
-			
+		
+		loadActiveStage();
+		
 		controller = new Controller();
 		controller.setUniverse(universe);
 		controller.setAudioController(audioController);
+		controller.setStage(activeStage);
 		
     }
     
@@ -665,7 +669,9 @@ bsh.InterpreterError: null fromValue
     }
     
     public void loadActiveStage() {
-		// @TODO may just want to load show definitions that have shows in active stages
+		// @TODO may just want to store this in the controller rather than
+    	// in both the controller and this class
+    	
 		StageDAO stageDAO = new StageDAO(getJdbcTemplate());
 		Long activeStageId = stageDAO.getActiveStageId();
 		
@@ -673,7 +679,10 @@ bsh.InterpreterError: null fromValue
 			activeStage = null;
 		} else {
 			StageTO activeStageTO = stageDAO.getStage(activeStageId);
-			activeStage = new Stage(activeStageTO.getId(), activeStageTO.getName(), true);
+			String fpbi = activeStageTO.getFixPanelBackgroundImage();
+			activeStage = new Stage(activeStageTO.getId(), activeStageTO.getName(),
+				Text.isBlank(fpbi) ? null : "image/stage/" + activeStageTO.getId() + "/" + fpbi,
+				true);
 		}
 
     }
@@ -688,7 +697,7 @@ bsh.InterpreterError: null fromValue
     	
 		List showsFromProperties = (List) get("shows");
 		if (showsFromProperties == null || showsFromProperties.size()==0) {
-			logger.warn("No show definitions in appConfig");
+			logger.warn("No show definitions in appConfig properties");
 		} else {
 			for (int i=0; i<showsFromProperties.size(); i++) {
 				long id = shows.size();
