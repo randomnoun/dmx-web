@@ -55,10 +55,10 @@ public class OneChannelLEDChannelMuxer extends ChannelMuxerWrapper {
 				
 			default:
 				// going to HSV the Color from whatever bits we have left
-				// low bits 0-4 are intensity
-				// high bits 5-8 are hue
-					float intensity = (float) (value & 15);
-					float hue = (float) (value >> 4);    			
+				// low bits 0-4 are hue
+				// high bits 5-8 are intensity
+					float hue = (float) (value & 15);
+					float intensity = (float) (value >> 4);    			
 					int[] rgb = new int[4];
 					ShowUtils.hsv2rgb(hue/16, 1, intensity/16, rgb);
 					output.setColor(new Color(rgb[0], rgb[1], rgb[2]));
