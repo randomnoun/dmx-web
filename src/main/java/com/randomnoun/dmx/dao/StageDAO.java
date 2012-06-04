@@ -1,5 +1,9 @@
 package com.randomnoun.dmx.dao;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -10,6 +14,8 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.randomnoun.dmx.config.AppConfig;
+import com.randomnoun.dmx.to.FixtureDefImageTO;
 import com.randomnoun.dmx.to.StageTO;
 
 // currently, only one stage can be active at one time
@@ -26,6 +32,7 @@ public class StageDAO {
             s.setName(rs.getString("name"));
             s.setFilename(rs.getString("filename")); if (rs.wasNull()) { s.setFilename(null); }
             s.setActive(rs.getString("active"));
+            s.setFixPanelBackgroundImage(rs.getString("fixPanelBackgroundImage"));
             return s;
         }
     }
@@ -43,7 +50,7 @@ public class StageDAO {
      */
     public List<StageTO> getStages(String sqlWhereClause) {
         String sql =
-            "SELECT id, name, filename, active " +
+            "SELECT id, name, filename, active, fixPanelBackgroundImage " +
             " FROM stage " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<StageTO>) jt.query(sql, new StageDAORowMapper());
@@ -57,7 +64,7 @@ public class StageDAO {
      */
     public StageTO getStage(long stageId) {
         return (StageTO) jt.queryForObject(
-            "SELECT id, name, filename, active " +
+            "SELECT id, name, filename, active, fixPanelBackgroundImage " +
             " FROM stage " +
             " WHERE id = ?",
             new Object[] { new Long(stageId) }, 
@@ -71,13 +78,14 @@ public class StageDAO {
     public void updateStage(StageTO stage) {
         String sql =
             "UPDATE stage " +
-            " SET name=?, filename=?, active=? " + 
+            " SET name=?, filename=?, active=?, fixPanelBackgroundImage=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
                 stage.getName(),
                 stage.getFilename(),
                 stage.getActive(),
+                stage.getFixPanelBackgroundImage(),
                 stage.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("stage update failed (" + updated + " rows updated)");
@@ -95,13 +103,14 @@ public class StageDAO {
     public long createStage(StageTO stage) {
         String sql =
             "INSERT INTO stage " + 
-            " (name, filename, active) " +
-            " VALUES (?, ?, ? )";
+            " (name, filename, active, fixPanelBackgroundImage) " +
+            " VALUES (?, ?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] { 
                 stage.getName(),
                 stage.getFilename(),
-                stage.getActive()});
+                stage.getActive(),
+                stage.getFixPanelBackgroundImage()});
         if (updated!=1) {
             throw new DataIntegrityViolationException("stage insert failed (" + updated + " rows updated)");
         }
@@ -138,5 +147,11 @@ public class StageDAO {
     	}
     	
     }
+    
+    public InputStream loadImage(StageTO stage) throws FileNotFoundException {
+    	File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
+    	return new FileInputStream(new File(imageBase, "stage/" + stage.getId() + "/" + stage.getFixPanelBackgroundImage()));
+    }
+    
 }
 

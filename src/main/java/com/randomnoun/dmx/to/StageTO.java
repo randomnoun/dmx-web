@@ -6,6 +6,7 @@ public class StageTO {
     private String name;
     private String filename;
     private String active;
+    private String fixPanelBackgroundImage;
 
     /** Returns the id
      * @return the id
@@ -62,6 +63,14 @@ public class StageTO {
     public void setActive(String active) {
         this.active = active;
     }
+
+	public String getFixPanelBackgroundImage() {
+		return fixPanelBackgroundImage;
+	}
+
+	public void setFixPanelBackgroundImage(String fixPanelBackgroundImage) {
+		this.fixPanelBackgroundImage = fixPanelBackgroundImage;
+	}
 
 }
 

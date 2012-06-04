@@ -66,7 +66,7 @@ public class MaintainStageAction
     public static class FixtureTableEditor extends TableEditor {
 
     	private final static String[] fieldNames = 
-    		new String[] { "id", "name", "active" };
+    		new String[] { "id", "name", "fixPanelBackgroundImage", "active" };
     	
     	@Override
 		public void createRow(Map row) throws Exception {
