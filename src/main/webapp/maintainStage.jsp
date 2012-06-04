@@ -124,10 +124,11 @@ var tblObj = new rnTable(
   'entryTable',                               // clientside table id
   'mainForm',                                 // enclosing clientside form id
   'Are you sure you wish to delete this stage ?',
-    new Array( 'id', 'name' )
+    new Array( 'id', 'name', 'fixPanelBackgroundImage', 'active' )
 );
 
 function edtUpdateActive(rowId) {
+	// @TODO remove checkbox from other rows, ensure at least one selected
 	
 }
 
@@ -180,6 +181,7 @@ function initWindow() {
       <tr valign="bottom"> 
        <td class="formHeader">&nbsp;</td>
        <td class="formHeader" style="background-color: #000052">Name <img src="image/help-icon.png" align="right" title="The name of this stage in the fixture and show configuration pages" /></td>
+       <td class="formHeader" style="background-color: #000052">Fixture panel image <img src="image/help-icon.png" align="right" title="Background image to display on the fixture panel" /></td>
        <td class="formHeader" style="background-color: #000052">Active</td>
       </tr>
       <c:forEach var="rowData" varStatus="rowStatus" items="${form.stages}" > 
@@ -206,6 +208,9 @@ function initWindow() {
                               <td class="<r:onError name='stages[${rowStatus.index}].name' text='errorBg' />"> 
                                   <input type="text" class="formfield" name="stages[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="20">
                               </td>
+                              <td class="<r:onError name='stages[${rowStatus.index}].fixPanelBackgroundImage' text='errorBg' />"> 
+                                  <input type="text" class="formfield" name="stages[<c:out value='${rowStatus.index}'/>].fixPanelBackgroundImage" value="<c:out value='${rowData.fixPanelBackgroundImage}'/>" size="20">
+                              </td>
                               <td class="<r:onError name='stages[${rowStatus.index}].active' text='errorBg' />"> 
                                   <r:input type="checkbox" styleClass="smallInput formfield rj" name="stages[${rowStatus.index}].active" trueValue="Y" value="${rowData.active}" onchange="edtUpdateActive(${rowStatus.index})"/>
                               </td>
@@ -222,6 +227,9 @@ function initWindow() {
                               <td class="<r:onError name='stages[${rowStatus.index}].name' text='errorBg' />"> 
                                   <input type="text" class="formfield" name="stages[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="20">
                               </td>
+                              <td class="<r:onError name='stages[${rowStatus.index}].fixPanelBackgroundImage' text='errorBg' />"> 
+                                  <input type="text" class="formfield" name="stages[<c:out value='${rowStatus.index}'/>].fixPanelBackgroundImage" value="<c:out value='${rowData.fixPanelBackgroundImage}'/>" size="20">
+                              </td>
                               <td class="<r:onError name='stages[${rowStatus.index}].active' text='errorBg' />"> 
                                   <r:input type="checkbox" styleClass="smallInput formfield rj" name="stages[${rowStatus.index}].active" trueValue="Y" value="${rowData.active}" onchange="edtUpdateActive(${rowStatus.index})"/>
                               </td>
@@ -235,6 +243,7 @@ function initWindow() {
                        <input type="hidden" name="stages[<c:out value='${form.stages_size}'/>].cmdUpdate" value="N">
                    </td>
                    <td><input type="text" class="formfield" name="stages[<c:out value='${form.stages_size}' />].name" value="" size="20" ></td>
+                   <td><input type="text" class="formfield" name="stages[<c:out value='${form.stages_size}' />].fixPanelBackgroundImage" value="" size="20" ></td>
                    <td><input type="checkbox" class="smallInput formfield rj" name="stages[<c:out value='${form.stages_size}' />].active" trueValue="Y" value="" ></td>
                </tr>
                <tr> 
