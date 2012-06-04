@@ -238,7 +238,7 @@ public class ShowUtils {
 	 * @param r red component
 	 * @param g green component
 	 * @param b blue component
-	 * @param hsv result (h=0..60, s=0..100, v=0..100) 
+	 * @param hsv result (h=0..360, s=0..100, v=0..100) 
 	 */
 
 	public static void rgb2hsv(int r, int g, int b, int hsv[]) {
@@ -255,7 +255,7 @@ public class ShowUtils {
 		delMax = max - min;
 	 
 		float H = 0, S;
-		float V = max;
+		float V = max/255f;
 		   
 		if ( delMax == 0 ) { H = 0; S = 0; }
 		else {                                   
@@ -267,12 +267,51 @@ public class ShowUtils {
 			else if ( b == max ) 
 				H = ( 4 +  (r - g)/(float)delMax)*60;   
 		}
+		if (H < 0) { H += 360; }
 								 
 		hsv[0] = (int)(H);
 		hsv[1] = (int)(S*100);
 		hsv[2] = (int)(V*100);
 	}
 
+	public static void rgb2hsvAlt(int rv, int gv, int bv, int[] hsv) {
+        float h;
+        float s;
+        float v;
+        // int[] result = new int[3];
+        float r = (float)rv/255;
+        float g = (float)gv/255;
+        float b = (float)bv/255;
+        
+
+        float min, max, delta;
+        min = Math.min(r, Math.min(g, b));
+        max = Math.max(r, Math.max(g, b));
+        v = max;                // v
+        delta = max - min;
+        if (max != 0) {
+            s = delta / max;        // s
+        } else {
+            // r = g = b = 0            // s = 0, v is undefined
+            s = 0;
+            h = -1;
+            hsv[0]=0; hsv[1]=0; hsv[2]=0; return; 
+            // return new float[]{h,s,v};
+        }
+        if (r == max) {
+            h = (g - b) / delta;        // between yellow & magenta
+        } else if (g == max) {
+            h = 2 + (b - r) / delta;    // between cyan & yellow
+        } else {
+            h = 4 + (r - g) / delta;    // between magenta & cyan
+        }
+        h *= 60;                // degrees
+        if (h < 0)
+            h += 360;
+
+        hsv[0]=(int)h; hsv[1]=(int)(s*100); hsv[2]=(int)(v*100);
+        
+    }
 	 
 	/** Convert an RGB color to it's representation in the xyY "Tristimulus Color"
 	 * CIE color model
@@ -631,7 +670,7 @@ public class ShowUtils {
 	
 	// same units as rgb2hsv(int int int)
 	public static void hsv2rgb(int h, int s, int v, int[] rgb) {
-		hsv2rgb(((float) h)/60, ((float) s)/100, ((float) v)/100, rgb);
+		hsv2rgb(((float) h)/360, ((float) s)/100, ((float) v)/100, rgb);
 	}
 	
 	static {
@@ -640,16 +679,28 @@ public class ShowUtils {
 	
 	public static void main(String args[]) {
 		int rgb[] = new int[3];
-		hsv2rgb((float)0.0, (float)1.0, (float)1.0, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2] + "\n");
-		hsv2rgb((float)0.1, (float)1.0, (float)1.0, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2] + "\n");
-		hsv2rgb((float)0.2, (float)1.0, (float)1.0, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2] + "\n");
-		hsv2rgb((float)0.3, (float)1.0, (float)1.0, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2] + "\n");
-		hsv2rgb((float)0.4, (float)1.0, (float)1.0, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2] + "\n");
-		hsv2rgb((float)0.5, (float)1.0, (float)1.0, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2] + "\n");
-		hsv2rgb((float)0.6, (float)1.0, (float)1.0, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2] + "\n");
-		hsv2rgb((float)0.7, (float)1.0, (float)1.0, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2] + "\n");
-		hsv2rgb((float)0.8, (float)1.0, (float)1.0, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2] + "\n");
-		hsv2rgb((float)0.9, (float)1.0, (float)1.0, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2] + "\n");
+		hsv2rgb(0.0f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+		hsv2rgb(0.1f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+		hsv2rgb(0.2f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+		hsv2rgb(0.3f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+		hsv2rgb(0.4f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+		hsv2rgb(0.5f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+		hsv2rgb(0.6f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+		hsv2rgb(0.7f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+		hsv2rgb(0.8f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+		hsv2rgb(0.9f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+		
+		int hsv[] = new int[3];
+		rgb2hsv(225, 0, 0, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]); 
+		rgb2hsv(225, 153, 0, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
+		rgb2hsv(203, 255, 0, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
+		rgb2hsv(50, 255, 0, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
+		rgb2hsv(0, 255, 102, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
+		rgb2hsv(0, 255, 255, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
+		rgb2hsv(0, 101, 255, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
+		rgb2hsv(50, 0, 255, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
+		rgb2hsv(204, 0, 153, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
+		rgb2hsv(0, 0, 100, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
 		
 	}
 	
