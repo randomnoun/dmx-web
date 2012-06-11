@@ -172,7 +172,7 @@
   <tr><td class="key">Role</td>
 <% 
     // roles = user.getRoles();
-    roles = securityContext.getRolesForUser(user.getUsername());
+    roles = securityContext.getUserRoles(user);
     i = roles.iterator();
     while (i.hasNext()) {
       String role = (String) i.next();

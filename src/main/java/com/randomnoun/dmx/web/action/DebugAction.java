@@ -35,6 +35,7 @@ import com.randomnoun.common.Text;
 import com.randomnoun.common.log4j.MemoryAppender;
 import com.randomnoun.common.security.Permission;
 import com.randomnoun.common.security.SecurityContext;
+import com.randomnoun.common.security.User;
 import com.randomnoun.common.timer.Benchmark;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.web.JmxUtils;
@@ -122,7 +123,8 @@ public class DebugAction extends Action {
 			if (request.getParameter("authUser") != null) {
 				String username = request.getParameter("username");
 				String password = request.getParameter("password");
-				boolean result = appConfig.getSecurityContext().authenticate(username, password);
+				User tempUser = new User(); tempUser.setUsername(username);
+				boolean result = appConfig.getSecurityContext().authenticate(tempUser, password);
 				if (result == true) {
 					request.setAttribute("loginResult", "Login successful");
 				} else {
@@ -137,7 +139,7 @@ public class DebugAction extends Action {
 			Collections.sort(permissions, new PermissionComparator());
 			
 			request.setAttribute("permissions", permissions);			
-			request.setAttribute("users", context.getAllUsers(false)); // true=return permission data
+			request.setAttribute("users", context.getAllUsers()); // @XXX: no longer returns permission data
 			request.setAttribute("roles", context.getAllRoles());
 			request.setAttribute("resources", context.getAllResources());
         	
