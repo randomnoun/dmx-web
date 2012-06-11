@@ -29,9 +29,10 @@ import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.show.PropertyDef;
 import com.randomnoun.dmx.show.Show;
 
-/** Light up a sign in one of one ways:
+/** Light up a sign in one of two ways:
  * 
  * 1) lighting each letter individually from L to R, then flashing them on & off
+ * 2) equalizer-looking thing (horiz fill each letters from a random Y position down)
  * 
  * @author knoxg
  */
@@ -43,28 +44,32 @@ public class LetterShow extends Show {
     FixtureController[][] letters;  // [letterIdx][ledIdx]
     AudioController audioController;
     BufferedImage[] anim;
+    int showTypeId = 0;
     
     public LetterShow(long id, Controller controller, Properties properties) {
         super(id, controller, "Letter", Long.MAX_VALUE, properties);
       
         String fixtureTemplate = properties.getProperty("fixtureTemplate");
         String letterGapPositions = properties.getProperty("letterGapPositions");
+        String showType = properties.getProperty("showType");
         //String animation = properties.getProperty("animation");
       
         if (fixtureTemplate==null) { fixtureTemplate = "sign-{n}"; }
         if (letterGapPositions==null) { letterGapPositions = "1,2,3"; }
+        if (showType==null) { showType = "0"; } // @TODO make this text
         //if (animation==null) { animation  = "ani1.gif"; }
       
         logger.info("Initialising LetterShow with fixtureTemplate='" + fixtureTemplate + "', letterGapPositions='" + letterGapPositions + "'");
       
         letters = getLetterArray(fixtureTemplate, letterGapPositions);
+        showTypeId = Integer.parseInt(showType);
         
         // anim = getImages(animation);
-      if (anim!=null) {
-        logger.info("Read animation with " + anim.length + " frames");
-      } else {
-        logger.info("Error loading animation");
-      }
+      //if (anim!=null) {
+      //  logger.info("Read animation with " + anim.length + " frames");
+      //} else {
+      //  logger.info("Error loading animation");
+      //}
       
     }
   
@@ -72,6 +77,7 @@ public class LetterShow extends Show {
       List properties = new ArrayList();
       properties.add(new PropertyDef("fixtureTemplate", "Fixture template", "sign-{n}"));
       properties.add(new PropertyDef("letterGapPositions", "Letter gap locations (Fixture panel X value)", "1,2,3,4"));
+      properties.add(new PropertyDef("showType", "Show ID", "0"));
       //properties.add(new PropertyDef("animation", "Animation", "ani1.gif"));
       return properties;
     }  
@@ -188,32 +194,64 @@ public class LetterShow extends Show {
         logger.debug("play()");
         reset();
         int frameNum = 0;
+
+		long minY = Long.MAX_VALUE, maxY = 0;
+		for (int c=0; c<letters.length; c++) {
+			for (int f=0; f<letters[c].length; f++) {
+				Long[] pos = letters[c][f].getFixture().getFixPanelPosition();
+				maxY = Math.max(maxY, pos[1]);
+				minY = Math.min(minY, pos[1]);
+			}
+		}
+
+        
         while (!isCancelled()) {
-        	// light them up one by one
-        	for (int c=0; c<letters.length; c++) {
-        		for (int f=0; f<letters[c].length; f++) {
-        			letters[c][f].setColor(Color.WHITE);
-                }
-        		waitFor(500);
-        		if (isCancelled()) { return; }
-            }
-        	// flash them off and on a couple of times
-        	for (int i=0; i<4; i++) {
-            	for (int c=0; c<letters.length; c++) {
-            		for (int f=0; f<letters[c].length; f++) {
-            			letters[c][f].setColor(i%2==0 ? Color.BLACK : Color.WHITE);
-                    }
-                }
-        		waitFor(500);
-        		if (isCancelled()) { return; }
-        	}
-        	// turn them all off
-        	for (int c=0; c<letters.length; c++) {
-	    		for (int f=0; f<letters[c].length; f++) {
-	    			letters[c][f].setColor(Color.BLACK);
+        	if (showTypeId==0) {
+	        	// light them up one by one
+	        	for (int c=0; c<letters.length; c++) {
+	        		for (int f=0; f<letters[c].length; f++) {
+	        			letters[c][f].setColor(Color.WHITE);
+	                }
+	        		waitFor(500);
+	        		if (isCancelled()) { return; }
 	            }
+	        	// flash them off and on a couple of times
+	        	for (int i=0; i<4; i++) {
+	            	for (int c=0; c<letters.length; c++) {
+	            		for (int f=0; f<letters[c].length; f++) {
+	            			letters[c][f].setColor(i%2==0 ? Color.BLACK : Color.WHITE);
+	                    }
+	                }
+	        		waitFor(500);
+	        		if (isCancelled()) { return; }
+	        	}
+	        	// turn them all off
+	        	for (int c=0; c<letters.length; c++) {
+		    		for (int f=0; f<letters[c].length; f++) {
+		    			letters[c][f].setColor(Color.BLACK);
+		            }
+	        	}
+	    		waitFor(500);
+        	
+        	
+        	} else if (showTypeId==1) {
+        		// @TODO use audioSource data for this
+        		 for (int c=0; c<letters.length; c++) {
+                     double r = Math.random();
+                     long fillY = (long) (r*(maxY-minY)+minY);
+                     for (int f=0; f<letters[c].length; f++) {
+                       long fixY = letters[c][f].getFixture().getFixPanelPosition()[1];
+                       double v = (fixY-minY) / (double) maxY;
+                       Color color = (v < 0.2 ? Color.RED :
+                       (v < 0.4 ? Color.YELLOW :
+                       Color.GREEN ));                
+                       letters[c][f].setColor(fixY>fillY ? color : Color.BLACK);
+                         }
+                     if (isCancelled()) { return; }
+                     }
+                   waitFor(100);
+        	
         	}
-    		waitFor(500);
         	
         }
         logger.debug("play() completed");
