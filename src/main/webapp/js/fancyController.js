@@ -3,7 +3,7 @@ var dmxValues = dmxValues.split(",");
 var dmxModified = new Array();
 var dmxToFixture = new Array();
 var dmxHighlightTimeout = -1;
-var dmxImmediate = true;
+//var dmxImmediate = true;
 var logExceptions = new Array();
 var lhsMenuPanels=new Array("lgoPanel", "shwPanel", "fixPanel", "dmxPanel", "logPanel", "cnfPanel");
 var prfRequestId = 0;
@@ -217,7 +217,7 @@ function shwInitPanel() {
                 "id": "shwCancelGroup[" + show["showGroupId"] + "]", 
                 "showGroupId": show["showGroupId"],
                 "title" : "Cancel all running shows in this group",
-                "class" : "shwCancelGroup" }).update("<img width=\"80\" height=\"70\" src=\"image/cancel.png\" title=\"Cancel group\"/>");
+                "class" : "shwCancelGroup" }).update("<img width=\"80\" height=\"70\" src=\"image/stop.png\" title=\"Cancel group\"/>");
     		cancelGroupEl.style.left="10px"; 
     		cancelGroupEl.style.top=((10+Math.floor((i+displayOffset-1)/4)*90)+90)+"px";
             sp.appendChild(cancelGroupEl);
@@ -1078,7 +1078,7 @@ function dmxInitPanel() {
     Event.observe('dmxSliderScrollArea', 'click', dmxValueClick);
     $("dmxSliderScrollArea").style.visibility="hidden";
 
-    Event.observe($("dmxImmediate"), 'click', dmxImmediateClick);
+    // Event.observe($("dmxImmediate"), 'click', dmxImmediateClick);
 }
 
 var dmxSliderLimitter = new AjaxLimitter(100, 200);
@@ -1088,6 +1088,8 @@ function dmxSliderChange(v) {
     dmxSliderLimitter.sendRequest( 
        'fancyController.html?action=setDmxValue&channel=' + dmxHighlightedChannel + '&value=' + v);
 }
+
+/* everything's immediate now
 
 function dmxImmediateClick(event) {
 	dmxImmediate = !dmxImmediate;
@@ -1112,6 +1114,7 @@ function dmxUpdateAllClick(event) {
 	sendPostRequest("fancyController.html?action=setDmxValues2", { "values" : dmxValueString } );
 	
 }
+*/
 
 function dmxValueClick(event) {
     var dmxValueEl, el, el2, ch, f, off, dc, j, cds, cd = null;
@@ -1210,12 +1213,12 @@ function dmxKeypress(event) {
     	break;
     case Event.KEY_RETURN:
     	dmxSelectedValue.removeClassName("dmxSelectedValue");
-    	if (dmxImmediate) {
+    	//if (dmxImmediate) {
     		sendRequest("fancyController.html?action=setDmxValue&channel=" + dmxSelectedChannel + "&value=" + v);
     		dmxUIUpdateOnly=true;
     		dmxSlider.setValue(1-v/255);
     		dmxUIUpdateOnly=false;
-    	}
+    	//}
     	Event.stopObserving(document, 'keypress', dmxKeypress);
     	Event.stopObserving(document, 'keydown', dmxKeydown);
     	dmxSelectedChannel=null;
