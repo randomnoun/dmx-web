@@ -11,7 +11,7 @@
 <% 
    AppConfig appConfig = AppConfig.getAppConfig();
    Controller controller = (Controller) request.getAttribute("controller");
-   Universe universe = (Universe) request.getAttribute("universe");
+   // Universe universe = (Universe) request.getAttribute("universe");
 %>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
 <head>
@@ -62,8 +62,9 @@ var recCurrentFrame = 0;
 var recTotalFrames = 1;
 </c:if>
 <r:setJavascriptVar name="initMessage" value="${initMessage}" />
-
-var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / <%= new Date(universe.getTimeSource().getTime()) %>";
+<r:setJavascriptVar name="dmxTotalBanks" value="${dmxTotalBank}" /> // a universe is 2 banks
+<r:setJavascriptVar name="dmxCurrentBank" value="${dmxCurrentBank}" />
+var dmxTimeSourceText = "-";
 <%-- this will be a client-side include eventually --%>
 <jsp:include page="js/fancyController.js" />
 </script>
@@ -100,7 +101,7 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 </div>
 
 <div id="shwPanel" >
-  <div id="shwCancel"><img width="80" height="70" src="image/cancelWhite.png" title="Cancel all"/></div>
+  <div id="shwCancel"><img width="80" height="70" src="image/stopWhite.png" title="Stop all"/></div>
   <div id="shwAudio">
     <div id="shwAudioBMTLegend"></div>
     <div id="shwAudioBassOuter" class="shwAudioOuter" /><div id="shwAudioBassInner" class="shwAudioInner"></div></div>
@@ -148,8 +149,13 @@ var dmxTimeSourceText = "<%= universe.getTimeSource().getClass().getName() %> / 
 </div>
 
 <div id="dmxPanel" style="display: none;">
+  <div id="dmxUniverseContainer">
+    <div class="dmxFrameContainer"><div id="dmxPrevFrame" class="dmxButtonL" style="margin-left: 0px; "><img src="image/rbutton-prev.png" width="53" height="45"/></div><div id="dmxCurrentFrame">1</div><div id="dmxTotalFrames">2</div><div id="dmxNextFrame" class="recButtonR"><img src="image/rbutton-next.png" width="53" height="45"/></div></div>
+  </div>
+<%--
   <div id="dmxImmediate" class="dmxControl">Immediate ON</div>
-  <div id="dmxUpdateAll" class="dmxControl dmxControlDisabled">Update all</div> 
+  <div id="dmxUpdateAll" class="dmxControl dmxControlDisabled">Update all</div>
+--%> 
   <div id="dmxTimeSource" class="dmxTimeSource"></div>
   <div id="dmxValues">
   </div>

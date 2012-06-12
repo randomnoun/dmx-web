@@ -135,7 +135,7 @@ public class ControllerAction
 	    	for (int i=1; i<=255; i++) {
 	    		String value = (String) dmxValues.get(i);
 	    		if (!Text.isBlank(value)) {
-	    			controller.getUniverse().setDmxChannelValue(i, (int) new Long(value).longValue());
+	    			controller.getUniverse(0).setDmxChannelValue(i, (int) new Long(value).longValue());
 	    		}
 	    	}
 	    	request.setAttribute("message", "DMX values set");
@@ -176,7 +176,7 @@ public class ControllerAction
     	
     	request.setAttribute("shows", appConfig.getShows());
     	request.setAttribute("controller", controller);
-    	request.setAttribute("universe", controller.getUniverse());
+    	request.setAttribute("universe", controller.getUniverse(0));
     	
 		return mapping.findForward("success");
 		

@@ -82,6 +82,9 @@ public class AppConfig extends AppConfigBase {
     public static final String CONFIG_RESOURCE_LOCATION = "/dmx-web.properties";
     
     public static final String SYSTEM_PROPERTY_KEY_CONFIG_PATH = "com.randomnoun.dmx.configPath";
+
+    // @XXX get this from somewhere. the database probably.
+    public static final int DEFAULT_UNIVERSE = 0;
     
     /** Logger instance for this class */
     public static Logger logger = Logger.getLogger(AppConfig.class);
@@ -409,8 +412,10 @@ public class AppConfig extends AppConfigBase {
     
     private void initController() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 
+    	List<Universe> universes = new ArrayList<Universe>();
     	Universe universe = new Universe();
 		universe.setTimeSource(new WallClockTimeSource());
+		universes.add(universe);
 
     	//String portName = getProperty("dmxDevice.portName");
     	//widget = new UsbProWidget(portName);
@@ -459,7 +464,7 @@ public class AppConfig extends AppConfigBase {
 		loadActiveStage();
 		
 		controller = new Controller();
-		controller.setUniverse(universe);
+		controller.setUniverses(universes);
 		controller.setAudioController(audioController);
 		controller.setStage(activeStage);
 		
@@ -484,7 +489,7 @@ public class AppConfig extends AppConfigBase {
 					logger.error("Fixture " + i + " has no DMX channels");
 				}
 				// @TODO setImagePath() for fixtures in property files
-				Fixture fixtureObj = new Fixture(name, fixtureDef, controller.getUniverse(), Integer.parseInt(dmxOffset));
+				Fixture fixtureObj = new Fixture(name, fixtureDef, controller.getUniverse(DEFAULT_UNIVERSE), Integer.parseInt(dmxOffset));
 				if (scriptController!=null) {
 					scriptController.addFixture(fixtureObj);
 				}
@@ -634,7 +639,7 @@ bsh.InterpreterError: null fromValue
 					logger.debug("Creating scripted fixture '" + fixtureTO.getName() + "' at dmxOffset + " + fixtureTO.getDmxOffset() + " from database");
 					Fixture fixture = new Fixture(fixtureTO.getName(), 
 						fixtureDef, 
-						controller.getUniverse(), (int) fixtureTO.getDmxOffset());
+						controller.getUniverse(DEFAULT_UNIVERSE), (int) fixtureTO.getDmxOffset());
 					if (fixtureTO.getX()!=null) { fixture.setPosition(fixtureTO.getX(), fixtureTO.getY(), fixtureTO.getZ()); }
 					if (fixtureTO.getLookingAtX()!=null) { fixture.setLookingAt(fixtureTO.getLookingAtX(), fixtureTO.getLookingAtY(), fixtureTO.getLookingAtZ()); }
 					if (fixtureTO.getUpX()!=null) { fixture.setUpVector(fixtureTO.getUpX(), fixtureTO.getUpY(), fixtureTO.getUpZ()); }
@@ -835,7 +840,7 @@ bsh.InterpreterError: null fromValue
     }
     
     public void loadListeners() {
-		Universe universe = controller.getUniverse();
+		Universe universe = controller.getUniverse(DEFAULT_UNIVERSE);
     	UniverseUpdateListener updateListener = dmxDevice.getUniverseUpdateListener(); 
 		universe.addListener(updateListener);
 		updateListener.startThread();
@@ -988,8 +993,16 @@ bsh.InterpreterError: null fromValue
     /** Invoked by servletContextListener to stop any 
      * universe listeners registered in this application */
     public void shutdownListeners() {
-    	controller.getUniverse().stopListeners();
-    	controller.getUniverse().removeListeners();
+    	List<Universe> universes = controller.getUniverses();
+    	for (int i=0; i<universes.size(); i++) {
+    		Universe universe = universes.get(i);
+    		universe.stopListeners();
+    	}
+    	for (int i=0; i<universes.size(); i++) {
+    		Universe universe = universes.get(i);
+    		universe.removeListeners();
+    	}
+
     }
 
     /** Invoked by servletContextListener to Shuts down the 

@@ -166,11 +166,11 @@ public class FancyControllerAction
     */
 
     
-    public void setPanelAttributes(Map result, String panel) {
+    public void setPanelAttributes(Map result, String panel, int universeIdx) {
     	AppConfig appConfig = AppConfig.getAppConfig();
     	Controller controller = appConfig.getController();
 		if (panel.equals("dmxPanel")) {
-			Universe u = controller.getUniverse();
+			Universe u = controller.getUniverse(universeIdx);
     		String dmxValues = "";
     		for (int i=1; i<=255; i++) {
     			dmxValues+=u.getDmxChannelValue(i) + ",";
@@ -283,8 +283,13 @@ public class FancyControllerAction
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
 		
-		// possibly put this in, say, the CometPipe
+		int currentBank = 0;
+		Integer currentBankInt = (Integer) session.getAttribute("currentBank");
+		if (currentBankInt!=null) { currentBank = currentBankInt; }
+		int universeIdx = currentBank / 2;
+		
 		Recording recording = (Recording) session.getAttribute("recording");
+		
 		Command command = null;
 		AppConfig appConfig = AppConfig.getAppConfig();
 		String forward = "json";
@@ -403,8 +408,8 @@ public class FancyControllerAction
     		}
     		Struct.sortStructuredList(shows, "showGroupId");
     		String dmxValues = "";
-    		for (int i=1; i<=255; i++) {
-    			dmxValues+=controller.getUniverse().getDmxChannelValue(i) + ",";
+    		for (int i=1; i<=Universe.MAX_CHANNELS; i++) {
+    			dmxValues+=controller.getUniverse(universeIdx).getDmxChannelValue(i) + ",";
     		}
 			List fixValues = new ArrayList();
 		    for (Fixture f : controller.getFixtures()) {
@@ -538,7 +543,7 @@ public class FancyControllerAction
     		request.setAttribute("fixValues", fixValues);
     		request.setAttribute("fixtures", fixtures);
 	    	request.setAttribute("controller", controller);
-	    	request.setAttribute("universe", controller.getUniverse());
+	    	//request.setAttribute("universe", controller.getUniverse());
     		request.setAttribute("fixtureDefs", fixtureDefs);
     		request.setAttribute("stage", stage);
     		request.setAttribute("shows", shows);
@@ -563,7 +568,7 @@ public class FancyControllerAction
     		
     		result.put("panel", panel);
     		result.put("serverTime", System.currentTimeMillis());
-    		setPanelAttributes(result, panel);
+    		setPanelAttributes(result, panel, universeIdx);
     		
     		/*
     		String eventMaskString = request.getParameter("eventMask");
@@ -607,7 +612,9 @@ public class FancyControllerAction
     			Map resultMap = new HashMap();
     			resultMap.put("panel", panel);
     			resultMap.put("serverTime", System.currentTimeMillis());
-    			setPanelAttributes(resultMap, panel);
+    			setPanelAttributes(resultMap, panel, universeIdx);
+    			
+    			// @TODO make this much more compact (diffs only?)
     			pw.println("<script>top.updatePanelComet(" + Struct.structuredMapToJson(resultMap) + ");</script>\n");
     			pw.flush();
     			Boolean b = (Boolean) resultMap.get("stopPollRequests");
@@ -634,24 +641,25 @@ public class FancyControllerAction
     		forward = "null"; // maps to NullForward
     		
     	} else if (action.equals("setDmxValues")) {
-			// old method (one parameter per value)
+			// old method (one parameter per value) - used by manual controller  only
     		List dmxValues = (List) form.get("dmx");
     		byte[] dmxData = new byte[512];
 	    	for (int i=1; i<=255; i++) {
 	    		String value = (String) dmxValues.get(i);
 	    		if (!Text.isBlank(value)) {
-	    			controller.getUniverse().setDmxChannelValue(i, (int) new Long(value).longValue());
+	    			controller.getUniverse(0).setDmxChannelValue(i, (int) new Long(value).longValue());
 	    		}
 	    	}
 	    	request.setAttribute("message", "DMX values set");
 
     	} else if (action.equals("setDmxValues2")) {
+    		// used by manual controller  only
 			String dmxValuesString = (String) form.get("values");
 			String[] dmxValues = dmxValuesString.split(",");
 			for (int i=1; i<=255; i++) {
 				int value = Integer.parseInt(dmxValues[i-1]);
 				if (value>=0 && value <=255) {
-					controller.getUniverse().setDmxChannelValue(i, value);
+					controller.getUniverse(0).setDmxChannelValue(i, value);
 				}
 			}
 			result.put("message", "DMX channels set");
@@ -664,10 +672,11 @@ public class FancyControllerAction
 		//*************************************************
 			
     	} else if (action.equals("setDmxValue")) {
+    		int universe = Integer.parseInt(request.getParameter("universe"));
     		int channel = Integer.parseInt(request.getParameter("channel"));
     		int value = Integer.parseInt(request.getParameter("value"));
     		if (value>=0 && value<=255) {
-    			command = new DmxValueCommand(currentFrame, channel, value);
+    			command = new DmxValueCommand(currentFrame, universe, channel, value);
     			if (recording!=null) { recording.addCommand(command); }
     			// controller.getUniverse().setDmxChannelValue(channel, value);
     			command.run(); 

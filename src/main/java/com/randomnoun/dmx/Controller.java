@@ -19,7 +19,7 @@ import com.randomnoun.dmx.stage.Stage;
 public class Controller {
 	
 	Stage stage;
-	Universe universe;
+	List<Universe> universes;
 	List<Fixture> fixtures;
 	AudioController audioController;
 	AudioSource audioSource;
@@ -33,13 +33,16 @@ public class Controller {
 	
 	// if you wanted to make this fancy, you could have multiple universes here
 	/** Sets the DMX Universe that this controller modifies */
-	public void setUniverse(Universe universe) {
-		this.universe = universe;
+	public void setUniverses(List<Universe> universes) {
+		this.universes = universes;
 	}
 	
 	/** Retrieves the DMX Universe that this controller modifies */
-	public Universe getUniverse() {
-		return universe;
+	public Universe getUniverse(int universeIdx) {
+		return universes.get(universeIdx);
+	}
+	public List<Universe> getUniverses() { 
+		return universes;
 	}
 	
 	/** Sets the AudioController used to manipulate the audio
@@ -95,22 +98,24 @@ public class Controller {
 	 * and blackOut all fixtures. 
 	 */
 	public void blackOut() {
-		for (int i=1; i<Universe.MAX_CHANNELS; i++){
-			universe.setDmxChannelValue(i, 0);
+		for (int u=0; u<universes.size(); u++) {
+			Universe universe = universes.get(u);
+			for (int i=1; i<Universe.MAX_CHANNELS; i++){
+				universe.setDmxChannelValue(i, 0);
+			}
 		}
 		for (Fixture f : fixtures) {
 			f.blackOut();
 		}
-		
 	}
 
 	/** Sets a DMX channel to a specific value
 	 * 
-	 * @param dmxChannelNumer the DMX channel (1-255)
+	 * @param dmxChannelNumber the DMX channel (1-255)
 	 * @param value the new value (0-255)
 	 */
-	public void setDmxChannelValue(int dmxChannelNumer, int value) {
-		universe.setDmxChannelValue(dmxChannelNumer, value);
+	public void setDmxChannelValue(int universeIdx, int dmxChannelNumber, int value) {
+		universes.get(universeIdx).setDmxChannelValue(dmxChannelNumber, value);
 	}
 
 	/** Retrieves the list of fixtures */
