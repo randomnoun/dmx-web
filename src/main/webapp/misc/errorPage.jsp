@@ -51,7 +51,7 @@
   <b>Stack trace:</b> <a href="javascript:void();" onclick="x = document.getElementById('stackTrace').style; x.display = (x.display=='block' ? 'none' : 'block');">Click to display</a>
   <div id="stackTrace" style="display:none"><pre><%= 
     ExceptionUtils.getStackTraceWithRevisions(exception, this.getClass().getClassLoader(),
-    ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun.") %></pre></div>
+    ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun.,org.apache.jsp.") %></pre></div>
   <% } %>
 </td>
 </tr>
