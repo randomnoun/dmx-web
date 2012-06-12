@@ -672,7 +672,10 @@ public class FancyControllerAction
 		//*************************************************
 			
     	} else if (action.equals("setDmxValue")) {
-    		int universe = Integer.parseInt(request.getParameter("universe"));
+    		int universe = universeIdx;
+    		if (request.getParameter("universe")!=null) {
+    			universe = Integer.parseInt(request.getParameter("universe"));
+    		}
     		int channel = Integer.parseInt(request.getParameter("channel"));
     		int value = Integer.parseInt(request.getParameter("value"));
     		if (value>=0 && value<=255) {
