@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import junit.framework.TestCase;
@@ -54,13 +56,16 @@ public class ControllerTest extends TestCase {
 			FixtureDef x0177FixtureDef = new X0177FixtureDef();
 			
 			// things
+			List<Universe> universes = new ArrayList<Universe>();
 			Universe universe = new Universe();
 			universe.setTimeSource(new WallClockTimeSource());
+			universes.add(universe);
 			Fixture leftFixture = new Fixture("leftFixture", x0177FixtureDef, universe, 10);
 			Fixture rightFixture = new Fixture("rightFixture", x0177FixtureDef, universe, 20);
 			
+			
 			Controller c = new Controller();
-			c.setUniverse(universe);
+			c.setUniverses(universes);
 			c.addFixture(leftFixture);
 			c.addFixture(rightFixture);
 			
@@ -78,8 +83,8 @@ public class ControllerTest extends TestCase {
 			
 			// set dmx values via the controller
 			c.blackOut();
-			c.setDmxChannelValue(10, 255);  // (universe dmx channel) left master to 100%
-			c.setDmxChannelValue(11, 255);  // (universe dmx channel) left to red
+			c.setDmxChannelValue(0, 10, 255);  // (universe dmx channel) left master to 100%
+			c.setDmxChannelValue(0, 11, 255);  // (universe dmx channel) left to red
 			sleep(1);
 			
 			// set dmx values via the fixture
@@ -130,13 +135,15 @@ public class ControllerTest extends TestCase {
 			FixtureDef miniWashFixtureDef = new MiniWashFixtureDef12();
 			
 			// things
+			List<Universe> universes = new ArrayList<Universe>();
 			Universe universe = new Universe();
 			universe.setTimeSource(new WallClockTimeSource());
+			universes.add(universe);
 			Fixture leftFixture = new Fixture("leftFixture", miniWashFixtureDef, universe, 21);
 			Fixture rightFixture = new Fixture("rightFixture", miniWashFixtureDef, universe, 41);
 			
 			Controller c = new Controller();
-			c.setUniverse(universe);
+			c.setUniverses(universes);
 			c.addFixture(leftFixture);
 			c.addFixture(rightFixture);
 			
@@ -169,12 +176,12 @@ public class ControllerTest extends TestCase {
 			sleep(4);
 			
 			// set dmx values using controller cast to this fixture type
-			MiniWashFixtureController lfc2 = 
+			MiniWashFixtureController mwfc2 = 
 				(MiniWashFixtureController) lfc;
-			lfc2.blackOut();
-			lfc2.setMasterDimmer(255);
-			lfc2.setColorMacro(17);			// start 17th macro on left fixture (color-changemacro1)
-			lfc2.setMovementMacro(4);       // start 4th macro on left fixture (auto program 4)
+			mwfc2.blackOut();
+			mwfc2.setMasterDimmer(255);
+			mwfc2.setColorMacro(17);			// start 17th macro on left fixture (color-changemacro1)
+			mwfc2.setMovementMacro(4);       // start 4th macro on left fixture (auto program 4)
 			sleep(1);
 			
 			c.blackOut();
