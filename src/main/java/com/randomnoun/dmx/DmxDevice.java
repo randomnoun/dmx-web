@@ -1,5 +1,7 @@
 package com.randomnoun.dmx;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.randomnoun.dmx.event.UniverseUpdateListener;
@@ -33,4 +35,13 @@ public abstract class DmxDevice implements ExceptionContainer {
 	
 	/** Name returned for UI */
 	public abstract String getName();
+	
+	/** Default properties for this device 
+	 *
+	 * @return List of PropertyDef objects
+	 * 
+	 */
+	public List getDefaultProperties() {
+		return Collections.EMPTY_LIST;
+	}
 }
