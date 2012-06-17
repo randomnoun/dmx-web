@@ -30,4 +30,7 @@ public abstract class DmxDevice implements ExceptionContainer {
 		
 	/** Close any resources associated with this audioController */
 	public abstract void close();
+	
+	/** Name returned for UI */
+	public abstract String getName();
 }

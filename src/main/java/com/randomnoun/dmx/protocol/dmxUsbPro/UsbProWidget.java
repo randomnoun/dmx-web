@@ -70,10 +70,13 @@ public class UsbProWidget extends DmxDevice {
 	 */
 	public UsbProWidget(Map properties) {
 		super(properties);
+		if (properties==null) { return; } // when called from maintain devices page
 		this.portName = (String) properties.get("portName");
 		exceptionContainer = new ExceptionContainerImpl();
 		connected = false;
 	}
+	
+	public String getName() { return "Enttec USB Pro"; }
 	
 	public void open() {
 		try {

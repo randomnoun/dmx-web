@@ -39,6 +39,12 @@ public class NullDmxDevice extends DmxDevice {
 	}
 
 	@Override
+	public String getName() {
+		return "Null device";
+	}
+
+	
+	@Override
 	public void open() {
 	}
 	
@@ -69,6 +75,7 @@ public class NullDmxDevice extends DmxDevice {
 			}
 		};
 	}
+
 
 	
 }
