@@ -79,6 +79,13 @@
           type="com.randomnoun.dmx.web.action.MaintainDeviceAction"
         >
           <forward name="success" path="/maintainDevice.jsp"/>
+          <forward name="deviceProperties" path="/maintainDeviceProperty.html"/>
+        </action>
+        
+        <action path="/maintainDeviceProperty" 
+          type="com.randomnoun.dmx.web.action.MaintainDevicePropertyAction"
+        >
+          <forward name="success" path="/maintainDeviceProperty.jsp"/>
         </action>
         
         <action path="/maintainFixtureDef" 

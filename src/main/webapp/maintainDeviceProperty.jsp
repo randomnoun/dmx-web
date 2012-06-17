@@ -23,7 +23,7 @@
     <meta name="revisit-after" content="2 days" />
     <meta name="keywords" content="nothing-in-particular" />
     
-    <title><%= appConfig.getProperty("webapp.titlePrefix") %> Maintain DMX Interfaces</title>
+    <title><%= appConfig.getProperty("webapp.titlePrefix") %> Maintain Device Properties</title>
      
     <link rel="shortcut icon" href="images/favicon.png" />
     
@@ -109,15 +109,15 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 /** Create rnTable object for this page */
 var tblObj = new rnTable(
   'tblObj',                                   // the name of this variable
-  <c:out value="${form.devices_size}" />,    // index of table row containing 'new record' HTML (i.e. rowcount + header rows - footer rows)
-  <c:out value="${form.devices_size}" />,    // key of final record (will be incremented when creating new records)
-  'devices',                                 // serverside table id (included in name attributes) 
+  <c:out value="${form.deviceProperties_size}" />,    // index of table row containing 'new record' HTML (i.e. rowcount + header rows - footer rows)
+  <c:out value="${form.deviceProperties_size}" />,    // key of final record (will be incremented when creating new records)
+  'deviceProperties',                                 // serverside table id (included in name attributes) 
   'id',                                    // table key field 
   'entryTable',                               // clientside table id
   'mainForm',                                 // enclosing clientside form id
-  'Are you sure you wish to delete this show ?',
+  'Are you sure you wish to delete this device property ?',
     new Array(
-      'id', 'name', 'className', 'type', 'active', 'universeNumber' )
+      'id', 'key', 'value')
 );
 
 
@@ -134,16 +134,7 @@ function edtSubmitClick() {
     checkModify('mainForm',tblObj); 
     document.forms[0].submit();
 }
-function edtEditProperties(deviceId) { 
-    isSubmitting=true; 
-    checkModify('mainForm',tblObj);
-    document.forms[0].elements["action"].value="editProperties";
-    document.forms[0].elements["deviceId"].value=deviceId;
-    document.forms[0].submit();
-}
-
-
-function lhsCancelClick() { document.location = "index.html?panel=cnfPanel"; }
+function lhsCancelClick() { document.location = "maintainDevice.html"; }
 function lhsOKClick() { 
     isSubmitting=true; 
     checkModify('mainForm',tblObj); 
@@ -161,7 +152,7 @@ function initWindow() {
 
 
 <body onload="initWindow()" onunload="formUnloadCheck('mainForm')">
-<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show config</span></div>
+<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Device properties</span></div>
 <div class="lhsMenuContainer">
   <div id="lhsCancel" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/back.png" title="Back"/><div class="lhsMenuText">Back</div></div>
   <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="OK"/><div class="lhsMenuText">OK</div></div>
@@ -174,26 +165,23 @@ function initWindow() {
 
 
 <jsp:include page="/misc/errorHeader.jsp" />
-<form id="mainForm" name="mainForm" method="post" action="maintainDevice.html">
-    <input type="hidden" name="action" value="maintain" /> 
-    <input type="hidden" name="deviceId" value="" />
+<form id="mainForm" name="mainForm" method="post" action="maintainDeviceProperty.html">
+    <input type="hidden" name="action" value="maintain" />
+    <input type="hidden" name="deviceId" value="<c:out value='${deviceId}'/>" /> 
 <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
     <tr valign="bottom"> 
     <td class="formHeader">&nbsp;</td>
-    <td class="formHeader" style="background-color: #000052">Name <img src="image/help-icon.png" align="right" title="Descriptive name" /></td>
-    <td class="formHeader" style="background-color: #000052">Interface Type <img src="image/help-icon.png" align="right" title="The type of this interface" /></td>
-    <td class="formHeader" style="background-color: #000052">Active <img src="image/help-icon.png" align="right" title="Only one show in the same group can run at the same time. Shows without a group can run any number of shows at the same time." /></td>
-    <td class="formHeader" style="background-color: #000052">Universe number <img src="image/help-icon.png" align="right" title="If specified, this show will run when the show completes" /></td>
-    <td class="formHeader" style="background-color: #000052" colspan="2" >Properties <img src="image/help-icon.png" align="right" title="Custom show properties" /></td>
+    <td class="formHeader" style="background-color: #000052">Key</td>
+    <td class="formHeader" style="background-color: #000052">Value</td>
 </tr>
-   <c:forEach var="rowData" varStatus="rowStatus" items="${form.devices}" > 
+   <c:forEach var="rowData" varStatus="rowStatus" items="${form.deviceProperties}" > 
                 <c:choose> <c:when test="${rowData.cmdDelete == 'Y'}"> 
                     <tr id="rowid.<c:out value='${rowStatus.index}'/>"> 
                         <td height="31"> 
-                            <input type="hidden" name="devices[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>">   
-                            <input type="hidden" name="devices[<c:out value='${rowStatus.index}'/>].cmdDelete" value="Y"> 
+                            <input type="hidden" name="deviceProperties[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>">   
+                            <input type="hidden" name="deviceProperties[<c:out value='${rowStatus.index}'/>].cmdDelete" value="Y"> 
                         </td>
-                        <td colspan="9" bgcolor="#FFAAAA"><div style="margin:5px; color: black;"><i>This row has been marked for deletion. 
+                        <td colspan="3" bgcolor="#FFAAAA"><div style="margin:5px; color: black;"><i>This row has been marked for deletion. 
                         Correct the other validation errors on this page to delete.</i></div></td>
                     </tr>
                 </c:when>
@@ -204,22 +192,18 @@ function initWindow() {
                     <tr id="rowid.<c:out value='${rowStatus.index}'/>"> 
                         
                            <td> <div class="redrollover"> <a href="javascript:void(0)" onclick="fnDeleteRow(tblObj,<c:out value='${rowStatus.index}'/>,0); return 0;"><img src="image/delete-icon.gif" width="18" height="17" border="0"></a></div>
-                               <input type="hidden" name="devices[<c:out value='${rowStatus.index}'/>].cmdUpdate" value="<c:out value='${rowData.cmdUpdate}'/>">
-                               <%--  <input type="hidden" name="devices[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>"> --%>
+                               <input type="hidden" name="deviceProperties[<c:out value='${rowStatus.index}'/>].cmdUpdate" value="<c:out value='${rowData.cmdUpdate}'/>">
+                               <%--  <input type="hidden" name="deviceProperties[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>"> --%>
                            </td>
-                           <td class="<r:onError name='devices[${rowStatus.index}].name' text='errorBg' />"> 
-                               <input type="text" class="formfield" name="devices[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="30">
-                           <td class="<r:onError name='devices[${rowStatus.index}].showDefId' text='errorBg' />"> 
-                               <r:select name="devices[${rowStatus.index}].className" data="${form.classNames}" value="${rowData.className}" displayColumn="name" valueColumn="id" firstOption="(please select...)" />
-                           </td>
-                           <td class="<r:onError name='devices[${rowStatus.index}].active' text='errorBg' />"> 
-                                  <r:input type="checkbox" styleClass="smallInput formfield rj" name="devices[${rowStatus.index}].active" trueValue="Y" value="${rowData.active}" onchange="edtUpdateActive(${rowStatus.index})"/>
-                           </td>
-                           <td class="<r:onError name='devices[${rowStatus.index}].universeNumber' text='errorBg' />"> 
-                               <r:input type="text" styleClass="formfield" name="devices[${rowStatus.index}].universeNumber" value="${rowData.universeNumber}" />
-                           </td>
-                           <td><c:out value='${rowData.devicePropertyCount}'/> properties</td>
-                           <td><input type="button" onclick="edtEditProperties(<c:out value='${rowData.id}'/>)" value="Edit..." /></td>
+                           <td class="<r:onError name='deviceProperties[${rowStatus.index}].key' text='errorBg' />"> 
+                               <input type="text" class="formfield" name="deviceProperties[<c:out value='${rowStatus.index}'/>].key" value="<c:out value='${rowData.key}'/>" size="30" />
+                               <c:if test="${rowData.description!=null}">
+                               <img src="image/help-icon.png" align="right" title="<c:out value='${rowData.description}'/>"/>
+                               </c:if>
+                           </td>    
+                           <td class="<r:onError name='deviceProperties[${rowStatus.index}].value' text='errorBg' />"> 
+                               <input type="text" class="formfield" name="deviceProperties[<c:out value='${rowStatus.index}'/>].value" value="<c:out value='${rowData.value}'/>" size="50" />
+                           </td>    
                        </tr>
                 </c:when>
                        
@@ -227,41 +211,33 @@ function initWindow() {
                     <!--- prefilled row --->
                     <tr id="rowid.<c:out value='${rowStatus.index}'/>"> 
                         <td> <div class="redrollover"> <a href="javascript:void(0)" onclick="fnDeleteRow(tblObj,<c:out value='${rowStatus.index}'/>,1); return 0;"><img src="image/delete-icon.gif" width="18" height="17" border="0"></a></div>
-                            <input type="hidden" name="devices[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>">
-                            <input type="hidden" name="devices[<c:out value='${rowStatus.index}'/>].cmdUpdate" value="Y">                
+                            <input type="hidden" name="deviceProperties[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>">
+                            <input type="hidden" name="deviceProperties[<c:out value='${rowStatus.index}'/>].cmdUpdate" value="Y">                
                         </td>
-                           <td class="<r:onError name='devices[${rowStatus.index}].name' text='errorBg' />"> 
-                               <input type="text" class="formfield" name="devices[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="30">
-                           <td class="<r:onError name='devices[${rowStatus.index}].showDefId' text='errorBg' />"> 
-                               <r:select name="devices[${rowStatus.index}].className" data="${form.classNames}" value="${rowData.className}" displayColumn="name" valueColumn="id" firstOption="(please select...)" />
+                           <td class="<r:onError name='deviceProperties[${rowStatus.index}].key' text='errorBg' />"> 
+                               <input type="text" class="formfield" name="deviceProperties[<c:out value='${rowStatus.index}'/>].key" value="<c:out value='${rowData.key}'/>" size="30"/>
+                           <c:if test="${rowData.description!=null}">
+                           <img src="image/help-icon.png" align="right" title="<c:out value='${rowData.description}'/>"/>
+                           </c:if>
                            </td>
-                           <td class="<r:onError name='devices[${rowStatus.index}].active' text='errorBg' />"> 
-                               <r:input type="checkbox" styleClass="smallInput formfield rj" name="devices[${rowStatus.index}].active" trueValue="Y" value="${rowData.active}" onchange="edtUpdateActive(${rowStatus.index})"/>
+                           <td class="<r:onError name='deviceProperties[${rowStatus.index}].value' text='errorBg' />"> 
+                               <input type="text" class="formfield" name="deviceProperties[<c:out value='${rowStatus.index}'/>].value" value="<c:out value='${rowData.value}'/>" size="50"/>
                            </td>
-                           <td class="<r:onError name='devices[${rowStatus.index}].universeNumber' text='errorBg' />"> 
-                               <r:input type="text" styleClass="formfield" name="devices[${rowStatus.index}].universeNumber" value="${rowData.universeNumber}" />
-                           </td>
-                           <td><c:out value='${rowData.devicePropertyCount}'/> properties</td>
-                           <td><input type="button" onclick="edtEditProperties(<c:out value='${rowData.id}'/>)" value="Edit..." /></td>
                     </tr>
                 </c:otherwise></c:choose> 
             </c:forEach> 
 
             <%-- Empty row --%>
-            <tr id="rowid.<c:out value='${form.devices_size}'/>"> 
-                <td> <div class="redrollover"> <a href="javascript:void(0)" onclick="fnDeleteRow(tblObj,<c:out value='${form.devices_size}'/>,0); return 0;"><img src="image/delete-icon.gif" width="18" height="17" border="0"></a></div>
-                    <input type="hidden" name="devices[<c:out value='${form.devices_size}'/>].cmdUpdate" value="N">
+            <tr id="rowid.<c:out value='${form.deviceProperties_size}'/>"> 
+                <td> <div class="redrollover"> <a href="javascript:void(0)" onclick="fnDeleteRow(tblObj,<c:out value='${form.deviceProperties_size}'/>,0); return 0;"><img src="image/delete-icon.gif" width="18" height="17" border="0"></a></div>
+                    <input type="hidden" name="deviceProperties[<c:out value='${form.deviceProperties_size}'/>].cmdUpdate" value="N">
                 </td>
-                <td><input type="text" class="formfield" name="devices[<c:out value='${form.devices_size}' />].name" value="" size="30"></td>
-	            <td><r:select name="devices[${form.devices_size}].className" data="${form.classNames}" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)" /></td>
-                <td><input type="checkbox" class="smallInput formfield rj" name="devices[<c:out value='${form.devices_size}' />].active" trueValue="Y" value="" ></td>
-                <td><input type="text" class="formfield" name="devices[<c:out value='${form.devices_size}' />].universeNumber" value="" size="30"></td>
-                <td></td>
-                <td></td>
+                <td><input type="text" class="formfield" name="deviceProperties[<c:out value='${form.deviceProperties_size}' />].key" value="" size="30"></td>
+                <td><input type="text" class="formfield" name="deviceProperties[<c:out value='${form.deviceProperties_size}' />].value" value="" size="50"></td>
             </tr>
             <tr> 
                 <td> <div class="greenrollover"> <a href="javascript:void(0)" onclick="fnAddRow(tblObj); return 0;"><img src="image/add-icon.gif" width="18" height="17" border="0"></a></div></td>
-                <td colspan="4">&nbsp;Add row</td>
+                <td colspan="2">&nbsp;Add row</td>
             </tr>
 
             <tr align="left"> 
