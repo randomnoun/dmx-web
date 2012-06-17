@@ -36,9 +36,9 @@ public class DevicePropertyDAO {
      *
      * @return a list of DevicePropertyTO objects that satisfy the supplied criteria
      */
-    public List<DevicePropertyTO> getDevicePropertys(String sqlWhereClause) {
+    public List<DevicePropertyTO> getDeviceProperties(String sqlWhereClause) {
         String sql =
-            "SELECT id, deviceId, key, value " +
+            "SELECT id, deviceId, `key`, value " +
             " FROM deviceProperty " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<DevicePropertyTO>) jt.query(sql, new DevicePropertyDAORowMapper());
@@ -52,7 +52,7 @@ public class DevicePropertyDAO {
      */
     public DevicePropertyTO getDeviceProperty(long devicePropertyId) {
         return (DevicePropertyTO) jt.queryForObject(
-            "SELECT id, deviceId, key, value " +
+            "SELECT id, deviceId, `key`, value " +
             " FROM deviceProperty " +
             " WHERE id = ?",
             new Object[] { new Long(devicePropertyId) }, 
@@ -66,7 +66,7 @@ public class DevicePropertyDAO {
     public void updateDeviceProperty(DevicePropertyTO deviceProperty) {
         String sql =
             "UPDATE deviceProperty " +
-            " SET deviceId=?, key=?, value=? " + 
+            " SET deviceId=?, `key`=?, value=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
@@ -90,7 +90,7 @@ public class DevicePropertyDAO {
     public long createDeviceProperty(DevicePropertyTO deviceProperty) {
         String sql =
             "INSERT INTO deviceProperty " + 
-            " (deviceId, key, value) " +
+            " (deviceId, `key`, value) " +
             " VALUES (?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] { 
