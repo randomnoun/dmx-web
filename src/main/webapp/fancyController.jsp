@@ -195,7 +195,10 @@ var dmxTimeSourceText = "-";
 <%
     }
 %>
+  <div id="cnfImportExport" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfImportExport.png" title="Import / Export"/><div class="cnfMenuText">Import / Export</div></div>
+<%--
   <div id="cnfSimple" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfSimpleController.png" title="Simple controller"/><div class="cnfMenuText">Simple controller</div></div>
+--%>
     
 </div>
 </div>

@@ -1432,7 +1432,10 @@ function cnfInitPanel() {
     Event.observe($("cnfShow"), 'click', cnfShowClick);
     Event.observe($("cnfResetAudio"), 'click', cnfResetAudioClick);
     //Event.observe($("cnfResetDMX"), 'click', cnfResetDMXClick);
-    Event.observe($("cnfSimple"), 'click', cnfSimpleClick);
+    if ($("cnfSimple")) {
+    	Event.observe($("cnfSimple"), 'click', cnfSimpleClick);
+    }
+    Event.observe($("cnfImportExport"), 'click', cnfImportExportClick);
     Event.observe($("cnfVideo"), 'click', cnfVideoClick);
     
     if (isRecording) {
@@ -1498,8 +1501,8 @@ function cnfResetDMXClick() {
 function cnfSimpleClick() {
     document.location="controller.html";
 }
-function cnfVideoClick() {
-    window.open("streaming.html", "streamingWindow");
+function cnfImportExportClick() {
+    document.location="importExport.html";
 }
 function cnfVideoClick() {
     window.open("streaming.html", "streamingWindow");
