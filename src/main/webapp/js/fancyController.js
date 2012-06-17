@@ -1423,6 +1423,7 @@ function logUpdatePanel(json) {
 /******************************* CONFIG PANEL ******************************/
 
 function cnfInitPanel() {
+	Event.observe($("cnfDevice"), 'click', cnfDeviceClick);
 	Event.observe($("cnfStage"), 'click', cnfStageClick);
 	Event.observe($("cnfRecord"), 'click', cnfRecordClick);
 	Event.observe($("cnfFixtureDef"), 'click', cnfFixtureDefClick);
@@ -1442,6 +1443,9 @@ function cnfInitPanel() {
     
 }
 
+function cnfDeviceClick() {
+    document.location="maintainDevice.html";
+}
 function cnfStageClick() {
     document.location="maintainStage.html";
 }
