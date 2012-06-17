@@ -248,6 +248,7 @@ public class AppConfig extends AppConfigBase {
     
     protected void initDatabase() {
     	super.initDatabase();
+    	JdbcTemplate jt = getJdbcTemplate();
     	List resourceNames = (List) get("database.mysql.resources");
     	List statements;
     	boolean done = false;
@@ -261,7 +262,6 @@ public class AppConfig extends AppConfigBase {
 			} catch (ParseException pe) {
 				throw new IllegalStateException("Could not parse resource '" + resourceName + "'", pe);
 			}
-    		JdbcTemplate jt = getJdbcTemplate();
     		try {
     			logger.debug("Testing whether database update " + i + " has been applied (sql='" + statements.get(0) + "')");
     			jt.queryForList((String) statements.get(0));
@@ -282,7 +282,25 @@ public class AppConfig extends AppConfigBase {
     	}
     	if (i < resourceNames.size()-2) {
     		logger.info("********* DATABASE UPGRADE REQUIRED");
-    		logger.info("At this point, I would be applying all database updates from " + (i+2) + " onwards");
+    		if ("true".equals(getProperty("database.autoUpdate"))) {
+	    		for (int j=i+2; j<resourceNames.size(); j++) {
+	    			String resourceName = (String) resourceNames.get(i);
+	        		try {
+	    				statements = DatabaseUtil.parseStatements(AppConfig.class.getClassLoader().getResourceAsStream(resourceName), false);
+	    			} catch (IOException ioe) {
+	    				throw new IllegalStateException("Could not read resource '" + resourceName + "'", ioe);
+	    			} catch (ParseException pe) {
+	    				throw new IllegalStateException("Could not parse resource '" + resourceName + "'", pe);
+	    			}
+	        		logger.info("Applying database update " + j);
+	        		for (int k=2; k<statements.size(); k++) {
+	        			logger.info("Applying statement " + k + ": '" + statements.get(k));	
+	        			jt.update((String) statements.get(k));
+	        		}
+	    		}
+    		} else {
+    			logger.info("(database.autoUpdate property must be set to 'true')");
+    		}
     	}
     	
     }
@@ -292,6 +310,9 @@ public class AppConfig extends AppConfigBase {
      * 
      * <p>This method will kill all show threads, reset the controller,
      * stop any audio that's playing, and reload the fixture/show definitions.
+     * 
+     * @see #reloadShows()
+     * @see #reloadDevices()
      */
     public void reloadFixturesAndShows() {
     	logger.info("reloadFixturesAndShows(): shutting down show threads");
@@ -350,6 +371,9 @@ public class AppConfig extends AppConfigBase {
      * 
      * <p>This method will kill all show threads, reset the controller,
      * stop any audio that's playing, and reload the show definitions.
+     * 
+     * @see #reloadFixturesAndShows()
+     * @see #reloadDevices()
      */
     public void reloadShows() {
     	logger.info("reloadShows(): shutting down show threads");
