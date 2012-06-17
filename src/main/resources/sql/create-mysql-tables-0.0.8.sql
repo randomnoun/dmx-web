@@ -18,3 +18,7 @@ CREATE TABLE `deviceProperty` (
   PRIMARY KEY (`Id`)
 )
 ENGINE = InnoDB;
+
+ALTER TABLE `device` CHANGE COLUMN `ynActive` `active` VARCHAR(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL
+, AUTO_INCREMENT = 1;
+
