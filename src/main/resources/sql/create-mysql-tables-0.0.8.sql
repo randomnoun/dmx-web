@@ -1,5 +1,5 @@
 -- success if device exists
-SELECT COUNT(*) FROM devicex;
+SELECT COUNT(*) FROM device;
 
 -- success if device.active exists
 SELECT COUNT(active) FROM device;
