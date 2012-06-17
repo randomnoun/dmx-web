@@ -6,7 +6,7 @@ public class DeviceTO {
     private String name;
     private String className;
     private String type;
-    private String ynActive;
+    private String active;
     private Long universeNumber;
     private long devicePropertyCount;
     
@@ -67,18 +67,18 @@ public class DeviceTO {
         this.type = type;
     }
 
-    /** Returns the ynActive
-     * @return the ynActive
+    /** Returns the active
+     * @return the active
      */
-    public String getYnActive() {
-        return ynActive;
+    public String getActive() {
+        return active;
     }
 
-    /** Set the ynActive
-     * @param ynActive
+    /** Set the active
+     * @param active
      */
-    public void setYnActive(String ynActive) {
-        this.ynActive = ynActive;
+    public void setActive(String ynActive) {
+        this.active = ynActive;
     }
 
     /** Returns the universeNumber

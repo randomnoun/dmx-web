@@ -24,7 +24,7 @@ public class DeviceDAO {
             d.setName(rs.getString("name"));
             d.setClassName(rs.getString("className"));
             d.setType(rs.getString("type"));
-            d.setYnActive(rs.getString("ynActive"));
+            d.setActive(rs.getString("active"));
             d.setUniverseNumber(rs.getLong("universeNumber")); if (rs.wasNull()) { d.setUniverseNumber(null); }
             return d;
         }
@@ -52,7 +52,7 @@ public class DeviceDAO {
      */
     public List<DeviceTO> getDevices(String sqlWhereClause) {
         String sql =
-            "SELECT id, name, className, type, ynActive, universeNumber " +
+            "SELECT id, name, className, type, active, universeNumber " +
             " FROM device " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<DeviceTO>) jt.query(sql, new DeviceDAORowMapper());
@@ -67,7 +67,7 @@ public class DeviceDAO {
      */
     public List<DeviceTO> getDevicesWithPropertyCounts(String sqlWhereClause) {
         String sql =
-    		"SELECT device.id, name, className, type, ynActive, universeNumber, COUNT(deviceProperty.id) AS devicePropertyCount " +
+    		"SELECT device.id, name, className, type, active, universeNumber, COUNT(deviceProperty.id) AS devicePropertyCount " +
             " FROM device LEFT JOIN deviceProperty " +
             " ON device.id = deviceProperty.deviceId " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause) +
@@ -83,7 +83,7 @@ public class DeviceDAO {
      */
     public DeviceTO getDevice(long deviceId) {
         return (DeviceTO) jt.queryForObject(
-            "SELECT id, name, className, type, ynActive, universeNumber " +
+            "SELECT id, name, className, type, active, universeNumber " +
             " FROM device " +
             " WHERE id = ?",
             new Object[] { new Long(deviceId) }, 
@@ -97,14 +97,14 @@ public class DeviceDAO {
     public void updateDevice(DeviceTO device) {
         String sql =
             "UPDATE device " +
-            " SET name=?, className=?, type=?, ynActive=?, universeNumber=? " + 
+            " SET name=?, className=?, type=?, active=?, universeNumber=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
                 device.getName(),
                 device.getClassName(),
                 device.getType(),
-                device.getYnActive(),
+                device.getActive(),
                 device.getUniverseNumber(),
                 device.getId() });
         if (updated!=1) {
@@ -123,14 +123,14 @@ public class DeviceDAO {
     public long createDevice(DeviceTO device) {
         String sql =
             "INSERT INTO device " + 
-            " (name, className, type, ynActive, universeNumber) " +
+            " (name, className, type, active, universeNumber) " +
             " VALUES (?, ?, ?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] { 
                 device.getName(),
                 device.getClassName(),
                 device.getType(),
-                device.getYnActive(),
+                device.getActive(),
                 device.getUniverseNumber()});
         if (updated!=1) {
             throw new DataIntegrityViolationException("device insert failed (" + updated + " rows updated)");
