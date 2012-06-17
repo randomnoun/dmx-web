@@ -1,3 +1,10 @@
+-- success if stage.universeCount exists
+SELECT COUNT(universeCount) FROM stage;
+
+-- success if stage.backgroundImage exists
+SELECT COUNT(backgroundImage) FROM stage;
+
+
 ALTER TABLE `stage` 
  ADD COLUMN `backgroundImage` VARCHAR(100) DEFAULT NULL AFTER `active`,
  ADD COLUMN `universeCount` INTEGER UNSIGNED NOT NULL DEFAULT 1 AFTER `backgroundImage`;

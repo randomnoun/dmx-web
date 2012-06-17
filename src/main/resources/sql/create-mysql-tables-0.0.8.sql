@@ -1,3 +1,10 @@
+-- success if device exists
+SELECT COUNT(*) FROM device;
+
+-- success if xxx
+SELECT COUNT(*) FROM xxx;
+
+
 CREATE TABLE `device` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(100) NOT NULL COMMENT 'descriptive name',

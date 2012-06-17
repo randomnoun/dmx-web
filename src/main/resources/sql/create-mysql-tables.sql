@@ -1,3 +1,29 @@
+/* Each of these files start with 2 SQL statements.
+ * The first will succeed if the first SQL statement has been applied
+ *   (and fail if it has not been applied)
+ * The second will succeed if the final SQL statement has been applied
+ *   (and fail if it has not been applied)
+ * 
+ * On appConfig startup:
+ *   If first SQL fails, then apply this SQL
+ *   If first SQL succeeds and second fails then SQL has been partially applied 
+ *     (error, manual fix required)
+ *   If first and second SQL succeeds, then no need to apply this SQL
+ *
+ * Checks will be made from last create-mysql-tables-*.sql file backwards, only
+ * applying looking at SQL definitions where the first SQL has failed. SQL will
+ * applied from first file onwards.
+ * 
+ * i.e. if first SQL for last create-mysql-tables*.sql file succeeds, then no
+ * other SQL file will be inspected.
+ */
+
+-- success if fixtureDef table exists
+SELECT COUNT(*) FROM fixtureDef;
+
+-- success if fixtureDefImage table exists
+SELECT COUNT(*) FROM fixtureDefImage; 
+
 CREATE TABLE `fixtureDef` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(100) NOT NULL,

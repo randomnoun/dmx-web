@@ -1,3 +1,11 @@
+
+-- success if fixture.stageId column exists
+SELECT COUNT(stageId) FROM fixture;
+
+-- success if stage.active table exists
+SELECT COUNT(active) FROM stage; 
+
+
 ALTER TABLE `fixture` ADD COLUMN `stageId` INTEGER UNSIGNED NOT NULL AFTER `dmxOffset`,
  ADD COLUMN `fixPanelType` VARCHAR(1) NOT NULL COMMENT 'L=large (default), S=small (half-size), M=matrix (5x5 intensity only)' AFTER `stageId`,
  ADD COLUMN `fixPanelX` INTEGER UNSIGNED AFTER `fixPanelType`,
