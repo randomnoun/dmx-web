@@ -137,7 +137,11 @@ public abstract class Show {
 		return System.currentTimeMillis() - startTime;
 	}
 	
-	/** Default properties for this show */
+	/** Default properties for this show 
+	 *
+	 * @return List of PropertyDef objects
+	 * 
+	 */
 	public List getDefaultProperties() {
 		return Collections.EMPTY_LIST;
 	}

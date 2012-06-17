@@ -24,7 +24,7 @@ import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.dao.ShowPropertyDAO;
-import com.randomnoun.dmx.show.PropertyDef;
+import com.randomnoun.dmx.PropertyDef;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.to.ShowPropertyTO;
 import com.randomnoun.dmx.to.ShowTO;

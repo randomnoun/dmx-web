@@ -11,8 +11,8 @@ import com.example.dmx.fixture.MiniWashFixtureController;
 import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.show.Show;
-import com.randomnoun.dmx.show.PropertyDef;
 import com.randomnoun.dmx.show.ShowUtils;
+import com.randomnoun.dmx.PropertyDef;
   
 /** Tilt the washes to 45 degrees, start some entertaining music,
  * and then swing them down to point ahead.

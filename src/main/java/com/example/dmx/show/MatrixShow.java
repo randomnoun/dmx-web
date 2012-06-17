@@ -26,8 +26,8 @@ import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
-import com.randomnoun.dmx.show.PropertyDef;
 import com.randomnoun.dmx.show.Show;
+import com.randomnoun.dmx.PropertyDef;
 
 /** Generate a matrix animation from an animated GIF
  * 
