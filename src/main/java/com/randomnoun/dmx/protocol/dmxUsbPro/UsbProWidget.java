@@ -3,6 +3,7 @@ package com.randomnoun.dmx.protocol.dmxUsbPro;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import com.randomnoun.dmx.DmxDevice;
 import com.randomnoun.dmx.ExceptionContainerImpl;
+import com.randomnoun.dmx.PropertyDef;
 import com.randomnoun.dmx.ExceptionContainer.TimestampedException;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 import com.randomnoun.dmx.protocol.nullDevice.NullAudioController;
@@ -210,6 +212,13 @@ public class UsbProWidget extends DmxDevice {
 	public UniverseUpdateListener getUniverseUpdateListener() {
 		return new UsbProWidgetUniverseUpdateListener(javaWidgetTranslator);
 	}
+	
+    public List getDefaultProperties() {
+        List properties = new ArrayList();
+        properties.add(new PropertyDef("portName", "COM port", "COM1"));
+        return properties;
+  }  
+
 	
 }
 	
