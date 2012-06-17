@@ -74,6 +74,13 @@
         </action>
 
 
+
+		<action path="/maintainDevice" 
+          type="com.randomnoun.dmx.web.action.MaintainDeviceAction"
+        >
+          <forward name="success" path="/maintainDevice.jsp"/>
+        </action>
+        
         <action path="/maintainFixtureDef" 
           type="com.randomnoun.dmx.web.action.MaintainFixtureDefAction"
           name="fileUpload"

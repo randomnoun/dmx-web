@@ -867,6 +867,12 @@ bsh.InterpreterError: null fromValue
 		}
     }
     
+    public void reloadDevices() {
+    	logger.error("reloadDevices not implemented");
+    	// things
+    }
+    
+    
     // @TODO private this method ?
     /** The index of shows in this collection is not the showId. The 
      * showId is the showId of the Show objects returned.
