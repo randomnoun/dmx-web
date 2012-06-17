@@ -7,6 +7,7 @@ import java.lang.Thread.State;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,6 +57,8 @@ import com.randomnoun.dmx.to.ShowTO;
 import com.randomnoun.dmx.to.StageTO;
 
 import org.apache.log4j.Logger;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import gnu.io.PortInUseException;
 
@@ -241,6 +244,47 @@ public class AppConfig extends AppConfigBase {
 	    		System.setSecurityManager(new SecurityManager(sm));
 	    	}
         }
+    }
+    
+    protected void initDatabase() {
+    	super.initDatabase();
+    	List resourceNames = (List) get("database.mysql.resources");
+    	List statements;
+    	boolean done = false;
+    	int i;
+    	for (i=resourceNames.size()-1; i>0 && !done; i--) {
+    		String resourceName = (String) resourceNames.get(i);
+    		try {
+				statements = DatabaseUtil.parseStatements(AppConfig.class.getClassLoader().getResourceAsStream(resourceName), false);
+			} catch (IOException ioe) {
+				throw new IllegalStateException("Could not read resource '" + resourceName + "'", ioe);
+			} catch (ParseException pe) {
+				throw new IllegalStateException("Could not parse resource '" + resourceName + "'", pe);
+			}
+    		JdbcTemplate jt = getJdbcTemplate();
+    		try {
+    			logger.debug("Testing whether database update " + i + " has been applied (sql='" + statements.get(0) + "')");
+    			jt.queryForList((String) statements.get(0));
+    			// succeeds, try guard
+    			try {
+    				logger.debug("Testing whether database update " + i + " has been completely applied (sql='" + statements.get(1) + "')");
+    				jt.queryForList((String) statements.get(1));
+    			} catch (Exception e2) {
+    				logger.debug("Database update " + i + " has not been completely applied");
+    				throw new IllegalStateException("Inconsistent database state (resource='" + resourceName + "', sql='" + statements.get(1) + "' failed)", e2);
+    			}
+    			logger.debug("Database update " + i + " has been completely applied");
+    			done = true;
+    		} catch (DataAccessException e) {
+    			// fails, try previous SQL script
+    			// logger.debug("Database update " + i + " has not been applied since '" + statements.get(0) + "' fails");
+    		}
+    	}
+    	if (i < resourceNames.size()-2) {
+    		logger.info("********* DATABASE UPGRADE REQUIRED");
+    		logger.info("At this point, I would be applying all database updates from " + (i+2) + " onwards");
+    	}
+    	
     }
     
     /** Call this after any fixture definitions, fixtures, show definitions

@@ -5,10 +5,10 @@
  *   (and fail if it has not been applied)
  * 
  * On appConfig startup:
- *   If first SQL fails, then apply this SQL
- *   If first SQL succeeds and second fails then SQL has been partially applied 
+ *   If the first SQL statement fails, then apply this SQL
+ *   If the first SQL statement succeeds and second fails then SQL has been partially applied 
  *     (error, manual fix required)
- *   If first and second SQL succeeds, then no need to apply this SQL
+ *   If the first and second SQL statements succeed, then no need to apply this SQL
  *
  * Checks will be made from last create-mysql-tables-*.sql file backwards, only
  * applying looking at SQL definitions where the first SQL has failed. SQL will

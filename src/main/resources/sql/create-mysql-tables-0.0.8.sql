@@ -1,8 +1,9 @@
 -- success if device exists
-SELECT COUNT(*) FROM device;
+SELECT COUNT(*) FROM devicex;
 
--- success if xxx
-SELECT COUNT(*) FROM xxx;
+-- success if device.active exists
+SELECT COUNT(active) FROM device;
+-- SELECT COUNT(active) FROM xxx;
 
 
 CREATE TABLE `device` (

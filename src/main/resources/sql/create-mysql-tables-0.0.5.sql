@@ -2,7 +2,7 @@
 SELECT COUNT(universeCount) FROM stage;
 
 -- success if stage.backgroundImage exists
-SELECT COUNT(backgroundImage) FROM stage;
+SELECT COUNT(fixPanelBackgroundImage) FROM stage;
 
 
 ALTER TABLE `stage` 
