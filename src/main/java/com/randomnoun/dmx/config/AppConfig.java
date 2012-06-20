@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ import com.randomnoun.dmx.DmxDevice;
 import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.ExceptionContainerImpl;
 import com.randomnoun.dmx.Universe;
+import com.randomnoun.dmx.dao.DeviceDAO;
+import com.randomnoun.dmx.dao.DevicePropertyDAO;
 import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.ShowDAO;
@@ -44,11 +47,14 @@ import com.randomnoun.dmx.event.VlcUniverseUpdateListener;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
+import com.randomnoun.dmx.protocol.nullDevice.NullDmxDevice;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.ShowAudioSource;
 import com.randomnoun.dmx.show.ShowThread;
 import com.randomnoun.dmx.stage.Stage;
 import com.randomnoun.dmx.timeSource.WallClockTimeSource;
+import com.randomnoun.dmx.to.DevicePropertyTO;
+import com.randomnoun.dmx.to.DeviceTO;
 import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
 import com.randomnoun.dmx.to.ShowDefTO;
@@ -95,8 +101,8 @@ public class AppConfig extends AppConfigBase {
     /** Controller instance for this application */
     private Controller controller;
     
-    /** DMX device reference */
-    private DmxDevice dmxDevice;
+    /** DMX device references */
+    // private DmxDevice dmxDevice;
 
     /** DMX device reference */
     private AudioSource audioSource;
@@ -163,6 +169,19 @@ public class AppConfig extends AppConfigBase {
     	}
     }
     
+    private static class DmxDeviceConfig {
+    	DmxDevice dmxDevice;
+    	int universeIdx;
+    	AppConfig appConfig;
+    	public DmxDeviceConfig(AppConfig appConfig, int universeIdx, DmxDevice dmxDevice) {
+    		this.appConfig = appConfig;
+    		this.universeIdx = universeIdx;
+    		this.dmxDevice = dmxDevice;
+    	}
+    	public int getUniverseIdx() { return universeIdx; }
+    	public DmxDevice getDmxDevice() { return dmxDevice; }
+    }
+    
     
     public static class TimestampedShowException extends ExceptionContainer.TimestampedException {
     	Show show;
@@ -181,6 +200,9 @@ public class AppConfig extends AppConfigBase {
     
     /** Same set, with showName as key */
     private Map<String, ShowConfig> showConfigsByName;
+
+    /** DMX devices */
+    private List<DmxDeviceConfig> dmxDeviceConfigs;
     
     /** List of shows */
     private List<Show> shows;
@@ -219,6 +241,7 @@ public class AppConfig extends AppConfigBase {
 	        
 	        newInstance.initSecurityContext();
 	        newInstance.initScriptContext();
+		    newInstance.initDmxDevices();
 	        newInstance.initController();
 	        // newInstance.loadActiveStage(); called by initController()
 	        newInstance.loadFixtures(newInstance.getScriptContext(), newInstance.getController());
@@ -477,18 +500,56 @@ public class AppConfig extends AppConfigBase {
     }
     
     
-    
-    private void initController() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
-
-    	List<Universe> universes = new ArrayList<Universe>();
-    	Universe universe = new Universe();
-		universe.setTimeSource(new WallClockTimeSource());
-		universes.add(universe);
+    private void initDmxDevices() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException { 
+    	dmxDeviceConfigs = new ArrayList<DmxDeviceConfig>();
 
     	//String portName = getProperty("dmxDevice.portName");
     	//widget = new UsbProWidget(portName);
     	//UsbProWidgetTranslator translator = widget.openPort();
+		
+		// TODO: (see MaintainDeviceAction)
+		// check that all active universes are sequentially numbered from 1
+		// (or possibly put in nulldevices for empty universes?)
+		
+		JdbcTemplate jt = getJdbcTemplate();
+		DeviceDAO deviceDAO = new DeviceDAO(jt);
+		DevicePropertyDAO devicePropertyDAO = new DevicePropertyDAO(jt);
+		List<DeviceTO> devices = deviceDAO.getDevicesWithPropertyCounts("active='Y'");
+		Collections.sort(devices, new Comparator<DeviceTO>() {
+			public int compare(DeviceTO o1, DeviceTO o2) {
+				return o1.getUniverseNumber().compareTo(o2.getUniverseNumber());
+			} });
+		for (int i=0; i<devices.size(); i++) {
+			DeviceTO deviceTO = devices.get(i);
+			DmxDevice device = null;
+			Map deviceProperties = new HashMap();
+			try {
+				if (deviceTO.getDevicePropertyCount()>0) {
+					List<DevicePropertyTO> devicePropertyTOs = devicePropertyDAO.getDeviceProperties("deviceId=" + deviceTO.getId());
+					for (DevicePropertyTO deviceProperty : devicePropertyTOs) {
+						deviceProperties.put(deviceProperty.getKey(), deviceProperty.getValue());
+					}
+				}		
+				Class clazz = Class.forName(deviceTO.getClassName());
+				Constructor con = clazz.getConstructor(Map.class);
+				device = (DmxDevice) con.newInstance(new Object[] { deviceProperties });
+				String name = device.getName();
+				logger.info("Created device " + deviceTO.getClassName() + " '" + device.getName() + "' on universe " + deviceTO.getUniverseNumber());
+			} catch (Exception e) {
+				logger.error("Could not instantiate device '" + deviceTO.getClassName() + "' for universe " + deviceTO.getUniverseNumber(), e);
+				addAppConfigException(e);
+				// @TODO: necessary to create a null device here ?
+				device = new NullDmxDevice(deviceProperties);
+			}
+			// convert to 0-based universe index
+			DmxDeviceConfig ddc = new DmxDeviceConfig(this, deviceTO.getUniverseNumber().intValue() - 1, device);
+			dmxDeviceConfigs.add(ddc);
 
+			device.open();
+		}
+		
+		
+		/* get dmx device from properties file
 		String dmxClassname = (String) this.get("dmxDevice.class");
 		if (dmxClassname==null) {
 			dmxClassname = "com.randomnoun.dmx.protocol.nullDevice.NullDmxDevice";
@@ -498,7 +559,25 @@ public class AppConfig extends AppConfigBase {
 		Constructor dmxConstructor = dmxClass.getConstructor(Map.class);
 		dmxDevice = (DmxDevice) dmxConstructor.newInstance(dmxProperties);
     	dmxDevice.open();
+    	*/
+
+    }
+    
+    private void initController() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
+
+    	// this should always create at least one universe (idx 0)
+    	List<Universe> universes = new ArrayList<Universe>();
+    	int maxUniverseIdx=0;
+    	for (int i=0; i<dmxDeviceConfigs.size(); i++) {
+    		maxUniverseIdx = Math.max(maxUniverseIdx, dmxDeviceConfigs.get(i).getUniverseIdx());
+    	}
+    	for (int i=0; i<=maxUniverseIdx; i++) {
+    		Universe universe = new Universe(i);
+    		universe.setTimeSource(new WallClockTimeSource());
+    		universes.add(universe);
+    	}
     	
+		
 		String acClassname = (String) this.get("audioController.class");
 		if (acClassname==null) {
 			acClassname = "com.randomnoun.dmx.protocol.nullDevice.NullAudioController";
@@ -707,7 +786,7 @@ bsh.InterpreterError: null fromValue
 					logger.debug("Creating scripted fixture '" + fixtureTO.getName() + "' at dmxOffset + " + fixtureTO.getDmxOffset() + " from database");
 					Fixture fixture = new Fixture(fixtureTO.getName(), 
 						fixtureDef, 
-						controller.getUniverse(DEFAULT_UNIVERSE), (int) fixtureTO.getDmxOffset());
+						controller.getUniverse((int)fixtureTO.getUniverseNumber()-1), (int) fixtureTO.getDmxOffset());
 					if (fixtureTO.getX()!=null) { fixture.setPosition(fixtureTO.getX(), fixtureTO.getY(), fixtureTO.getZ()); }
 					if (fixtureTO.getLookingAtX()!=null) { fixture.setLookingAt(fixtureTO.getLookingAtX(), fixtureTO.getLookingAtY(), fixtureTO.getLookingAtZ()); }
 					if (fixtureTO.getUpX()!=null) { fixture.setUpVector(fixtureTO.getUpX(), fixtureTO.getUpY(), fixtureTO.getUpZ()); }
@@ -908,17 +987,32 @@ bsh.InterpreterError: null fromValue
     }
     
     public void loadListeners() {
+    	/*
 		Universe universe = controller.getUniverse(DEFAULT_UNIVERSE);
     	UniverseUpdateListener updateListener = dmxDevice.getUniverseUpdateListener(); 
 		universe.addListener(updateListener);
 		updateListener.startThread();
+		*/
+    	
+    	// add an update listener to each universe for any devices
+    	// configured on those universes
+    	for (int i=0; i<dmxDeviceConfigs.size(); i++) {
+    		DmxDeviceConfig ddc = dmxDeviceConfigs.get(i);
+    		Universe universe = controller.getUniverse(ddc.getUniverseIdx());
+    		UniverseUpdateListener updateListener = ddc.getDmxDevice().getUniverseUpdateListener(); 
+    		universe.addListener(updateListener);
+    		updateListener.startThread();
+    	}
+    	
 		
 		if (!Text.isBlank((String) getProperty("dev.vlc.host"))) {
 			// hard-coding fixture name in for debugging
 			try {
-				updateListener = new VlcUniverseUpdateListener(
+				Universe universe = controller.getUniverse(DEFAULT_UNIVERSE);
+				UniverseUpdateListener updateListener = 
+				  new VlcUniverseUpdateListener(
 						getProperty("dev.vlc.host"), getProperty("dev.vlc.port"));
-				((VlcUniverseUpdateListener) updateListener).setFixture(controller.getFixtureByName("leftWash")); 
+				((VlcUniverseUpdateListener) updateListener).setFixture(controller.getFixtureByName(getProperty("dev.vlc.fixtureName"))); 
 				universe.addListener(updateListener);
 				updateListener.startThread();
 				
@@ -950,7 +1044,9 @@ bsh.InterpreterError: null fromValue
     }
     
     public Show getShow(long showId) {
-    	return showConfigs.get(showId).getShow();
+    	ShowConfig sc = showConfigs.get(showId); 
+    	if (sc==null) { throw new IllegalArgumentException("Unknown showId " + showId); }
+    	return sc.getShow();
     }
     
     public Show getShowNoEx(long showId) {
@@ -1091,10 +1187,16 @@ bsh.InterpreterError: null fromValue
     	
     	// @TODO could possibly even reset the controller before doing this
     	// will also stop listener threads
+    	/*
     	if (dmxDevice!=null) {
 			dmxDevice.close();
 			// @TODO dump any exceptions in the device's ExceptionContainer interface
+    	} */
+    	for (int i=0; i<dmxDeviceConfigs.size(); i++) {
+    		DmxDeviceConfig ddc = dmxDeviceConfigs.get(i);
+    		ddc.getDmxDevice().close();
     	}
+    	
     }
 
     
@@ -1118,7 +1220,13 @@ bsh.InterpreterError: null fromValue
 	}
 	
 	public List<ExceptionContainer.TimestampedException> getDmxDeviceExceptions() {
-		return dmxDevice.getExceptions();
+		//return dmxDevice.getExceptions();
+		List allExceptions = new ArrayList<ExceptionContainer.TimestampedException>();
+		for (int i=0; i<dmxDeviceConfigs.size(); i++) {
+    		DmxDeviceConfig ddc = dmxDeviceConfigs.get(i);
+    		allExceptions.addAll(ddc.getDmxDevice().getExceptions());
+    	}
+		return allExceptions;
 	}
 
 	public List<TimestampedShowException> getShowExceptions() {
@@ -1144,7 +1252,11 @@ bsh.InterpreterError: null fromValue
 	}
 	
 	public void clearDmxDeviceExceptions() {
-		dmxDevice.clearExceptions();
+		// dmxDevice.clearExceptions();
+		for (int i=0; i<dmxDeviceConfigs.size(); i++) {
+    		DmxDeviceConfig ddc = dmxDeviceConfigs.get(i);
+    		ddc.getDmxDevice().clearExceptions();
+    	}
 	}
 	
 	public void clearShowExceptions() {

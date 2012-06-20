@@ -57,7 +57,7 @@ public class ControllerTest extends TestCase {
 			
 			// things
 			List<Universe> universes = new ArrayList<Universe>();
-			Universe universe = new Universe();
+			Universe universe = new Universe(0);
 			universe.setTimeSource(new WallClockTimeSource());
 			universes.add(universe);
 			Fixture leftFixture = new Fixture("leftFixture", x0177FixtureDef, universe, 10);
@@ -136,7 +136,7 @@ public class ControllerTest extends TestCase {
 			
 			// things
 			List<Universe> universes = new ArrayList<Universe>();
-			Universe universe = new Universe();
+			Universe universe = new Universe(0);
 			universe.setTimeSource(new WallClockTimeSource());
 			universes.add(universe);
 			Fixture leftFixture = new Fixture("leftFixture", miniWashFixtureDef, universe, 21);

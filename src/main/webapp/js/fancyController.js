@@ -21,9 +21,11 @@ var disableIframe = true;
 function initLookups() {
     for (var i=0; i<fixtures.length; i++) {
         var f=fixtures[i]; var c=fixtureDefs[f.type]['dmxChannels'];
-        for (var d=0; d<c; d++) {
-            dmxToFixture[d+f['dmxOffset']]=f;
-        }
+        if (f.universeIdx==0) {
+            for (var d=0; d<c; d++) {
+                dmxToFixture[d+f['dmxOffset']]=f;
+            }
+        }  
     }
 }
 // return value formatted as string with 2 decimal places
@@ -1061,12 +1063,12 @@ function dmxInitPanel() {
     }
     for (var i=0; i<fixtures.length; i++) {
     	f=fixtures[i];
-    	var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
+    	if (f.universeIdx==0) {
+    	  var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
     		"<img src=\"" + fixtureDefs[f.type]["img16"] + "\">");
-    	//var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
-    	//	"<img src=\"image/favicon.png\">"	);
-    	$("dmxBox[" + f["dmxOffset"] + "]").insert({'top':dmxFixtureIconEl});
-    	$("dmxBox[" + f["dmxOffset"] + "]").className="dmxValueWithFixture";
+    	  $("dmxBox[" + f["dmxOffset"] + "]").insert({'top':dmxFixtureIconEl});
+    	  $("dmxBox[" + f["dmxOffset"] + "]").className="dmxValueWithFixture";
+    	}  
     }
     dmxSlider = new Control.Slider("dmxSliderHandle", "dmxSlider", {
         axis: "vertical",

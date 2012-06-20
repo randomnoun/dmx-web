@@ -18,6 +18,9 @@ public class Universe {
 	 */
 	public static int MAX_CHANNELS=512;
 	
+	/** 0-based universe number */
+	private int universeIdx;
+	
 	// the 0th element of this array is DMX channel one.
 	private int dmxValues[] = new int[MAX_CHANNELS];
 	
@@ -29,7 +32,8 @@ public class Universe {
 	private List<UniverseUpdateListener> listeners = new ArrayList<UniverseUpdateListener>();
 	private TimeSource timeSource;
 	
-	public Universe() {
+	public Universe(int universeIdx) {
+		this.universeIdx = universeIdx;
 		long now = System.currentTimeMillis();
 		for (int i=0; i<MAX_CHANNELS; i++) {
 			dmxValues[i]=0;
@@ -145,6 +149,14 @@ public class Universe {
 	/** Removes all listeners from this Universe. */
 	public void removeListeners() {
 		listeners.clear();
+	}
+	
+	/** Return the 0-based universe number.
+	 * 
+	 * @return the 0-based universe number.
+	 */
+	public int getUniverseIdx() {
+		return universeIdx;
 	}
 	
 }

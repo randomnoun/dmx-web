@@ -343,6 +343,7 @@ public class FancyControllerAction
     			FixtureController fc = f.getFixtureController();
     			String fdName = fd.getClass().getName();
     			Map m = new HashMap();
+    			m.put("universeIdx", f.getUniverse().getUniverseIdx());
     			m.put("dmxOffset", f.getStartDmxChannel());
     			m.put("name", f.getName());
     			m.put("sortOrder", f.getSortOrder()); 

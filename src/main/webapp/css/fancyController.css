@@ -504,10 +504,16 @@ BODY {
   width: 800px; height: 30px; 
   color: white; background-color: red; font-size:14pt;
   margin: 5px; cursor: pointer;
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
 }
 .logDetail {
   width: 800px; color: black; border: solid 1px red; font-size:7pt;
   margin: 5px; background-color: #FFFEBB; padding-left: 10px;
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
 }
 .logDetail PRE {
   font-family: Lucida Console, Courier New;
