@@ -225,32 +225,43 @@ public class MaintainShowPropertyAction
 		long showId = Long.parseLong(request.getParameter("showId"));
 		request.setAttribute("showId", new Long(showId));
 		
-		if (action==null) { action = ""; }
-		if (action.equals("") || action.equals("editProperties")) {
-			// default action displays entry page
-			ShowPropertyTableEditor tableEditor = new ShowPropertyTableEditor(showId);
-			request.setAttribute("form", tableEditor.readShowProperties(null));
-			
-		} else if (action.equals("maintain")) {
-			Map form = new HashMap();
-			Struct.setFromRequest(form, request);
-			
-			//System.out.println(Struct.structuredMapToString("form", form));
-			ShowPropertyTableEditor tableEditor = new ShowPropertyTableEditor(showId);
-			tableEditor.removeEmptyRows(form);
-			TableEditorResult result = tableEditor.maintainShowProperties(form);
-			//System.out.println("======================================");
-			//System.out.println(Struct.structuredListToString("rows", result.getRows()));
-			//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
-			form.put("showProperties", result.getRows());
-			form.put("showProperties_size", result.getRows().size());
-			request.setAttribute("errors", result.getErrors());
-			request.setAttribute("form", form);
-			
-		} else {
-			throw new IllegalArgumentException("Invalid action '" + action + "'");
+		try {
+			Show show = appConfig.getShow(showId);
+		} catch (IllegalArgumentException ile) {
+			// request.setAttribute("message", "There was a problem instantiating this show. See the log for details.");
+			ErrorList errors = new ErrorList();
+			errors.addError("Show error", "There was a problem instantiating this show. See the log for details.");
+			request.setAttribute("errors", errors);
+			forward = "maintainShow";
 		}
-
+		
+		if (forward.equals("success")) {
+			if (action==null) { action = ""; }
+			if (action.equals("") || action.equals("editProperties")) {
+				// default action displays entry page
+				ShowPropertyTableEditor tableEditor = new ShowPropertyTableEditor(showId);
+				request.setAttribute("form", tableEditor.readShowProperties(null));
+				
+			} else if (action.equals("maintain")) {
+				Map form = new HashMap();
+				Struct.setFromRequest(form, request);
+				
+				//System.out.println(Struct.structuredMapToString("form", form));
+				ShowPropertyTableEditor tableEditor = new ShowPropertyTableEditor(showId);
+				tableEditor.removeEmptyRows(form);
+				TableEditorResult result = tableEditor.maintainShowProperties(form);
+				//System.out.println("======================================");
+				//System.out.println(Struct.structuredListToString("rows", result.getRows()));
+				//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
+				form.put("showProperties", result.getRows());
+				form.put("showProperties_size", result.getRows().size());
+				request.setAttribute("errors", result.getErrors());
+				request.setAttribute("form", form);
+				
+			} else {
+				throw new IllegalArgumentException("Invalid action '" + action + "'");
+			}
+		}
 		
         return mapping.findForward(forward);
     }

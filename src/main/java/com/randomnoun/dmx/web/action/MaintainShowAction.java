@@ -247,6 +247,9 @@ public class MaintainShowAction
 		// @TODO deal with no active stages
 		long activeStageId = appConfig.getActiveStage().getId();
 		
+		// if errors generated from show properties page
+		if (request.getAttribute("errors")!=null) { action=""; }
+		
 		if (action==null) { action = ""; }
 		if (action.equals("")) {
 			// default action displays entry page
