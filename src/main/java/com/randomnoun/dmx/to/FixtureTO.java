@@ -6,6 +6,7 @@ public class FixtureTO {
     private long stageId;
     private long fixtureDefId;
     private String name;
+    private long universeNumber;
     private long dmxOffset;
     private Long x;
     private Long y;
@@ -271,6 +272,14 @@ public class FixtureTO {
 	 */
 	public void setFixPanelY(Long fixPanelY) {
 		this.fixPanelY = fixPanelY;
+	}
+
+	public long getUniverseNumber() {
+		return universeNumber;
+	}
+
+	public void setUniverseNumber(long universeNumber) {
+		this.universeNumber = universeNumber;
 	}
 
 }

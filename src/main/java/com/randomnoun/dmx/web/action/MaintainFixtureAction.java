@@ -66,12 +66,12 @@ public class MaintainFixtureAction
     public static class FixtureTableEditor extends TableEditor {
 
     	private final static String[] fieldNames = 
-    		new String[] { "id", "fixtureDefId", "name", "dmxOffset", "sortOrder", "x", "y", "z",
+    		new String[] { "id", "fixtureDefId", "name", "universeNumber", "dmxOffset", "sortOrder", "x", "y", "z",
     		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ", "fixPanelType", "fixPanelX", "fixPanelY" };
     	
     	// for row removal
     	private final static String[] fieldNames2 = 
-    		new String[] { "id", "fixtureDefId", "name", "dmxOffset", "sortOrder", "x", "y", "z",
+    		new String[] { "id", "fixtureDefId", "name", "universeNumber", "dmxOffset", "sortOrder", "x", "y", "z",
     		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ", "fixPanelX", "fixPanelY" };
         	
     	
@@ -136,7 +136,9 @@ public class MaintainFixtureAction
     	    boolean valid = true;
     	    valid = valid & table.checkMandatory("fixtureDefId", 10, "Fixture type"); // @TODO check against IDs in DB
     	    valid = valid & table.checkMandatory("name", 100, "Name");
-    	    valid = valid & table.checkMandatory("dmxOffset", 10, "DMX offset");
+    	    valid = valid & table.checkMandatory("universeNumber", 10, "universeNumber");
+    	    valid = valid & table.checkNumeric("universeNumber", "universeNumber");
+    	    valid = valid & table.checkMandatory("dmxOffset", 3, "DMX offset");
     	    valid = valid & table.checkNumeric("dmxOffset", "DMX offset");
     	    valid = valid & table.checkNumeric("sortOrder", "Sort order");
     	    valid = valid & table.checkNumeric("fixPanelX", "Fixture panel X position");
@@ -167,21 +169,26 @@ public class MaintainFixtureAction
     	    	
 	    	    long fixtureDefId = Long.parseLong(table.getRowValue("fixtureDefId"));
 	    	    long dmxOffset = Long.parseLong(table.getRowValue("dmxOffset"));
+	    	    long universeNumber = Long.parseLong(table.getRowValue("universeNumber"));
 	    	    long numChannels = ((Long) fixtureDefMap.get(fixtureDefId)).longValue();
-	    	    for (int i=1; i<=numChannels; i++) {
-	    	    	int otherFixtureId = occupiedDmxValues[(int) dmxOffset+i-1];
-	    	    	if (otherFixtureId==-1) {
-	    	    		occupiedDmxValues[(int) dmxOffset+i-1]=table.getCurrentRow();
-	    	    	} else {
-	    	    		table.getErrors().addError(
-	    	    			"fixtures[" + table.getCurrentRow() + "].dmxOffset,fixtures[" + otherFixtureId + "].dmxOffset", 
-	    	    		   "DMX conflict", "The fixtures '" + table.getRowValue("name") + "' and '" + 
-	    	    		   ((Map)table.getRows().get(otherFixtureId)).get("name") + 
-	    	    		   "' overlap on some DMX channels", 
-	    	    		   ErrorList.SEVERITY_INVALID);
-	    	    		valid = false;
-	    	    		break;
-	    	    	}
+	    	    
+	    	    // @TODO do this across all universes
+	    	    if (universeNumber==1) {
+		    	    for (int i=1; i<=numChannels; i++) {
+		    	    	int otherFixtureId = occupiedDmxValues[(int) dmxOffset+i-1];
+		    	    	if (otherFixtureId==-1) {
+		    	    		occupiedDmxValues[(int) dmxOffset+i-1]=table.getCurrentRow();
+		    	    	} else {
+		    	    		table.getErrors().addError(
+		    	    			"fixtures[" + table.getCurrentRow() + "].dmxOffset,fixtures[" + otherFixtureId + "].dmxOffset", 
+		    	    		   "DMX conflict", "The fixtures '" + table.getRowValue("name") + "' and '" + 
+		    	    		   ((Map)table.getRows().get(otherFixtureId)).get("name") + 
+		    	    		   "' overlap on some DMX channels", 
+		    	    		   ErrorList.SEVERITY_INVALID);
+		    	    		valid = false;
+		    	    		break;
+		    	    	}
+		    	    }
 	    	    }
     	    }
     	    if (valid && !Text.isBlank(table.getRowValue("x")) && 

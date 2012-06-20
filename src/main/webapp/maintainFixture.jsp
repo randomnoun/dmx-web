@@ -175,7 +175,7 @@ function edtUpdateDmxOffset(rowId) {
     var fixtureId = new Number(document.forms[0].elements["fixtures[" + rowId + "].fixtureDefId"].value);
     var dmxOffset = new Number(document.forms[0].elements["fixtures[" + rowId + "].dmxOffset"].value);
     var dmxFinish = fixtureDefMap[fixtureId] + dmxOffset - 1;
-    trEl.getElementsByTagName("TD")[4].innerHTML = dmxFinish;
+    trEl.getElementsByTagName("TD")[5].innerHTML = dmxFinish;
     // alert("Updating row " + rowId + " to " + dmxFinish);    
 }
 
@@ -231,7 +231,7 @@ function initWindow() {
   <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
       <tr>
         <td colspan="3"></td>
-        <td colspan="2" class="formHeader" style="background-color: #000052" width="90px">DMX offset <img src="image/help-icon.png" align="right" title="Starting DMX channel for this fixture" /></td>
+        <td colspan="3" class="formHeader" style="background-color: #000052" width="90px">DMX offset <img src="image/help-icon.png" align="right" title="Starting DMX channel for this fixture" /></td>
         <td rowspan="2" class="formHeader" style="background-color: #000052; vertical-align: bottom;">Sort<br/>order <img src="image/help-icon.png" align="right" title="Order in which this fixture will appear on the 'Fixtures' panel" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Fixture panel <img src="image/help-icon.png" align="right" title="Display settings for this fixture on the fixture panel" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Position <img src="image/help-icon.png" align="right" title="The location of the fixture" /></td>
@@ -242,6 +242,7 @@ function initWindow() {
        <td class="formHeader">&nbsp;</td>
        <td class="formHeader" style="background-color: #000052">Fixture type <img src="image/help-icon.png" align="right" title="Fixture definition type" /></td>
        <td class="formHeader" style="background-color: #000052">Name <img src="image/help-icon.png" align="right" title="The name that will appear on the 'Fixtures' panel" /></td>
+       <td class="formHeader" style="background-color: #000052">Universe</td>
        <td class="formHeader" style="background-color: #000052">Start</td>
        <td class="formHeader" style="background-color: #000052">Finish</td>
        <!-- sort order -->
@@ -284,6 +285,9 @@ function initWindow() {
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].name' text='errorBg' />"> 
                                   <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="20">
+                              </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].universeNumber' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.universeNumber}'/>" >
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].dmxOffset' text='errorBg' />"> 
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.dmxOffset}'/>" onchange="edtUpdateDmxOffset(<c:out value='${rowStatus.index}'/>)">
@@ -346,6 +350,9 @@ function initWindow() {
                               <td class="<r:onError name='fixtures[${rowStatus.index}].name' text='errorBg' />"> 
                                   <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="20">
                               </td>
+                              <td class="<r:onError name='fixtures[${rowStatus.index}].universeNumber' text='errorBg' />"> 
+                                  <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.universeNumber}'/>" >
+                              </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].dmxOffset' text='errorBg' />"> 
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.dmxOffset}'/>" onchange="edtUpdateDmxOffset(<c:out value='${rowStatus.index}'/>)">
                               </td>
@@ -401,6 +408,7 @@ function initWindow() {
                    </td>
                    <td><r:select data="${form.fixtureDefs}" name="fixtures[${form.fixtures_size}].fixtureDefId" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)"/></td>
                    <td><input type="text" class="formfield" name="fixtures[<c:out value='${form.fixtures_size}' />].name" value="" size="20"></td>
+                   <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].universeNumber" value="1" ></td>
                    <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].dmxOffset" value="" ></td>
                    <td></td>
                    <td><input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${form.fixtures_size}' />].sortOrder" value="" ></td>
@@ -443,6 +451,7 @@ function initWindow() {
 <tr><td colspan="2">Type of fixture:</td><td><r:select data="${form.fixtureDefs}" name="rfFixtureDefId" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)"/></td></tr>
 <tr><td colspan="2">Number of fixtures:</td><td><input class="rfInput" style="width: 30px;" type="text" name="rfCount" value="1" /> x <input class="rfInput" style="width:30px;" type="text" name="repeatFixtureCount" value="1" /> columns (<span style="font-family: Courier New; font-size: 8pt;">x</span>) x rows (<span style="font-family: Courier New; font-size: 8pt;">y</span>)</td></tr>
 <tr><td colspan="2">Names of fixtures:</td><td><input class="rfInput" type="text" name="rfName" value="something-{x}-{y}" /></td></tr>
+<tr><td colspan="2">Starting universe:</td><td><input class="rfInput" type="text" name="rfUniverseNumber" value="1" /></td></tr>
 <tr><td colspan="2">Starting DMX offset:</td><td><input class="rfInput" type="text" name="rfDmxOffset" value="15" /></td></tr>
 <tr><td colspan="2">DMX offset gap between fixtures:</td><td><input class="rfInput" type="text" name="rfDmxOffsetGap" value="0" /></td></tr>
 <tr><td colspan="2">DMX allocation:</td><td><r:select data="${rfDmxAllocations}" name="rfDmxAllocation" value="" displayColumn="name" valueColumn="id" /></td></tr>
@@ -466,7 +475,7 @@ function initWindow() {
 
 <div class="rfTitle2">Preview</div>
 <div class="rfPreviewContainer">
-<div class="rfPreview"><div class="rfPreviewName">something-1-1</div>1</div>
+<div class="rfPreview"><div class="rfPreviewName">something-1-1</div>u1-offset 1</div>
 <div class="rfPreview"><div class="rfPreviewName">something-1-2</div>5</div>
 <div class="rfPreview"><div class="rfPreviewName">something-1-3</div>9</div>
 <br/>

@@ -21,6 +21,7 @@ public class FixtureDAO {
             f.setStageId(rs.getLong("stageId"));
             f.setFixtureDefId(rs.getLong("fixtureDefId"));
             f.setName(rs.getString("name")); if (rs.wasNull()) { f.setName(null); }
+            f.setUniverseNumber(rs.getLong("universeNumber"));
             f.setDmxOffset(rs.getLong("dmxOffset"));
             f.setX(rs.getLong("x")); if (rs.wasNull()) { f.setX(null); }
             f.setY(rs.getLong("y")); if (rs.wasNull()) { f.setY(null); }
@@ -52,7 +53,7 @@ public class FixtureDAO {
      */
     public List<FixtureTO> getFixtures(String sqlWhereClause) {
         String sql =
-            "SELECT id, stageId, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder, fixPanelType, fixPanelX, fixPanelY " +
+            "SELECT id, stageId, fixtureDefId, name, universeNumber, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder, fixPanelType, fixPanelX, fixPanelY " +
             " FROM fixture " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<FixtureTO>) jt.query(sql, new FixtureDAORowMapper());
@@ -66,7 +67,7 @@ public class FixtureDAO {
      */
     public FixtureTO getFixture(long fixtureId) {
         return (FixtureTO) jt.queryForObject(
-            "SELECT id, stageId, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder, fixPanelType, fixPanelX, fixPanelY " +
+            "SELECT id, stageId, fixtureDefId, name, universeNumber, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder, fixPanelType, fixPanelX, fixPanelY " +
             " FROM fixture " +
             " WHERE id = ?",
             new Object[] { new Long(fixtureId) }, 
@@ -80,13 +81,14 @@ public class FixtureDAO {
     public void updateFixture(FixtureTO fixture) {
         String sql =
             "UPDATE fixture " +
-            " SET stageId=?, fixtureDefId=?, name=?, dmxOffset=?, x=?, y=?, z=?, lookingAtX=?, lookingAtY=?, lookingAtZ=?, upX=?, upY=?, upZ=?, sortOrder=?, fixPanelType=?, fixPanelX=?, fixPanelY=? " + 
+            " SET stageId=?, fixtureDefId=?, name=?, universeNumber=?, dmxOffset=?, x=?, y=?, z=?, lookingAtX=?, lookingAtY=?, lookingAtZ=?, upX=?, upY=?, upZ=?, sortOrder=?, fixPanelType=?, fixPanelX=?, fixPanelY=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
         		fixture.getStageId(),
                 fixture.getFixtureDefId(),
                 fixture.getName(),
+                fixture.getUniverseNumber(),
                 fixture.getDmxOffset(),
                 fixture.getX(),
                 fixture.getY(),
@@ -118,13 +120,14 @@ public class FixtureDAO {
     public long createFixture(FixtureTO fixture) {
         String sql =
             "INSERT INTO fixture " + 
-            " (stageId, fixtureDefId, name, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder, fixPanelType, fixPanelX, fixPanelY) " +
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+            " (stageId, fixtureDefId, name, universeNumber, dmxOffset, x, y, z, lookingAtX, lookingAtY, lookingAtZ, upX, upY, upZ, sortOrder, fixPanelType, fixPanelX, fixPanelY) " +
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
         long updated = jt.update(sql,
             new Object[] {
         		fixture.getStageId(),
                 fixture.getFixtureDefId(),
                 fixture.getName(),
+                fixture.getUniverseNumber(),
                 fixture.getDmxOffset(),
                 fixture.getX(),
                 fixture.getY(),
