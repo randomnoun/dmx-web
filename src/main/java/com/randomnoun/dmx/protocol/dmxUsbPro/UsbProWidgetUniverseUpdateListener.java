@@ -25,6 +25,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 	UsbProUpdaterThread t = null;
 	
 	// @TODO less obvious thread safety problems
+	// @TODO maybe have a single thread for all DmxDevices ?
 	public static class UsbProUpdaterThread extends Thread {
 		UsbProWidgetUniverseUpdateListener upuul;
 		boolean done = false;
@@ -41,6 +42,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 			startTime = System.currentTimeMillis();
 			while (!done) {
 				if (hasChanged) {
+					// race condition here maybe
 					hasChanged = false;
 					try {
 						logger.debug("Sending DMX data");

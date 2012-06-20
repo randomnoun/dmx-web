@@ -414,7 +414,7 @@ public class MaintainFixtureDefAction
 		ChannelMuxer channelMuxerObj = null;
 		ScriptEngine scriptEngine = null;
 		ScriptContext scriptContext = null;
-		Universe nullUniverse = new Universe();
+		Universe nullUniverse = new Universe(0);
 		Controller testController = new Controller();
 		
 		try {

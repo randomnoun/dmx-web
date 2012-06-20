@@ -29,6 +29,14 @@ import com.randomnoun.dmx.web.Table;
 import com.randomnoun.dmx.web.TableEditor;
 import com.randomnoun.dmx.web.TableEditor.TableEditorResult;
 
+/*
+ * @XXX we should probably have startUniverseIdx and endUniverseIdx
+ * values per device to handle devices that span multiple universes.
+ *
+ * NB: it should be OK to have multiple devices generating output
+ * on the same universe number.
+ * 
+ */
 
 /**
  * Device entry action.
@@ -155,6 +163,16 @@ public class MaintainDeviceAction
     			AppConfig.getAppConfig().reloadDevices();
     		}
     		return result;
+    	}
+    	
+    	public boolean validateTable() {
+    		boolean valid = super.validateTable();
+    		if (!valid) { return false; }
+    		
+    		// @XXX: further validation to do:
+    		// check that all active universes are sequentially numbered from 1
+    		// (or possibly put in nulldevices for empty universes?)
+    		return true;
     	}
     	
     	public Map readDevices(Map request) {
