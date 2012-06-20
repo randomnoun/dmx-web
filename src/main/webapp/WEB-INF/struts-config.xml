@@ -121,6 +121,7 @@
           type="com.randomnoun.dmx.web.action.MaintainShowPropertyAction"
         >
           <forward name="success" path="/maintainShowProperty.jsp"/>
+          <forward name="maintainShow" path="/maintainShow.html"/>
         </action>
 
         <action path="/maintainStage" 
