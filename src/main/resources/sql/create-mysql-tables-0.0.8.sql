@@ -1,9 +1,9 @@
 -- success if device exists
 SELECT COUNT(*) FROM device;
 
--- success if device.active exists
-SELECT COUNT(active) FROM device;
--- SELECT COUNT(active) FROM xxx;
+-- success if fixture.universeNumber exists
+SELECT COUNT(universeNumber) FROM fixture;
+
 
 
 CREATE TABLE `device` (
@@ -30,3 +30,9 @@ ENGINE = InnoDB;
 ALTER TABLE `device` CHANGE COLUMN `ynActive` `active` VARCHAR(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL
 , AUTO_INCREMENT = 1;
 
+ALTER TABLE `fixture` ADD COLUMN `universeNumber` INT(10) UNSIGNED NOT NULL DEFAULT 1 
+  AFTER `name`;
+  
+UPDATE fixture SET universeNumber=1;
+
+  
