@@ -307,7 +307,7 @@ public class AppConfig extends AppConfigBase {
     		logger.info("********* DATABASE UPGRADE REQUIRED");
     		if ("true".equals(getProperty("database.autoUpdate"))) {
 	    		for (int j=i+2; j<resourceNames.size(); j++) {
-	    			String resourceName = (String) resourceNames.get(i);
+	    			String resourceName = (String) resourceNames.get(j);
 	        		try {
 	    				statements = DatabaseUtil.parseStatements(AppConfig.class.getClassLoader().getResourceAsStream(resourceName), false);
 	    			} catch (IOException ioe) {
@@ -315,7 +315,7 @@ public class AppConfig extends AppConfigBase {
 	    			} catch (ParseException pe) {
 	    				throw new IllegalStateException("Could not parse resource '" + resourceName + "'", pe);
 	    			}
-	        		logger.info("Applying database update " + j);
+	        		logger.info("Applying database update " + j + ": '" + resourceName + "'");
 	        		for (int k=2; k<statements.size(); k++) {
 	        			logger.info("Applying statement " + k + ": '" + statements.get(k));	
 	        			jt.update((String) statements.get(k));
