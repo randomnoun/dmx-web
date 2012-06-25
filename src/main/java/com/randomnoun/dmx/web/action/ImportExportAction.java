@@ -110,37 +110,37 @@ public class ImportExportAction
 			
 			List items = new ArrayList();
 			topLevelMap.put("children", items);
-			items.add(newItem("Device settings", "devices"));
+			items.add(newItem("Device settings", "devices", "icnDevice.png"));
 			
-			Map itemMap = newItem("Fixture definitions");
+			Map itemMap = newItem("Fixture definitions", null, "icnFixtureDef2.png");
 			List itemChildren = new ArrayList();
 			itemMap.put("children", itemChildren);
 			List<FixtureDefTO> fixtureDefs = fixtureDefDAO.getFixtureDefs(null);
 			for (int i=0; i<fixtureDefs.size(); i++) {
-				itemChildren.add(newItem(fixtureDefs.get(i).getName(), "fix-" + fixtureDefs.get(i).getId()));
+				itemChildren.add(newItem(fixtureDefs.get(i).getName(), "fix-" + fixtureDefs.get(i).getId(), "icnFixtureDef2.png"));
 			}
 			items.add(itemMap);
 			
-			itemMap = newItem("Show definitions");
+			itemMap = newItem("Show definitions", null, "icnShowDef2.png");
 			itemChildren = new ArrayList();
 			itemMap.put("children", itemChildren);
 			List<ShowDefTO> showDefs = showDefDAO.getShowDefs(null);
 			for (int i=0; i<showDefs.size(); i++) {
-				itemChildren.add(newItem(showDefs.get(i).getName(), "show-" + showDefs.get(i).getId()));
+				itemChildren.add(newItem(showDefs.get(i).getName(), "show-" + showDefs.get(i).getId(), "icnShowDef2.png"));
 			}
 			items.add(itemMap);
 			
-			itemMap = newItem("Stages");
+			itemMap = newItem("Stages", null, "icnStage.png");
 			itemChildren = new ArrayList();
 			itemMap.put("children", itemChildren);
 			List<StageTO> stages = stageDAO.getStages(null);
 			for (int i=0; i<stages.size(); i++) {
-				Map stageItem = newItem(stages.get(i).getName());
+				Map stageItem = newItem(stages.get(i).getName(), null, "icnStage.png");
 				itemChildren.add(stageItem);
 				List itemChildren2 = new ArrayList();
 				stageItem.put("children", itemChildren2);
-				itemChildren2.add(newItem("Fixtures", "stage-fix-" + stages.get(i).getId())); // @TODO add fixture/show counts
-				itemChildren2.add(newItem("Shows", "stage-show-" + stages.get(i).getId()));
+				itemChildren2.add(newItem("Fixtures", "stage-fix-" + stages.get(i).getId(), "icnFixture2.png")); // @TODO add fixture/show counts
+				itemChildren2.add(newItem("Shows", "stage-show-" + stages.get(i).getId(), "icnShow.png"));
 			}
 			items.add(itemMap);
 			
@@ -355,15 +355,16 @@ src/main/resources/export.xml (date of export, totals etc)
 		    "<dataroot xmlns:od=\"urn:schemas-microsoft-com:officedata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xsi:noNamespaceSchemaLocation=\"" + tableName + ".xsd\" generated=\"" + now + "\">\n";
     }
     
-    public Map newItem(String text, String name) {
+    public Map newItem(String text, String name, String image) {
     	Map m = new HashMap();
     	m.put("text", text);
     	if (name!=null) { m.put("name", name); }
+    	if (image!=null) { m.put("image", image); }
     	return m;
     }
     
     public Map newItem(String text) {
-    	return newItem(text, null); 
+    	return newItem(text, null, null); 
     }
 
     
