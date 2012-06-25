@@ -1263,6 +1263,17 @@ bsh.InterpreterError: null fromValue
 		showExceptions.clear();	
 	}
 	
+	public int getLogCount() {
+		int count = exceptionContainer.getExceptions().size() +
+			controller.getAudioController().getExceptions().size() + 
+			showExceptions.size() + 
+			audioSource.getExceptions().size();
+		for (int i=0; i<dmxDeviceConfigs.size(); i++) {
+    		count += dmxDeviceConfigs.get(i).getDmxDevice().getExceptions().size();
+    	}
+		return count;
+	}
+	
 	
 	/** Removes the leading block and line comment markers from a piece of javadoc comment.
 	 * 
