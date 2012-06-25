@@ -134,6 +134,7 @@
           type="com.randomnoun.dmx.web.action.ImportExportAction"
         >
           <forward name="success" path="/importExport.jsp"/>
+          <forward name="null" className="com.randomnoun.common.webapp.struts.NullForward" path=""/>
         </action>
 
 
