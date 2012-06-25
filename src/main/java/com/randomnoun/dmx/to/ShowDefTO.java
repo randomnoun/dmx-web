@@ -86,6 +86,17 @@ public class ShowDefTO {
 	public void setRecorded(boolean isRecorded) {
 		this.isRecorded = isRecorded;
 	}
+	
+	public String toExportXml() {
+		return "<showDef>\n" +
+			"    <id>" + id + "</id>\n" +
+			"    <name>" + name + "</name>\n" +
+			"    <className>" + className + "</className>\n" +
+			//"<script>" + script + "</script>\n" +
+			"    <javadoc>" + javadoc + "</javadoc>\n" +
+			"    <isRecorded>" + isRecorded + "</isRecorded>\n" +
+			"</showDef>\n";
+	}
     
     
 }

@@ -1,5 +1,9 @@
 package com.randomnoun.dmx.to;
 
+import java.util.List;
+
+import com.randomnoun.common.Text;
+
 public class ShowTO {
 
     private long id;
@@ -121,6 +125,25 @@ public class ShowTO {
 	 */
 	public void setStageId(long stageid) {
 		this.stageId = stageid;
+	}
+	
+	public String toExportXml(List<ShowPropertyTO> showProperties) {
+		String s = "<show>\n" +
+		    "    <id>" + id + "</id>\n" +
+			"    <stageId>" + stageId + "</stageId>\n" +		
+			"    <showDefId>" + showDefId + "</showDefId>\n" +
+			"    <name>" + name + "</name>\n" +
+			(onCancelShowId==null ? "" : "    <onCancelShowId>" + onCancelShowId + "</onCancelShowId>\n") +
+			(onCompleteShowId==null ? "" : "    <onCompleteShowId>" + onCompleteShowId + "</onCompleteShowId>\n") +
+			"    <showGroupId>" + showGroupId + "</showGroupId>\n" +
+			// "    <showPropertyCount>" + showPropertyCount + "</showPropertyCount>\n" +
+			"    <showProperties>\n";
+		for (ShowPropertyTO sp : showProperties) {
+			s += Text.indent("        ", sp.toExportXml());
+		}
+		s += "    </showProperties>\n" +
+			"</show>\n";
+		return s;
 	}
 
     

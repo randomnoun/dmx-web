@@ -1,5 +1,9 @@
 package com.randomnoun.dmx.to;
 
+import java.util.List;
+
+import com.randomnoun.common.Text;
+
 public class FixtureDefTO {
 
     private long id;
@@ -138,5 +142,25 @@ public class FixtureDefTO {
    public void setDmxChannels(long dmxChannels) {
        this.dmxChannels = dmxChannels;
    }
-   
+
+	public String toExportXml(List<FixtureDefImageTO> fixtureDefImages) {
+		String s = "<fixtureDef>\n" +
+			"    <id>" + id + "</id>\n" +
+			"    <name>" + name + "</name>\n" +
+			"    <fixtureDefClassName>" + fixtureDefClassName + "</fixtureDefClassName>\n" +
+			// "<fixtureDefScript>" + fixtureDefScript + "</fixtureDefScript>" +
+			"    <fixtureControllerClassName>" + fixtureControllerClassName + "</fixtureControllerClassName>\n" +
+			// "<fixtureControllerScript>" + fixtureControllerScript + "</fixtureControllerScript>" +
+			"    <channelMuxerClassName>" + channelMuxerClassName + "</channelMuxerClassName>\n" +
+			// "<channelMuxerScript>" + channelMuxerScript + "</channelMuxerScript>" +
+			"    <dmxChannels>" + dmxChannels + "</dmxChannels>\n" +
+			"    <fixtureDefImages>\n";
+		for (FixtureDefImageTO fdi : fixtureDefImages) {
+			s += Text.indent("        ", fdi.toExportXml());
+		}
+		s += "    </fixtureDefImages>\n" +	
+			"</fixtureDef>\n";
+		return s;
+	}
+	
 }

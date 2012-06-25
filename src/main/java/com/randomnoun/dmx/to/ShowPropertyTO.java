@@ -63,4 +63,11 @@ public class ShowPropertyTO {
         this.value = value;
     }
 
+	public String toExportXml() {
+		return "<showProperty>\n" +
+	        "    <key>" + key + "</key>\n" +
+	        "    <value>" + value + "</value>\n" +
+	        "</showProperty>\n";
+	}
+
 }

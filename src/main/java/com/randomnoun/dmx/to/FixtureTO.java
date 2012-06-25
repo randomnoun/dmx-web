@@ -281,6 +281,32 @@ public class FixtureTO {
 	public void setUniverseNumber(long universeNumber) {
 		this.universeNumber = universeNumber;
 	}
+	
+	public String toExportXml() {
+		return "<fixture>\n" +
+	        "    <id>" + id + "</id>\n" +
+			"    <stageId>" + stageId + "</stageId>\n" +
+			"    <fixtureDefId>" + fixtureDefId + "</fixtureDefId>\n" +
+			"    <name>" + name + "</name>\n" +
+			"    <universeNumber>" + universeNumber + "</universeNumber>\n" +
+			"    <dmxOffset>" + dmxOffset + "</dmxOffset>\n" +
+			(x==null ? "" : "    <x>" + x + "</x>\n") +
+			(y==null ? "" : "    <y>" + y + "</y>\n") +
+			(z==null ? "" : "    <z>" + z + "</z>\n") +
+			(lookingAtX==null ? "" : "    <lookingAtX>" + lookingAtX + "</lookingAtX>\n") +
+			(lookingAtY==null ? "" : "    <lookingAtY>" + lookingAtY + "</lookingAtY>\n") +
+			(lookingAtZ==null ? "" : "    <lookingAtZ>" + lookingAtZ + "</lookingAtZ>\n") +
+			(upX==null ? "" : "    <upX>" + upX + "</upX>\n") +
+			(upY==null ? "" : "    <upY>" + upY + "</upY>\n") +
+			(upZ==null ? "" : "    <upZ>" + upZ + "</upZ>\n") +
+			(sortOrder==null ? "" : "    <sortOrder>" + sortOrder + "</sortOrder>\n") +
+			"    <fixPanelType>" + fixPanelType + "</fixPanelType>\n" +
+			(fixPanelX==null ? "" : "    <fixPanelX>" + fixPanelX + "</fixPanelX>\n") +
+			(fixPanelY==null ? "" : "    <fixPanelY>" + fixPanelY + "</fixPanelY>\n") +
+			"</fixture>\n";
+	}
+	
+	
 
 }
 

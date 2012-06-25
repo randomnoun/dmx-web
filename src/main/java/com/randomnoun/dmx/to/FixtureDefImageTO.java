@@ -118,7 +118,17 @@ public class FixtureDefImageTO {
     public void setDescription(String description) {
         this.description = description;
     }
+
     
+    public String toExportXml() {
+    	return "<fixtureDefImage>\n" + 
+    		"    <fixtureDefId>" + fixtureDefId + "</fixtureDefId>\n" +
+    		"    <name>" + name + "</name>\n" +
+    		"    <description>" + description + "</description>\n" +
+    		"    <size>" + size + "</size>\n" +
+    		"    <contentType>" + contentType + "</contentType>\n" +
+    		"</fixtureDefImage>\n";
+    }
     
 }
 
