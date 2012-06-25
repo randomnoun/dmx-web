@@ -1484,7 +1484,7 @@ function cnfRecordClick() {
 		sendRequest('fancyController.html?action=startRecording', recCallback);
 	} else {
 		if (recShowDefId == null) {
-			var showName = prompt("And the showname is?", "something");
+			var showName = prompt("Enter a name for this show (or click 'Cancel' to discard this show)", "recordedShow");
 			if (showName==null) {
 				sendRequest('fancyController.html?action=stopRecording', recCallback);
 			} else {
@@ -1492,7 +1492,7 @@ function cnfRecordClick() {
 			}
 			
 		} else {
-			var showName = prompt("And the showname is? (change default here to save as a new show)", recShowDefName);
+			var showName = prompt("Enter a name for this show (change default to save as a new show, or click 'Cancel' to discard this show)", recShowDefName);
 			if (showName==null) {
 				sendRequest('fancyController.html?action=stopRecording', recCallback);
 			} else {
