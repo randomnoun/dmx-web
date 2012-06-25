@@ -174,7 +174,6 @@ public class ImportExportAction
 			ByteArrayOutputStream showOs = new ByteArrayOutputStream();
 			ByteArrayOutputStream stageOs = new ByteArrayOutputStream();
 			ByteArrayOutputStream deviceOs = new ByteArrayOutputStream();
-			ByteArrayOutputStream testOs = new ByteArrayOutputStream();
 			ByteArrayOutputStream exportOs = new ByteArrayOutputStream();
 			
 			
@@ -184,7 +183,6 @@ public class ImportExportAction
 			PrintWriter showPw = new PrintWriter(showOs);
 			PrintWriter stagePw = new PrintWriter(stageOs);
 			PrintWriter devicePw = new PrintWriter(deviceOs);
-			PrintWriter testPw = new PrintWriter(testOs);
 			PrintWriter exportPw = new PrintWriter(exportOs);
 			
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -329,7 +327,11 @@ src/main/resources/export.xml (date of export, totals etc)
 			
 			ze = new ZipEntry("src/test/java/com/randomnoun/dmx/BeanshellTest.java");
 			zos.putNextEntry(ze);
-			
+			InputStream tis = ImportExportAction.class.getResourceAsStream("/BeanshellTest.java");
+			if (tis!=null) {
+				StreamUtils.copyStream(tis,  zos);
+				tis.close();
+			}
 			zos.write(showOs.toByteArray());
 			
 			zos.close();
