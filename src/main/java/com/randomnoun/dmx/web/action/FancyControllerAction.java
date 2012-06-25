@@ -14,6 +14,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -134,23 +135,24 @@ public class FancyControllerAction
     /* We have one cometPipe per page */
     ConcurrentHashMap<Long, CometPipe> cometPipes = new ConcurrentHashMap();
 
-    /*
-    public static class RecordingShow extends Show {
+    
+    public static class RecordingPlaybackShow extends Show {
     	Recording recording;
-    	public RecordingShow(Recording recording) {
-    		super(-1, recording.controller, "Recording", 0L, null);
+    	public RecordingPlaybackShow(Controller controller, Recording recording) {
+    		super(-1, controller, "Recording", 0L, null);
     		this.recording = recording;
     	}
     	@Override
 		public void play() {
     		while (!isCancelled()) {
-	    		for (Frame f : recording.frames) {
-	    			for (Command c : f.commands) {
+	    		for (int i=0; i<recording.getFrames().size(); i++) {
+	    			Frame f = recording.getFrames().get(i);
+	    			for (Command c : f.getCommands()) {
 	    				c.run();
 	    			}
+	    			recording.setCurrentFrameIndex(i);
 	    			if (isCancelled()) { break; }
 	    			waitFor(100); // @TODO allow speed to be set somewhere
-		    		// @TODO update current frame number in web UI as well
 	    		}
     		}
 		}
@@ -163,10 +165,8 @@ public class FancyControllerAction
 			// TODO Auto-generated method stub
 		}
     }
-    */
-
     
-    public void setPanelAttributes(Map result, String panel, int universeIdx) {
+    public void setPanelAttributes(Map result, String panel, int universeIdx, Recording recording) {
     	AppConfig appConfig = AppConfig.getAppConfig();
     	Controller controller = appConfig.getController();
 		if (panel.equals("dmxPanel")) {
@@ -261,6 +261,10 @@ public class FancyControllerAction
 		}
 		
 		result.put("logCount", appConfig.getLogCount());
+		if (recording!=null) { 
+    		result.put("currentFrame", recording.getCurrentFrameIndex());
+    		result.put("totalFrames", recording.getFrames().size());
+		}		
     }
     
     
@@ -304,6 +308,9 @@ public class FancyControllerAction
 		if (recording!=null) { 
 			currentFrame = recording.getCurrentFrame(); 
 		} else {
+			// commands performed by this Action class are now performed
+			// within a dummy recording, to ensure consistency with
+			// actual recording behaviour.
 			Recording dummyRecording = new Recording(controller);
 			dummyRecording.addFrame(new Frame(dummyRecording));
 			currentFrame = dummyRecording.getCurrentFrame();
@@ -554,6 +561,7 @@ public class FancyControllerAction
     		request.setAttribute("panel", request.getParameter("panel"));
     		request.setAttribute("javadocUrl", appConfig.getProperty("fancyController.javadocUrl"));
     		request.setAttribute("pageId", thisPageId);
+    		request.setAttribute("logCount", appConfig.getLogCount());
     		forward="success";
 
     	} else if (action.equals("poll")) {
@@ -571,7 +579,7 @@ public class FancyControllerAction
     		
     		result.put("panel", panel);
     		result.put("serverTime", System.currentTimeMillis());
-    		setPanelAttributes(result, panel, universeIdx);
+    		setPanelAttributes(result, panel, universeIdx, recording);
     		
     		/*
     		String eventMaskString = request.getParameter("eventMask");
@@ -615,7 +623,7 @@ public class FancyControllerAction
     			Map resultMap = new HashMap();
     			resultMap.put("panel", panel);
     			resultMap.put("serverTime", System.currentTimeMillis());
-    			setPanelAttributes(resultMap, panel, universeIdx);
+    			setPanelAttributes(resultMap, panel, universeIdx, recording);
     			
     			// @TODO make this much more compact (diffs only?)
     			pw.println("<script>top.updatePanelComet(" + Struct.structuredMapToJson(resultMap) + ");</script>\n");
@@ -1055,14 +1063,35 @@ public class FancyControllerAction
     		}
 
     	} else if (action.equals("addFrame")) {
+    		if (appConfig.getShowNoEx(-1)!=null) { appConfig.cancelShow(-1); } // stop playback
     		Frame frame = new Frame(recording);
     		recording.addFrame(frame);
     		result.put("message", "Recording frame " + (recording.getCurrentFrameIndex()+1) + " of " + recording.getFrames().size());
     		result.put("currentFrame", recording.getCurrentFrameIndex());
     		result.put("totalFrames", recording.getFrames().size());
 
+    	} else if (action.equals("deleteFrame")) {
+    		if (appConfig.getShowNoEx(-1)!=null) { appConfig.cancelShow(-1); } // stop playback
+    		if (recording.getFrames().size()>1) {
+    			recording.getFrames().remove(recording.getCurrentFrameIndex());
+    			if (recording.getCurrentFrameIndex()==recording.getFrames().size()) {
+    				recording.setCurrentFrameIndex(recording.getFrames().size()-1);
+    			}
+    			for (Command c : recording.getCurrentFrame().getCommands()) { c.run(); }
+    			result.put("message", "Frame deleted");
+    		} else {
+    			result.put("message", "Recording must have at least one frame");
+    		}
+    		
+
     	} else if (action.equals("nextFrame")) {
-    		recording.setCurrentFrameIndex((recording.getCurrentFrameIndex() + 1) % recording.getFrames().size());
+    		if (appConfig.getShowNoEx(-1)!=null) { appConfig.cancelShow(-1); } // stop playback
+    		if (recording.getCurrentFrameIndex()==recording.getFrames().size()-1) {
+    			Frame frame = new Frame(recording);
+    			recording.addFrame(frame);
+    		} else {
+    			recording.setCurrentFrameIndex(recording.getCurrentFrameIndex() + 1);
+    		}
     		logger.info("Running " + recording.getCurrentFrame().getCommands().size() + " commands on nextFrame");
     		for (Command c : recording.getCurrentFrame().getCommands()) { c.run(); }
     		result.put("message", "Recording frame " + (recording.getCurrentFrameIndex()+1) + " of " + recording.getFrames().size());
@@ -1070,8 +1099,9 @@ public class FancyControllerAction
     		result.put("totalFrames", recording.getFrames().size());
 
     	} else if (action.equals("prevFrame")) {
+    		if (appConfig.getShowNoEx(-1)!=null) { appConfig.cancelShow(-1); } // stop playback
     		int newFrameIndex = recording.getCurrentFrameIndex()-1;
-    		if (newFrameIndex < 0) { newFrameIndex = recording.getFrames().size() - 1; }
+    		if (newFrameIndex < 0) { newFrameIndex = 0; }
     		recording.setCurrentFrameIndex(newFrameIndex);
     		logger.info("Running " + recording.getCurrentFrame().getCommands().size() + " commands on prevFrame");
     		for (Command c : recording.getCurrentFrame().getCommands()) { c.run(); }
@@ -1082,7 +1112,17 @@ public class FancyControllerAction
     	} else if (action.equals("playRecording")) {
     		// play/pause recording
     		// create a temporary Show object, stick it in the appConfig, and run it.
-    		result.put("message", "This should be fun");
+    		if (appConfig.getShowNoEx(-1)!=null) {
+    			// stop playback
+    			appConfig.cancelShow(-1); 
+    			result.put("message", "Stopped recording playback");
+    		} else {
+    			RecordingPlaybackShow tempShow = new RecordingPlaybackShow(controller, recording);
+    			tempShow.setShowGroupId(0);
+    			tempShow.setDescription("(recorded show)");
+    			appConfig.startRecordingPlaybackShow(tempShow);
+    			result.put("message", "Started recording playback");
+    		}
     		
     	} else if (action.equals("clearLogs")) {
     		// startPollRequests();
@@ -1091,7 +1131,9 @@ public class FancyControllerAction
     		appConfig.clearAudioSourceExceptions();
     		appConfig.clearDmxDeviceExceptions();
     		appConfig.clearShowExceptions();
+    		result.put("exceptions", Collections.EMPTY_LIST);
     		result.put("message", "Exceptions cleared");
+    		result.put("logCount", 0L);
     		
     	} else if (action.equals("resetDMX")) {
 			
