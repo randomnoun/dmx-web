@@ -116,6 +116,10 @@ li {
   position: absolute; left: 20px; top: 20px; width: 300px; height: 600px;
   overflow: scroll; 
 }
+.edtImage {
+  width: 16px; height: 16px; position: relative; top: 1px; margin-right: 2px;
+}
+
 </style>
 
 <script>
@@ -127,7 +131,9 @@ function edtAddTreeNodes(id, containerEl, items) {
     for (var i=0; i<items.length; i++) {
     	var liEl = new Element("li").update(
     		"<input type=\"checkbox\" name=\"" + (items[i].name ? items[i].name : id + "-" + i) + "\" id=\"" + id + "-" + i + "\">" +
-            "<label for=\"exportItems-" + i + "\">" + items[i].text + "</label>");
+            "<label for=\"exportItems-" + i + "\">" +
+            (items[i].image ? '<img src="image/' + items[i].image + '" class="edtImage" />' : '' ) + 
+            items[i].text + "</label>");
     	ulEl.insert({'bottom' : liEl});
     	if (items[i].children && items[i].children.length > 0) {
     		edtAddTreeNodes(id + "-" + i, liEl, items[i].children);
