@@ -61,6 +61,7 @@ import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowPropertyTO;
 import com.randomnoun.dmx.to.ShowTO;
 import com.randomnoun.dmx.to.StageTO;
+import com.randomnoun.dmx.web.action.FancyControllerAction.RecordingPlaybackShow;
 
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
@@ -1065,6 +1066,38 @@ bsh.InterpreterError: null fromValue
     	return sc.getShow();
     }
     
+    /** Start a show whilst in the recorded show editor.
+     * 
+     * The show is temporarily added to group 0 whilst running, then
+     * removed once it has been cancelled.
+     */ 
+    public void startRecordingPlaybackShow(RecordingPlaybackShow rps) {
+		//if (onCompleteShowId!=null) { showObj.setOnCompleteShowId(Long.parseLong(onCompleteShowId)); }
+		//if (onCancelShowId!=null) { showObj.setOnCancelShowId(Long.parseLong(onCancelShowId)); }
+		//if (!Text.isBlank(name)) { showObj.setName(name); }
+    	
+    	long showIdx = rps.getId(); // dragons etc. Should always be set to -1
+    	while (showConfigs.get(showIdx)!=null) {
+    		logger.info("showIdx " + showIdx + " already exists");
+    		return; 
+    	}
+		ShowConfig showConfig = new ShowConfig(this, showIdx, rps);
+		showConfigs.put(rps.getId(), showConfig);
+		//showConfigsByName.put(rps.getName(), showConfig); // is only used in API
+		shows.add(rps);
+		startShow(showIdx);
+    }
+    
+    /** Called when the recorded playback show is complete. Removes this
+     * temporary show from the application */
+    public void stopRecordingPlaybackShowCallback(RecordingPlaybackShow rps) {
+    	logger.info("Removing recordingPlaybackShow");
+    	ShowConfig sc = showConfigs.get(rps.getId());
+    	showConfigs.remove(rps.getId());
+    	//showConfigsByName.remove(rps.getName());
+    	shows.remove(rps);
+    }
+    
     public void startShow(long showId) {
     	ShowConfig showConfig = showConfigs.get(showId);
     	if (showConfig==null) {
@@ -1106,6 +1139,7 @@ bsh.InterpreterError: null fromValue
     	} else {
     		logger.warn("Not cancelling show " + showId + " '" + showConfig.getShow().getName() + "' since it is not running");
     	}
+    	// NB: show may not be completely finished at this stage
     }
     
     public void cancelShowGroup(long showGroupId) {
