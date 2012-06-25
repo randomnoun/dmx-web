@@ -149,7 +149,6 @@ public class ImportExportAction
 		} else if (action.equals("export")) {
 			List<Long> exportFixtureDefs = new ArrayList<Long>();
 			List<Long> exportShowDefs = new ArrayList<Long>();
-			List<Long> exportStages = new ArrayList<Long>();
 			List<Long> exportStageFixtures = new ArrayList<Long>();
 			List<Long> exportStageShows = new ArrayList<Long>();
 			boolean exportDevices = false;
@@ -163,6 +162,11 @@ public class ImportExportAction
 				if (p.startsWith("stage-show-")) { exportStageShows.add(Long.parseLong(p.substring(11))); }
 				if (p.equals("devices")) { exportDevices = true; }
 			}
+			
+			Set stageSet = new HashSet<Long>();
+			stageSet.addAll(exportStageFixtures);
+			stageSet.addAll(exportStageShows);
+			List<Long> exportStages = new ArrayList<Long>(stageSet);
 
 			ByteArrayOutputStream fixtureDefOs = new ByteArrayOutputStream();
 			ByteArrayOutputStream showDefOs = new ByteArrayOutputStream();
@@ -221,6 +225,15 @@ src/main/resources/export.xml (date of export, totals etc)
 			}
 			devicePw.println("</devices>\n");
 			devicePw.flush();
+			
+			stagePw.println("<stages>\n");
+			for (long stageId : exportStages) {
+				logger.info("Exporting stage " + stageId);
+				StageTO stage = stageDAO.getStage(stageId);
+				stagePw.println(Text.indent("    ", stage.toExportXml()));
+			}
+			stagePw.println("</stages>\n");
+			stagePw.flush();
 			
 			fixtureDefPw.println("<fixtureDefs>");
 			for (long fixtureDefId : exportFixtureDefs) {
@@ -290,7 +303,11 @@ src/main/resources/export.xml (date of export, totals etc)
 			ze = new ZipEntry("src/main/resources/device.xml");
 			zos.putNextEntry(ze);
 			zos.write(deviceOs.toByteArray());
-			
+
+			ze = new ZipEntry("src/main/resources/stage.xml");
+			zos.putNextEntry(ze);
+			zos.write(stageOs.toByteArray());
+
 			ze = new ZipEntry("src/main/resources/fixtureDef.xml");
 			zos.putNextEntry(ze);
 			zos.write(fixtureDefOs.toByteArray());

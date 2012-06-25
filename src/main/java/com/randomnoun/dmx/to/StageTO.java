@@ -72,5 +72,15 @@ public class StageTO {
 		this.fixPanelBackgroundImage = fixPanelBackgroundImage;
 	}
 
+	public String toExportXml() {
+		return "<stage>\n" +
+			//"    <id>" + id + "</id>\n" +
+			"    <name>" + name + "</name>\n" +
+			"    <filename>" + filename + "</filename>\n" +
+			"    <active>" + active + "</active>\n" +
+			"    <fixPanelBackgroundImage>" + fixPanelBackgroundImage + "</fixPanelBackgroundImage>\n" +
+			"</stage>\n";
+	}
+
 }
 
