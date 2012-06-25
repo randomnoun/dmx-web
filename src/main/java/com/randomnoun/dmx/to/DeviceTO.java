@@ -115,11 +115,11 @@ public class DeviceTO {
 			"    <type>" + type + "</type>\n" +                                             
 			"    <active>" + active + "</active>\n" +                                       
 			"    <universeNumber>" + universeNumber + "</universeNumber>\n" +               
-			"    <deviceProperties>";
+			"    <deviceProperties>\n";
 		for (DevicePropertyTO dp : deviceProperties) {
 			s += Text.indent("        ", dp.toExportXml());
 		}
-		s += "    </deviceProperties>" +
+		s += "    </deviceProperties>\n" +
 			"</device>\n";
 		return s;
 	}
