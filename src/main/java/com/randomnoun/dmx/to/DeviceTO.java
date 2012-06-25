@@ -1,5 +1,9 @@
 package com.randomnoun.dmx.to;
 
+import java.util.List;
+
+import com.randomnoun.common.Text;
+
 public class DeviceTO {
 
     private long id;
@@ -101,6 +105,23 @@ public class DeviceTO {
 
 	public void setDevicePropertyCount(long devicePropertyCount) {
 		this.devicePropertyCount = devicePropertyCount;
+	}
+
+	public String toExportXml(List<DevicePropertyTO> deviceProperties) {
+		String s = "<device>\n" +
+			// "    <id>" + id + "</id>\n" +                                                   
+			"    <name>" + name + "</name>\n" +                                             
+			"    <className>" + className + "</className>\n" +                              
+			"    <type>" + type + "</type>\n" +                                             
+			"    <active>" + active + "</active>\n" +                                       
+			"    <universeNumber>" + universeNumber + "</universeNumber>\n" +               
+			"    <deviceProperties>";
+		for (DevicePropertyTO dp : deviceProperties) {
+			s += Text.indent("        ", dp.toExportXml());
+		}
+		s += "    </deviceProperties>" +
+			"</device>\n";
+		return s;
 	}
 
 

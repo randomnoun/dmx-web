@@ -63,5 +63,12 @@ public class DevicePropertyTO {
         this.value = value;
     }
 
+	public String toExportXml() {
+		return "<deviceProperty>\n" +
+		    "    <key>" + key + "</key>\n" +
+		    "    <value>" + value + "</value>\n" +
+		    "</deviceProperty>\n";
+	}
+
 }
 

@@ -22,6 +22,8 @@ import com.randomnoun.common.StreamUtils;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
 import com.randomnoun.dmx.config.AppConfig;
+import com.randomnoun.dmx.dao.DeviceDAO;
+import com.randomnoun.dmx.dao.DevicePropertyDAO;
 import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.FixtureDefImageDAO;
@@ -29,6 +31,8 @@ import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.dao.ShowPropertyDAO;
 import com.randomnoun.dmx.dao.StageDAO;
+import com.randomnoun.dmx.to.DevicePropertyTO;
+import com.randomnoun.dmx.to.DeviceTO;
 import com.randomnoun.dmx.to.FixtureDefImageTO;
 import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
@@ -92,6 +96,9 @@ public class ImportExportAction
 		FixtureDAO fixtureDAO = new FixtureDAO(jt);
 		ShowDAO showDAO = new ShowDAO(jt);
 		ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(jt);
+		DeviceDAO deviceDAO = new DeviceDAO(jt);
+		DevicePropertyDAO devicePropertyDAO = new DevicePropertyDAO(jt);
+		
 		StageDAO stageDAO = new StageDAO(jt);
 		
 		if (action==null) { action = ""; }
@@ -103,7 +110,7 @@ public class ImportExportAction
 			
 			List items = new ArrayList();
 			topLevelMap.put("children", items);
-			items.add(newItem("Device settings"));
+			items.add(newItem("Device settings", "devices"));
 			
 			Map itemMap = newItem("Fixture definitions");
 			List itemChildren = new ArrayList();
@@ -145,6 +152,7 @@ public class ImportExportAction
 			List<Long> exportStages = new ArrayList<Long>();
 			List<Long> exportStageFixtures = new ArrayList<Long>();
 			List<Long> exportStageShows = new ArrayList<Long>();
+			boolean exportDevices = false;
 			
 			for (Enumeration e = request.getParameterNames(); e.hasMoreElements(); ) {
 				String p = (String) e.nextElement();
@@ -153,6 +161,7 @@ public class ImportExportAction
 				if (p.startsWith("show-")) { exportShowDefs.add(Long.parseLong(p.substring(5))); }
 				if (p.startsWith("stage-fix-")) { exportStageFixtures.add(Long.parseLong(p.substring(10))); }
 				if (p.startsWith("stage-show-")) { exportStageShows.add(Long.parseLong(p.substring(11))); }
+				if (p.equals("devices")) { exportDevices = true; }
 			}
 
 			ByteArrayOutputStream fixtureDefOs = new ByteArrayOutputStream();
@@ -160,6 +169,7 @@ public class ImportExportAction
 			ByteArrayOutputStream fixtureOs = new ByteArrayOutputStream();
 			ByteArrayOutputStream showOs = new ByteArrayOutputStream();
 			ByteArrayOutputStream stageOs = new ByteArrayOutputStream();
+			ByteArrayOutputStream deviceOs = new ByteArrayOutputStream();
 			ByteArrayOutputStream exportOs = new ByteArrayOutputStream();
 			
 			PrintWriter fixtureDefPw = new PrintWriter(fixtureDefOs);
@@ -167,7 +177,7 @@ public class ImportExportAction
 			PrintWriter fixturePw = new PrintWriter(fixtureOs);
 			PrintWriter showPw = new PrintWriter(showOs);
 			PrintWriter stagePw = new PrintWriter(stageOs);
-			
+			PrintWriter devicePw = new PrintWriter(deviceOs);
 			PrintWriter exportPw = new PrintWriter(exportOs);
 			
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -188,11 +198,29 @@ src/main/resources/show.xml (showid, properties etc)
 src/main/resources/export.xml (date of export, totals etc)
 			 */
 			
-			// 2012-06-25T12:11:53
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); 
-			String now = sdf.format(new Date());
-			//fixtureDefPw.println(getMicrosoftPreamble("fixtureDef", now));
-			//fixtureDefImagePw.println(getMicrosoftPreamble("fixtureDefImage", now));
+			// 2012-06-25T12:11:53 - for use in microsoft preamble
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			Date now = new Date();
+			String now1 = sdf.format(now);
+			
+			// 2012-06-25T12-11-53 - for use in zip filename
+			SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
+			String now2 = sdf2.format(now);
+			
+			//fixtureDefPw.println(getMicrosoftPreamble("fixtureDef", now1));
+			//fixtureDefImagePw.println(getMicrosoftPreamble("fixtureDefImage", now1));
+			
+			devicePw.println("<devices>\n");
+			if (exportDevices) {
+				logger.info("Exporting devices");
+				List<DeviceTO> devices = deviceDAO.getDevices(null);
+				for (DeviceTO device : devices) {
+					List<DevicePropertyTO> deviceProperties = devicePropertyDAO.getDeviceProperties("deviceId=" + device.getId());
+					devicePw.println(Text.indent("    ", device.toExportXml(deviceProperties)));
+				}
+			}
+			devicePw.println("</devices>\n");
+			devicePw.flush();
 			
 			fixtureDefPw.println("<fixtureDefs>");
 			for (long fixtureDefId : exportFixtureDefs) {
@@ -218,13 +246,23 @@ src/main/resources/export.xml (date of export, totals etc)
 					//fixtureDefImagePw.println(Text.indent("    ", fdi.toExportXml()));
 				}
 
-				// could use annotations for these sorts of things, maybe
+				// could use annotations for these sorts of things, maybe.
 				// although why.
 				fixtureDefPw.println(Text.indent("    ", fixtureDef.toExportXml(fixtureDefImages)));
 			}
 			fixtureDefPw.println("</fixtureDefs>\n");
 			fixtureDefPw.flush();
 			
+			fixturePw.println("<fixtures>\n");
+			for (long stageId : exportStageFixtures) {
+				List<FixtureTO> fixtures = fixtureDAO.getFixtures("stageId=" + stageId);
+				for (FixtureTO fixture : fixtures) {
+					fixturePw.println(Text.indent("    ", fixture.toExportXml()));
+				}
+			}
+			fixturePw.println("</fixtures>\n");
+			fixturePw.flush();
+
 			showDefPw.println("<showDefs>\n");
 			for (long showDefId : exportShowDefs) {
 				logger.info("Exporting showDef " + showDefId);
@@ -238,16 +276,6 @@ src/main/resources/export.xml (date of export, totals etc)
 			showDefPw.println("</showDefs>\n");
 			showDefPw.flush();
 			
-			fixturePw.println("<fixtures>\n");
-			for (long stageId : exportStageFixtures) {
-				List<FixtureTO> fixtures = fixtureDAO.getFixtures("stageId=" + stageId);
-				for (FixtureTO fixture : fixtures) {
-					fixturePw.println(Text.indent("    ", fixture.toExportXml()));
-				}
-			}
-			fixturePw.println("</fixtures>\n");
-			fixturePw.flush();
-			
 			showPw.println("<shows>\n");
 			for (long stageId : exportStageShows) {
 				List<ShowTO> shows = showDAO.getShows("stageId=" + stageId);
@@ -259,10 +287,17 @@ src/main/resources/export.xml (date of export, totals etc)
 			showPw.println("</shows>\n");
 			showPw.flush();
 			
+			ze = new ZipEntry("src/main/resources/device.xml");
+			zos.putNextEntry(ze);
+			zos.write(deviceOs.toByteArray());
 			
 			ze = new ZipEntry("src/main/resources/fixtureDef.xml");
 			zos.putNextEntry(ze);
 			zos.write(fixtureDefOs.toByteArray());
+
+			ze = new ZipEntry("src/main/resources/fixture.xml");
+			zos.putNextEntry(ze);
+			zos.write(fixtureOs.toByteArray());
 
 			ze = new ZipEntry("src/main/resources/showDef.xml");
 			zos.putNextEntry(ze);
@@ -272,15 +307,11 @@ src/main/resources/export.xml (date of export, totals etc)
 			zos.putNextEntry(ze);
 			zos.write(showOs.toByteArray());
 			
-			ze = new ZipEntry("src/main/resources/fixture.xml");
-			zos.putNextEntry(ze);
-			zos.write(fixtureOs.toByteArray());
-			
 			zos.close();
 
 			response.setContentLength(baos.size());
 			response.setContentType("application/vnd.randomnoun.dmxweb-zip");
-			response.setHeader("Content-Disposition", "attachment; filename=\"export-yyyymmdd.dmxweb-zip\"");
+			response.setHeader("Content-Disposition", "attachment; filename=\"export-" + now2 + ".dmxweb-zip\"");
 			StreamUtils.copyStream(new ByteArrayInputStream(baos.toByteArray()), response.getOutputStream());
 			forward = "null";
 			
