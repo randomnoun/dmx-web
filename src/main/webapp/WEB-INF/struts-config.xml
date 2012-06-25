@@ -130,6 +130,13 @@
           <forward name="success" path="/maintainStage.jsp"/>
         </action>
 
+        <action path="/importExport" 
+          type="com.randomnoun.dmx.web.action.ImportExportAction"
+        >
+          <forward name="success" path="/importExport.jsp"/>
+        </action>
+
+
     	<action path="/test/testException" type="com.randomnoun.common.webapp.struts.TestExceptionAction">
     	  <forward name="success" path="/thisForwardNeverRunsSinceTheActionWillAlwaysFireAnException.jsp" />
     	</action>
