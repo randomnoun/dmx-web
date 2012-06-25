@@ -913,6 +913,10 @@ bsh.InterpreterError: null fromValue
 					AppConfigException ace = new AppConfigException("Error evaluating script for show " + showDef.getId() + ": '" + showDef.getName() + "'", se);
 					exceptionContainer.addException(ace);
 					logger.error(ace);
+				} catch (Exception e) {
+					AppConfigException ace = new AppConfigException("Error evaluating script for show " + showDef.getId() + ": '" + showDef.getName() + "'", e);
+					exceptionContainer.addException(ace);
+					logger.error(ace);
 				}
 			}
 		}
