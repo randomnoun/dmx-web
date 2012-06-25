@@ -107,30 +107,65 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
   cursor: pointer
 }
 .smallInput { width: 40px; }
-ul { 
-  list-style: none;
-  margin: 5px 20px;
-}
+ul { list-style: none; margin: 0px 5px; padding-left: 16px; }
+
 li {
-  margin: 0 0 5px 0;
+  margin: 0 0 0px 0;
+}
+#exportItemsDiv {
+  position: absolute; left: 20px; top: 20px; width: 300px; height: 600px;
+  overflow: scroll; 
 }
 </style>
 
 <script>
 <r:setJavascriptVar name="exportItems" value="${exportItems}" />
 
-function edtAddTreeNodes(containerEl, items) {
+function edtAddTreeNodes(id, containerEl, items) {
     var ulEl = new Element("ul");
     containerEl.insert({'bottom' : ulEl});
     for (var i=0; i<items.length; i++) {
     	var liEl = new Element("li").update(
-    		"<input type=\"checkbox\" name=\"exportItems-" + i + "\" id=\"exportItems-" + i + "\">" +
+    		"<input type=\"checkbox\" name=\"" + id + "-" + i + "\" id=\"" + id + "-" + i + "\">" +
             "<label for=\"exportItems-" + i + "\">" + items[i].text + "</label>");
     	ulEl.insert({'bottom' : liEl});
     	if (items[i].children && items[i].children.length > 0) {
-    		edtAddTreeNodes(liEl, items[i].children);
+    		edtAddTreeNodes(id + "-" + i, liEl, items[i].children);
     	}
     }
+}
+
+function edtCheckSiblings(containerEl) {
+	var ulEl = $(containerEl.parentNode);  // li->ul
+	var ec=0, cc=0; // el count, checked count
+	ulEl.select('input[type="checkbox"]').each(function(el) { 
+	    ec++; cc+=el.checked?1:0;
+	});
+	var el = $(ulEl.parentNode).select('input[type="checkbox"]')[0]; 
+	if (ec==cc) {
+	    el.indeterminate = false;
+	    el.checked = "true";
+	} else if (cc==0) {
+		el.indeterminate = false;
+	    el.checked = false;
+	} else {
+		el.indeterminate = true;
+	    el.checked = "true";
+	}
+	if (ulEl.parentNode.tagName=="li") {
+		edtCheckSiblings(ulEl.parentNode);
+	}
+}
+
+function edtCheckboxChange(e) {
+	var tgtEl = e.findElement();
+    var checked = tgtEl.checked;
+    containerEl = $(tgtEl.parentNode); // li
+    containerEl.select('input[type="checkbox"]').each(function(el) {
+      el.writeAttribute("indeterminate", "false");
+      el.checked = checked ? "true" : false;
+    });
+    edtCheckSiblings(containerEl);
 }
 
 function edtInitPanel() {
@@ -140,18 +175,12 @@ function edtInitPanel() {
     Event.observe($("lhsOK"), 'click', lhsOKClick);
     
     var exportItemsDivEl = $("exportItemsDiv");
-    edtAddTreeNodes(exportItemsDivEl, exportItems);
-    /*
-    var ulEl = new Element("ul");
-    exportItemsDivEl.insert({'top' : ulEl});
-    for (var i=0; i<exportItems.length; i++) {
-    	var liEl = new Element("li").update(
-    		"<input type=\"checkbox\" name=\"exportItems-" + i + "\" id=\"exportItems-" + i + "\">" +
-            "<label for=\"exportItems-" + i + "\">" + exportItems[i].text + "</label>");
-    	ulEl.insert({'top' : liEl});
+    edtAddTreeNodes("exportItems", exportItemsDivEl, exportItems);
+    $$('input[type="checkbox"]').each(function(el) {
+    	Event.observe(el, 'change', edtCheckboxChange);
+    });
     	
-    }    
-    */
+
 }
 function edtSubmitClick() { 
 	isSubmitting=true; 
