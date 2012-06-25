@@ -972,13 +972,14 @@ public class FancyControllerAction
 		    		InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/recordedShowDef.java");
 		    		if (is==null) { throw new IllegalStateException("Could not find resource 'default/recordedShowDef.java'"); }
 		    		String showRecordingTemplate = new String(StreamUtils.getByteArray(is), "UTF-8");
-		    		
+		    		long defaultDelay = 200;
 		    		String script = Text.replaceString(showRecordingTemplate, "{PACKAGENAME_GOES_HERE}", defaultPackage);
 		    		script = Text.replaceString(script, "{USERNAME_GOES_HERE}", request.getRemoteHost());
 		    		script = Text.replaceString(script, "{TIMESTAMP_GOES_HERE}", (new Date()).toString());
 		    		script = Text.replaceString(script, "{CODE_GOES_HERE}", Text.indent("    ", recording.toJava()));
 		    		script = Text.replaceString(script, "{SHOWNAME_GOES_HERE}", showName);
 		    		script = Text.replaceString(script, "{CLASSNAME_GOES_HERE}", className);
+		    		script = Text.replaceString(script, "{DEFAULT_DELAY_GOES_HERE}", String.valueOf(defaultDelay));
 		    		showDefTO.setScript(script);
 		    		showDefId = showDefDAO.createShowDef(showDefTO);
 	
@@ -1010,6 +1011,7 @@ public class FancyControllerAction
 	    				lines.add(startIdx + 1, Text.indent("    ", recording.toJava()));
 	    			} else {
 	    				// arg.
+	    				logger.error("Could not update recording (startIdx=" + startIdx + ", endIdx=" + endIdx + ")");
 	    			}
 	    			logger.info("=================== old show def:");
 	    			logger.info(showDefTO.getScript());
