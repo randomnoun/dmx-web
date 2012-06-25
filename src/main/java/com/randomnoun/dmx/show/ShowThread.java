@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.config.AppConfig.AppConfigState;
+import com.randomnoun.dmx.web.action.FancyControllerAction.RecordingPlaybackShow;
 
 public class ShowThread extends Thread {
 
@@ -67,11 +68,31 @@ public class ShowThread extends Thread {
 				showAudioSource.close();
 			}
 		}
+		if (show instanceof RecordingPlaybackShow) {
+			RecordingPlaybackShow rps = (RecordingPlaybackShow) show;
+			appConfig.stopRecordingPlaybackShowCallback(rps);
+		}
 	}
 	
 	public void cancel() {
 		logger.debug("Cancelling show '" + show.getName() + "'");
 		show.cancel();
+		
+		// block if this is a recorded show (possibly make this a param?)
+    	if (show instanceof RecordingPlaybackShow) {
+    		// this method is always called by a different thread. isn't it.
+    		if (isAlive()) {
+	    		logger.info("... recordingPlaybackShow still running (1)");
+	    		try { Thread.sleep(100); } catch (InterruptedException ie) { }
+	    		if (isAlive()) {
+	    			logger.info("... recordingPlaybackShow still running (2)");
+	    			stop();
+	    			try { Thread.sleep(100); } catch (InterruptedException ie) { }
+	    			logger.info("... recordingPlaybackShow: running: " + isAlive());
+	    		}
+    		}
+    	}
+
 	}
 	
 }
