@@ -15,7 +15,8 @@ var longPollRequest=null;
 var currentPanelName=null;
 var MAX_LENGTH=9223372036854775807;
 // timestamp of last useful server response (i.e. response for current panel)
-var lastServerResponse = 0; // to prevent iframe & polls rolling back changes from the other 
+var lastServerResponse = 0; // to prevent iframe & polls rolling back changes from the other
+var lastLogCount = 0;
 var disableIframe = true;
 
 function initLookups() {
@@ -352,7 +353,7 @@ function shwUpdatePanel(json) {
     $("shwAudioBassInner").style.width = (bmt["b"]*40) + "px";    
     $("shwAudioMidInner").style.width = (bmt["m"]*40) + "px";
     $("shwAudioTrebleInner").style.width = (bmt["t"]*40) + "px";
-    
+    logUpdateNotification(json);
 }
 
 /******************************* FIXTURE PANEL ******************************/
@@ -1033,6 +1034,8 @@ function fixUpdatePanel(json) {
     fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixItems.push(f.readAttribute("fixtureId"))};});
     if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
     else if (fixItems.length>1) { fixUpdateControlsArray(fixItems); }
+    
+    logUpdateNotification(json);
 }
 
 
@@ -1353,6 +1356,7 @@ function dmxUpdatePanel(json) {
 		dmxSlider.setValue(1-dmxValues[dmxHighlightedChannel-1]/255);
 		dmxUIUpdateOnly=false;
     }
+    logUpdateNotification(json);
 }
 
 
@@ -1377,8 +1381,9 @@ function logPageUpClick(event) {
 }
 
 function logClearClick(event) {
-    sendRequest('fancyController.html?action=clearLogs');
-    startPollRequests();
+    sendRequest('fancyController.html?action=clearLogs', reloadCometIframe);
+    //reloadCometIframe();
+    //startPollRequests();
 }
 
 
@@ -1420,6 +1425,19 @@ function logUpdatePanel(json) {
           "<span class=\"logMessage\">" + text + "</span>");
         el.insert({'bottom' : logTitleEl});
     }
+    logUpdateNotification(json);
+}
+function logUpdateNotification(json) {
+	var logCount = json.logCount;
+	if (logCount!=lastLogCount) {
+		if (logCount>0) {
+			$("lhsLogNotification").style.display="block";
+	    	$("lhsLogNotificationText").update(logExceptions.length);
+	    } else {
+	    	$("lhsLogNotification").style.display="none";
+	    }
+		lastLogCount = logCount;
+	}
 }
 
 /******************************* CONFIG PANEL ******************************/

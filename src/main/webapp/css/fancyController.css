@@ -50,6 +50,11 @@ BODY {
 .clickHighlight {
   background-color: white;
 }
+#lhsLogNotification { position: absolute; top: 5px; left: 40px; display:none; }
+.popNotification { color: white; font-family: Arial; font-size: 11pt; font-weight: bold; }
+.popNotificationLeft { display:inline-block; vertical-align: top; width:13px; height:27px; background-image: url('../image/notify-left.png');}
+.popNotificationMiddle { display:inline-block; vertical-align: top; height:27px; background-image: url('../image/notify-middle.png'); background-repeat: repeat-x; padding-top: 2px; }
+.popNotificationRight { display:inline-block; vertical-align: top; width:13px; height:27px; background-image: url('../image/notify-right.png'); }
 
 /**** COMET stuff ***/
 #cometFrame { display: none; }

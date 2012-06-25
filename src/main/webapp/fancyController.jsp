@@ -76,7 +76,11 @@ var dmxTimeSourceText = "-";
   <div id="lhsShows" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsShows.png" title="Shows"/><div class="lhsMenuText">Shows</div></div>
   <div id="lhsFixtures" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsFixtures.png" title="Fixtures"/><div class="lhsMenuText">Fixtures</div></div>
   <div id="lhsDMX" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsDmx.png" title="DMX"/><div class="lhsMenuText">DMX</div></div>
-  <div id="lhsLogs" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsLogs.png" title="Logs"/><div class="lhsMenuText">Logs</div></div>
+  <div id="lhsLogs" class="lhsMenuItem" style="position:relative;"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsLogs.png" title="Logs"/>
+  <style>
+  </style>
+  <div id="lhsLogNotification" class="popNotification"><div class="popNotificationLeft"></div><div id="lhsLogNotificationText" class="popNotificationMiddle"></div><div class="popNotificationRight"></div></div>
+  <div class="lhsMenuText">Logs</div></div>
   <div id="lhsConfig" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsConfig.png" title="Config"/><div class="lhsMenuText">Config</div></div>
   
   <div id="recContainer">

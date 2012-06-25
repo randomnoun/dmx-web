@@ -259,6 +259,8 @@ public class FancyControllerAction
 		} else if (panel.equals("cnfPanel") || panel.equals("lgoPanel")) {
 			result.put("stopPollRequests", Boolean.TRUE);
 		}
+		
+		result.put("logCount", appConfig.getLogCount());
     }
     
     
@@ -1095,7 +1097,6 @@ public class FancyControllerAction
     		
     		throw new IllegalArgumentException("Unknown action '" + action + "'");
     	}
-    	
     	
     	request.setAttribute("json", Struct.structuredMapToJson(result));
 		return mapping.findForward(forward);
