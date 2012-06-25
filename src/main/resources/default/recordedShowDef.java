@@ -32,11 +32,15 @@ public class {CLASSNAME_GOES_HERE} extends RecordedShow {
   
   // MODIFY WITH CAUTION
   // 
-  // YOU ARE ABLE TO MODIFY THIS METHOD MANUALLY USING THE SCRIPT EDITOR, BUT
-  // BE AWARE THAT ANYTHING BETWEEN THE "RECORDING DEFINITION START" AND
-  // "RECORDING DEFINITION END" LINES BELOW WILL BE AUTOMATICALLY REPLACED 
-  // IF THIS SHOW IS EDITED USING THE 'GET SHOW RECORDING' BUTTON FROM THE 
-  // SHOW DEFINITIONS MAINTENANCE PAGE.
+  // IT APPEARS THAT YOU'RE VIEWING THE SOURCE FOR A RECORDED SHOW.
+  // 
+  // You can edit this file, but any lines between the 
+  // "RECORDING DEFINITION START" and "RECORDING DEFINITION END" markers
+  // below will be replaced if the show is edited using the 'Get show recording'
+  // button from the show definitions maintenance page.
+  //
+  // You can prevent this from occurring by changing the 'RecordedShow' 
+  // superclass to 'Show'
   //
   public Recording getRecording(Controller controller) {
 	// *** RECORDING DEFINITION START -- DO NOT REMOVE THIS LINE ***
@@ -55,12 +59,15 @@ public class {CLASSNAME_GOES_HERE} extends RecordedShow {
     logger.debug("play()");
     reset();
     while (!isCancelled()) {
-      for (Frame f : recording.frames) {
-        for (Command c : f.commands) {
+      int frameCount = 0;
+      for (Frame f : recording.getFrames()) {
+    	frameCount++;
+    	setLabel("Frame " + frameCount + "/" + recording.getFrames().size());
+        for (Command c : f.getCommands()) {
           c.run();
         }
         if (isCancelled()) { break; }
-        waitFor(200); // @TODO allow speed to be set somewhere
+        waitFor({DEFAULT_DELAY_GOES_HERE}); // @TODO allow speed to be set somewhere
       }
     }
   }
