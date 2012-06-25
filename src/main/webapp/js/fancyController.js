@@ -353,7 +353,8 @@ function shwUpdatePanel(json) {
     $("shwAudioBassInner").style.width = (bmt["b"]*40) + "px";    
     $("shwAudioMidInner").style.width = (bmt["m"]*40) + "px";
     $("shwAudioTrebleInner").style.width = (bmt["t"]*40) + "px";
-    logUpdateNotification(json);
+    if (json.logCount!==undefined) { logUpdateNotification(json.logCount); }
+    if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
 }
 
 /******************************* FIXTURE PANEL ******************************/
@@ -1035,7 +1036,8 @@ function fixUpdatePanel(json) {
     if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
     else if (fixItems.length>1) { fixUpdateControlsArray(fixItems); }
     
-    logUpdateNotification(json);
+    if (json.logCount!==undefined) { logUpdateNotification(json.logCount); }
+    if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
 }
 
 
@@ -1356,7 +1358,8 @@ function dmxUpdatePanel(json) {
 		dmxSlider.setValue(1-dmxValues[dmxHighlightedChannel-1]/255);
 		dmxUIUpdateOnly=false;
     }
-    logUpdateNotification(json);
+    if (json.logCount!==undefined) { logUpdateNotification(json.logCount); }
+    if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
 }
 
 
@@ -1381,7 +1384,7 @@ function logPageUpClick(event) {
 }
 
 function logClearClick(event) {
-    sendRequest('fancyController.html?action=clearLogs', reloadCometIframe);
+    sendRequest('fancyController.html?action=clearLogs', logUpdatePanel);
     //reloadCometIframe();
     //startPollRequests();
 }
@@ -1425,14 +1428,14 @@ function logUpdatePanel(json) {
           "<span class=\"logMessage\">" + text + "</span>");
         el.insert({'bottom' : logTitleEl});
     }
-    logUpdateNotification(json);
+    if (json.logCount!==undefined) { logUpdateNotification(json.logCount); }
+    if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
 }
-function logUpdateNotification(json) {
-	var logCount = json.logCount;
+function logUpdateNotification(logCount) {
 	if (logCount!=lastLogCount) {
 		if (logCount>0) {
 			$("lhsLogNotification").style.display="block";
-	    	$("lhsLogNotificationText").update(logExceptions.length);
+	    	$("lhsLogNotificationText").update(logCount);
 	    } else {
 	    	$("lhsLogNotification").style.display="none";
 	    }
@@ -1648,6 +1651,7 @@ function initWindow() {
     logInitPanel();
     cnfInitPanel();
     if (initMessage!=null) { setRhsMessageHTML(initMessage); }
+    logUpdateNotification(logCount);
     disableIframe=false;
     if (origPanel=='cnfPanel') {  // from cancel buttons in editor pages
     	lhsConfig();
