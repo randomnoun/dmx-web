@@ -174,7 +174,9 @@ public class ImportExportAction
 			ByteArrayOutputStream showOs = new ByteArrayOutputStream();
 			ByteArrayOutputStream stageOs = new ByteArrayOutputStream();
 			ByteArrayOutputStream deviceOs = new ByteArrayOutputStream();
+			ByteArrayOutputStream testOs = new ByteArrayOutputStream();
 			ByteArrayOutputStream exportOs = new ByteArrayOutputStream();
+			
 			
 			PrintWriter fixtureDefPw = new PrintWriter(fixtureDefOs);
 			PrintWriter showDefPw = new PrintWriter(showDefOs);
@@ -182,6 +184,7 @@ public class ImportExportAction
 			PrintWriter showPw = new PrintWriter(showOs);
 			PrintWriter stagePw = new PrintWriter(stageOs);
 			PrintWriter devicePw = new PrintWriter(deviceOs);
+			PrintWriter testPw = new PrintWriter(testOs);
 			PrintWriter exportPw = new PrintWriter(exportOs);
 			
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -322,6 +325,11 @@ src/main/resources/export.xml (date of export, totals etc)
 
 			ze = new ZipEntry("src/main/resources/show.xml");
 			zos.putNextEntry(ze);
+			zos.write(showOs.toByteArray());
+			
+			ze = new ZipEntry("src/test/java/com/randomnoun/dmx/BeanshellTest.java");
+			zos.putNextEntry(ze);
+			
 			zos.write(showOs.toByteArray());
 			
 			zos.close();
