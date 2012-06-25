@@ -159,7 +159,10 @@ public abstract class Show {
 			long timeout = millisecondsIntoShow-(System.currentTimeMillis() - startTime);
 			if (timeout > 0) {
 				boolean acquired = waitSemaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
-				if (acquired) { waitSemaphore.release(); }
+				if (acquired) { 
+					// only occurs during cancellation 
+					waitSemaphore.release(); 
+				}
 			}
 			// Thread.sleep(millisecondsIntoShow-(System.currentTimeMillis() - startTime));
 		} catch (InterruptedException ie) {
@@ -175,7 +178,10 @@ public abstract class Show {
 		try { 
 			if (milliseconds > 0) {
 				boolean acquired = waitSemaphore.tryAcquire(milliseconds, TimeUnit.MILLISECONDS);
-				if (acquired) { waitSemaphore.release(); }
+				if (acquired) { 
+					// only occurs during cancellation
+					waitSemaphore.release(); 
+				}
 			}
 			// Thread.sleep(millisecondsIntoShow-(System.currentTimeMillis() - startTime));
 		} catch (InterruptedException ie) {
