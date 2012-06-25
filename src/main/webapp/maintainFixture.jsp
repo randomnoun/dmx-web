@@ -122,7 +122,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 .rfInput { font-family: Courier New; font-size: 8pt; width: 120px; }
 .rfTitle1 { font-size: 14pt; font-weight: bold; padding-bottom: 15px;  }
 .rfTitle2 { position: absolute; font-size: 14pt; font-weight: bold; padding-bottom: 15px; left: 420px; top: 10px;}
-.rfPreviewContainer { 
+#rfPreviewContainer { 
   position: absolute; top: 40px; left: 420px; width: 380px; height: 380px;
   overflow: scroll;  
 }  
@@ -136,6 +136,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 .rfPreviewName {
   color: #000042;
 }
+#rfPreviewUpdateFrame { display: none; }
 </style>
 
 <script>
@@ -157,15 +158,35 @@ var tblObj = new rnTable(
       'lookingAtX', 'lookingAtY', 'lookingAtZ', 'upX', 'upY', 'upZ')
 );
 
-
+function rfInputChange(e) {
+	var tgtEl = e.findElement();
+	//alert("changed name='" + tgtEl.getAttribute("name") + "', id='" + tgtEl.getAttribute("id") + "'");
+	var formEl = $("rfForm");
+	formEl.submit();
+}
+function rfUpdatePreview(json) {
+	var previewContainerEl = $("rfPreviewContainer");
+	var html = "";
+	for (var y=0; y<json.rows.length; y++) {
+		var row=json.rows[y];
+		for (var x=0;x<row.length; x++) {
+			var cell=row[x];
+			html += "<div class=\"rfPreview\">" + 
+			  "<div class=\"rfPreviewName\">" + cell.name + "</div>" + 
+			  cell.offset + "</div>";
+		}
+		html += "<br/>";
+	}
+	previewContainerEl.update(html);
+}
 function edtInitPanel() {
-    
     Event.observe($("edtSubmit"), 'click', edtSubmitClick);
     Event.observe($("lhsCancel"), 'click', lhsCancelClick);
     Event.observe($("lhsOK"), 'click', lhsOKClick);
     Event.observe($("lhsRepeat"), 'click', lhsRepeat);
     Event.observe($("rfOKButton"), 'click', rfOKButtonClick);
     Event.observe($("rfCancelButton"), 'click', rfCancelButtonClick);
+    $$(".rfInput").each(function(el){Event.observe(el,'change',rfInputChange)});
     for (var i = 0; i < fixtures_size; i++) {
     	edtUpdateDmxOffset(i);
     }
@@ -443,13 +464,15 @@ function initWindow() {
 </div>
 
 <div id="repeatFixtureDiv" style="position: absolute; z-order:10; top:100px; left:100px; background-color: white;">
+<form id="rfForm" method="post" action="maintainFixture2.html" target="rfPreviewUpdateFrame"> 
+<input type="hidden" name="action" value="rfPreview" />
 <table id="repeatFixtureTable" style="width:400px;">
 <col style="width: 140px;">
 <col style="width: 30px;">
 <col style="width: 230px;">
 <tr><td class="rfTitle1" colspan="3">Repeating fixtures</td></tr>
 <tr><td colspan="2">Type of fixture:</td><td><r:select data="${form.fixtureDefs}" name="rfFixtureDefId" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)"/></td></tr>
-<tr><td colspan="2">Number of fixtures:</td><td><input class="rfInput" style="width: 30px;" type="text" name="rfCount" value="1" /> x <input class="rfInput" style="width:30px;" type="text" name="repeatFixtureCount" value="1" /> columns (<span style="font-family: Courier New; font-size: 8pt;">x</span>) x rows (<span style="font-family: Courier New; font-size: 8pt;">y</span>)</td></tr>
+<tr><td colspan="2">Number of fixtures:</td><td><input class="rfInput" style="width: 30px;" type="text" name="rfCountX" value="1" /> x <input class="rfInput" style="width:30px;" type="text" name="rfCountY" value="1" /> columns (<span style="font-family: Courier New; font-size: 8pt;">x</span>) x rows (<span style="font-family: Courier New; font-size: 8pt;">y</span>)</td></tr>
 <tr><td colspan="2">Names of fixtures:</td><td><input class="rfInput" type="text" name="rfName" value="something-{x}-{y}" /></td></tr>
 <tr><td colspan="2">Starting universe:</td><td><input class="rfInput" type="text" name="rfUniverseNumber" value="1" /></td></tr>
 <tr><td colspan="2">Starting DMX offset:</td><td><input class="rfInput" type="text" name="rfDmxOffset" value="15" /></td></tr>
@@ -474,7 +497,7 @@ function initWindow() {
 </table>
 
 <div class="rfTitle2">Preview</div>
-<div class="rfPreviewContainer">
+<div id="rfPreviewContainer">
 <div class="rfPreview"><div class="rfPreviewName">something-1-1</div>u1-offset 1</div>
 <div class="rfPreview"><div class="rfPreviewName">something-1-2</div>5</div>
 <div class="rfPreview"><div class="rfPreviewName">something-1-3</div>9</div>
@@ -487,8 +510,9 @@ function initWindow() {
 <div class="rfPreview"><div class="rfPreviewName">something-3-2</div>29</div>
 <div class="rfPreview"><div class="rfPreviewName">something-3-3</div>33</div>
 </div>
-
+</form>
 </div>
 
+<iframe id="rfPreviewUpdateFrame" name="rfPreviewUpdateFrame" src="about:blank"></iframe>
 </body>
 </html>

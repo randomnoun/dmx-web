@@ -102,6 +102,14 @@
           type="com.randomnoun.dmx.web.action.MaintainFixtureAction"
         >
           <forward name="success" path="/maintainFixture.jsp"/>
+          <forward name="null" className="com.randomnoun.common.webapp.struts.NullForward" path=""/>
+        </action>
+        <!-- since firebug can't handle an iframe with the same name as the main page -->
+        <action path="/maintainFixture2" 
+          type="com.randomnoun.dmx.web.action.MaintainFixtureAction"
+        >
+          <forward name="success" path="/maintainFixture.jsp"/>
+          <forward name="null" className="com.randomnoun.common.webapp.struts.NullForward" path=""/>
         </action>
 
       <action path="/maintainShowDef" 

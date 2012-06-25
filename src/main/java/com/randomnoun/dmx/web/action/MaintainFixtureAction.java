@@ -18,6 +18,13 @@ import com.randomnoun.common.ErrorList;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.http.HttpUtil;
+import com.randomnoun.common.jexl.ExpressionUtils;
+import com.randomnoun.common.jexl.ast.TopLevelExpression;
+import com.randomnoun.common.jexl.eval.EvalContext;
+import com.randomnoun.common.jexl.eval.Evaluator;
+import com.randomnoun.common.jexl.parser.ExpressionParser;
+import com.randomnoun.common.jexl.parser.ParseException;
+import com.randomnoun.common.jexl.parser.TokenMgrError;
 import com.randomnoun.common.security.User;
 import com.randomnoun.common.spring.StructuredResultReader;
 import com.randomnoun.dmx.Universe;
@@ -374,6 +381,56 @@ public class MaintainFixtureAction
 			form.put("fixtures_size", result.getRows().size());
 			request.setAttribute("errors", result.getErrors());
 			request.setAttribute("form", form);
+
+		} else if (action.equals("rfPreview")) {
+			Map<String, String> form = new HashMap();
+			Struct.setFromRequest(form, request, new String[] {
+			 "rfFixtureDefId", "rfCountX", "rfCountY", "rfName", "rfUniverseNumber",
+			 "rfDmxOffset", "rfDmxOffsetGap", "rfDmxAllocation", "rfPanelX", "rfPanelY",
+			 "rfPositionX","rfPositionY","rfPositionZ", 
+			 "rfLookingAtX","rfLookingAtY","rfLookingAtZ", 
+			 "rfUpX","rfUpY","rfUpZ" });
+			
+			
+			long cx = Long.parseLong(form.get("rfCountX"));
+			long cy = Long.parseLong(form.get("rfCountY"));
+			long u = Long.parseLong(form.get("rfUniverseNumber"));
+			long dmxOffset = Long.parseLong(form.get("rfDmxOffset"));
+			long dmxOffsetGap = Long.parseLong(form.get("rfDmxOffsetGap"));
+			TopLevelExpression positionXExpr = parseExpression(form.get("rfPositionX"));
+			TopLevelExpression positionYExpr = parseExpression(form.get("rfPositionY"));
+			
+			List rows = new ArrayList();
+			
+			for (int y=1; y<=cy; y++) {
+				List row = new ArrayList();
+				rows.add(row);
+				for (int x=1; x<=cx; x++) {
+					Map cell = new HashMap();
+					row.add(cell);
+					cell.put("x", x); cell.put("y", y);
+					String name = form.get("rfName");
+					name = Text.replaceString(name, "{x}", String.valueOf(x));
+					name = Text.replaceString(name, "{y}", String.valueOf(y));
+					cell.put("name", name);
+					cell.put("offset", "u" + u + "-offset" + dmxOffset);
+					
+			        double xp=evalDouble(positionXExpr, x, y);
+			        double yp=evalDouble(positionYExpr, x, y);
+			        
+			        cell.put("offset", "u" + u + "-offset" + dmxOffset+"("+xp+","+yp+")");
+			        
+			        dmxOffset += dmxOffsetGap + 3; /* @TODO get fixture channel count */
+				}
+			}
+			
+			Map json = new HashMap();
+			json.put("rows", rows);
+			PrintWriter pw = response.getWriter();
+			pw.println("<script>top.rfUpdatePreview(" + Struct.structuredMapToJson(json) + ");</script>\n");
+			pw.flush();
+			forward = "null"; // maps to NullForward
+
 			
 		} else {
 			throw new IllegalArgumentException("Invalid action '" + action + "'");
@@ -385,6 +442,28 @@ public class MaintainFixtureAction
 		request.setAttribute("rfDmxAllocations", rfDmxAllocations);
 		
         return mapping.findForward(forward);
+    }
+
+    private TopLevelExpression parseExpression(String expr) throws java.text.ParseException {
+    	StringReader reader = new StringReader(expr);
+        ExpressionParser parser = new ExpressionParser(reader);
+        try {
+        	TopLevelExpression expr2 = parser.TopLevelExpression();;
+        	return expr2;
+        } catch (ParseException pe) {
+            throw new java.text.ParseException(pe.getMessage(), -1);
+        } catch (TokenMgrError tme) {
+            throw new java.text.ParseException(tme.getMessage(), -1);
+        }
+    }
+    
+    private double evalDouble(TopLevelExpression e, long x, long y) {
+        Evaluator evaluator = new Evaluator();
+        EvalContext evalContext = new EvalContext();
+		evalContext.setVariable("x", new Long(x));
+        evalContext.setVariable("y", new Long(y));					
+        Object result = evaluator.visit(e, evalContext);
+        return ((Number)result).doubleValue();
     }
     
     private void addElement(List list, String id, String name) {
