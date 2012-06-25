@@ -126,7 +126,7 @@ function edtAddTreeNodes(id, containerEl, items) {
     containerEl.insert({'bottom' : ulEl});
     for (var i=0; i<items.length; i++) {
     	var liEl = new Element("li").update(
-    		"<input type=\"checkbox\" name=\"" + id + "-" + i + "\" id=\"" + id + "-" + i + "\">" +
+    		"<input type=\"checkbox\" name=\"" + (items[i].name ? items[i].name : id + "-" + i) + "\" id=\"" + id + "-" + i + "\">" +
             "<label for=\"exportItems-" + i + "\">" + items[i].text + "</label>");
     	ulEl.insert({'bottom' : liEl});
     	if (items[i].children && items[i].children.length > 0) {
@@ -152,7 +152,7 @@ function edtCheckSiblings(containerEl) {
 		el.indeterminate = true;
 	    el.checked = "true";
 	}
-	if (ulEl.parentNode.tagName=="li") {
+	if (ulEl.parentNode.tagName=="LI") {
 		edtCheckSiblings(ulEl.parentNode);
 	}
 }
@@ -217,8 +217,9 @@ function initWindow() {
 
 	<jsp:include page="/misc/errorHeader.jsp" />
 	<form id="mainForm" name="mainForm" method="post" action="importExport.html">
-	
-    <div id="exportItemsDiv"></div>	
+	<input type="hidden" name="action" value="export" />
+    <div id="exportItemsDiv"></div>
+    <input type="submit" name="export" value="Export" />
 	
 	</form>
 
