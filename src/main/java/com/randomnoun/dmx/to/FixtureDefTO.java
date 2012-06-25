@@ -153,13 +153,15 @@ public class FixtureDefTO {
 			// "<fixtureControllerScript>" + fixtureControllerScript + "</fixtureControllerScript>" +
 			"    <channelMuxerClassName>" + channelMuxerClassName + "</channelMuxerClassName>\n" +
 			// "<channelMuxerScript>" + channelMuxerScript + "</channelMuxerScript>" +
-			"    <dmxChannels>" + dmxChannels + "</dmxChannels>\n" +
-			"    <fixtureDefImages>\n";
-		for (FixtureDefImageTO fdi : fixtureDefImages) {
-			s += Text.indent("        ", fdi.toExportXml());
+			"    <dmxChannels>" + dmxChannels + "</dmxChannels>\n";
+		if (fixtureDefImages.size() > 0) {
+			s += "    <fixtureDefImages>\n";
+			for (FixtureDefImageTO fdi : fixtureDefImages) {
+				s += Text.indent("        ", fdi.toExportXml());
+			}
+			s += "    </fixtureDefImages>\n";
 		}
-		s += "    </fixtureDefImages>\n" +	
-			"</fixtureDef>\n";
+		s += "</fixtureDef>\n";
 		return s;
 	}
 	

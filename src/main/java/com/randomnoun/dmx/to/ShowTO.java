@@ -127,6 +127,7 @@ public class ShowTO {
 		this.stageId = stageid;
 	}
 	
+	// @TODO put comments in here with the stage, showDef names etc 
 	public String toExportXml(List<ShowPropertyTO> showProperties) {
 		String s = "<show>\n" +
 		    "    <id>" + id + "</id>\n" +
@@ -135,14 +136,16 @@ public class ShowTO {
 			"    <name>" + name + "</name>\n" +
 			(onCancelShowId==null ? "" : "    <onCancelShowId>" + onCancelShowId + "</onCancelShowId>\n") +
 			(onCompleteShowId==null ? "" : "    <onCompleteShowId>" + onCompleteShowId + "</onCompleteShowId>\n") +
-			"    <showGroupId>" + showGroupId + "</showGroupId>\n" +
-			// "    <showPropertyCount>" + showPropertyCount + "</showPropertyCount>\n" +
-			"    <showProperties>\n";
-		for (ShowPropertyTO sp : showProperties) {
-			s += Text.indent("        ", sp.toExportXml());
+			"    <showGroupId>" + showGroupId + "</showGroupId>\n";
+		// "    <showPropertyCount>" + showPropertyCount + "</showPropertyCount>\n" +
+		if (showProperties.size() > 0) {
+			s += "    <showProperties>\n";
+			for (ShowPropertyTO sp : showProperties) {
+				s += Text.indent("        ", sp.toExportXml());
+			}
+			s += "    </showProperties>\n";
 		}
-		s += "    </showProperties>\n" +
-			"</show>\n";
+		s += "</show>\n";
 		return s;
 	}
 

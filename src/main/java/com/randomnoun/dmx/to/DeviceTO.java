@@ -114,13 +114,15 @@ public class DeviceTO {
 			"    <className>" + className + "</className>\n" +                              
 			"    <type>" + type + "</type>\n" +                                             
 			"    <active>" + active + "</active>\n" +                                       
-			"    <universeNumber>" + universeNumber + "</universeNumber>\n" +               
-			"    <deviceProperties>\n";
-		for (DevicePropertyTO dp : deviceProperties) {
-			s += Text.indent("        ", dp.toExportXml());
+			"    <universeNumber>" + universeNumber + "</universeNumber>\n";
+		if (deviceProperties.size() > 0) {
+			s += "    <deviceProperties>\n";
+			for (DevicePropertyTO dp : deviceProperties) {
+				s += Text.indent("        ", dp.toExportXml());
+			}
+			s += "    </deviceProperties>\n";
 		}
-		s += "    </deviceProperties>\n" +
-			"</device>\n";
+		s += "</device>\n";
 		return s;
 	}
 
