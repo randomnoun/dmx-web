@@ -189,8 +189,22 @@ public class ImportExportAction
 			ZipOutputStream zos = new ZipOutputStream(baos);
 			ZipEntry ze = new ZipEntry("pom.xml");
 			zos.putNextEntry(ze);
+			
+			ByteArrayOutputStream pomOs = new ByteArrayOutputStream();
+			String defaultGroupId = appConfig.getProperty("importExport.defaultGroupId");
+			String defaultScm = appConfig.getProperty("importExport.defaultScm");
+        	if (Text.isBlank(defaultGroupId)) { defaultGroupId = "com.example.dmx"; }
+        	if (Text.isBlank(defaultScm)) { defaultScm = "scm:cvs:pserver:you@your-cvs-server:/your-repos:export-dmx-web"; }
+        	
+			InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/exportedPom.xml");
+    		if (is==null) { throw new IllegalStateException("Could not find resource 'default/exportedPom.xml'"); }
+    		String pomXml = new String(StreamUtils.getByteArray(is), "UTF-8");
+    		is.close();
+    		pomXml = Text.replaceString(pomXml, "{GROUPID_GOES_HERE}", defaultGroupId);
+    		pomXml = Text.replaceString(pomXml, "{SCM_GOES_HERE}", defaultScm);
+			
 			PrintWriter pw = new PrintWriter(zos);
-			pw.println("<pom>This is the pom file</pom>");
+			pw.print(pomXml);
 			pw.flush();
 			
 			/*
@@ -253,7 +267,7 @@ src/main/resources/export.xml (date of export, totals etc)
 					ze = new ZipEntry("src/main/resources/fixtureDefs/" + fixtureDef.getId() + "/" + fdi.getName());
 					zos.putNextEntry(ze);
 					// FileInputStream fis = new FileInputStream(fdi.getFileLocation());
-					InputStream is = fixtureDefImageDAO.loadImage(fdi);
+					is = fixtureDefImageDAO.loadImage(fdi);
 					StreamUtils.copyStream(is, zos);
 					is.close();
 					
@@ -327,12 +341,11 @@ src/main/resources/export.xml (date of export, totals etc)
 			
 			ze = new ZipEntry("src/test/java/com/randomnoun/dmx/BeanshellTest.java");
 			zos.putNextEntry(ze);
-			InputStream tis = ImportExportAction.class.getResourceAsStream("/BeanshellTest.java");
+			InputStream tis = this.getClass().getResourceAsStream("BeanshellTest.java");
 			if (tis!=null) {
 				StreamUtils.copyStream(tis,  zos);
 				tis.close();
 			}
-			zos.write(showOs.toByteArray());
 			
 			zos.close();
 
