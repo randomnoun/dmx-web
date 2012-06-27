@@ -130,8 +130,11 @@
             <excludes>
                 <exclude>build.properties</exclude>
             </excludes>
+        </resource>
+        <resource>
+            <filtering>false</filtering>
+            <directory>src/main/resources</directory>
             <includes>
-            	<!-- these are included in the export zip file -->
                 <include>src/test/com/randomnoun/dmx/test/BeanshellTest.java</include>
             </includes>
         </resource>
