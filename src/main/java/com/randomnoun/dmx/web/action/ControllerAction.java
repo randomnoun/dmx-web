@@ -49,10 +49,10 @@ import com.randomnoun.common.db.DatabaseTO.TableTO;
 import com.randomnoun.common.security.User;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.config.AppConfig;
+import com.randomnoun.dmx.dmxDevice.usbPro.UsbProWidget;
+import com.randomnoun.dmx.dmxDevice.usbPro.UsbProWidgetTranslator;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
-import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidget;
-import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetTranslator;
 import com.randomnoun.dmx.show.Show;
 
 /**

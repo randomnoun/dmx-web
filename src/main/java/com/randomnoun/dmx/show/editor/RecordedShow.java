@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.randomnoun.common.Text;
-import com.randomnoun.dmx.AudioSource;
 import com.randomnoun.dmx.Controller;
+import com.randomnoun.dmx.audioSource.AudioSource;
 import com.randomnoun.dmx.show.Show;
 
 /** Superclass of all recorded shows

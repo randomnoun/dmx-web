@@ -24,7 +24,7 @@ import com.randomnoun.common.spring.StructuredResultReader;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.DeviceDAO;
 import com.randomnoun.dmx.dao.DevicePropertyDAO;
-import com.randomnoun.dmx.DmxDevice;
+import com.randomnoun.dmx.dmxDevice.DmxDevice;
 import com.randomnoun.dmx.PropertyDef;
 import com.randomnoun.dmx.to.DevicePropertyTO;
 import com.randomnoun.dmx.to.DeviceTO;

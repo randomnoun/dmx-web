@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.randomnoun.common.Text;
-import com.randomnoun.dmx.AudioSource;
 import com.randomnoun.dmx.Controller;
+import com.randomnoun.dmx.audioSource.AudioSource;
 
 /** either this thing is going to invoke methods on the controller
  * directly, or it's going to return dmxvalues which are picked up

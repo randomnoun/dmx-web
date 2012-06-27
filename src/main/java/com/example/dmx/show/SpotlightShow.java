@@ -6,8 +6,8 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.example.dmx.fixture.MiniWashFixtureController;
-import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
+import com.randomnoun.dmx.audioController.AudioController;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.show.Show;
 

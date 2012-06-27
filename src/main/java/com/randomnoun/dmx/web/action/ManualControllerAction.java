@@ -47,8 +47,8 @@ import com.randomnoun.common.db.DatabaseTO.TableColumnTO;
 import com.randomnoun.common.db.DatabaseTO.TableTO;
 import com.randomnoun.common.security.User;
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidget;
-import com.randomnoun.dmx.protocol.dmxUsbPro.UsbProWidgetTranslator;
+import com.randomnoun.dmx.dmxDevice.usbPro.UsbProWidget;
+import com.randomnoun.dmx.dmxDevice.usbPro.UsbProWidgetTranslator;
 
 /**
  * Manual controller action. This creates a new 

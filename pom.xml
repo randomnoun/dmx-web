@@ -181,7 +181,7 @@
                     <groups>
 					  <group>
 					    <title>dmx-web API Packages</title>
-					    <packages>com.randomnoun.dmx.channel*:com.randomnoun.dmx.channelMuxer*:com.randomnoun.dmx.fixture:com.randomnoun.dmx.lightSource:com.randomnoun.dmx.show:com.randomnoun.dmx.timeSource</packages>
+					    <packages>com.randomnoun.dmx.audioController*:com.randomnoun.dmx.audioSource*:com.randomnoun.dmx.channel*:com.randomnoun.dmx.channelMuxer*:com.randomnoun.dmx.fixture:com.randomnoun.dmx.lightSource:com.randomnoun.dmx.show:com.randomnoun.dmx.timeSource</packages>
 					  </group>
 					  <group>
 					    <title>Java Packages</title>
@@ -194,7 +194,7 @@
 					  </group>
 					  <group>
 					    <title>Internal Packages</title>
-					    <packages>bsh.engine:com.jacobgen.dmx:com.randomnoun.dmx:com.randomnoun.dmx.config:com.randomnoun.dmx.dao:com.randomnoun.dmx.event:com.randomnoun.dmx.protocol*:com.randomnoun.dmx.to:com.randomnoun.dmx.web*</packages>
+					    <packages>bsh.engine:com.jacobgen.dmx:com.randomnoun.dmx:com.randomnoun.dmx.config:com.randomnoun.dmx.dao:com.randomnoun.dmx.dmxDevice*:com.randomnoun.dmx.event:com.randomnoun.dmx.protocol*:com.randomnoun.dmx.to:com.randomnoun.dmx.web*</packages>
 					  </group>
 					</groups>
 					<tags>

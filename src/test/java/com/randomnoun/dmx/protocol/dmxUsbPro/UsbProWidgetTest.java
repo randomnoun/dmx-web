@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TooManyListenersException;
 
+import com.randomnoun.dmx.dmxDevice.usbPro.UsbProWidget;
+import com.randomnoun.dmx.dmxDevice.usbPro.UsbProWidgetTranslator;
+
 import gnu.io.PortInUseException;
 
 /** Holy shit it works */

@@ -4,8 +4,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.randomnoun.dmx.AudioController;
 import com.randomnoun.dmx.Controller;
+import com.randomnoun.dmx.audioController.AudioController;
 import com.randomnoun.dmx.show.Show;
 
 /** Flash the lights and play 'smooth criminal'.

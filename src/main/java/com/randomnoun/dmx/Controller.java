@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.randomnoun.dmx.audioController.AudioController;
+import com.randomnoun.dmx.audioSource.AudioSource;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
