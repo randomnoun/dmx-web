@@ -133,9 +133,9 @@
         </resource>
         <resource>
             <filtering>false</filtering>
-            <directory>src/main/resources</directory>
+            <directory>src/test/com/randomnoun/dmx</directory>
             <includes>
-                <include>src/test/com/randomnoun/dmx/test/BeanshellTest.java</include>
+                <include>BeanshellTest.java</include>
             </includes>
         </resource>
     </resources>
