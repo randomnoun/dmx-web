@@ -19,6 +19,7 @@
 
 package artnet4j.test;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.List;
 
@@ -100,7 +101,7 @@ public class PollTest implements ArtNetDiscoveryListener {
                             artNetNode.getDmxOuts()[0]);
                     //dmx.setSequenceID(sequenceID % 255); // broken: if in use, sequenceId!=0
                     dmx.setSequenceID(0);
-                    byte[] buffer = new byte[510];
+                    byte[] buffer = new byte[512];
                     for (int i = 0; i < buffer.length; i++) {
                         buffer[i] =
                                 (byte) (Math.sin(sequenceID * 0.05 + i * 0.8) * 127 + 128);
@@ -120,7 +121,9 @@ public class PollTest implements ArtNetDiscoveryListener {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        } catch (IOException e) {
+			e.printStackTrace();
+		}
     }
     
 }
