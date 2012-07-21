@@ -24,19 +24,21 @@ import com.randomnoun.dmx.audioController.NullAudioController;
 import com.randomnoun.dmx.dmxDevice.DmxDevice;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 
-/** Wrapper around an RXTX interface to an Enttec USB Pro Widget. 
+/** Wrapper around a DMX output using the ArtNet protocol. 
  *
  * <p>To use this class, instantiate it with a serial COM port, and then use the
- * JavaWidgetTranslator class to send and receive messages; e.g.
+ * UsbProWidgetTranslator class to send and receive messages; e.g.
  * 
  * <pre>
- * JavaWidget javaWidget = new JavaWidget("COM4");
- * JavaWidgetTranslator translator = javaWidget.openPort();
+ * Properties initProperties = new Properties();
+ * initProperties.put("portName", "COM4");
+ * UsbProWidget usbProWidget = new UsbProWidget(initProperties);
+ * UsbProWidgetTranslator translator = usbProWidget.openPort();
  * ...
  * translator.sendWhatever();
  * ResponseMessage message = translator.getMessage();
  * ...
- * javaWidget.close();
+ * usbProWidget.close();
  * </pre>
  * 
  * Presumably the event handling in javax.comm (which I assume is in it's
@@ -56,7 +58,7 @@ public class UsbProWidget extends DmxDevice {
 	SerialPort serialPort = null;
 	OutputStream outputStream = null;
 	InputStream inputStream = null;
-	UsbProWidgetTranslator javaWidgetTranslator = null;
+	UsbProWidgetTranslator usbProTranslator = null;
 	
 	/** Create a new low-level interface to a Enttec USB Pro Widget.
 	 * 
@@ -82,7 +84,7 @@ public class UsbProWidget extends DmxDevice {
 	
 	public void open() {
 		try {
-			javaWidgetTranslator = openPort();
+			usbProTranslator = openPort();
 			connected = true;
 		} catch (java.lang.UnsatisfiedLinkError ule) {
 			logger.error("Error opening port '" + portName + "; java.library.path=" + System.getProperty("java.library.path"), ule);
@@ -118,8 +120,8 @@ public class UsbProWidget extends DmxDevice {
 					//serialPort.setSerialPortParams(9600, SerialPort.DATABITS_8, 
 					//	       SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
-				    javaWidgetTranslator = new UsbProWidgetTranslator(inputStream, outputStream);
-				    serialPort.addEventListener(new JavaWidgetSerialPortEventListener(javaWidgetTranslator));
+				    usbProTranslator = new UsbProWidgetTranslator(inputStream, outputStream);
+				    serialPort.addEventListener(new JavaWidgetSerialPortEventListener(usbProTranslator));
 				    serialPort.notifyOnDataAvailable(true);
 				    serialPort.notifyOnOutputEmpty(true);
 			    }
@@ -128,14 +130,14 @@ public class UsbProWidget extends DmxDevice {
 		if (!portFound) {
 			throw new IllegalArgumentException("Port '" + portName + "' not found");
 		}
-		return javaWidgetTranslator;
+		return usbProTranslator;
 	}
 	
 	/** Returns an object which can send/receive
 	 * FTDI messages to this device 
 	 */
 	public UsbProWidgetTranslator getUsbProWidgetTranslator() {
-		return javaWidgetTranslator;
+		return usbProTranslator;
 	}
 	
 	/** Closes any streams/resources held by this class.
@@ -210,7 +212,7 @@ public class UsbProWidget extends DmxDevice {
 
 	@Override
 	public UniverseUpdateListener getUniverseUpdateListener() {
-		return new UsbProWidgetUniverseUpdateListener(javaWidgetTranslator);
+		return new UsbProWidgetUniverseUpdateListener(usbProTranslator);
 	}
 	
     public List getDefaultProperties() {
