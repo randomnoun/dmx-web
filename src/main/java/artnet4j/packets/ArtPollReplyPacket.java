@@ -125,8 +125,8 @@ public class ArtPollReplyPacket extends ArtNetPacket {
         subSwitch = data.getInt16(18);
         oemCode = data.getInt16(20);
         nodeStatus = data.getInt8(23);
-        shortName = new String(data.getByteChunk(null, 26, 17));
-        longName = new String(data.getByteChunk(null, 44, 64));
+        shortName = new String(data.getNullTerminatedByteChunk(null, 26, 17));
+        longName = new String(data.getNullTerminatedByteChunk(null, 44, 64));
         reportCode =
                 NodeReportCode.getForID(new String(data.getByteChunk(null, 108,
                         5)));

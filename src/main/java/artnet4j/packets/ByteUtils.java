@@ -67,6 +67,17 @@ public class ByteUtils {
         System.arraycopy(data, offset, buffer, 0, len);
         return buffer;
     }
+    
+	public byte[] getNullTerminatedByteChunk(byte[] buffer, int offset, int len) {
+		int i;
+		for (i=offset; i<offset+len && data[i]!=0; i++) { }
+		if (buffer == null) {
+            buffer = new byte[i-offset];
+        }
+        System.arraycopy(data, offset, buffer, 0, i-offset);
+        return buffer;
+	}
+
 
     public byte[] getBytes() {
         return data;
@@ -144,4 +155,5 @@ public class ByteUtils {
         }
         return result;
     }
+
 }
