@@ -41,8 +41,8 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
 
 	public static final String DEFAULT_BROADCAST_IP = "2.255.255.255";
 
-	protected final int port;
-	protected final int sendPort;
+	protected int port;
+	protected int sendPort;
 
 	protected DatagramSocket socket;
 	protected InetAddress broadCastAddress;
@@ -63,6 +63,14 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
 		this.sendPort = sendPort;
 		this.listeners = new ArrayList<ArtNetServerListener>();
 		setBufferSize(2048);
+	}
+
+	public void setUdpRecvPort(int udpRecvPort) {
+		this.port = udpRecvPort; 
+	}
+
+	public void setUdpSendPort(int udpSendPort) {
+		this.sendPort = udpSendPort; 
 	}
 
 	public void addListener(ArtNetServerListener l) {
