@@ -31,24 +31,27 @@ import artnet4j.packets.ArtDmxPacket;
 public class PollTest implements ArtNetDiscoveryListener {
 
     public static void main(String[] args) {
-        new PollTest().test();
+        // new PollTest().test();
+    	PollTest pollTest = new PollTest();
+    	//pollTest.setWhite();
+    	pollTest.test();
     }
 
-    private ArtNetNode netLynx;
+    private ArtNetNode artNetNode;
 
     private int sequenceID;
 
     public void discoveredNewNode(ArtNetNode node) {
-        if (netLynx == null) {
-            netLynx = node;
+        if (artNetNode == null) {
+            artNetNode = node;
             System.out.println("found net lynx");
         }
     }
 
     public void discoveredNodeDisconnected(ArtNetNode node) {
         System.out.println("node disconnected: " + node);
-        if (node == netLynx) {
-            netLynx = null;
+        if (node == artNetNode) {
+            artNetNode = null;
         }
     }
 
@@ -63,28 +66,50 @@ public class PollTest implements ArtNetDiscoveryListener {
         System.out.println("discovery failed");
     }
 
+    /*
+    private void setWhite() {
+    	ArtNet artnet = new ArtNet();
+    	artnet.start();
+    	artnet.setBroadCastAddress("192.168.0.62"); // destination IP
+    	
+    }
+    */
+    
+    
     private void test() {
         ArtNet artnet = new ArtNet();
         try {
             artnet.start();
+            artnet.setBroadCastAddress("192.168.0.62"); // destination IP
             artnet.getNodeDiscovery().addListener(this);
             artnet.startNodeDiscovery();
             while (true) {
-                if (netLynx != null) {
+                if (artNetNode != null) {
                     ArtDmxPacket dmx = new ArtDmxPacket();
-                    dmx.setUniverse(netLynx.getSubNet(),
-                            netLynx.getDmxOuts()[0]);
-                    dmx.setSequenceID(sequenceID % 255);
+                    System.out.println("subnet:" + artNetNode.getSubNet());
+                    System.out.println("universeId:" + artNetNode.getDmxOuts()[0]);
+                    System.out.println("nodeStatus:" + artNetNode.getNodeStatus());
+                    System.out.println("oemCode:" + artNetNode.getOemCode());
+                    System.out.println("shortName:" + artNetNode.getShortName());
+                    System.out.println("longName:" + artNetNode.getLongName());
+                    System.out.println("numPorts:" + artNetNode.getNumPorts());
+                    System.out.println("reportCode:" + artNetNode.getReportCode());
+                    System.out.println("nodeStyle:" + artNetNode.getNodeStyle());
+                    System.out.println("ipAddress:" + artNetNode.getIPAddress());
+                    dmx.setUniverse(artNetNode.getSubNet(),
+                            artNetNode.getDmxOuts()[0]);
+                    //dmx.setSequenceID(sequenceID % 255); // broken: if in use, sequenceId!=0
+                    dmx.setSequenceID(0);
                     byte[] buffer = new byte[510];
                     for (int i = 0; i < buffer.length; i++) {
                         buffer[i] =
                                 (byte) (Math.sin(sequenceID * 0.05 + i * 0.8) * 127 + 128);
                     }
                     dmx.setDMX(buffer, buffer.length);
-                    artnet.unicastPacket(dmx, netLynx.getIPAddress());
-                    dmx.setUniverse(netLynx.getSubNet(),
-                            netLynx.getDmxOuts()[1]);
-                    artnet.unicastPacket(dmx, netLynx.getIPAddress());
+                    artnet.unicastPacket(dmx, artNetNode.getIPAddress());
+                    
+                    //dmx.setUniverse(artNetNode.getSubNet(), artNetNode.getDmxOuts()[1]);
+                    //artnet.unicastPacket(dmx, artNetNode.getIPAddress());
                     sequenceID++;
                 }
                 Thread.sleep(30);
@@ -97,4 +122,5 @@ public class PollTest implements ArtNetDiscoveryListener {
             e.printStackTrace();
         }
     }
+    
 }
