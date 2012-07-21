@@ -21,6 +21,7 @@ import artnet4j.ArtNetNode;
 import artnet4j.ArtNetServer;
 import artnet4j.events.ArtNetDiscoveryListener;
 
+import com.randomnoun.common.Text;
 import com.randomnoun.dmx.ExceptionContainerImpl;
 import com.randomnoun.dmx.PropertyDef;
 import com.randomnoun.dmx.ExceptionContainer.TimestampedException;
@@ -81,9 +82,10 @@ public class ArtNet extends DmxDevice implements ArtNetDiscoveryListener {
 	public ArtNet(Map properties) {
 		super(properties);
 		if (properties==null) { return; } // when called from maintain devices page
+		this.unicastAddress = (String) properties.get("unicastAddress");
 		this.broadcastAddress = (String) properties.get("broadcastAddress");
-		this.udpRecvPort = Integer.parseInt((String) properties.get("udpRecvPort"));
-		this.udpSendPort = Integer.parseInt((String) properties.get("udpSendPort"));
+		this.udpRecvPort = Integer.parseInt(Text.strDefault((String) properties.get("udpRecvPort"), "6454"));
+		this.udpSendPort = Integer.parseInt(Text.strDefault((String) properties.get("udpSendPort"), "6454"));
 		this.artNetSubnetId = Integer.parseInt((String) properties.get("artNetSubnetId"));
 		this.artNetUniverseId = Integer.parseInt((String) properties.get("artNetUniverseId"));
 		exceptionContainer = new ExceptionContainerImpl();
@@ -100,6 +102,7 @@ public class ArtNet extends DmxDevice implements ArtNetDiscoveryListener {
 			artNet4jObj.setBroadCastAddress(broadcastAddress); // destination IP
 			artNet4jObj.setUdpSendPort(udpSendPort);
 			artNet4jObj.setUdpRecvPort(udpRecvPort);
+			artNet4jObj.start();
 			artNet4jObj.getNodeDiscovery().addListener(this);
 			artNet4jObj.startNodeDiscovery();
 			int timeout = 0;
@@ -116,6 +119,7 @@ public class ArtNet extends DmxDevice implements ArtNetDiscoveryListener {
 			logger.error("Error finding artNet node at broadcastAddress '" + broadcastAddress + "'", e);
 			exceptionContainer.addException(e);
 		} finally {
+			artNet4jObj.getNodeDiscovery().removeListener(this);
 			artNet4jObj.getNodeDiscovery().stop();
 		}
 	}
@@ -149,7 +153,7 @@ public class ArtNet extends DmxDevice implements ArtNetDiscoveryListener {
 
 	@Override
 	public UniverseUpdateListener getUniverseUpdateListener() {
-		return new ArtNetUniverseUpdateListener(artNet4jObj,
+		return new ArtNetUniverseUpdateListener(this,
 			unicastAddress, 
 			artNetSubnetId,
 			artNetUniverseId);
@@ -161,7 +165,8 @@ public class ArtNet extends DmxDevice implements ArtNetDiscoveryListener {
         properties.add(new PropertyDef("unicastAddress", "Destination address", "2.0.0.10"));
         properties.add(new PropertyDef("artNetSubnetId", "Output subnet ID", "0"));
         properties.add(new PropertyDef("artNetUniverseId", "Ouptut universe ID", "0"));
-        properties.add(new PropertyDef("udpPort", "UDP port", "6454"));
+        properties.add(new PropertyDef("udpRecvPort", "UDP receive port", "6454"));
+        properties.add(new PropertyDef("udpSendPort", "UDP send port", "6454"));
         return properties;
   }
 
