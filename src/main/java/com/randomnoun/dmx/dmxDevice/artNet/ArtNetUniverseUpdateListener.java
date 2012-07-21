@@ -16,9 +16,11 @@ import com.randomnoun.dmx.event.UniverseUpdateListener;
 
 public class ArtNetUniverseUpdateListener implements UniverseUpdateListener {
 
-	static Logger logger = Logger.getLogger(UsbProWidgetUniverseUpdateListener.class);
+	static Logger logger = Logger.getLogger(ArtNetUniverseUpdateListener.class);
 	
 	private static int threadCount = 0; // show always be 0
+	
+	ArtNet artNet = null;
 	artnet4j.ArtNet artNet4jObj = null;
 	
 	private InetAddress artNetUnicastAddress = null;
@@ -28,12 +30,13 @@ public class ArtNetUniverseUpdateListener implements UniverseUpdateListener {
 	byte dmxState[];
 	ArtNetUpdaterThread t = null;
 	
-	public ArtNetUniverseUpdateListener(artnet4j.ArtNet artNet4jObj,
+	public ArtNetUniverseUpdateListener(ArtNet artNet,
 		String unicastAddress,
 		int artNetSubnetId,
 		int artNetUniverseId) 
 	{
-		this.artNet4jObj = artNet4jObj;
+		this.artNet = artNet;
+		this.artNet4jObj = artNet.artNet4jObj;
 		try {
 			this.artNetUnicastAddress = InetAddress.getByName(unicastAddress);
 		} catch (UnknownHostException e) {
@@ -85,11 +88,17 @@ public class ArtNetUniverseUpdateListener implements UniverseUpdateListener {
 						ArtDmxPacket dmx = new ArtDmxPacket();
 						dmx.setUniverse(anuul.artNetSubnetId, anuul.artNetUniverseId);
 						dmx.setDMX(anuul.dmxState, anuul.dmxState.length);
+						dmx.setSequenceID(0);
 									
 						anuul.getArtNet4jObj().unicastPacket(dmx, anuul.artNetUnicastAddress);
 					} catch (NullPointerException npe) {
 						logger.debug("No ArtNetUpdaterThread instance; stopping ArtNetUpdaterThread");
 						done = true;
+					} catch (IOException e) {
+						logger.error("Error sending Artnet packet", e);
+						anuul.artNet.exceptionContainer.addException(e);
+						done = true;
+						e.printStackTrace();
 					}
 				}
 				try {
