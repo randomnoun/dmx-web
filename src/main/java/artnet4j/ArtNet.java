@@ -43,6 +43,10 @@ public class ArtNet {
     protected ArtNetServer server;
     protected ArtNetNodeDiscovery discovery;
 
+    private String broadcastAddress = null;
+    private int udpSendPort = -1;
+    private int udpRecvPort = -1; 
+    
     public ArtNet() {
         logger.info("Art-Net v" + VERSION);
     }
@@ -63,7 +67,11 @@ public class ArtNet {
     }
 
     public void init() {
-        server = new ArtNetServer();
+    	server = new ArtNetServer();
+    	if (udpRecvPort!=-1) { server.setUdpRecvPort(udpRecvPort); }
+    	if (udpSendPort!=-1) { server.setUdpSendPort(udpRecvPort); }
+        if (broadcastAddress!=null) { server.setBroadcastAddress(broadcastAddress); }
+        
         server.addListener(new ArtNetServerEventAdapter() {
 
             @Override
@@ -92,8 +100,27 @@ public class ArtNet {
     }
 
     public void setBroadCastAddress(String ip) {
-        server.setBroadcastAddress(ip);
+        // server.setBroadcastAddress(ip);
+    	this.broadcastAddress = ip;
+    	if (server!=null) {
+    		server.setBroadcastAddress(ip);
+    	}
     }
+    
+    public void setUdpRecvPort(int udpRecvPort) {
+    	this.udpRecvPort = udpRecvPort;
+    	if (server!=null) {
+    		server.setUdpRecvPort(udpRecvPort);
+    	}
+    }
+
+    public void setUdpSendPort(int udpSendPort) {
+    	this.udpSendPort = udpSendPort;
+    	if (server!=null) {
+    		server.setUdpSendPort(udpSendPort);
+    	}
+    }
+
 
     public void start() throws SocketException, ArtNetException {
         if (server == null) {
