@@ -19,10 +19,12 @@
 
 package artnet4j;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import artnet4j.events.ArtNetDiscoveryListener;
@@ -86,7 +88,11 @@ public class ArtNetNodeDiscovery implements Runnable {
 			while (isActive) {
 				lastDiscovered.clear();
 				ArtPollPacket poll = new ArtPollPacket();
-				artNet.broadcastPacket(poll);
+				try {
+					artNet.broadcastPacket(poll);
+				} catch (IOException e) {
+					logger.log(Level.SEVERE, "IOException in ArtnetNodeDiscovery", e);
+				}
 				Thread.sleep(ArtNet.ARTPOLL_REPLY_TIMEOUT);
 				if (isActive) {
 					synchronized (listeners) {

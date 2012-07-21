@@ -19,6 +19,7 @@
 
 package artnet4j;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -55,7 +56,7 @@ public class ArtNet {
         server.addListener(l);
     }
 
-    public void broadcastPacket(ArtNetPacket packet) {
+    public void broadcastPacket(ArtNetPacket packet) throws IOException {
         server.broadcastPacket(packet);
     }
 
@@ -147,8 +148,9 @@ public class ArtNet {
      * 
      * @param packet
      * @param node
+     * @throws IOException 
      */
-    public void unicastPacket(ArtNetPacket packet, ArtNetNode node) {
+    public void unicastPacket(ArtNetPacket packet, ArtNetNode node) throws IOException {
         server.unicastPacket(packet, node.getIPAddress());
     }
 
@@ -157,8 +159,9 @@ public class ArtNet {
      * 
      * @param packet
      * @param adr
+     * @throws IOException 
      */
-    public void unicastPacket(ArtNetPacket packet, InetAddress adr) {
+    public void unicastPacket(ArtNetPacket packet, InetAddress adr) throws IOException {
         server.unicastPacket(packet, adr);
     }
 
@@ -167,14 +170,11 @@ public class ArtNet {
      * 
      * @param packet
      * @param adr
+     * @throws IOException 
      */
-    public void unicastPacket(ArtNetPacket packet, String adr) {
+    public void unicastPacket(ArtNetPacket packet, String adr) throws IOException {
         InetAddress targetAdress;
-        try {
-            targetAdress = InetAddress.getByName(adr);
-            server.unicastPacket(packet, targetAdress);
-        } catch (UnknownHostException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
-        }
+        targetAdress = InetAddress.getByName(adr);
+        server.unicastPacket(packet, targetAdress);
     }
 }

@@ -79,16 +79,12 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
 		}
 	}
 
-	public void broadcastPacket(ArtNetPacket ap) {
-		try {
-			DatagramPacket packet = new DatagramPacket(ap.getData(), ap
-					.getLength(), broadCastAddress, sendPort);
-			socket.send(packet);
-			for (ArtNetServerListener l : listeners) {
-				l.artNetPacketBroadcasted(ap);
-			}
-		} catch (IOException e) {
-			logger.warning(e.getMessage());
+	public void broadcastPacket(ArtNetPacket ap) throws IOException {
+		DatagramPacket packet = new DatagramPacket(ap.getData(), ap
+				.getLength(), broadCastAddress, sendPort);
+		socket.send(packet);
+		for (ArtNetServerListener l : listeners) {
+			l.artNetPacketBroadcasted(ap);
 		}
 	}
 
@@ -174,18 +170,15 @@ public class ArtNetServer extends ArtNetNode implements Runnable {
 	 * 
 	 * @param ap
 	 * @param targetAdress
+	 * @throws IOException 
 	 */
-	public void unicastPacket(ArtNetPacket ap, InetAddress targetAdress) {
-		try {
-			DatagramPacket packet = new DatagramPacket(ap.getData(), ap
-					.getLength(), targetAdress, sendPort);
-			socket.send(packet);
-			logger.finer("sent packet to: " + targetAdress);
-			for (ArtNetServerListener l : listeners) {
-				l.artNetPacketUnicasted(ap);
-			}
-		} catch (IOException e) {
-			logger.warning(e.getMessage());
+	public void unicastPacket(ArtNetPacket ap, InetAddress targetAdress) throws IOException {
+		DatagramPacket packet = new DatagramPacket(ap.getData(), ap
+				.getLength(), targetAdress, sendPort);
+		socket.send(packet);
+		logger.finer("sent packet to: " + targetAdress);
+		for (ArtNetServerListener l : listeners) {
+			l.artNetPacketUnicasted(ap);
 		}
 	}
 }
