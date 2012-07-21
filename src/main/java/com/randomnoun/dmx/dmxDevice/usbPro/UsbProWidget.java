@@ -121,7 +121,7 @@ public class UsbProWidget extends DmxDevice {
 					//	       SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
 				    usbProTranslator = new UsbProWidgetTranslator(inputStream, outputStream);
-				    serialPort.addEventListener(new JavaWidgetSerialPortEventListener(usbProTranslator));
+				    serialPort.addEventListener(new UsbProWidgetSerialPortEventListener(usbProTranslator));
 				    serialPort.notifyOnDataAvailable(true);
 				    serialPort.notifyOnOutputEmpty(true);
 			    }
@@ -169,12 +169,12 @@ public class UsbProWidget extends DmxDevice {
 		connected = false;
 	}
 	
-	public static class JavaWidgetSerialPortEventListener implements SerialPortEventListener {
+	public static class UsbProWidgetSerialPortEventListener implements SerialPortEventListener {
 		/** Object which will translate received bytes into ResponseMessages */
-		UsbProWidgetTranslator javaWidgetTranslator;
+		UsbProWidgetTranslator usbProWidgetTranslator;
 		
-		public JavaWidgetSerialPortEventListener(UsbProWidgetTranslator javaWidgetTranslator) {
-			this.javaWidgetTranslator = javaWidgetTranslator;
+		public UsbProWidgetSerialPortEventListener(UsbProWidgetTranslator usbProWidgetTranslator) {
+			this.usbProWidgetTranslator = usbProWidgetTranslator;
 		}
 		public void serialEvent(SerialPortEvent arg0) {
 			switch (arg0.getEventType()) {
@@ -191,7 +191,7 @@ public class UsbProWidget extends DmxDevice {
 		
 				case SerialPortEvent.DATA_AVAILABLE:
 					try {
-						javaWidgetTranslator.readData();
+						usbProWidgetTranslator.readData();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -212,7 +212,7 @@ public class UsbProWidget extends DmxDevice {
 
 	@Override
 	public UniverseUpdateListener getUniverseUpdateListener() {
-		return new UsbProWidgetUniverseUpdateListener(usbProTranslator);
+		return new UsbProWidgetUniverseUpdateListener(this);
 	}
 	
     public List getDefaultProperties() {
