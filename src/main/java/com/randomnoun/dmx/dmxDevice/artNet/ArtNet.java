@@ -40,17 +40,10 @@ import com.randomnoun.dmx.event.UniverseUpdateListener;
  * initProperties.put("udpRecvPort", "6454");
  * initProperties.put("udpSendPort", "6454");
  * ArtNet artNet = new ArtNet(initProperties);
- * UsbProWidgetTranslator translator = usbProWidget.openPort();
+ * artNet.open();
  * ...
- * translator.sendWhatever();
- * ResponseMessage message = translator.getMessage();
- * ...
- * usbProWidget.close();
+ * artNet.close();
  * </pre>
- * 
- * Presumably the event handling in javax.comm (which I assume is in it's
- * own thread) will cause messages to magically appear on the translator's 
- * message queue. 
  * 
  */
 public class ArtNet extends DmxDevice implements ArtNetDiscoveryListener {
@@ -66,8 +59,6 @@ public class ArtNet extends DmxDevice implements ArtNetDiscoveryListener {
 	int artNetSubnetId = 0;
 	int artNetUniverseId = 0;
 	boolean connected = false;
-	
-	// UsbProWidgetTranslator javaWidgetTranslator = null;
 	
 	artnet4j.ArtNet artNet4jObj = null;
 	ArtNetNode artNetDestNode = null;
