@@ -24,7 +24,7 @@ import com.randomnoun.dmx.audioController.NullAudioController;
 import com.randomnoun.dmx.dmxDevice.DmxDevice;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 
-/** Wrapper around a DMX output using the ArtNet protocol. 
+/** Wrapper around the an RXTX interface to an Enttec USB Pro Widget. 
  *
  * <p>To use this class, instantiate it with a serial COM port, and then use the
  * UsbProWidgetTranslator class to send and receive messages; e.g.

@@ -29,16 +29,19 @@ import com.randomnoun.dmx.audioController.NullAudioController;
 import com.randomnoun.dmx.dmxDevice.DmxDevice;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 
-/** Wrapper around an RXTX interface to an Enttec USB Pro Widget. 
+/** Wrapper around a DMX output using the ArtNet protocol.  
  *
- * <p>To use this class, instantiate it with a serial COM port, and then use the
- * JavaWidgetTranslator class to send and receive messages; e.g.
+ * <p>To use this class, instantiate it with a broadcastAddress, and a
+ * UDP receiving and sending port number (defaults to 6454), and
+ * the Art-Net subnet and universe IDs that this class will target; e.g.
  * 
  * <pre>
  * Properties initProperties = new Properties();
  * initProperties.put("broadcastAddress", "192.168.0.62");
  * initProperties.put("udpRecvPort", "6454");
  * initProperties.put("udpSendPort", "6454");
+ * initProperties.put("artNetSubnetId", "0");
+ * initProperties.put("artNetUniverseId", "0");
  * ArtNet artNet = new ArtNet(initProperties);
  * artNet.open();
  * ...
