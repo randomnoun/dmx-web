@@ -2,25 +2,47 @@ package com.randomnoun.dmx.web.action;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.sql.Types;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 import com.randomnoun.common.StreamUtils;
+import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
+import com.randomnoun.common.XmlUtil.SimpleTableContentHandler;
 import com.randomnoun.common.security.User;
+import com.randomnoun.common.webapp.struts.FileRequestWrapper;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.DeviceDAO;
 import com.randomnoun.dmx.dao.DevicePropertyDAO;
@@ -88,6 +110,11 @@ public class ImportExportAction
 		AppConfig appConfig = AppConfig.getAppConfig();
 		String forward = "success";
 		JdbcTemplate jt = appConfig.getJdbcTemplate();
+		
+		if (ServletFileUpload.isMultipartContent(request)) {
+    	    request = new FileRequestWrapper(request); 
+        }
+		
 		String action = request.getParameter("action");
 
 		FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
@@ -355,7 +382,95 @@ src/main/resources/export.xml (date of export, totals etc)
 			StreamUtils.copyStream(new ByteArrayInputStream(baos.toByteArray()), response.getOutputStream());
 			forward = "null";
 			
-		} else {
+		} else if (action.equals("import")) {
+			
+			FileItem file = ((FileRequestWrapper) request).getFile("importFile");
+			String userFilename = file.getName();
+			if (userFilename.contains(":")) { userFilename = userFilename.substring(userFilename.indexOf(":")+1); }
+			if (userFilename.contains("/")) { userFilename = userFilename.substring(userFilename.indexOf("/")+1); }
+			if (userFilename.contains("\\")) { userFilename = userFilename.substring(userFilename.indexOf("\\")+1); }
+		
+			if (userFilename.equals("")) {
+				// ignore missing file
+			} else {
+				// TODO: un-unicode them or something as well
+				logger.info("Received fileUpload (userFilename='" + userFilename + "')");
+				
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+    			String localFilename = sdf.format(new Date()) + "-" + userFilename;
+	        	String fileUploadTempPath = appConfig.getProperty("webapp.fileUpload.tempDir");
+				File f = new File(fileUploadTempPath + File.separator + localFilename);
+				FileOutputStream fos = new FileOutputStream(f);
+				StreamUtils.copyStream(file.getInputStream(), fos);
+				fos.close();
+				
+				Map<String, byte[]> zipMap = new HashMap<String, byte[]>();
+				FileInputStream fis = new FileInputStream(f);
+				ZipInputStream zis = new ZipInputStream(fis);
+				ZipEntry ze = zis.getNextEntry();
+				while (ze!=null) {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					StreamUtils.copyStream(zis, baos);
+					zipMap.put(ze.getName(), baos.toByteArray());
+					ze = zis.getNextEntry();
+				}
+				zis.close();
+				fis.close();
+
+				List topLevel = new ArrayList();
+				Map topLevelMap = newItem("Everything");
+				topLevel.add(topLevelMap);
+				
+				List items = new ArrayList();
+				topLevelMap.put("children", items);
+				Map itemMap;
+
+				if (zipMap.containsKey("src/main/resources/device.xml")) {
+					items.add(newItem("Device settings", "devices", "icnDevice.png"));
+				}
+				
+				if (zipMap.containsKey("src/main/resources/fixtureDef.xml")) {
+					itemMap = newItem("Fixture definitions", null, "icnFixtureDef2.png");
+					List itemChildren = new ArrayList();
+					itemMap.put("children", itemChildren);
+					List<FixtureDefTO> fixtureDefs = parseFixtureDefs(new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDef.xml")));
+					for (int i=0; i<fixtureDefs.size(); i++) {
+						itemChildren.add(newItem(fixtureDefs.get(i).getName(), "fix-" + fixtureDefs.get(i).getId(), "icnFixtureDef2.png"));
+					}
+					items.add(itemMap);
+				}
+				
+				if (zipMap.containsKey("src/main/resources/showDef.xml")) {
+					itemMap = newItem("Show definitions", null, "icnShowDef2.png");
+					List itemChildren = new ArrayList();
+					itemMap.put("children", itemChildren);
+					List<ShowDefTO> showDefs = parseShowDefs(new ByteArrayInputStream(zipMap.get("src/main/resources/showDef.xml")));
+					for (int i=0; i<showDefs.size(); i++) {
+						itemChildren.add(newItem(showDefs.get(i).getName(), "show-" + showDefs.get(i).getId(), "icnShowDef2.png"));
+					}
+					items.add(itemMap);
+				}
+				
+				if (zipMap.containsKey("src/main/resources/stage.xml")) {
+					itemMap = newItem("Stages", null, "icnStage.png");
+					List itemChildren = new ArrayList();
+					itemMap.put("children", itemChildren);
+					List<StageTO> stages = parseStages(new ByteArrayInputStream(zipMap.get("src/main/resources/stage.xml")));
+					for (int i=0; i<stages.size(); i++) {
+						Map stageItem = newItem(stages.get(i).getName(), null, "icnStage.png");
+						itemChildren.add(stageItem);
+						List itemChildren2 = new ArrayList();
+						stageItem.put("children", itemChildren2);
+						itemChildren2.add(newItem("Fixtures", "stage-fix-" + stages.get(i).getId(), "icnFixture2.png")); // @TODO add fixture/show counts
+						itemChildren2.add(newItem("Shows", "stage-show-" + stages.get(i).getId(), "icnShow.png"));
+					}
+					items.add(itemMap);
+				}
+				
+				request.setAttribute("importItems", topLevel);
+			}
+			
+    	} else {
 			throw new IllegalArgumentException("Invalid action '" + action + "'");
 		}
 
@@ -363,7 +478,189 @@ src/main/resources/export.xml (date of export, totals etc)
         return mapping.findForward(forward);
     }
 
-    public String getMicrosoftPreamble(String tableName, String now) {
+    /** Parse a string of XML text using a SAX contentHandler. Nothing is returned by this method - it 
+	 * is assumed that the contentHandler supplied maintains it's own state as it parses the XML supplied,
+	 * and that this state can be extracted from this object afterwards.
+	 * 
+	 * @param contentHandler a SAX content handler 
+	 * @param is inputstream containing the XML data
+	 * 
+	 * @throws SAXException if the document could not be parsed
+	 * @throws IllegalException if the parser could not be initialised, or an I/O error occurred 
+	 *   (should not happen since we're just dealing with strings)
+	 */
+	public static void processContentHandler(ContentHandler contentHandler, InputStream is) throws SAXException {
+		 SAXParserFactory factory = SAXParserFactory.newInstance();
+		 try {
+			 SAXParser saxParser = factory.newSAXParser();
+			 XMLReader xmlReader = saxParser.getXMLReader();
+			 xmlReader.setContentHandler(contentHandler);
+			 xmlReader.parse(new InputSource(is));
+		 } catch (IOException ioe) {
+		 	throw (IllegalStateException) new IllegalStateException("IO Exception reading from string").initCause(ioe);
+		 } catch (ParserConfigurationException pce) {
+			throw (IllegalStateException) new IllegalStateException("Could not initialise parser").initCause(pce);		 		
+		 }
+	}
+    
+	/** Create a stack-based XML parser. Similar to the apache digester, but without
+	 * the dozen or so dependent JARs.
+	 * 
+	 * <p>Only element text is captured 
+	 * <p>Element attributes are not parsed by this class.
+	 * <p>Mixed text/element nodes are not parsed by this class.
+	 * 
+	 */
+	public abstract static class AbstractStackContentHandler implements ContentHandler 
+	{
+		/** Logger instance for this class */
+		public static final Logger logger = Logger.getLogger(AbstractStackContentHandler.class);
+
+		/** Location in stack */
+		String stack = "";
+		int stackDepth = 0;
+		String text = null;     // text captured so far
+		
+		// unused interface methods
+		public void setDocumentLocator(Locator locator) { }
+		public void startDocument() throws SAXException { }
+		public void endDocument() throws SAXException { }
+		public void startPrefixMapping(String prefix, String uri) throws SAXException { }
+		public void endPrefixMapping(String prefix) throws SAXException { }
+		public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException { }
+		public void processingInstruction(String target, String data) throws SAXException { }
+		public void skippedEntity(String name) throws SAXException { }
+
+		public void startElement(String uri, String localName, String qName, Attributes atts)
+			throws SAXException 
+		{
+			stack = stack.equals("") ? qName : stack + "/" + qName;
+			text = "";
+			element(stack);
+		}
+		public void characters(char[] ch, int start, int length) throws SAXException {
+			text += new String(ch, start, length);
+		}
+		public void endElement(String uri, String localName, String qName)
+			throws SAXException 
+		{
+			elementText(stack, text);
+			text = ""; // probably not necessary
+			stack = stack.contains("/") ? stack.substring(0, stack.lastIndexOf("/")) : "";
+		}
+		public abstract void element(String path) throws SAXException;
+		public abstract void elementText(String path, String content) throws SAXException;
+		//public abstract Object getResult();
+	}
+    
+	private void parseXml(InputStream is, ContentHandler contentHandler) throws IOException, ParseException {
+    	SAXParserFactory factory = SAXParserFactory.newInstance();
+    	SAXParser saxParser;
+    	XMLReader xmlReader;
+		try {
+			saxParser = factory.newSAXParser();
+			xmlReader = saxParser.getXMLReader(); // seems pointless
+		} catch (Exception e) {
+			throw new IllegalStateException("Could not create SAX parser", e);
+		}
+		xmlReader.setContentHandler(contentHandler);
+		try {
+			xmlReader.parse(new InputSource(is));
+		} catch (SAXException se) {
+			throw (ParseException) new ParseException("Could not parse XML", -1).initCause(se);
+		}
+	}
+	
+	public static class FixtureDefContentHandler extends AbstractStackContentHandler {
+		List<FixtureDefTO> result = new ArrayList<FixtureDefTO>();
+		List<FixtureDefImageTO> images = new ArrayList<FixtureDefImageTO>(); // not used 
+		FixtureDefTO fd = null;
+		FixtureDefImageTO fdi = null;
+		Pattern p1 = Pattern.compile("^fixtureDefs/fixtureDef/(id|name|fixtureDefClassName|fixtureControllerClassName|channelMuxerClassName|dmxChannels)$");
+		Pattern p2 = Pattern.compile("^fixtureDefs/fixtureDef/fixtureDefImages/fixtureDefImage/(fixtureDefId|name|description|size|contentType)$");
+		public void element(String path) throws SAXException {
+			logger.info("Parsing '" + path + "'");
+			if (stack.equals("fixtureDefs/fixtureDef")) {
+				fd = new FixtureDefTO();
+				result.add(fd);
+			} else if (stack.equals("fixtureDefs/fixtureDef/fixtureDefImages/fixtureDefImage")) {
+				fdi = new FixtureDefImageTO();
+			}
+		}
+		public void elementText(String path, String content) throws SAXException {
+			//logger.info("Parsing text in '" + path + "'");
+			Matcher m = p1.matcher(stack);
+			if (m.matches()) {
+				Struct.setValue(fd, m.group(1), content, false, true, false);
+			} else {
+				Matcher m2 = p2.matcher(stack);
+				if (m.matches()) {
+					Struct.setValue(fd, m.group(1), content, false, true, false);
+				} 
+			}
+		}
+	}
+	
+    private List<FixtureDefTO> parseFixtureDefs(ByteArrayInputStream is) throws IOException, ParseException {
+    	FixtureDefContentHandler fdch = new FixtureDefContentHandler();
+    	parseXml(is, fdch);
+    	return fdch.result;
+	}
+
+    public static class ShowDefContentHandler extends AbstractStackContentHandler {
+		List<ShowDefTO> result = new ArrayList<ShowDefTO>();
+		ShowDefTO sd = null;
+		Pattern p1 = Pattern.compile("^showDefs/showDef/(id|name|className|javadoc|isRecorded)$");
+		public void element(String path) throws SAXException {
+			logger.info("Parsing '" + path + "'");
+			if (stack.equals("showDefs/showDef")) {
+				sd = new ShowDefTO();
+				result.add(sd);
+			}
+		}
+		public void elementText(String path, String content) throws SAXException {
+			//logger.info("Parsing text in '" + path + "'");
+			Matcher m = p1.matcher(stack);
+			if (m.matches()) {
+				Struct.setValue(sd, m.group(1).equals("isRecorded") ? "recorded" : m.group(1), content, false, true, false);
+			}
+		}
+	}
+	
+    private List<ShowDefTO> parseShowDefs(ByteArrayInputStream is) throws IOException, ParseException {
+    	ShowDefContentHandler sdch = new ShowDefContentHandler();
+    	parseXml(is, sdch);
+    	return sdch.result;
+	}
+    
+    public static class StageContentHandler extends AbstractStackContentHandler {
+		List<StageTO> result = new ArrayList<StageTO>();
+		StageTO s = null;
+		Pattern p1 = Pattern.compile("^stages/stage/(name|filename|active|fixPanelBackgroundImage)$");
+		public void element(String path) throws SAXException {
+			logger.info("Parsing '" + path + "'");
+			if (stack.equals("stages/stage")) {
+				s = new StageTO();
+				result.add(s);
+			}
+		}
+		public void elementText(String path, String content) throws SAXException {
+			//logger.info("Parsing text in '" + path + "'");
+			Matcher m = p1.matcher(stack);
+			if (m.matches()) {
+				Struct.setValue(s, m.group(1), content, false, true, false);
+			}
+		}
+	}
+	
+    private List<StageTO> parseStages(ByteArrayInputStream is) throws IOException, ParseException {
+    	StageContentHandler sch = new StageContentHandler();
+    	parseXml(is, sch);
+    	return sch.result;
+	}
+
+    
+	public String getMicrosoftPreamble(String tableName, String now) {
     	return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 		    "<dataroot xmlns:od=\"urn:schemas-microsoft-com:officedata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xsi:noNamespaceSchemaLocation=\"" + tableName + ".xsd\" generated=\"" + now + "\">\n";
     }

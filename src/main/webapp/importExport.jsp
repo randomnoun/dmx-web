@@ -116,14 +116,30 @@ li {
   position: absolute; left: 20px; top: 20px; width: 300px; height: 600px;
   overflow: scroll; 
 }
+#importItemsDiv {
+  position: absolute; left: 20px; top: 20px; width: 300px; height: 600px;
+  overflow: scroll; 
+}
+
 .edtImage {
   width: 16px; height: 16px; position: relative; top: 1px; margin-right: 2px;
 }
+#exportDiv {
+  position: absolute;
+  left: 0px; top: 0px;
+  width: 400px; height: 700px;
+}
+#importDiv {
+  position: absolute;
+  left: 450px; top: 0px;
+  width: 400px; height: 700px;
 
+}
 </style>
 
 <script>
 <r:setJavascriptVar name="exportItems" value="${exportItems}" />
+<r:setJavascriptVar name="importItems" value="${importItems}" />
 
 function edtAddTreeNodes(id, containerEl, items) {
     var ulEl = new Element("ul");
@@ -179,24 +195,28 @@ function edtInitPanel() {
     //Event.observe(edtSubmitEl, 'click', edtSubmitClick);
     Event.observe($("lhsCancel"), 'click', lhsCancelClick);
     Event.observe($("lhsOK"), 'click', lhsOKClick);
-    
-    var exportItemsDivEl = $("exportItemsDiv");
-    edtAddTreeNodes("exportItems", exportItemsDivEl, exportItems);
+    if (exportItems) {
+	    var exportItemsDivEl = $("exportItemsDiv");
+	    edtAddTreeNodes("exportItems", exportItemsDivEl, exportItems);
+    }
+    if (importItems) {
+	    var importItemsDivEl = $("importItemsDiv");
+	    edtAddTreeNodes("importItems", importItemsDivEl, importItems);
+	}
     $$('input[type="checkbox"]').each(function(el) {
     	Event.observe(el, 'change', edtCheckboxChange);
     });
-    	
 
 }
 function edtSubmitClick() { 
 	isSubmitting=true; 
-	checkModify('mainForm',tblObj); 
+	checkModify('exportForm',tblObj); 
 	document.forms[0].submit();
 }
 function lhsCancelClick() { document.location = "index.html?panel=cnfPanel"; }
 function lhsOKClick() { 
     isSubmitting=true; 
-	checkModify('mainForm',tblObj); 
+	checkModify('exportForm',tblObj); 
 	document.forms[0].submit();
 };
 function initWindow() {
@@ -207,8 +227,6 @@ function initWindow() {
 
 </script>
 </head>
-
-
 
 <body onload="initWindow()" >
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Import/Export</span></div>
@@ -222,12 +240,33 @@ function initWindow() {
 <div class="rhsPanel">
 
 	<jsp:include page="/misc/errorHeader.jsp" />
-	<form id="mainForm" name="mainForm" method="post" action="importExport.html">
+	<div id="exportDiv">
+	<form id="exportForm" name="exportForm" method="post" action="importExport.html">
 	<input type="hidden" name="action" value="export" />
     <div id="exportItemsDiv"></div>
     <input type="submit" name="export" value="Export" />
-	
 	</form>
+	</div>
+	
+	<div id="importDiv">
+	<form id="importForm" name="importForm" method="post" action="importExport.html" enctype="multipart/form-data">
+	<input type="hidden" name="action" value="import" />
+	<input type="file" name="importFile" />
+    <input type="submit" name="import" value="Import" />
+    <div id="importItemsDiv">
+    <%--
+    (This will be updated to display the items in the imported file)
+    <br/>
+    i.e. same sort of tree display as export, but with a bunch of
+    radio buttons on the right to tell the system what to do
+    if there's a name collision.
+    'replace', 'rename', 'skip'
+    if there's a classname collision, then rename might be a bit 
+    more difficult. 
+    --%>
+    </div>
+	</form>
+	</div>
 
 </div>
 
