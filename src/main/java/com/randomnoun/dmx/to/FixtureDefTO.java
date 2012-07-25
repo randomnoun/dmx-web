@@ -16,6 +16,9 @@ public class FixtureDefTO {
     private String channelMuxerScript;
     private long dmxChannels;
 
+    // used in import/export only
+    private List<FixtureDefImageTO> fixtureDefImages;
+    
     /** Returns the id
      * @return the id
      */
@@ -143,7 +146,7 @@ public class FixtureDefTO {
        this.dmxChannels = dmxChannels;
    }
 
-	public String toExportXml(List<FixtureDefImageTO> fixtureDefImages) {
+	public String toExportXml() {
 		String s = "<fixtureDef>\n" +
 			"    <id>" + id + "</id>\n" +
 			"    <name>" + Text.escapeHtml(name) + "</name>\n" +
@@ -163,6 +166,14 @@ public class FixtureDefTO {
 		}
 		s += "</fixtureDef>\n";
 		return s;
+	}
+
+	public List<FixtureDefImageTO> getFixtureDefImages() {
+		return fixtureDefImages;
+	}
+
+	public void setFixtureDefImages(List<FixtureDefImageTO> fixtureDefImages) {
+		this.fixtureDefImages = fixtureDefImages;
 	}
 	
 }
