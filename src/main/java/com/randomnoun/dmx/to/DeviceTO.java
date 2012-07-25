@@ -14,6 +14,8 @@ public class DeviceTO {
     private Long universeNumber;
     private long devicePropertyCount;
     
+    // used in import/export only
+    private List<DevicePropertyTO> deviceProperties;
 
     /** Returns the id
      * @return the id
@@ -107,7 +109,7 @@ public class DeviceTO {
 		this.devicePropertyCount = devicePropertyCount;
 	}
 
-	public String toExportXml(List<DevicePropertyTO> deviceProperties) {
+	public String toExportXml() {
 		String s = "<device>\n" +
 			// "    <id>" + id + "</id>\n" +                                                   
 			"    <name>" + Text.escapeHtml(name) + "</name>\n" +                                             
@@ -124,6 +126,14 @@ public class DeviceTO {
 		}
 		s += "</device>\n";
 		return s;
+	}
+
+	public List<DevicePropertyTO> getDeviceProperties() {
+		return deviceProperties;
+	}
+
+	public void setDeviceProperties(List<DevicePropertyTO> deviceProperties) {
+		this.deviceProperties = deviceProperties;
 	}
 
 

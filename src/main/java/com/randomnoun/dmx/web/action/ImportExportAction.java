@@ -261,7 +261,8 @@ src/main/resources/export.xml (date of export, totals etc)
 				List<DeviceTO> devices = deviceDAO.getDevices(null);
 				for (DeviceTO device : devices) {
 					List<DevicePropertyTO> deviceProperties = devicePropertyDAO.getDeviceProperties("deviceId=" + device.getId());
-					devicePw.println(Text.indent("    ", device.toExportXml(deviceProperties)));
+					device.setDeviceProperties(deviceProperties);
+					devicePw.println(Text.indent("    ", device.toExportXml()));
 				}
 			}
 			devicePw.println("</devices>\n");
@@ -382,6 +383,8 @@ src/main/resources/export.xml (date of export, totals etc)
 			forward = "null";
 			
 		} else if (action.equals("import") || action.equals("import2")) {
+			// @XXX: stop any shows etc
+			
 			ErrorList errors = new ErrorList();
 			boolean upload = action.equals("import");
 			String userFilename = null;
@@ -445,8 +448,31 @@ src/main/resources/export.xml (date of export, totals etc)
 					Map deviceMap = newImportItem("Device settings", "devices", "icnDevice.png", false, true, false, "Device settings will replace existing device settings");
 					deviceMap.put("header", true);
 					items.add(deviceMap);
+					List<DeviceTO> currentDevices = deviceDAO.getDevices(null);
+					List<DeviceTO> devices = parseDevices(new ByteArrayInputStream(zipMap.get("src/main/resources/device.xml")));
+					
 					if (!upload && request.getParameter("devices")!=null) {
+						logger.info("Removing existing devices");
+						for (DeviceTO device : currentDevices) {
+							// @TODO cascade deletes in the database perhaps
+							logger.info("Removing device '" + device.getName() + "'");
+							List<DevicePropertyTO> deviceProperties = devicePropertyDAO.getDeviceProperties("deviceId=" + device.getId());
+							for (DevicePropertyTO deviceProperty : deviceProperties) {
+								devicePropertyDAO.deleteDeviceProperty(deviceProperty);
+							}
+							deviceDAO.deleteDevice(device);
+						}
 						logger.info("Importing devices");
+						// @TODO validate this
+						for (DeviceTO device : devices) {
+							logger.info("Importing device '" + device.getName() + "'");
+							long deviceId = deviceDAO.createDevice(device);
+							for (DevicePropertyTO deviceProperty : device.getDeviceProperties()) {
+								logger.info("Importing property '" + deviceProperty.getKey() + "'");
+								deviceProperty.setDeviceId(deviceId);
+								devicePropertyDAO.createDeviceProperty(deviceProperty);
+							}
+						}
 					}
 				}
 				
@@ -643,6 +669,47 @@ src/main/resources/export.xml (date of export, totals etc)
 		}
 	}
 	
+	public static class DeviceContentHandler extends AbstractStackContentHandler {
+		List<DeviceTO> result = new ArrayList<DeviceTO>();
+		//List<DevicePropertyTO> properties = null; // not used
+		DeviceTO d = null;
+		DevicePropertyTO prop = null;
+		Pattern p1 = Pattern.compile("^devices/device/(name|className|type|active|universeNumber)$");
+		Pattern p2 = Pattern.compile("^devices/device/deviceProperties/deviceProperty/(key|value)$");
+		public void element(String path) throws SAXException {
+			//logger.info("Parsing '" + path + "'");
+			if (stack.equals("devices/device")) {
+				d = new DeviceTO();
+				d.setDeviceProperties(new ArrayList<DevicePropertyTO>());
+				result.add(d);
+			} else if (stack.equals("devices/device/deviceProperties")) {
+				// properties = new ArrayList<DevicePropertyTO>();
+			} else if (stack.equals("devices/device/deviceProperties/deviceProperty")) {
+				prop = new DevicePropertyTO();
+				d.getDeviceProperties().add(prop);
+			}
+		}
+		public void elementText(String path, String content) throws SAXException {
+			//logger.info("Parsing text in '" + path + "'");
+			Matcher m1 = p1.matcher(stack);
+			if (m1.matches()) {
+				Struct.setValue(d, m1.group(1), content, false, true, false);
+			} else {
+				Matcher m2 = p2.matcher(stack);
+				if (m2.matches()) {
+					Struct.setValue(prop, m2.group(1), content, false, true, false);
+				}
+			}
+		}
+	}
+	
+    private List<DeviceTO> parseDevices(ByteArrayInputStream is) throws IOException, ParseException {
+    	DeviceContentHandler dch = new DeviceContentHandler();
+    	parseXml(is, dch);
+    	return dch.result;
+	}
+    
+	
 	public static class FixtureDefContentHandler extends AbstractStackContentHandler {
 		List<FixtureDefTO> result = new ArrayList<FixtureDefTO>();
 		List<FixtureDefImageTO> images = new ArrayList<FixtureDefImageTO>(); // not used 
@@ -751,8 +818,8 @@ src/main/resources/export.xml (date of export, totals etc)
 	 * 
 	 * @return
 	 */
-	public Map newImportItem(String text, String name, String image, boolean canAdd, boolean canReplace, boolean showError, String reason) {
-    	Map m = new HashMap();
+	public Map<String, Object> newImportItem(String text, String name, String image, boolean canAdd, boolean canReplace, boolean showError, String reason) {
+    	Map<String, Object> m = new HashMap<String, Object>();
     	m.put("text", text);
     	if (name!=null) { m.put("name", name); }
     	if (image!=null) { m.put("image", image); }
@@ -775,15 +842,15 @@ src/main/resources/export.xml (date of export, totals etc)
     }
     */
 	
-    public Map newItem(String text, String name, String image) {
-    	Map m = new HashMap();
+    public Map<String, Object> newItem(String text, String name, String image) {
+    	Map<String, Object> m = new HashMap<String, Object>();
     	m.put("text", text);
     	if (name!=null) { m.put("name", name); }
     	if (image!=null) { m.put("image", image); }
     	return m;
     }
     
-    public Map newItem(String text) {
+    public Map<String, Object> newItem(String text) {
     	return newItem(text, null, null); 
     }
     
