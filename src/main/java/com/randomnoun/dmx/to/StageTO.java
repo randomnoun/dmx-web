@@ -76,7 +76,7 @@ public class StageTO {
 
 	public String toExportXml() {
 		return "<stage>\n" +
-			//"    <id>" + id + "</id>\n" +
+			"    <id>" + id + "</id>\n" +
 			"    <name>" + Text.escapeHtml(name) + "</name>\n" +
 			"    <filename>" + Text.escapeHtml(filename) + "</filename>\n" +
 			"    <active>" + active + "</active>\n" +
