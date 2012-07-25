@@ -152,6 +152,7 @@ li {
 <script>
 <r:setJavascriptVar name="exportItems" value="${exportItems}" />
 <r:setJavascriptVar name="importItems" value="${importItems}" />
+<r:setJavascriptVar name="localFilename" value="${localFilename}" />
 
 function edtAddTreeNodes(id, containerEl, items) {
     var ulEl = new Element("ul");
@@ -245,6 +246,10 @@ function edtInitPanel() {
     if (importItems) {
 	    var importItemsDivEl = $("importItemsDiv");
 	    edtAddImportTreeNodes("importItems", importItemsDivEl, importItems, 0);
+	    $("importButtonDiv").update(
+	    	'<input type="hidden" name="action" value="import2" />' +
+	    	'<input type="hidden" name="localFilename" value="' + localFilename + '" />' +
+		    '<input type="submit" name="import" value="Import" />');
 	}
     $$('input[type="checkbox"]').each(function(el) {
     	Event.observe(el, 'change', edtCheckboxChange);
@@ -293,9 +298,11 @@ function initWindow() {
 	
 	<div id="importDiv">
 	<form id="importForm" name="importForm" method="post" action="importExport.html" enctype="multipart/form-data">
+	<div id="importButtonDiv">
 	<input type="hidden" name="action" value="import" />
 	<input type="file" name="importFile" />
     <input type="submit" name="import" value="Import" />
+    </div>
     <div id="importItemsDiv">
     <%--
     (This will be updated to display the items in the imported file)
