@@ -200,8 +200,13 @@ public class MaintainFixtureDefAction
     			request.setAttribute("fixtureDef", form.get("fixtureDef"));
     		} else {
     			Struct.setFromMap(fixtureDef, fixtureDefMap, false, true, false);
-    			fixtureDef.setFixtureDefClassName(getClassName(fixtureDef.getFixtureDefScript()));
-    			fixtureDef.setFixtureControllerClassName(getClassName(fixtureDef.getFixtureControllerScript()));
+    			//fixtureDef.setFixtureDefClassName(getClassName(fixtureDef.getFixtureDefScript()));
+    			//fixtureDef.setFixtureControllerClassName(getClassName(fixtureDef.getFixtureControllerScript()));
+    			//fixtureDef.setChannelMuxerClassName(getClassName(fixtureDef.getChannelMuxerScript()));
+    			fixtureDef.setFixtureDefClassName(fixtureDefClassName);
+    			fixtureDef.setFixtureControllerClassName(fixtureControllerClassName);
+    			fixtureDef.setChannelMuxerClassName(channelMuxerClassName);
+    			
 	    		if (lngId==-1) {
 	    			fixtureDefDAO.createFixtureDef(fixtureDef);
 	    			errors.addError("Fixture created", "Fixture definition created", ErrorList.SEVERITY_OK);
