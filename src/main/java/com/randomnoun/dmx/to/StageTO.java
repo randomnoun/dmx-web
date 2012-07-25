@@ -1,5 +1,7 @@
 package com.randomnoun.dmx.to;
 
+import com.randomnoun.common.Text;
+
 public class StageTO {
 
     private long id;
@@ -75,10 +77,10 @@ public class StageTO {
 	public String toExportXml() {
 		return "<stage>\n" +
 			//"    <id>" + id + "</id>\n" +
-			"    <name>" + name + "</name>\n" +
-			"    <filename>" + filename + "</filename>\n" +
+			"    <name>" + Text.escapeHtml(name) + "</name>\n" +
+			"    <filename>" + Text.escapeHtml(filename) + "</filename>\n" +
 			"    <active>" + active + "</active>\n" +
-			"    <fixPanelBackgroundImage>" + fixPanelBackgroundImage + "</fixPanelBackgroundImage>\n" +
+			"    <fixPanelBackgroundImage>" + Text.escapeHtml(fixPanelBackgroundImage) + "</fixPanelBackgroundImage>\n" +
 			"</stage>\n";
 	}
 

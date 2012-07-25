@@ -133,7 +133,7 @@ public class ShowTO {
 		    "    <id>" + id + "</id>\n" +
 			"    <stageId>" + stageId + "</stageId>\n" +		
 			"    <showDefId>" + showDefId + "</showDefId>\n" +
-			"    <name>" + name + "</name>\n" +
+			"    <name>" + Text.escapeHtml(name) + "</name>\n" +
 			(onCancelShowId==null ? "" : "    <onCancelShowId>" + onCancelShowId + "</onCancelShowId>\n") +
 			(onCompleteShowId==null ? "" : "    <onCompleteShowId>" + onCompleteShowId + "</onCompleteShowId>\n") +
 			"    <showGroupId>" + showGroupId + "</showGroupId>\n";

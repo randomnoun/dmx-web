@@ -110,7 +110,7 @@ public class DeviceTO {
 	public String toExportXml(List<DevicePropertyTO> deviceProperties) {
 		String s = "<device>\n" +
 			// "    <id>" + id + "</id>\n" +                                                   
-			"    <name>" + name + "</name>\n" +                                             
+			"    <name>" + Text.escapeHtml(name) + "</name>\n" +                                             
 			"    <className>" + className + "</className>\n" +                              
 			"    <type>" + type + "</type>\n" +                                             
 			"    <active>" + active + "</active>\n" +                                       

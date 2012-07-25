@@ -146,7 +146,7 @@ public class FixtureDefTO {
 	public String toExportXml(List<FixtureDefImageTO> fixtureDefImages) {
 		String s = "<fixtureDef>\n" +
 			"    <id>" + id + "</id>\n" +
-			"    <name>" + name + "</name>\n" +
+			"    <name>" + Text.escapeHtml(name) + "</name>\n" +
 			"    <fixtureDefClassName>" + fixtureDefClassName + "</fixtureDefClassName>\n" +
 			// "<fixtureDefScript>" + fixtureDefScript + "</fixtureDefScript>" +
 			"    <fixtureControllerClassName>" + fixtureControllerClassName + "</fixtureControllerClassName>\n" +

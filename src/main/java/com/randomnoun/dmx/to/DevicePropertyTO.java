@@ -1,5 +1,7 @@
 package com.randomnoun.dmx.to;
 
+import com.randomnoun.common.Text;
+
 public class DevicePropertyTO {
 
     private long id;
@@ -65,8 +67,8 @@ public class DevicePropertyTO {
 
 	public String toExportXml() {
 		return "<deviceProperty>\n" +
-		    "    <key>" + key + "</key>\n" +
-		    "    <value>" + value + "</value>\n" +
+		    "    <key>" + Text.escapeHtml(key) + "</key>\n" +
+		    "    <value>" + Text.escapeHtml(value) + "</value>\n" +
 		    "</deviceProperty>\n";
 	}
 

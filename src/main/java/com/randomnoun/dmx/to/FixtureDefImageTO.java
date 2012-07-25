@@ -1,5 +1,7 @@
 package com.randomnoun.dmx.to;
 
+import com.randomnoun.common.Text;
+
 public class FixtureDefImageTO {
 
     private long id;
@@ -123,10 +125,10 @@ public class FixtureDefImageTO {
     public String toExportXml() {
     	return "<fixtureDefImage>\n" + 
     		"    <fixtureDefId>" + fixtureDefId + "</fixtureDefId>\n" +
-    		"    <name>" + name + "</name>\n" +
+    		"    <name>" + Text.escapeHtml(name) + "</name>\n" +
     		"    <description>" + description + "</description>\n" +
     		"    <size>" + size + "</size>\n" +
-    		"    <contentType>" + contentType + "</contentType>\n" +
+    		"    <contentType>" + Text.escapeHtml(contentType) + "</contentType>\n" +
     		"</fixtureDefImage>\n";
     }
     

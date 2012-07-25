@@ -1,5 +1,7 @@
 package com.randomnoun.dmx.to;
 
+import com.randomnoun.common.Text;
+
 public class ShowDefTO {
 
     private long id;
@@ -90,10 +92,10 @@ public class ShowDefTO {
 	public String toExportXml() {
 		return "<showDef>\n" +
 			"    <id>" + id + "</id>\n" +
-			"    <name>" + name + "</name>\n" +
+			"    <name>" + Text.escapeHtml(name) + "</name>\n" +
 			"    <className>" + className + "</className>\n" +
 			//"<script>" + script + "</script>\n" +
-			"    <javadoc>" + javadoc + "</javadoc>\n" +
+			"    <javadoc>" + Text.escapeHtml(javadoc) + "</javadoc>\n" +
 			"    <isRecorded>" + isRecorded + "</isRecorded>\n" +
 			"</showDef>\n";
 	}

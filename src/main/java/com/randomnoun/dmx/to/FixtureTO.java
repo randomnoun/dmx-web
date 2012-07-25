@@ -1,5 +1,7 @@
 package com.randomnoun.dmx.to;
 
+import com.randomnoun.common.Text;
+
 public class FixtureTO {
 
     private long id;
@@ -287,7 +289,7 @@ public class FixtureTO {
 	        "    <id>" + id + "</id>\n" +
 			"    <stageId>" + stageId + "</stageId>\n" +
 			"    <fixtureDefId>" + fixtureDefId + "</fixtureDefId>\n" +
-			"    <name>" + name + "</name>\n" +
+			"    <name>" + Text.escapeHtml(name) + "</name>\n" +
 			"    <universeNumber>" + universeNumber + "</universeNumber>\n" +
 			"    <dmxOffset>" + dmxOffset + "</dmxOffset>\n" +
 			(x==null ? "" : "    <x>" + x + "</x>\n") +
