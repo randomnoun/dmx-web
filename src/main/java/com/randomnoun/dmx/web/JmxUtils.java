@@ -65,10 +65,8 @@ public class JmxUtils {
 
 	/**
 	 * Preloads the ObjectName instances and sorts them into a Map indexed by
-	 * domain. WAS only appears to have two built-in domains: "JMImplementation" and
-	 * "WebSphere". Within domains, a further map of types name to object names
-	 * are created; e.g. within the WebSphere domain, all applications are contained
-	 * in a List of ObjectNames contained in a Map with the key "Application"
+	 * domain. Within domains, a further map of types name to object names
+	 * are created
 	 * 
 	 * @param server the JMX server to retrieve objects from
 	 *
@@ -79,12 +77,8 @@ public class JmxUtils {
 	public static Map getObjectNames( MBeanServer server )
 	throws MalformedObjectNameException
 	{
-		// this only ever appears to see resources that already exist (have been used)
-		// e.g. MessageManagerDataSource but not MessageManagerDataSourceNoXA
-		//   .. although XA will appear after a query has been run. Thanks Websphere. Thanks a lot.
-		
 	    Map objectNames = new TreeMap();
-        Set objectNameSet = server.queryNames( null, /*new ObjectName("WebSphere:type=DataSource,*"),*/ null );
+        Set objectNameSet = server.queryNames( null, null );
         for( Iterator i = objectNameSet.iterator(); i.hasNext(); ) {
 		     ObjectName name = (ObjectName) i.next();
 		     
