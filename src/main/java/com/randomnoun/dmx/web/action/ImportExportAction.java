@@ -582,7 +582,8 @@ src/main/resources/export.xml (date of export, totals etc)
 
 				// could use annotations for these sorts of things, maybe.
 				// although why.
-				fixtureDefPw.println(Text.indent("    ", fixtureDef.toExportXml(fixtureDefImages)));
+				fixtureDef.setFixtureDefImages(fixtureDefImages);
+				fixtureDefPw.println(Text.indent("    ", fixtureDef.toExportXml()));
 			}
 			fixtureDefPw.println("</fixtureDefs>\n");
 			fixtureDefPw.flush();
@@ -663,7 +664,6 @@ src/main/resources/export.xml (date of export, totals etc)
 			
 		} else if (action.equals("import") || action.equals("import2")) {
 			// @XXX: stop any shows etc
-			
 			ErrorList errors = new ErrorList();
 			boolean upload = action.equals("import");
 			String userFilename = null;
@@ -685,6 +685,8 @@ src/main/resources/export.xml (date of export, totals etc)
 				
 			if (!errors.hasErrors()){
 
+				Map<Long, Long> remapFixtureDefIds = new HashMap<Long, Long>();
+				
 				// TODO: un-unicode them or something as well
 				String fileUploadTempPath = appConfig.getProperty("webapp.fileUpload.tempDir");
 				String localFilename;
@@ -701,6 +703,9 @@ src/main/resources/export.xml (date of export, totals etc)
 	    			localFilename = request.getParameter("localFilename");
 					f = new File(fileUploadTempPath + File.separator + localFilename);
 				}
+
+				// @TODO load whatever's been marked for import into a temporary appConfig
+				// and make sure it loads OK before stashing it in the database				
 				
 				Map<String, byte[]> zipMap = new HashMap<String, byte[]>();
 				FileInputStream fis = new FileInputStream(f);
@@ -762,21 +767,27 @@ src/main/resources/export.xml (date of export, totals etc)
 					List<FixtureDefTO> currentFixtureDefs = fixtureDefDAO.getFixtureDefs(null);
 					List<FixtureDefTO> fixtureDefs = parseFixtureDefs(new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDef.xml")));
 					for (int i=0; i<fixtureDefs.size(); i++) {
+						FixtureDefTO fixtureDef = fixtureDefs.get(i);
 						// this is probably all pointless
-						FixtureDefTO byName = (FixtureDefTO) Struct.getStructuredListObject(currentFixtureDefs, "name", fixtureDefs.get(i).getName()); // can rename these
+						FixtureDefTO byName = (FixtureDefTO) Struct.getStructuredListObject(currentFixtureDefs, "name", fixtureDef.getName()); // can rename these
 						//List otherFixtureDefs = new ArrayList<FixtureDefTO>(currentFixtureDefs);
 						//if (byName!=null) { otherFixtureDefs.remove(byName); }
-						FixtureDefTO byFDCN = (FixtureDefTO) Struct.getStructuredListObject(currentFixtureDefs, "fixtureDefClassName", fixtureDefs.get(i).getFixtureDefClassName()); // not so much these. Unless it's been generated.
-						FixtureDefTO byFCCN = (FixtureDefTO) Struct.getStructuredListObject(currentFixtureDefs, "fixtureControllerClassName", fixtureDefs.get(i).getFixtureControllerClassName()); // not so much these. Unless it's been generated.
-						FixtureDefTO byCMCN = (FixtureDefTO) Struct.getStructuredListObject(currentFixtureDefs, "channelMuxerClassName", fixtureDefs.get(i).getChannelMuxerClassName()); // not so much these. Unless it's been generated.
-						logger.info("this=" + fixtureDefs.get(i).getName() +
-							", thisCMCN=" + fixtureDefs.get(i).getChannelMuxerClassName() +
+						FixtureDefTO byFDCN = (FixtureDefTO) Struct.getStructuredListObject(currentFixtureDefs, "fixtureDefClassName", fixtureDef.getFixtureDefClassName()); // not so much these. Unless it's been generated.
+						FixtureDefTO byFCCN = (FixtureDefTO) Struct.getStructuredListObject(currentFixtureDefs, "fixtureControllerClassName", fixtureDef.getFixtureControllerClassName()); // not so much these. Unless it's been generated.
+						FixtureDefTO byCMCN = (FixtureDefTO) Struct.getStructuredListObject(currentFixtureDefs, "channelMuxerClassName", fixtureDef.getChannelMuxerClassName()); // not so much these. Unless it's been generated.
+						logger.info("this=" + fixtureDef.getName() +
 							", byName=" + (byName==null ? null : byName.getName()) + 
 							", byFDCN=" + (byFDCN==null ? null : byFDCN.getName()) + 
 							", byFCCN=" + (byFCCN==null ? null : byFCCN.getName()) + 
 							", byCMCN=" + (byCMCN==null ? null : byCMCN.getName()));
 						boolean canAdd = byFDCN==null && byFCCN==null && byCMCN==null && byName==null;
 						boolean canReplace = byName!=null && byName==byFDCN && byName==byFCCN && byName==byCMCN; // replace infers replaceWithRename
+						
+						// populate scripts from the rest of the ZIP file; @TODO validate that they're there
+						fixtureDef.setFixtureDefScript(new String(zipMap.get("src/main/beanshell/" + Text.replaceString(fixtureDef.getFixtureDefClassName(), ".", "/") + ".beanshell")));
+						fixtureDef.setFixtureControllerScript(new String(zipMap.get("src/main/beanshell/" + Text.replaceString(fixtureDef.getFixtureControllerClassName(), ".", "/") + ".beanshell")));
+						fixtureDef.setChannelMuxerScript(new String(zipMap.get("src/main/beanshell/" + Text.replaceString(fixtureDef.getChannelMuxerClassName(), ".", "/") + ".beanshell")));
+						
 						itemChildren.add(newImportItem(fixtureDefs.get(i).getName(), "fix-" + fixtureDefs.get(i).getId(), "icnFixtureDef2.png", 
 							canAdd, canReplace, !(canAdd || canReplace), 
 							canAdd ? null :
@@ -784,6 +795,37 @@ src/main/resources/export.xml (date of export, totals etc)
 							 "One of the classes in this fixture definition is used by another fixture")));
 						if (!upload && request.getParameter("fix-" + fixtureDefs.get(i).getId())!=null) {
 							logger.info("Importing fixtureDef '" + fixtureDefs.get(i).getName() + "'");
+							if (canAdd) {
+								long oldId=fixtureDef.getId();
+								fixtureDefDAO.createFixtureDef(fixtureDef); // modifies id field
+								remapFixtureDefIds.put(oldId, fixtureDef.getId());
+								for (FixtureDefImageTO fixtureDefImage : fixtureDef.getFixtureDefImages()) {
+									fixtureDefImage.setFixtureDefId(fixtureDef.getId());
+									fixtureDefImageDAO.createFixtureDefImage(fixtureDefImage);
+									fixtureDefImageDAO.saveImage(fixtureDefImage, new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDefs/" + oldId + "/" + fixtureDefImage.getFileLocation())));
+								}
+								
+							} else if (canReplace) {
+								// fixtureDefDAO.deleteFixtureDef(byName);
+								long oldId=fixtureDef.getId();
+								fixtureDef.setId(byName.getId());
+								fixtureDefDAO.updateFixtureDef(fixtureDef);
+								remapFixtureDefIds.put(oldId, fixtureDef.getId());
+								// @TODO update in-place if most of the attributes are the same
+								List<FixtureDefImageTO> fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages("fixtureDefId=" + fixtureDef.getId());
+								for (FixtureDefImageTO fixtureDefImage : fixtureDefImages) {
+									fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
+									// @TODO delete old files from local fixtureDef folder
+								}
+								for (FixtureDefImageTO fixtureDefImage : fixtureDef.getFixtureDefImages()) {
+									fixtureDefImage.setFixtureDefId(fixtureDef.getId());
+									fixtureDefImageDAO.createFixtureDefImage(fixtureDefImage);
+									fixtureDefImageDAO.saveImage(fixtureDefImage, new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDefs/" + oldId + "/" + fixtureDefImage.getFileLocation())));
+								}
+								// @TODO keep track of the old id when linking stage fixtures to this fixturedef
+							} else {
+								logger.warn("Cannot import fixtureDef '" + fixtureDefs.get(i).getName() + "'; ignoring");
+							}
 						}
 					}
 					items.add(itemMap);
@@ -841,6 +883,8 @@ src/main/resources/export.xml (date of export, totals etc)
 					}
 					items.add(itemMap);
 				}
+				
+
 				
 				session.setAttribute("localFilename", localFilename); // @XXX: probably a security risk
 				request.setAttribute("localFilename", localFilename);
