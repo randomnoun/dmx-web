@@ -82,6 +82,10 @@ BODY { font-size: 8pt; font-family: Arial; }
 .rj {  /* right-justified */
   text-align: right;
 }
+.ir { /* import radio button */ 
+  position: absolute; top: 0px;
+}
+
 
 TABLE { width: auto; }
 TH, TD { padding: 0px; line-height: 1; }
@@ -111,6 +115,7 @@ ul { list-style: none; margin: 0px 5px; padding-left: 16px; }
 
 li {
   margin: 0 0 0px 0;
+  position: relative;
 }
 #exportItemsDiv {
   position: absolute; left: 20px; top: 20px; width: 300px; height: 600px;
@@ -120,16 +125,23 @@ li {
   position: absolute; left: 20px; top: 20px; width: 300px; height: 600px;
   overflow: scroll; 
 }
-
+.importIcon {
+  display: inline-block; width: 16px; height: 16px; position: relative; top: 1px; margin-right: 2px; 
+}
 .edtImage {
   width: 16px; height: 16px; position: relative; top: 1px; margin-right: 2px;
 }
+.edtImage2 {
+  position: absolute; top: 0px; left: 0px; width: 16px; height: 16px;  
+}
+
+
 #exportDiv {
   position: absolute;
   left: 0px; top: 0px;
   width: 400px; height: 700px;
 }
-#importDiv {
+#importDiv { 
   position: absolute;
   left: 450px; top: 0px;
   width: 400px; height: 700px;
@@ -156,6 +168,37 @@ function edtAddTreeNodes(id, containerEl, items) {
     	}
     }
 }
+
+function edtAddImportTreeNodes(id, containerEl, items, depth) {
+    var ulEl = new Element("ul");
+    containerEl.insert({'bottom' : ulEl});
+    for (var i=0; i<items.length; i++) {
+    	var header = items[i].header;
+    	var overlayError = (!header) && !(items[i].canAdd || items[i].canAddWithRename || items[i].canReplace || items[i].canReplaceWithRename);
+    	var overlayWarn = !items[i].canAdd;
+    	var name = items[i].name ? items[i].name : id + "-" + i;
+    	var liEl = new Element("li").update(
+    		"<input type=\"checkbox\" name=\"" + name + "\" id=\"" + id + "-" + i + "\">" +
+            "<label for=\"" + name + "\">" +
+            "<span class=\"importIcon\">" +
+            (items[i].image ? '<img src="image/' + items[i].image + '" class="edtImage2" />' : '' ) +
+            (overlayError ? '<img src="image/overlay-error.gif" class="edtImage2" title="' + items[i].reason + '"/>' :
+            (overlayWarn ? '<img src="image/overlay-warn.gif" class="edtImage2" title="' + items[i].reason + '"/>' : '')) +
+            "</span>" + 
+            items[i].text + "</label>" +
+            (header ? "" : 
+              (items[i].canAdd ?     "<input class=\"ir\" style=\"left:" + (180-depth*21) + "px;\" value=\"+\" type=\"radio\" name=\"" + items[i].name + ".replace\">" : "") +
+              (items[i].canReplace ? "<input class=\"ir\" style=\"left:" + (200-depth*21) + "px;\" value=\"O\" type=\"radio\" name=\"" + items[i].name + ".replace\">" : "") +
+              ((items[i].canAddWithRename || items[i].canReplaceWithRename) ? "<input class=\"ir\" style=\"left:" + (220-depth*21) + "px;\" value=\"R\" type=\"radio\" name=\"" + items[i].name + ".replace\">" : "")
+            )  
+    	);
+    	ulEl.insert({'bottom' : liEl});
+    	if (items[i].children && items[i].children.length > 0) {
+    		edtAddImportTreeNodes(id + "-" + i, liEl, items[i].children, depth+1);
+    	}
+    }
+}
+
 
 function edtCheckSiblings(containerEl) {
 	var ulEl = $(containerEl.parentNode);  // li->ul
@@ -201,7 +244,7 @@ function edtInitPanel() {
     }
     if (importItems) {
 	    var importItemsDivEl = $("importItemsDiv");
-	    edtAddTreeNodes("importItems", importItemsDivEl, importItems);
+	    edtAddImportTreeNodes("importItems", importItemsDivEl, importItems, 0);
 	}
     $$('input[type="checkbox"]').each(function(el) {
     	Event.observe(el, 'change', edtCheckboxChange);
