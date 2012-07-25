@@ -1,15 +1,5 @@
 package com.randomnoun.dmx.web.action;
 
-// TODO: rip out the whole /add/replace/addwithrename/replacewithrename crap and
-// replace it with something slightly more sane
-
-// probably just force a replace if there's a name collision, or prevent import altogether
-// if there's a class namespace collision that doesn't match exactly
-
-// they can always rename the existing items themselves if they really need to import these things
-
-// problem solved. possibly.
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -426,7 +416,7 @@ src/main/resources/export.xml (date of export, totals etc)
 				fis.close();
 
 				List topLevel = new ArrayList();
-				Map topLevelMap = newImportHeader("Everything", null, null);
+				Map topLevelMap = newImportItem("Everything", null, null, true, false, false, null);
 				topLevel.add(topLevelMap);
 				
 				List items = new ArrayList();
@@ -434,13 +424,13 @@ src/main/resources/export.xml (date of export, totals etc)
 				Map itemMap;
 
 				if (zipMap.containsKey("src/main/resources/device.xml")) {
-					Map deviceMap = newImportItem("Device settings", "devices", "icnDevice.png", false, false, true, false, "Device settings will replace existing device settings");
+					Map deviceMap = newImportItem("Device settings", "devices", "icnDevice.png", false, true, false, "Device settings will replace existing device settings");
 					deviceMap.put("header", true);
 					items.add(deviceMap);
 				}
 				
 				if (zipMap.containsKey("src/main/resources/fixtureDef.xml")) {
-					itemMap = newImportHeader("Fixture definitions", null, "icnFixtureDef2.png");
+					itemMap = newImportItem("Fixture definitions", null, "icnFixtureDef2.png", false, false, false, null);
 					List itemChildren = new ArrayList();
 					itemMap.put("children", itemChildren);
 					List<FixtureDefTO> currentFixtureDefs = fixtureDefDAO.getFixtureDefs(null);
@@ -460,33 +450,31 @@ src/main/resources/export.xml (date of export, totals etc)
 							", byFCCN=" + (byFCCN==null ? null : byFCCN.getName()) + 
 							", byCMCN=" + (byCMCN==null ? null : byCMCN.getName()));
 						boolean canAdd = byFDCN==null && byFCCN==null && byCMCN==null && byName==null;
-						boolean canAddWithRename = byFDCN==null && byFCCN==null && byCMCN==null; 
 						boolean canReplace = byName!=null && byName==byFDCN && byName==byFCCN && byName==byCMCN; // replace infers replaceWithRename
 						itemChildren.add(newImportItem(fixtureDefs.get(i).getName(), "fix-" + fixtureDefs.get(i).getId(), "icnFixtureDef2.png", 
-							canAdd, canAddWithRename, canReplace, canReplace,
+							canAdd, canReplace, !(canAdd || canReplace), 
 							canAdd ? null :
-							canAddWithRename ? "Fixture must be renamed since a fixture with this name already exists" :
-							canReplace ? "Fixture with this name already exists" :
-							"One of the classes in this fixture definition is used by another fixture"));
+							(canReplace ? "A fixture with this name already exists" :
+							 "One of the classes in this fixture definition is used by another fixture")));
 					}
 					items.add(itemMap);
 				}
 				
 				if (zipMap.containsKey("src/main/resources/showDef.xml")) {
-					itemMap = newImportHeader("Show definitions", null, "icnShowDef2.png");
+					itemMap = newImportItem("Show definitions", null, "icnShowDef2.png", false, false, false, null);
 					List itemChildren = new ArrayList();
 					itemMap.put("children", itemChildren);
 					List<ShowDefTO> showDefs = parseShowDefs(new ByteArrayInputStream(zipMap.get("src/main/resources/showDef.xml")));
 					for (int i=0; i<showDefs.size(); i++) {
 						itemChildren.add(newImportItem(showDefs.get(i).getName(), "show-" + showDefs.get(i).getId(), "icnShowDef2.png",
-							true, true, false, false, null));
+							true, false, false, null));
 					}
 					items.add(itemMap);
 				}
 				
 				
 				if (zipMap.containsKey("src/main/resources/stage.xml")) {
-					itemMap = newImportHeader("Stages", null, "icnStage.png");
+					itemMap = newImportItem("Stages", null, "icnStage.png", false, false, false, null);
 					List itemChildren = new ArrayList();
 					itemMap.put("children", itemChildren);
 					List<StageTO> currentStages = stageDAO.getStages(null);
@@ -496,15 +484,15 @@ src/main/resources/export.xml (date of export, totals etc)
 						boolean canAdd = byName==null;
 						// @XXX: the booleans below are a really bad idea
 						Map stageItem = newImportItem(stages.get(i).getName(), null, "icnStage.png", 
-							canAdd, true, !canAdd, true, canAdd ? "" : "A stage with this name already exists");
+							canAdd, !canAdd, false, canAdd ? null : "A stage with this name already exists");
 						itemChildren.add(stageItem);
 						List itemChildren2 = new ArrayList();
 						stageItem.put("children", itemChildren2);
 						// the booleans here will change depending on the parent node selection. arg.
 						itemChildren2.add(newImportItem("Fixtures", "stage-fix-" + stages.get(i).getId(), "icnFixture2.png",
-							canAdd, false, !canAdd, false, canAdd ? "" : "A stage with this name already exists")); // @TODO add fixture/show counts
+							canAdd, !canAdd, false, canAdd ? null : "A stage with this name already exists")); // @TODO add fixture/show counts
 						itemChildren2.add(newImportItem("Shows", "stage-show-" + stages.get(i).getId(), "icnShow.png",
-							canAdd, false, !canAdd, false, canAdd ? "" : "A stage with this name already exists"));
+							canAdd, !canAdd, false, canAdd ? null : "A stage with this name already exists"));
 					}
 					items.add(itemMap);
 				}
@@ -721,19 +709,19 @@ src/main/resources/export.xml (date of export, totals etc)
 	 * 
 	 * @return
 	 */
-	public Map newImportItem(String text, String name, String image, boolean canAdd, boolean canAddWithRename, boolean canReplace, boolean canReplaceWithRename, String reason) {
+	public Map newImportItem(String text, String name, String image, boolean canAdd, boolean canReplace, boolean showError, String reason) {
     	Map m = new HashMap();
     	m.put("text", text);
     	if (name!=null) { m.put("name", name); }
     	if (image!=null) { m.put("image", image); }
     	m.put("canAdd", canAdd); 
-    	m.put("canAddWithRename", canAddWithRename);
     	m.put("canReplace", canReplace);
-    	m.put("canReplaceWithRename", canReplaceWithRename);
+    	m.put("showError", showError);
     	m.put("reason", reason);
     	return m;
     }
-	
+
+	/*
 	public Map newImportHeader(String text, String name, String image) {
     	Map m = new HashMap();
     	m.put("text", text);
@@ -743,6 +731,7 @@ src/main/resources/export.xml (date of export, totals etc)
     	m.put("canAdd", true); 
     	return m;
     }
+    */
 	
     public Map newItem(String text, String name, String image) {
     	Map m = new HashMap();

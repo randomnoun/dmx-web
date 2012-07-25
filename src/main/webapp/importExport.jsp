@@ -174,8 +174,8 @@ function edtAddImportTreeNodes(id, containerEl, items, depth) {
     containerEl.insert({'bottom' : ulEl});
     for (var i=0; i<items.length; i++) {
     	var header = items[i].header;
-    	var overlayError = (!header) && !(items[i].canAdd || items[i].canAddWithRename || items[i].canReplace || items[i].canReplaceWithRename);
-    	var overlayWarn = !items[i].canAdd;
+    	var overlayError = items[i].showError;
+    	var overlayWarn = items[i].canReplace;
     	var name = items[i].name ? items[i].name : id + "-" + i;
     	var liEl = new Element("li").update(
     		"<input type=\"checkbox\" name=\"" + name + "\" id=\"" + id + "-" + i + "\">" +
@@ -185,12 +185,12 @@ function edtAddImportTreeNodes(id, containerEl, items, depth) {
             (overlayError ? '<img src="image/overlay-error.gif" class="edtImage2" title="' + items[i].reason + '"/>' :
             (overlayWarn ? '<img src="image/overlay-warn.gif" class="edtImage2" title="' + items[i].reason + '"/>' : '')) +
             "</span>" + 
-            items[i].text + "</label>" +
+            items[i].text + "</label>" /* +
             (header ? "" : 
               (items[i].canAdd ?     "<input class=\"ir\" style=\"left:" + (180-depth*21) + "px;\" value=\"+\" type=\"radio\" name=\"" + items[i].name + ".replace\">" : "") +
               (items[i].canReplace ? "<input class=\"ir\" style=\"left:" + (200-depth*21) + "px;\" value=\"O\" type=\"radio\" name=\"" + items[i].name + ".replace\">" : "") +
               ((items[i].canAddWithRename || items[i].canReplaceWithRename) ? "<input class=\"ir\" style=\"left:" + (220-depth*21) + "px;\" value=\"R\" type=\"radio\" name=\"" + items[i].name + ".replace\">" : "")
-            )  
+            )  */
     	);
     	ulEl.insert({'bottom' : liEl});
     	if (items[i].children && items[i].children.length > 0) {
