@@ -74,26 +74,26 @@ public class JmxUtils {
 	 * 
 	 * @throws MalforedObjectNameException
 	 */
-	public static Map getObjectNames( MBeanServer server )
+	public static Map<String, Map<String, List<ObjectName>>> getObjectNames( MBeanServer server )
 	throws MalformedObjectNameException
 	{
-	    Map objectNames = new TreeMap();
-        Set objectNameSet = server.queryNames( null, null );
-        for( Iterator i = objectNameSet.iterator(); i.hasNext(); ) {
-		     ObjectName name = (ObjectName) i.next();
+	    Map<String, Map<String, List<ObjectName>>> objectNames = new TreeMap<String, Map<String, List<ObjectName>>>();
+        Set<ObjectName> objectNameSet = server.queryNames( null, null );
+        for( Iterator<ObjectName> i = objectNameSet.iterator(); i.hasNext(); ) {
+		     ObjectName name = i.next();
 		     
 		 	 String domain = name.getDomain();
-		 	 Map typeNames = (Map) objectNames.get(domain);
+		 	 Map<String, List<ObjectName>> typeNames = objectNames.get(domain);
 		 	 if (typeNames == null) {
-			     typeNames = new TreeMap();
+			     typeNames = new TreeMap<String, List<ObjectName>>();
 			     objectNames.put( domain, typeNames );
 			 }
 			 // Search the typeNames map to match the type of this object
 			 String typeName = name.getKeyProperty("type");
 			 if (typeName == null) typeName = "none";
-			 List v = (List) typeNames.get(typeName);
+			 List<ObjectName> v = typeNames.get(typeName);
 			 if (v==null) {
-			 	 v = new ArrayList();
+			 	 v = new ArrayList<ObjectName>();
 				 typeNames.put(typeName, v);
 			 }
 			 v.add(name);
