@@ -115,7 +115,7 @@ var tblObj = new rnTable(
   'id',                                    // table key field 
   'entryTable',                               // clientside table id
   'mainForm',                                 // enclosing clientside form id
-  'Are you sure you wish to delete this show ?',
+  'Are you sure you wish to delete this device ?',
     new Array(
       'id', 'name', 'className', 'type', 'active', 'universeNumber' )
 );
@@ -161,7 +161,7 @@ function initWindow() {
 
 
 <body onload="initWindow()" onunload="formUnloadCheck('mainForm')">
-<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show config</span></div>
+<div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Device config</span></div>
 <div class="lhsMenuContainer">
   <div id="lhsCancel" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/back.png" title="Back"/><div class="lhsMenuText">Back</div></div>
   <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="OK"/><div class="lhsMenuText">OK</div></div>
@@ -182,9 +182,9 @@ function initWindow() {
     <td class="formHeader">&nbsp;</td>
     <td class="formHeader" style="background-color: #000052">Name <img src="image/help-icon.png" align="right" title="Descriptive name" /></td>
     <td class="formHeader" style="background-color: #000052">Interface Type <img src="image/help-icon.png" align="right" title="The type of this interface" /></td>
-    <td class="formHeader" style="background-color: #000052">Active <img src="image/help-icon.png" align="right" title="Only one show in the same group can run at the same time. Shows without a group can run any number of shows at the same time." /></td>
-    <td class="formHeader" style="background-color: #000052">Universe number <img src="image/help-icon.png" align="right" title="If specified, this show will run when the show completes" /></td>
-    <td class="formHeader" style="background-color: #000052" colspan="2" >Properties <img src="image/help-icon.png" align="right" title="Custom show properties" /></td>
+    <td class="formHeader" style="background-color: #000052">Active <img src="image/help-icon.png" align="right" title="Generate output on this device ?" /></td>
+    <td class="formHeader" style="background-color: #000052">Universe number <img src="image/help-icon.png" align="right" title="The universe number within dmx-web that represents this device" /></td>
+    <td class="formHeader" style="background-color: #000052" colspan="2" >Properties <img src="image/help-icon.png" align="right" title="Custom device properties" /></td>
 </tr>
    <c:forEach var="rowData" varStatus="rowStatus" items="${form.devices}" > 
                 <c:choose> <c:when test="${rowData.cmdDelete == 'Y'}"> 
