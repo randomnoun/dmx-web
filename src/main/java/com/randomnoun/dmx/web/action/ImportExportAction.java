@@ -36,6 +36,7 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import com.randomnoun.common.ErrorList;
 import com.randomnoun.common.StreamUtils;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
@@ -380,27 +381,44 @@ src/main/resources/export.xml (date of export, totals etc)
 			StreamUtils.copyStream(new ByteArrayInputStream(baos.toByteArray()), response.getOutputStream());
 			forward = "null";
 			
-		} else if (action.equals("import")) {
-			
-			FileItem file = ((FileRequestWrapper) request).getFile("importFile");
-			String userFilename = file.getName();
-			if (userFilename.contains(":")) { userFilename = userFilename.substring(userFilename.indexOf(":")+1); }
-			if (userFilename.contains("/")) { userFilename = userFilename.substring(userFilename.indexOf("/")+1); }
-			if (userFilename.contains("\\")) { userFilename = userFilename.substring(userFilename.indexOf("\\")+1); }
-		
-			if (userFilename.equals("")) {
-				// ignore missing file
+		} else if (action.equals("import") || action.equals("import2")) {
+			ErrorList errors = new ErrorList();
+			boolean upload = action.equals("import");
+			String userFilename = null;
+			FileItem file = null;
+			if (upload) {
+				file = ((FileRequestWrapper) request).getFile("importFile");
+				userFilename = file.getName();
+				if (userFilename.contains(":")) { userFilename = userFilename.substring(userFilename.indexOf(":")+1); }
+				if (userFilename.contains("/")) { userFilename = userFilename.substring(userFilename.indexOf("/")+1); }
+				if (userFilename.contains("\\")) { userFilename = userFilename.substring(userFilename.indexOf("\\")+1); }
+				if (userFilename.equals("")) {
+					errors.addError("Missing file", "You must enter a file to import");
+				}
 			} else {
-				// TODO: un-unicode them or something as well
-				logger.info("Received fileUpload (userFilename='" + userFilename + "')");
+				if (!request.getParameter("localFilename").equals(session.getAttribute("localFilename"))) {
+					errors.addError("Invalid request", "The previously uploaded file is no longer available. Please upload again.");
+				}
+			}
 				
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-    			String localFilename = sdf.format(new Date()) + "-" + userFilename;
-	        	String fileUploadTempPath = appConfig.getProperty("webapp.fileUpload.tempDir");
-				File f = new File(fileUploadTempPath + File.separator + localFilename);
-				FileOutputStream fos = new FileOutputStream(f);
-				StreamUtils.copyStream(file.getInputStream(), fos);
-				fos.close();
+			if (!errors.hasErrors()){
+
+				// TODO: un-unicode them or something as well
+				String fileUploadTempPath = appConfig.getProperty("webapp.fileUpload.tempDir");
+				String localFilename;
+				File f;
+				if (upload) {
+					logger.info("Received fileUpload (userFilename='" + userFilename + "')");
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+	    			localFilename = sdf.format(new Date()) + "-" + userFilename;
+					f = new File(fileUploadTempPath + File.separator + localFilename);
+					FileOutputStream fos = new FileOutputStream(f);
+					StreamUtils.copyStream(file.getInputStream(), fos);
+					fos.close();
+				} else {
+	    			localFilename = request.getParameter("localFilename");
+					f = new File(fileUploadTempPath + File.separator + localFilename);
+				}
 				
 				Map<String, byte[]> zipMap = new HashMap<String, byte[]>();
 				FileInputStream fis = new FileInputStream(f);
@@ -427,6 +445,9 @@ src/main/resources/export.xml (date of export, totals etc)
 					Map deviceMap = newImportItem("Device settings", "devices", "icnDevice.png", false, true, false, "Device settings will replace existing device settings");
 					deviceMap.put("header", true);
 					items.add(deviceMap);
+					if (!upload && request.getParameter("devices")!=null) {
+						logger.info("Importing devices");
+					}
 				}
 				
 				if (zipMap.containsKey("src/main/resources/fixtureDef.xml")) {
@@ -456,6 +477,9 @@ src/main/resources/export.xml (date of export, totals etc)
 							canAdd ? null :
 							(canReplace ? "A fixture with this name already exists" :
 							 "One of the classes in this fixture definition is used by another fixture")));
+						if (!upload && request.getParameter("fix-" + fixtureDefs.get(i).getId())!=null) {
+							logger.info("Importing fixtureDef '" + fixtureDefs.get(i).getName() + "'");
+						}
 					}
 					items.add(itemMap);
 				}
@@ -464,10 +488,16 @@ src/main/resources/export.xml (date of export, totals etc)
 					itemMap = newImportItem("Show definitions", null, "icnShowDef2.png", false, false, false, null);
 					List itemChildren = new ArrayList();
 					itemMap.put("children", itemChildren);
+					List<ShowDefTO> currentShowDefs = showDefDAO.getShowDefs(null);
 					List<ShowDefTO> showDefs = parseShowDefs(new ByteArrayInputStream(zipMap.get("src/main/resources/showDef.xml")));
 					for (int i=0; i<showDefs.size(); i++) {
+						ShowDefTO byName = (ShowDefTO) Struct.getStructuredListObject(currentShowDefs, "name", showDefs.get(i).getName()); // can rename these
+						boolean canAdd = byName==null;
 						itemChildren.add(newImportItem(showDefs.get(i).getName(), "show-" + showDefs.get(i).getId(), "icnShowDef2.png",
-							true, false, false, null));
+							canAdd, !canAdd, false, canAdd ? null : "A show definition with this name already exists"));
+						if (!upload && request.getParameter("show-" + showDefs.get(i).getId())!=null) {
+							logger.info("Importing showDef '" + showDefs.get(i).getName() + "'");
+						}
 					}
 					items.add(itemMap);
 				}
@@ -483,7 +513,7 @@ src/main/resources/export.xml (date of export, totals etc)
 						StageTO byName = (StageTO) Struct.getStructuredListObject(currentStages, "name", stages.get(i).getName()); // can rename these
 						boolean canAdd = byName==null;
 						// @XXX: the booleans below are a really bad idea
-						Map stageItem = newImportItem(stages.get(i).getName(), null, "icnStage.png", 
+						Map stageItem = newImportItem(stages.get(i).getName(), "stage-" + stages.get(i).getId(), "icnStage.png", 
 							canAdd, !canAdd, false, canAdd ? null : "A stage with this name already exists");
 						itemChildren.add(stageItem);
 						List itemChildren2 = new ArrayList();
@@ -493,13 +523,25 @@ src/main/resources/export.xml (date of export, totals etc)
 							canAdd, !canAdd, false, canAdd ? null : "A stage with this name already exists")); // @TODO add fixture/show counts
 						itemChildren2.add(newImportItem("Shows", "stage-show-" + stages.get(i).getId(), "icnShow.png",
 							canAdd, !canAdd, false, canAdd ? null : "A stage with this name already exists"));
+						
+						if (!upload && request.getParameter("stage-" + stages.get(i).getId())!=null) {
+							logger.info("Importing stage '" + stages.get(i).getName() + "'");
+						}
+						if (!upload && request.getParameter("stage-fix-" + stages.get(i).getId())!=null) {
+							logger.info("Importing fixtures for stage '" + stages.get(i).getName() + "'");
+						}
+						if (!upload && request.getParameter("stage-show-" + stages.get(i).getId())!=null) {
+							logger.info("Importing shows for stage '" + stages.get(i).getName() + "'");
+						}
 					}
 					items.add(itemMap);
 				}
 				
+				session.setAttribute("localFilename", localFilename); // @XXX: probably a security risk
+				request.setAttribute("localFilename", localFilename);
 				request.setAttribute("importItems", topLevel);
 			}
-			
+		
     	} else {
 			throw new IllegalArgumentException("Invalid action '" + action + "'");
 		}
@@ -666,7 +708,7 @@ src/main/resources/export.xml (date of export, totals etc)
     public static class StageContentHandler extends AbstractStackContentHandler {
 		List<StageTO> result = new ArrayList<StageTO>();
 		StageTO s = null;
-		Pattern p1 = Pattern.compile("^stages/stage/(name|filename|active|fixPanelBackgroundImage)$");
+		Pattern p1 = Pattern.compile("^stages/stage/(id|name|filename|active|fixPanelBackgroundImage)$");
 		public void element(String path) throws SAXException {
 			//logger.info("Parsing '" + path + "'");
 			if (stack.equals("stages/stage")) {
