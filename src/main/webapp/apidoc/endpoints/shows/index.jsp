@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" class="hl-en not-logged-in ">
 <head>
     <meta charset="UTF-8" />
-    <title>Comment Endpoints &bull; Instagram Developer Documentation</title>
+    <title>Show Endpoints &bull; DMX-web Developer Documentation</title>
 
     <link rel="Shortcut Icon" type="image/x-icon" href="../../images/favicon.ico" />
 
@@ -175,6 +175,14 @@
 
     <div class="index-nav index-endpoints">
         <ul>
+            <li>
+                <a href="index.jsp#show_list">
+                    <span class="type">GET</span>
+                    <b><code>/show/list</code></b>
+                    <span class="description">Retrieves the list of shows.</span>
+                    <i></i>
+                </a>
+            </li>
             
             <li>
                 <a href="index.jsp#show_start_byid">
@@ -294,14 +302,17 @@
     
         <div class="card-description ep-description">
             <p>
-                Starts a show, given it's unique identifier.
+                Starts the show with the supplied unique show-id identifier.
                 
                 <p>The show ID can be determined by going into the 
                 Configuration panel from the main DMX-web page, then
-                selecting "Shows", and reading the number in the 'Show ID' column.  
+                selecting "Shows", and reading the number in the 'Show ID' column,
+                or by using the <a href="#show_list"><code>/show/list</code></a> API request.  
                 
                 <p>All other shows within the same show group will be stopped
-                (except for show group 0).</p>
+                (except for currently running shows in show group 0).</p>
+                
+                <p>Shows that are not configured on an active stage will not be started. 
               <!--   
                 <small><a href="../../authentication/index.jsp#scope">Required scope</a>: comments</small>
                  -->
