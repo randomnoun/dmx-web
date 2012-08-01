@@ -21,6 +21,8 @@ import com.randomnoun.common.http.HttpUtil;
 import com.randomnoun.common.jexl.ExpressionUtils;
 import com.randomnoun.common.jexl.ast.TopLevelExpression;
 import com.randomnoun.common.jexl.eval.EvalContext;
+import com.randomnoun.common.jexl.eval.EvalException;
+import com.randomnoun.common.jexl.eval.EvalFunction;
 import com.randomnoun.common.jexl.eval.Evaluator;
 import com.randomnoun.common.jexl.parser.ExpressionParser;
 import com.randomnoun.common.jexl.parser.ParseException;
@@ -397,11 +399,44 @@ public class MaintainFixtureAction
 			long u = Long.parseLong(form.get("rfUniverseNumber"));
 			long dmxOffset = Long.parseLong(form.get("rfDmxOffset"));
 			long dmxOffsetGap = Long.parseLong(form.get("rfDmxOffsetGap"));
+			TopLevelExpression panelXExpr = parseExpression(form.get("rfPanelX"));
+			TopLevelExpression panelYExpr = parseExpression(form.get("rfPanelY"));
 			TopLevelExpression positionXExpr = parseExpression(form.get("rfPositionX"));
 			TopLevelExpression positionYExpr = parseExpression(form.get("rfPositionY"));
+			TopLevelExpression positionZExpr = parseExpression(form.get("rfPositionZ"));
+			TopLevelExpression lookingAtXExpr = parseExpression(form.get("rfLookingAtX"));
+			TopLevelExpression lookingAtYExpr = parseExpression(form.get("rfLookingAtY"));
+			TopLevelExpression lookingAtZExpr = parseExpression(form.get("rfLookingAtZ"));
+			TopLevelExpression upXExpr = parseExpression(form.get("rfUpX"));
+			TopLevelExpression upYExpr = parseExpression(form.get("rfUpY"));
+			TopLevelExpression upZExpr = parseExpression(form.get("rfUpZ"));
+			
+			Map functions = new HashMap();
+			functions.put("floor", new EvalFunction(){
+				public Object evaluate(String functionName, EvalContext context, List arguments)
+					throws EvalException {
+					if (arguments.size() != 1) { throw new EvalException(functionName + "() must contain one parameter"); }
+		            if (arguments.get(0) == null) { throw new EvalException(functionName + "() parameter cannot be null"); }
+		            if (!(arguments.get(0) instanceof Number)) {
+		                throw new EvalException(functionName + "() parameter must be a numeric type");
+		            }
+		            return Math.floor( ((Number)arguments.get(0)).doubleValue() );				
+		        }});
+			functions.put("iif", new EvalFunction(){
+				public Object evaluate(String functionName, EvalContext context, List arguments)
+					throws EvalException {
+					if (arguments.size() != 3) { throw new EvalException(functionName + "() must contain three parameters"); }
+		            if (arguments.get(0) == null) { throw new EvalException(functionName + "() parameter 1 cannot be null"); }
+		            if (!(arguments.get(0) instanceof Boolean)) {
+		                throw new EvalException(functionName + "() parameter must be a boolean type");
+		            }
+		            boolean b = ((Boolean)arguments.get(0)).booleanValue();
+		            return b ? arguments.get(1) : arguments.get(2);
+		        }});
 			
 			List rows = new ArrayList();
 			
+			int n=0;
 			for (int y=1; y<=cy; y++) {
 				List row = new ArrayList();
 				rows.add(row);
@@ -412,16 +447,31 @@ public class MaintainFixtureAction
 					String name = form.get("rfName");
 					name = Text.replaceString(name, "{x}", String.valueOf(x));
 					name = Text.replaceString(name, "{y}", String.valueOf(y));
+					name = Text.replaceString(name, "{n}", String.valueOf(n));
 					cell.put("name", name);
 					cell.put("offset", "u" + u + "-offset" + dmxOffset);
 					
-			        double xp=evalDouble(positionXExpr, x, y);
-			        double yp=evalDouble(positionYExpr, x, y);
+					// @TODO allow side-affects here ?
+					Double panelX=evalDouble(panelXExpr, functions, x, y, n);
+			        Double panelY=evalDouble(panelYExpr, functions, x, y, n);
+			        Double positionX=evalDouble(positionXExpr, functions, x, y, n);
+			        Double positionY=evalDouble(positionYExpr, functions, x, y, n);
+			        Double positionZ=evalDouble(positionZExpr, functions, x, y, n);
+			        Double lookingAtX=evalDouble(lookingAtXExpr, functions, x, y, n);
+			        Double lookingAtY=evalDouble(lookingAtYExpr, functions, x, y, n);
+			        Double lookingAtZ=evalDouble(lookingAtZExpr, functions, x, y, n);
+			        Double upX=evalDouble(upXExpr, functions, x, y, n);
+			        Double upY=evalDouble(upYExpr, functions, x, y, n);
+			        Double upZ=evalDouble(upZExpr, functions, x, y, n);
 			        
-			        cell.put("offset", "u" + u + "-offset" + dmxOffset+"("+xp+","+yp+")");
+			        if (panelX!=null && panelY!=null) { cell.put("panel", "(" + panelX + ", " + panelY + ")"); }
+			        if (positionX!=null && positionY!=null && positionZ!=null) { cell.put("position", "(" + positionX + ", " + positionY + ", " + positionZ + ")"); }
+			        if (lookingAtX!=null && lookingAtY!=null && lookingAtZ!=null) { cell.put("lookingAt", "(" + lookingAtX + ", " + lookingAtX + ", " + lookingAtZ + ")"); }
+			        if (upX!=null && upY!=null && upZ!=null) { cell.put("up", "(" + upX + ", " + upY + ", " + upZ + ")"); }
 			        
 			        dmxOffset += dmxOffsetGap + 3; /* @TODO get fixture channel count */
 				}
+				n++;
 			}
 			
 			Map json = new HashMap();
@@ -451,19 +501,33 @@ public class MaintainFixtureAction
         	TopLevelExpression expr2 = parser.TopLevelExpression();;
         	return expr2;
         } catch (ParseException pe) {
+        	logger.error("ParseException for expression '" + expr + "'");
             throw new java.text.ParseException(pe.getMessage(), -1);
         } catch (TokenMgrError tme) {
+        	logger.error("TokenMgrError for expression '" + expr + "'");
             throw new java.text.ParseException(tme.getMessage(), -1);
         }
     }
     
-    private double evalDouble(TopLevelExpression e, long x, long y) {
-        Evaluator evaluator = new Evaluator();
-        EvalContext evalContext = new EvalContext();
-		evalContext.setVariable("x", new Long(x));
-        evalContext.setVariable("y", new Long(y));					
-        Object result = evaluator.visit(e, evalContext);
-        return ((Number)result).doubleValue();
+    private Double evalDouble(TopLevelExpression expr, Map functions, long x, long y, long n) {
+    	String exprString = null;
+    	try {
+    		exprString = ExpressionUtils.expressionToString(expr);
+	        Evaluator evaluator = new Evaluator();
+	        EvalContext evalContext = new EvalContext();
+			evalContext.setVariable("x", new Long(x));
+	        evalContext.setVariable("y", new Long(y));
+	        evalContext.setVariable("n", new Long(n));
+	        evalContext.setFunctions(functions);
+	        
+	        Object result = evaluator.visit(expr, evalContext);
+	        logger.info("Evaluating '" + exprString + "' as " + result);
+	        return ((Number)result).doubleValue();
+    	} catch (Exception e) {
+    		// TODO log or return an error string
+    		logger.error("Exception evaluating '" + exprString + "'", e);
+    		return null;
+    	}
     }
     
     private void addElement(List list, String id, String name) {

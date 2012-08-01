@@ -113,7 +113,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 .smallInput { width: 40px; }
 .smallInput2 { width: 30px; }
 #repeatFixtureDiv { 
-  width: 800px; height: 500px; 
+  width: 1000px; height: 500px; 
   padding: 10px; 
   border: solid 2px black; 
   display: none; 
@@ -123,12 +123,12 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 .rfTitle1 { font-size: 14pt; font-weight: bold; padding-bottom: 15px;  }
 .rfTitle2 { position: absolute; font-size: 14pt; font-weight: bold; padding-bottom: 15px; left: 420px; top: 10px;}
 #rfPreviewContainer { 
-  position: absolute; top: 40px; left: 420px; width: 380px; height: 380px;
+  position: absolute; top: 40px; left: 420px; width: 580px; height: 580px;
   overflow: scroll;  
 }  
 .rfPreview {
   display: inline-block;
-  width: 80px; height: 30px; 
+  width: 140px; height: 90px; 
   color: #7369b5;
   background-color: #b5a6ef;
   margin: 3px; padding: 2px; 
@@ -172,23 +172,66 @@ function rfDmxAllocationChange(e) {
 	$("rfDmxAllocationGrid").style.display = (rfDmxAllocation=="grid" ? "table-row" : "none");
 	$("rfDmxAllocationCsv").style.display = (rfDmxAllocation=="csv" ? "table-row" : "none");
 	$$('.rfDmxCalcRow').each(function(el){el.style.display = (rfDmxAllocation=="calculated" ? "table-row" : "none"); });
-	
+
+	// if we calculated locations, then we lose the previously set allocation 
+	if (rfDmxAllocation=="calculated") {
+		Form.getInputs('rfForm','radio','rfDmxLoop').each(function(radio) { radio.checked=false; });
+		Form.getInputs('rfForm','radio','rfDmxGrid').each(function(radio) { radio.checked=false; });
+	} else if (rfDmxAllocation=="loop") {
+		rfDmxLoopChange();
+	} else if (rfDmxAllocation=="grid") {
+		rfDmxGridChange();
+	}
 	// $$ this
 	// $("rfDmxAllocationCsv").display = (rfDmxAllocation=="csv" ? "table-row" : "none");
 }
+function rfDmxLoopChange(e) {
+	var formEl = $("rfForm");
+	var countX = new Number(formEl["rfCountX"].value).floor();
+	var countY = new Number(formEl["rfCountY"].value).floor();
+	var loopType = Form.getInputs('rfForm','radio','rfDmxLoop').find(function(radio) { return radio.checked; }).value;
+	if (loopType="loop-rd") { // alt left-to-right, down
+		formEl["rfPanelX"].value="iif(floor(n / " + countX + ")%2==0, x, " + countX + "-x)";
+		formEl["rfPanelY"].value="y * 10";
+	} else if (loopType="loop-ld") { // alt right-to-left, down
+		formEl["rfPanelX"].value="10";
+		formEl["rfPanelY"].value="10";
+	} else if (loopType="loop-ru") { // alt left-to-right, up
+		formEl["rfPanelX"].value="20";
+		formEl["rfPanelY"].value="20";
+	} else if (loopType="loop-lu") { // alt right-to-left, up
+		formEl["rfPanelX"].value="30";
+		formEl["rfPanelY"].value="30";
+	} else {
+		alert("Unknown loopType '" + loopType + "'");
+	}
+	rfInputChange();
+	
+}
+function rfDmxGridChange(e) {
+	var gridType = Form.getInputs('rfForm','radio','rfDmxGrid').find(function(radio) { return radio.checked; }).value;
+	
+}
+
 
 function rfUpdatePreview(json) {
 	var previewContainerEl = $("rfPreviewContainer");
 	var html = "";
 	for (var y=0; y<json.rows.length; y++) {
 		var row=json.rows[y];
+		html += '<div style="width:' + (row.length * 150) + 'px;">';
 		for (var x=0;x<row.length; x++) {
 			var cell=row[x];
 			html += "<div class=\"rfPreview\">" + 
 			  "<div class=\"rfPreviewName\">" + cell.name + "</div>" + 
-			  cell.offset + "</div>";
+			  cell.offset + "<br/>" + 
+			  (cell.panel ? "Panel: " + cell.panel + "<br/>" : "" ) +
+			  (cell.position ? "Position: " + cell.position + "<br/>" : "" ) +
+			  (cell.lookingAt ? "Looking at: " + cell.lookingAt + "<br/>" : "" ) +
+			  (cell.up ? "Up: " + cell.up : "" ) +
+			  "</div>";
 		}
-		html += "<br/>";
+		html += "</div>";
 	}
 	previewContainerEl.update(html);
 }
@@ -201,6 +244,8 @@ function edtInitPanel() {
     Event.observe($("rfCancelButton"), 'click', rfCancelButtonClick);
     $$('.rfInput').each(function(el){Event.observe(el,'change',rfInputChange)});
     $$('input[name="rfDmxAllocation"]').each(function(el){Event.observe(el,'change',rfDmxAllocationChange)});
+    $$('input[name="rfDmxLoop"]').each(function(el){Event.observe(el,'change',rfDmxLoopChange)});
+    $$('input[name="rfDmxGrid"]').each(function(el){Event.observe(el,'change',rfDmxGridChange)});
     for (var i = 0; i < fixtures_size; i++) {
     	edtUpdateDmxOffset(i);
     }
@@ -268,7 +313,7 @@ function initWindow() {
         <td colspan="3"></td>
         <td colspan="3" class="formHeader" style="background-color: #000052" width="90px">DMX offset <img src="image/help-icon.png" align="right" title="Starting DMX channel for this fixture" /></td>
         <td rowspan="2" class="formHeader" style="background-color: #000052; vertical-align: bottom;">Sort<br/>order <img src="image/help-icon.png" align="right" title="Order in which this fixture will appear on the 'Fixtures' panel" /></td>
-        <td colspan="3" class="formHeader" style="background-color: #000052">Fixture panel <img src="image/help-icon.png" align="right" title="Display settings for this fixture on the fixture panel" /></td>
+        <td colspan="3" class="formHeader" style="background-color: #000052">Fixture panel <img src="image/help-icon.png" align="right" title="Display settings for this fixture on the fixture panel (in pixels)" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Position <img src="image/help-icon.png" align="right" title="The location of the fixture" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Looking at Position <img src="image/help-icon.png" align="right" title="A point that this fixture is looking towards (in it's initial state)" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Up vector <img src="image/help-icon.png" align="right" title="The direction of up, taking the fixture as being at co-ordinates (0,0,0)" /></td>
@@ -499,13 +544,13 @@ function initWindow() {
   </td>
 <tr id="rfDmxAllocationLoop" style="display: none;"><td colspan="2"></td><td>
   <div style="margin-top: 10px; height: 40px;">
-  <span style="float:left;"><input class="" type="radio" name="rfDmxLoop" value="loop-rd"/></span> 
+  <span style="float:left;"><input class="" type="radio" name="rfDmxLoop" value="loop-rd" checked/></span> 
   <span style="float:left; margin-right:5px;"><img src="image/config/loop-rd.png"/></span>Loop alternating left-to-right, then right-to-left, downwards<br/>
   </div><div style="height: 40px; clear:left;">
   <span style="float:left; clear: left;"><input class="" type="radio" name="rfDmxLoop" value="loop-ld"/></span> 
   <span style="float:left; margin-right:5px;"><img src="image/config/loop-ld.png"/></span>Loop alternating right-to-left, then left-to-right, downwards<br/>
   </div><div style="height: 40px; clear:left;">
-  <span style="float:left; clear: left;"><input class="" type="radio" name="rfDmxLoop" value="loop-ld"/></span> 
+  <span style="float:left; clear: left;"><input class="" type="radio" name="rfDmxLoop" value="loop-ru"/></span> 
   <span style="float:left; margin-right:5px;"><img src="image/config/loop-ru.png"/></span>Loop alternating left-to-right, then right-to-left, upwards<br/>
   </div><div style="height: 40px; clear:left;">
   <span style="float:left; clear: left;"><input class="" type="radio" name="rfDmxLoop" value="loop-ld"/></span> 
@@ -516,7 +561,7 @@ function initWindow() {
 
 <tr id="rfDmxAllocationGrid" style="display: none;"><td colspan="2"></td><td>
   <div style="margin-top: 10px; height: 40px;">
-  <span style="float:left;"><input class="" type="radio" name="rfDmxGrid" value="grid-lr-tb"/></span> 
+  <span style="float:left;"><input class="" type="radio" name="rfDmxGrid" value="grid-lr-tb" checked/></span> 
   <span style="float:left; margin-right:5px;"><img src="image/config/lr-td2.png"/></span>Grid in rows, left to right, top to bottom<br/>
   </div><div style="height: 40px; clear:left;">
   <span style="float:left; clear: left;"><input class="" type="radio" name="rfDmxGrid" value="grid-lr-bt"/></span> 
@@ -545,10 +590,10 @@ function initWindow() {
 </tr>
   
 <%-- <r:select data="${rfDmxAllocations}" name="rfDmxAllocation" value="" displayColumn="name" valueColumn="id" /></td></tr> --%>
-<tr class="rfDmxCalcRow"><td rowspan="2">Fixture panel <img src="image/help-icon.png" title="Display settings for this fixture on the fixture panel" /></td>
+<tr class="rfDmxCalcRow"><td rowspan="2">Fixture panel <img src="image/help-icon.png" title="Display settings for this fixture on the fixture panel (in pixels)" /></td>
     <td>X:</td><td><input class="rfInput" type="text" name="rfPanelX" value="x * 10" /></td></tr>
 <tr class="rfDmxCalcRow"><td>Y:</td><td><input class="rfInput" type="text" name="rfPanelY" value="y * 10" /></td></tr>
-<tr class="rfDmxCalcRow"><td rowspan="3">3D Position <img src="image/help-icon.png" title="The location of the fixture" /></td>
+<tr class="rfDmxCalcRow"><td rowspan="3">3D position <img src="image/help-icon.png" title="The location of the fixture" /></td>
     <td>X:</td><td><input class="rfInput" type="text" name="rfPositionX" value="x * 10" /></td></tr>
 <tr class="rfDmxCalcRow"><td>Y:</td><td><input class="rfInput" type="text" name="rfPositionY" value="y * 10" /></td></tr>
 <tr class="rfDmxCalcRow"><td>Z:</td><td><input class="rfInput" type="text" name="rfPositionZ" value="1" /></td></tr>
