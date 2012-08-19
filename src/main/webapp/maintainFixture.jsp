@@ -200,7 +200,7 @@ function rfDmxLoopChange(e) {
 	var countX = new Number(formEl["rfCountX"].value).floor();
 	var countY = new Number(formEl["rfCountY"].value).floor();
 	var dmxOffsetGap = new Number(formEl["rfDmxOffsetGap"].value).floor();
-	var numChannels = fixtureDefMap[rfFixtureDefId] + dmxOffsetGap;
+	var numChannels = fixtureDefMap[rfFixtureDefId].dmxChannels + dmxOffsetGap;
 	var startUniverse = new Number(formEl["rfDmxUniverseStart"].value).floor();
 	var startOffset = new Number(formEl["rfDmxOffsetStart"].value).floor();
 	var loopTypeEl = Form.getInputs('rfForm','radio','rfDmxLoop').find(function(radio) { return radio.checked; });
@@ -231,7 +231,7 @@ function rfDmxGridChange(e) {
 	var countX = new Number(formEl["rfCountX"].value).floor();
 	var countY = new Number(formEl["rfCountY"].value).floor();
 	var dmxOffsetGap = new Number(formEl["rfDmxOffsetGap"].value).floor();
-	var numChannels = fixtureDefMap[rfFixtureDefId] + dmxOffsetGap;
+	var numChannels = fixtureDefMap[rfFixtureDefId].dmxChannels + dmxOffsetGap;
 	var startUniverse = new Number(formEl["rfDmxUniverseStart"].value).floor();
 	var startOffset = new Number(formEl["rfDmxOffsetStart"].value).floor();
 	var loopTypeEl = Form.getInputs('rfForm','radio','rfDmxGrid').find(function(radio) { return radio.checked; });
@@ -297,10 +297,12 @@ function edtInitPanel() {
 }
 function edtUpdateDmxOffset(rowId) {
 	var trEl = document.getElementById("rowid." + rowId);
+	var imgEl = document.getElementById("fixtures[" + rowId + "].htmlImg16");
     var fixtureId = new Number(document.forms[0].elements["fixtures[" + rowId + "].fixtureDefId"].value).floor();
     var dmxOffset = new Number(document.forms[0].elements["fixtures[" + rowId + "].dmxOffset"].value).floor();
     var dmxFinish = fixtureDefMap[fixtureId].dmxChannels + dmxOffset - 1;
     trEl.getElementsByTagName("TD")[5].innerHTML = dmxFinish;
+    imgEl.setAttribute("src", "image/fixture/" + fixtureId + "/" + fixtureDefMap[fixtureId].htmlImg16);
     // alert("Updating row " + rowId + " to " + dmxFinish);    
 }
 
@@ -405,7 +407,8 @@ function initWindow() {
                                   <input type="hidden" name="fixtures[<c:out value='${rowStatus.index}'/>].cmdUpdate" value="<c:out value='${rowData.cmdUpdate}'/>">
                                   <%--  <input type="hidden" name="fixtures[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>"> --%>
                               </td>
-                              <td class="<r:onError name='fixtures[${rowStatus.index}].fixtureDefId' text='errorBg' />"> 
+                              <td nowrap class="<r:onError name='fixtures[${rowStatus.index}].fixtureDefId' text='errorBg' />">
+                                  <img id="<c:out value='fixtures[${rowStatus.index}].htmlImg16'/>" src=""/> 
                                   <r:select data="${form.fixtureDefs}" name="fixtures[${rowStatus.index}].fixtureDefId" value="${rowData.fixtureDefId}" displayColumn="name" valueColumn="id" firstOption="(please select...)" onchange="edtUpdateDmxOffset(${rowStatus.index})"/>
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].name' text='errorBg' />"> 
@@ -469,7 +472,8 @@ function initWindow() {
                                <input type="hidden" name="fixtures[<c:out value='${rowStatus.index}'/>].id" value="<c:out value='${rowData.id}'/>">
                                <input type="hidden" name="fixtures[<c:out value='${rowStatus.index}'/>].cmdUpdate" value="Y">                
                            </td>
-                              <td class="<r:onError name='fixtures[${rowStatus.index}].fixtureDefId' text='errorBg' />"> 
+                              <td nowrap class="<r:onError name='fixtures[${rowStatus.index}].fixtureDefId' text='errorBg' />"> 
+                                  <img id="<c:out value='fixtures[${rowStatus.index}].htmlImg16'/>" src=""/>
                                   <r:select data="${form.fixtureDefs}" name="fixtures[${rowStatus.index}].fixtureDefId" value="${rowData.fixtureDefId}" displayColumn="name" valueColumn="id" firstOption="(please select...)" onchange="edtUpdateDmxOffset(${rowStatus.index})"/>
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].name' text='errorBg' />"> 
