@@ -1,13 +1,13 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <%@ page 
   language="java"
-  contentType="text/html; charset=ISO-8859-1"
-  pageEncoding="ISO-8859-1"
+  contentType="text/html; charset=utf-8"
+  pageEncoding="utf-8"
   errorPage="misc/errorPage.jsp"
   import="java.util.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*"
 %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <% 
     //@TODO the onchange javascript for the empty row for the dmxOffset field isn't set.
     AppConfig appConfig = AppConfig.getAppConfig();
@@ -119,7 +119,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
   display: none; 
 }
 #repeatFixtureTable TD { vertical-align: top; }
-.rfInput { font-family: Courier New; font-size: 8pt; width: 120px; }
+.rfInput { font-family: Courier New; font-size: 8pt; width: 200px; }
 .rfTitle1 { font-size: 14pt; font-weight: bold; padding-bottom: 15px;  }
 .rfTitle2 { position: absolute; font-size: 14pt; font-weight: bold; padding-bottom: 15px; left: 420px; top: 10px;}
 #rfPreviewContainer { 
@@ -159,7 +159,7 @@ var tblObj = new rnTable(
 );
 
 function rfInputChange(e) {
-	var tgtEl = e.findElement();
+	//var tgtEl = e.findElement();
 	//alert("changed name='" + tgtEl.getAttribute("name") + "', id='" + tgtEl.getAttribute("id") + "'");
 	var formEl = $("rfForm");
 	formEl.submit();
@@ -175,44 +175,87 @@ function rfDmxAllocationChange(e) {
 
 	// if we calculated locations, then we lose the previously set allocation 
 	if (rfDmxAllocation=="calculated") {
-		Form.getInputs('rfForm','radio','rfDmxLoop').each(function(radio) { radio.checked=false; });
-		Form.getInputs('rfForm','radio','rfDmxGrid').each(function(radio) { radio.checked=false; });
+		$("rfCsv").setAttribute("disabled", "true");
+		formEl.removeAttribute("enctype");
+		//Form.getInputs('rfForm','radio','rfDmxLoop').each(function(radio) { radio.checked=false; });
+		//Form.getInputs('rfForm','radio','rfDmxGrid').each(function(radio) { radio.checked=false; });
 	} else if (rfDmxAllocation=="loop") {
+		$("rfCsv").setAttribute("disabled", "true");
+		formEl.removeAttribute("enctype");
 		rfDmxLoopChange();
 	} else if (rfDmxAllocation=="grid") {
+		$("rfCsv").setAttribute("disabled", "true");
+		formEl.removeAttribute("enctype");
 		rfDmxGridChange();
+	} else if (rfDmxAllocation=="csv") {
+		$("rfCsv").removeAttribute("disabled");
+		formEl.setAttribute("enctype", "multipart/form-data");
 	}
 	// $$ this
 	// $("rfDmxAllocationCsv").display = (rfDmxAllocation=="csv" ? "table-row" : "none");
 }
 function rfDmxLoopChange(e) {
 	var formEl = $("rfForm");
+	var rfFixtureDefId = new Number(formEl["rfFixtureDefId"].value).floor();
 	var countX = new Number(formEl["rfCountX"].value).floor();
 	var countY = new Number(formEl["rfCountY"].value).floor();
-	var loopType = Form.getInputs('rfForm','radio','rfDmxLoop').find(function(radio) { return radio.checked; }).value;
-	if (loopType="loop-rd") { // alt left-to-right, down
-		formEl["rfPanelX"].value="iif(floor(n / " + countX + ")%2==0, x, " + countX + "-x)";
-		formEl["rfPanelY"].value="y * 10";
-	} else if (loopType="loop-ld") { // alt right-to-left, down
-		formEl["rfPanelX"].value="10";
-		formEl["rfPanelY"].value="10";
-	} else if (loopType="loop-ru") { // alt left-to-right, up
-		formEl["rfPanelX"].value="20";
-		formEl["rfPanelY"].value="20";
-	} else if (loopType="loop-lu") { // alt right-to-left, up
-		formEl["rfPanelX"].value="30";
-		formEl["rfPanelY"].value="30";
+	var dmxOffsetGap = new Number(formEl["rfDmxOffsetGap"].value).floor();
+	var numChannels = fixtureDefMap[rfFixtureDefId] + dmxOffsetGap;
+	var startUniverse = new Number(formEl["rfDmxUniverseStart"].value).floor();
+	var startOffset = new Number(formEl["rfDmxOffsetStart"].value).floor();
+	var loopTypeEl = Form.getInputs('rfForm','radio','rfDmxLoop').find(function(radio) { return radio.checked; });
+	var loopType = (loopTypeEl==null) ? null : loopTypeEl.value;
+	var offsetFunc = "";
+	if (loopType=="loop-rd") { // alt left-to-right, down
+		offsetFunc = "y * " + countX + " + iif(y % 2 == 0, x, " + countX + " - 1 - x)";
+	} else if (loopType=="loop-ld") { // alt right-to-left, down
+		offsetFunc = "y * " + countX + " + iif(y % 2 == 1, x, " + countX + " - 1 - x)";
+	} else if (loopType=="loop-ru") { // alt left-to-right, up
+		offsetFunc = "(" + countY + " - 1 - y) * " + countX + " + iif(y % 2 == (" + countY + "-1) % 2, x, " + countX + " - 1 - x)";
+	} else if (loopType=="loop-lu") { // alt right-to-left, up
+		offsetFunc = "(" + countY + " - 1 - y) * " + countX + " + iif(y % 2 == 1 - ((" + countY + "-1) % 2), x, " + countX + " - 1 - x)";
 	} else {
 		alert("Unknown loopType '" + loopType + "'");
 	}
+	formEl["rfPanelX"].value="x * 10";
+	formEl["rfPanelY"].value="y * 10";
+	formEl["rfDmxOffsetCalc"].value="fillDmxOffset(" + startUniverse + ", " + startOffset + ", " + numChannels + 
+	  ", " + offsetFunc + " )";
+	formEl["rfDmxUniverseCalc"].value="fillDmxUniverse(" + startUniverse + ", " + startOffset + ", " + numChannels + 
+	  ", " + offsetFunc + " )";
 	rfInputChange();
-	
 }
 function rfDmxGridChange(e) {
-	var gridType = Form.getInputs('rfForm','radio','rfDmxGrid').find(function(radio) { return radio.checked; }).value;
-	
+	var formEl = $("rfForm");
+	var rfFixtureDefId = new Number(formEl["rfFixtureDefId"].value).floor();
+	var countX = new Number(formEl["rfCountX"].value).floor();
+	var countY = new Number(formEl["rfCountY"].value).floor();
+	var dmxOffsetGap = new Number(formEl["rfDmxOffsetGap"].value).floor();
+	var numChannels = fixtureDefMap[rfFixtureDefId] + dmxOffsetGap;
+	var startUniverse = new Number(formEl["rfDmxUniverseStart"].value).floor();
+	var startOffset = new Number(formEl["rfDmxOffsetStart"].value).floor();
+	var loopTypeEl = Form.getInputs('rfForm','radio','rfDmxGrid').find(function(radio) { return radio.checked; });
+	var loopType = (loopTypeEl==null) ? null : loopTypeEl.value;
+	var offsetFunc = "";
+	if (loopType=="grid-lr-tb") { // left to right, top to bottom
+		offsetFunc = "y * " + countX + " + x"
+	} else if (loopType=="grid-lr-bt") { // left to right, bottom to top
+		offsetFunc = "(" + countY + " - 1 - y) * " + countX + " + x";
+	} else if (loopType=="grid-rl-tb") { // right to left, top to bottom
+		offsetFunc = "y * " + countX + " + " + countX + " - 1 - x"
+	} else if (loopType=="grid-rl-bt") { // right to left, bottom to top 
+		offsetFunc = "(" + countY + " - 1 - y) * " + countX + " + " + countX + " - 1 - x";
+	} else {
+		alert("Unknown loopType '" + loopType + "'");
+	}
+	formEl["rfPanelX"].value="x * 10";
+	formEl["rfPanelY"].value="y * 10";
+	formEl["rfDmxOffsetCalc"].value="fillDmxOffset(" + startUniverse + ", " + startOffset + ", " + numChannels + 
+	  ", " + offsetFunc + " )";
+	formEl["rfDmxUniverseCalc"].value="fillDmxUniverse(" + startUniverse + ", " + startOffset + ", " + numChannels + 
+	  ", " + offsetFunc + " )";
+	rfInputChange();
 }
-
 
 function rfUpdatePreview(json) {
 	var previewContainerEl = $("rfPreviewContainer");
@@ -249,12 +292,14 @@ function edtInitPanel() {
     for (var i = 0; i < fixtures_size; i++) {
     	edtUpdateDmxOffset(i);
     }
+    rfDmxAllocationChange();
+    rfInputChange();
 }
 function edtUpdateDmxOffset(rowId) {
 	var trEl = document.getElementById("rowid." + rowId);
-    var fixtureId = new Number(document.forms[0].elements["fixtures[" + rowId + "].fixtureDefId"].value);
-    var dmxOffset = new Number(document.forms[0].elements["fixtures[" + rowId + "].dmxOffset"].value);
-    var dmxFinish = fixtureDefMap[fixtureId] + dmxOffset - 1;
+    var fixtureId = new Number(document.forms[0].elements["fixtures[" + rowId + "].fixtureDefId"].value).floor();
+    var dmxOffset = new Number(document.forms[0].elements["fixtures[" + rowId + "].dmxOffset"].value).floor();
+    var dmxFinish = fixtureDefMap[fixtureId].dmxChannels + dmxOffset - 1;
     trEl.getElementsByTagName("TD")[5].innerHTML = dmxFinish;
     // alert("Updating row " + rowId + " to " + dmxFinish);    
 }
@@ -316,7 +361,7 @@ function initWindow() {
         <td colspan="3" class="formHeader" style="background-color: #000052">Fixture panel <img src="image/help-icon.png" align="right" title="Display settings for this fixture on the fixture panel (in pixels)" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Position <img src="image/help-icon.png" align="right" title="The location of the fixture" /></td>
         <td colspan="3" class="formHeader" style="background-color: #000052">Looking at Position <img src="image/help-icon.png" align="right" title="A point that this fixture is looking towards (in it's initial state)" /></td>
-        <td colspan="3" class="formHeader" style="background-color: #000052">Up vector <img src="image/help-icon.png" align="right" title="The direction of up, taking the fixture as being at co-ordinates (0,0,0)" /></td>
+        <td colspan="3" class="formHeader" style="background-color: #000052">Up vector <img src="image/help-icon.png" align="right" title="The direction of up, with the fixture at local co-ordinates (0,0,0)" /></td>
       </tr>
       <tr valign="bottom"> 
        <td class="formHeader">&nbsp;</td>
@@ -367,7 +412,7 @@ function initWindow() {
                                   <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="20">
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].universeNumber' text='errorBg' />"> 
-                                  <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.universeNumber}'/>" >
+                                  <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].universeNumber" value="<c:out value='${rowData.universeNumber}'/>" >
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].dmxOffset' text='errorBg' />"> 
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.dmxOffset}'/>" onchange="edtUpdateDmxOffset(<c:out value='${rowStatus.index}'/>)">
@@ -431,7 +476,7 @@ function initWindow() {
                                   <input type="text" class="formfield" name="fixtures[<c:out value='${rowStatus.index}'/>].name" value="<c:out value='${rowData.name}'/>" size="20">
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].universeNumber' text='errorBg' />"> 
-                                  <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.universeNumber}'/>" >
+                                  <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].universeNumber" value="<c:out value='${rowData.universeNumber}'/>" >
                               </td>
                               <td class="<r:onError name='fixtures[${rowStatus.index}].dmxOffset' text='errorBg' />"> 
                                   <input type="text" class="smallInput formfield rj" name="fixtures[<c:out value='${rowStatus.index}'/>].dmxOffset" value="<c:out value='${rowData.dmxOffset}'/>" onchange="edtUpdateDmxOffset(<c:out value='${rowStatus.index}'/>)">
@@ -530,15 +575,15 @@ function initWindow() {
 <col style="width: 30px;">
 <col style="width: 230px;">
 <tr><td class="rfTitle1" colspan="3">Repeating fixtures</td></tr>
-<tr><td colspan="2">Type of fixture:</td><td><r:select data="${form.fixtureDefs}" name="rfFixtureDefId" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)"/></td></tr>
+<tr><td colspan="2">Type of fixture:</td><td><r:select data="${form.fixtureDefs}" name="rfFixtureDefId" value="" displayColumn="name" valueColumn="id" /></td></tr>
 <tr><td colspan="2">Number of fixtures:</td><td><input class="rfInput" style="width: 30px;" type="text" name="rfCountX" value="1" /> x <input class="rfInput" style="width:30px;" type="text" name="rfCountY" value="1" /> columns (<span style="font-family: Courier New; font-size: 8pt;">x</span>) x rows (<span style="font-family: Courier New; font-size: 8pt;">y</span>)</td></tr>
 <tr><td colspan="2">Names of fixtures:</td><td><input class="rfInput" type="text" name="rfName" value="something-{x}-{y}" /></td></tr>
-<tr><td colspan="2">Starting universe:</td><td><input class="rfInput" type="text" name="rfUniverseNumber" value="1" /></td></tr>
-<tr><td colspan="2">Starting DMX offset:</td><td><input class="rfInput" type="text" name="rfDmxOffset" value="15" /></td></tr>
+<tr><td colspan="2">Starting universe:</td><td><input class="rfInput" type="text" name="rfDmxUniverseStart" value="1" /></td></tr>
+<tr><td colspan="2">Starting DMX offset:</td><td><input class="rfInput" type="text" name="rfDmxOffsetStart" value="1" /></td></tr>
 <tr><td colspan="2">DMX offset gap between fixtures:</td><td><input class="rfInput" type="text" name="rfDmxOffsetGap" value="0" /></td></tr>
 <tr><td colspan="2">DMX offset allocation:</td><td>
-  <input type="radio" name="rfDmxAllocation" value="loop" selected/> Looped<br/>
-  <input type="radio" name="rfDmxAllocation" value="grid"/> Grid<br/>
+  <input type="radio" name="rfDmxAllocation" value="grid" checked /> Grid<br/>
+  <input type="radio" name="rfDmxAllocation" value="loop" /> Looped<br/>
   <input type="radio" name="rfDmxAllocation" value="csv"/> CSV<br/>
   <input type="radio" name="rfDmxAllocation" value="calculated"/> Calculated<br/>
   </td>
@@ -579,7 +624,7 @@ function initWindow() {
 <tr id="rfDmxAllocationCsv" style="display: none;"><td colspan="2"></td><td>
   <div style="margin-top: 10px; height: 40px;">
   Upload file in CSV format:
-  <br/><input class="" type="file" name="csv" />
+  <br/><input class="" type="file" name="rfCsv" id="rfCsv" disabled="true"/>
   <br/><br/>CSV columns are:
   fixtureName, universe, dmxOffset, fixturePanelX, fixturePanelY,
   position3d_x, position3d_y, position3d_z
@@ -590,6 +635,8 @@ function initWindow() {
 </tr>
   
 <%-- <r:select data="${rfDmxAllocations}" name="rfDmxAllocation" value="" displayColumn="name" valueColumn="id" /></td></tr> --%>
+<tr class="rfDmxCalcRow"><td colspan="2">DMX universe</td><td><input class="rfInput" type="text" name="rfDmxUniverseCalc" value="1" /></td></tr>
+<tr class="rfDmxCalcRow"><td colspan="2">DMX offset</td><td><input class="rfInput" type="text" name="rfDmxOffsetCalc" value="1" /></td></tr>
 <tr class="rfDmxCalcRow"><td rowspan="2">Fixture panel <img src="image/help-icon.png" title="Display settings for this fixture on the fixture panel (in pixels)" /></td>
     <td>X:</td><td><input class="rfInput" type="text" name="rfPanelX" value="x * 10" /></td></tr>
 <tr class="rfDmxCalcRow"><td>Y:</td><td><input class="rfInput" type="text" name="rfPanelY" value="y * 10" /></td></tr>
@@ -601,11 +648,12 @@ function initWindow() {
     <td>X:</td><td><input class="rfInput" type="text" name="rfLookingAtX" value="x + 1" /></td></tr>
 <tr class="rfDmxCalcRow"><td>Y:</td><td><input class="rfInput" type="text" name="rfLookingAtY" value="y" /></td></tr>
 <tr class="rfDmxCalcRow"><td>Z:</td><td><input class="rfInput" type="text" name="rfLookingAtZ" value="0" /></td></tr>
-<tr class="rfDmxCalcRow"><td rowspan="3">3D up vector <img src="image/help-icon.png" title="The direction of up, taking the fixture as being at co-ordinates (0,0,0)" /></td>
+<tr class="rfDmxCalcRow"><td rowspan="3">3D up vector <img src="image/help-icon.png" title="The direction of up, with the fixture at local co-ordinates (0,0,0)" /></td>
     <td>X:</td><td><input class="rfInput" type="text" name="rfUpX" value="0" /></td></tr>
 <tr class="rfDmxCalcRow"><td>Y:</td><td><input class="rfInput" type="text" name="rfUpY" value="0" /></td></tr>
 <tr class="rfDmxCalcRow"><td>Z:</td><td><input class="rfInput" type="text" name="rfUpZ" value="1" /></td></tr>
-<tr class="rfDmxCalcRow"><td colspan="2"></td><td><input type="button" id="rfOKButton" name="rfOKButton" value="OK" /> <input type="button" id="rfCancelButton" name="rfCancelButton" value="Cancel" /></td></tr>
+
+<tr ><td colspan="2"></td><td><input type="button" id="rfOKButton" name="rfOKButton" value="OK" /> <input type="button" id="rfCancelButton" name="rfCancelButton" value="Cancel" /></td></tr>
 </table>
 
 <div class="rfTitle2">Preview</div>
