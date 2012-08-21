@@ -546,6 +546,7 @@ public class AppConfig extends AppConfigBase {
 			DmxDeviceConfig ddc = new DmxDeviceConfig(this, deviceTO.getUniverseNumber().intValue() - 1, device);
 			dmxDeviceConfigs.add(ddc);
 
+			logger.info("Opening device " + deviceTO.getClassName() + " '" + device.getName() + "' on universe " + deviceTO.getUniverseNumber());
 			device.open();
 		}
 		
