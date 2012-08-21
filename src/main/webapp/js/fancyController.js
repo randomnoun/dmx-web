@@ -70,16 +70,15 @@ function sendPostRequest(url,parameters,completedFunction) {
 /******************************* LHS MENU ******************************/
 function clickFx(el) {
     el.addClassName("clickHighlight");
-    window.setTimeout(function() { el.removeClassName("clickHighlight") }, 50);
+    window.setTimeout(function() { el.removeClassName("clickHighlight"); }, 50);
 }
 
 function noSelect(el) {
-	el.onselectstart = function() { return false; } //ie
-	el.onmousedown = function() { return false; } //mozilla
+	el.onselectstart = function() { return false; }; //ie
+	el.onmousedown = function() { return false; }; //mozilla
 }
 
 function initLhsMenu() {
-	var button;
     Event.observe($("lhsLogo"), 'click', lhsLogo); 
     Event.observe($("lhsBlackout"), 'click', lhsBlackout);
     Event.observe($("lhsShows"), 'click', lhsShows);
@@ -211,7 +210,7 @@ function lgoInitPanel() {
 /******************************* SHOW PANEL ******************************/
 var shwScrollFx=null;  
 function shwInitPanel() {
-    var x, y, el, displayOffset=0, lastShowGroupId=-1;
+    var x, y, displayOffset=0, lastShowGroupId=-1;
     var sp=$("shwItemContainer");
     for (var i=0; i<shows.length; i++) {
     	var show = shows[i];
@@ -370,10 +369,9 @@ var fixCustomControls = new Array();
 var fixScrollFx = null;
 var fixItemEls = new Array();
 function fixInitPanel() {
-    var x,y,i,j,f,fd,fixEl;
-    var fp=$("fixPanel");
+    var x,y,fd;
     var fic=$("fixItemContainer");
-    var fixEl;
+    var fixEl=null;
     
     // set background
     if (stage.fixPanelBackgroundImage) {
@@ -535,7 +533,7 @@ function fixItemClick(event) {
     fixLastFixSelectedEl = fixToggleEl(fixItemEl) ? fixItemEl : null;
 
     var fixItems=new Array();
-    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixItems.push(f.readAttribute("fixtureId"))};});
+    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixItems.push(f.readAttribute("fixtureId"));};});
     if (fixItems.length==1) {
     	var fd = fixtureDefs[fixtures[fixItems[0]].type];
     	var cn=$("fixAim").childNodes;
@@ -633,7 +631,7 @@ function fixUpdateControls(fixtureId) {
     	}
     }
     
-    fixUIUpdateOnly=false
+    fixUIUpdateOnly=false;
 }
 
 function fixSameValue(values) {
@@ -717,7 +715,7 @@ function fixUpdateControlsArray(fixtureIds) {
       }
     }  
     
-    fixUIUpdateOnly=false
+    fixUIUpdateOnly=false;
 }
 
 
@@ -771,15 +769,14 @@ function fixCustomClick(event) {
 }
 
 function fixUpdateCustomControls() {
-	var cc,tmft=false,i,fixtureId,fd=null;
-    var fixItems=new Array();
+	var cc,tmft=false,i,fixtureId=null,fd=null;
     var ccEl=$("fixCustomControls");
-    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixtureId=f.readAttribute("fixtureId");if(fd==null){fd=fixtureDefs[fixtures[fixtureId].type]}else if (fd!=fixtureDefs[fixtures[fixtureId].type]){tmft=true;}};});
+    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixtureId=f.readAttribute("fixtureId");if(fd==null){fd=fixtureDefs[fixtures[fixtureId].type];}else if (fd!=fixtureDefs[fixtures[fixtureId].type]){tmft=true;}};});
     if (fd==null) {
     	ccEl.update("Select a fixture or set of fixtures of the same type.");
     	fixCustomControlFixtureDef=null;
     } else if (tmft) {
-    	ccEl.update("Too many fixture types selected. Select a fixture or set of fixtures of the same type.")
+    	ccEl.update("Too many fixture types selected. Select a fixture or set of fixtures of the same type.");
     	fixCustomControlFixtureDef=null;
     } else {
     	if (fixCustomControlFixtureDef!=fd) {
@@ -845,7 +842,7 @@ function fixUpdateCustomControls() {
 	    				labelEl.style.left=ctrlEl.positionedOffset().left+"px";
 	    				ccEl.appendChild(labelEl);	    				
 	    			} else {
-	    				alert("Unknown control type '" + cc["uiType"] + "'")
+	    				alert("Unknown control type '" + cc["uiType"] + "'");
 	    			}
 	    		}
     		} else {
@@ -858,7 +855,7 @@ function fixUpdateCustomControls() {
 
 function fixGetItems() {
     var fixItems=new Array();
-    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixItems.push(f.readAttribute("fixtureId"))};});
+    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixItems.push(f.readAttribute("fixtureId"));};});
     return fixItems;
 }
 
@@ -906,7 +903,7 @@ var AjaxLimitter = Class.create({
             }
         }
     }
-})
+});
 
 var fixDimLimitter = new AjaxLimitter(100, 200);
 function fixDimChange(v) {
@@ -998,8 +995,7 @@ function fixCustomGridChange(controlId, draggable, event) {
 }
 
 function fixRecTouch(fixtureIds) {
-	var fixItemEl, fpType, i;
-	for (i=0; i<fixtureIds.length; i++) {
+	for (var i=0; i<fixtureIds.length; i++) {
 	  var fixItemEl = $("fixItem[" + fixtureIds[i] + "]").childNodes.item(0);
 	  var fpType = fixtures[fixtureIds[i]].fpType;
 	  if (fpType == "L") { fixItemEl.addClassName("fixItemRec"); }
@@ -1032,7 +1028,7 @@ function fixUpdatePanel(json) {
         }  
     }
     var fixItems=new Array();
-    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixItems.push(f.readAttribute("fixtureId"))};});
+    fixItemEls.each(function(f){if (f.hasClassName(f.readAttribute("selectClass"))){fixItems.push(f.readAttribute("fixtureId"));};});
     if (fixItems.length==1) { fixUpdateControls(fixItems[0]); }
     else if (fixItems.length>1) { fixUpdateControlsArray(fixItems); }
     
@@ -1048,9 +1044,9 @@ var dmxSelectedValue=null;
 var dmxOrigValue=null;
 var dmxHighlightedChannel=null; // fixture being editted via slider
 var dmxSlider=null;
-var dmxUIUpdateOnly = false
+var dmxUIUpdateOnly = false;
 function dmxInitPanel() {
-    var x,y,el,f;
+    var x,y,f;
     var dv=$("dmxValues");
     for (var i=1; i<=255; i++) { 
         x=20+((i-1)%16)*50; y=90+Math.floor((i-1)/16)*30;
@@ -1124,7 +1120,7 @@ function dmxUpdateAllClick(event) {
 */
 
 function dmxValueClick(event) {
-    var dmxValueEl, el, el2, ch, f, off, dc, j, cds, cd = null;
+    var dmxValueEl, el, el2, ch, f, off, dc, j;
     dmxValueEl = event.element();
     if (dmxValueEl==$("dmxSliderScrollArea")) {
     	ch=dmxHighlightedChannel; dmxValueEl=$("dmxBox[" + ch + "]");
@@ -1349,7 +1345,7 @@ function dmxUpdatePanel(json) {
         }
     }
     if (dmxSelectedFixture==null) {
-        $("dmxTimeSource").update("<div class=\"dmxTime\">" + json.now + "</div>")
+        $("dmxTimeSource").update("<div class=\"dmxTime\">" + json.now + "</div>");
     }
     if (dmxHighlightedChannel && 
     	($("dmxSliderScrollArea").style.visibility=="visible") &&
@@ -1501,7 +1497,7 @@ function cnfRecordClick() {
 		}
 	}
 	$("recContainer").style.visibility = isRecording ? "visible" : "hidden";
-	$("cnfRecordText").update(isRecording ? "Stop recording" : "Start recording");
+	$("cnfRecordText").update(isRecording ? "Stop recording" : "Record a show");
 }
 function cnfFixtureDefClick() {
     document.location="maintainFixtureDef.html";
@@ -1607,7 +1603,7 @@ function recCallback(json) {
 		$("cnfRecordText").update("Start recording");
 		recCurrentFrame=0;
 		recTotalFrames=1;
-		for (i=0; i<fixtures.length; i++) {
+		for (var i=0; i<fixtures.length; i++) {
 		  var fixItemEl = $("fixItem[" + i + "]").childNodes.item(0);
 		  var fpType = fixtures[i].fpType;
 		  if (fpType == "L") { fixItemEl.removeClassName("fixItemRec"); }
