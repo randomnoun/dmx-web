@@ -24,7 +24,7 @@ import com.randomnoun.dmx.audioController.NullAudioController;
 import com.randomnoun.dmx.dmxDevice.DmxDevice;
 import com.randomnoun.dmx.event.UniverseUpdateListener;
 
-/** Wrapper around the an RXTX interface to an Enttec USB Pro Widget. 
+/** Wrapper around an RXTX interface to an Enttec USB Pro Widget. 
  *
  * <p>To use this class, instantiate it with a serial COM port, and then use the
  * UsbProWidgetTranslator class to send and receive messages; e.g.
@@ -106,6 +106,7 @@ public class UsbProWidget extends DmxDevice {
 	 * @throws TooManyListenersException
 	 */
 	private UsbProWidgetTranslator openPort() throws PortInUseException, IOException, TooManyListenersException {
+		logger.info("UsbProWidgetTranslater.openPort() with portName '" + portName + "'");
 		Enumeration portList = CommPortIdentifier.getPortIdentifiers();
 		while (portList.hasMoreElements()) {
 			CommPortIdentifier portId = (CommPortIdentifier) portList.nextElement();
