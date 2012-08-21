@@ -442,7 +442,9 @@ public class MaintainFixtureDefAction
 				Map nullProperties = new HashMap();
 				Constructor constructor = clazz.getConstructor();
 				fixtureDefObj = (FixtureDef) constructor.newInstance();
+				fixtureDefObj.setImagePath("");
 				fixtureDef.setDmxChannels(fixtureDefObj.getNumDmxChannels());
+				fixtureDef.setHtmlImg16(fixtureDefObj.getHtmlImg16());
 				fixtureObj = new Fixture("testFixture", fixtureDefObj, nullUniverse, 1);
 				ChannelMuxer channelMuxer = fixtureDefObj.getChannelMuxer(fixtureObj);
 			}

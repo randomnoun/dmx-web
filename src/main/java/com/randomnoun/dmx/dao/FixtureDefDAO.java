@@ -27,6 +27,7 @@ public class FixtureDefDAO {
             f.setChannelMuxerClassName(rs.getString("channelMuxerClassName"));
             f.setChannelMuxerScript(rs.getString("channelMuxerScript"));
             f.setDmxChannels(rs.getLong("dmxChannels"));
+            f.setHtmlImg16(rs.getString("htmlImg16"));
             return f;
         }
     }
@@ -44,7 +45,7 @@ public class FixtureDefDAO {
      */
     public List<FixtureDefTO> getFixtureDefs(String sqlWhereClause) {
         String sql =
-            "SELECT id, name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript, channelMuxerClassName, channelMuxerScript, dmxChannels " +
+            "SELECT id, name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript, channelMuxerClassName, channelMuxerScript, dmxChannels, htmlImg16 " +
             " FROM fixtureDef " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<FixtureDefTO>) jt.query(sql, new FixtureDefDAORowMapper());
@@ -58,7 +59,7 @@ public class FixtureDefDAO {
      */
     public FixtureDefTO getFixtureDef(long fixtureDefId) {
         return (FixtureDefTO) jt.queryForObject(
-            "SELECT id, name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript, channelMuxerClassName, channelMuxerScript, dmxChannels " +
+            "SELECT id, name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript, channelMuxerClassName, channelMuxerScript, dmxChannels, htmlImg16 " +
             " FROM fixtureDef " +
             " WHERE id = ?",
             new Object[] { new Long(fixtureDefId) }, 
@@ -72,7 +73,7 @@ public class FixtureDefDAO {
     public void updateFixtureDef(FixtureDefTO fixtureDef) {
         String sql =
             "UPDATE fixtureDef " +
-            " SET name=?, fixtureDefClassName=?, fixtureDefScript=?, fixtureControllerClassName=?, fixtureControllerScript=?, channelMuxerClassName=?, channelMuxerScript=?, dmxChannels=? " + 
+            " SET name=?, fixtureDefClassName=?, fixtureDefScript=?, fixtureControllerClassName=?, fixtureControllerScript=?, channelMuxerClassName=?, channelMuxerScript=?, dmxChannels=?, htmlImg16=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
@@ -84,6 +85,7 @@ public class FixtureDefDAO {
                 fixtureDef.getChannelMuxerClassName(),
                 fixtureDef.getChannelMuxerScript(),
                 new Long(fixtureDef.getDmxChannels()),
+                fixtureDef.getHtmlImg16(),
                 fixtureDef.getId() });
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixtureDef update failed (" + updated + " rows updated)");
@@ -101,7 +103,7 @@ public class FixtureDefDAO {
     public long createFixtureDef(FixtureDefTO fixtureDef) {
         String sql =
             "INSERT INTO fixtureDef " + 
-            " (name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript, channelMuxerClassName, channelMuxerScript, dmxChannels) " +
+            " (name, fixtureDefClassName, fixtureDefScript, fixtureControllerClassName, fixtureControllerScript, channelMuxerClassName, channelMuxerScript, dmxChannels, htmlImg16) " +
             " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         long updated = jt.update(sql,
             new Object[] { 
@@ -112,7 +114,8 @@ public class FixtureDefDAO {
                 fixtureDef.getFixtureControllerScript(),
                 fixtureDef.getChannelMuxerClassName(),
                 fixtureDef.getChannelMuxerScript(),
-                new Long(fixtureDef.getDmxChannels())});
+                new Long(fixtureDef.getDmxChannels()),
+                fixtureDef.getHtmlImg16()});
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixtureDef insert failed (" + updated + " rows updated)");
         }

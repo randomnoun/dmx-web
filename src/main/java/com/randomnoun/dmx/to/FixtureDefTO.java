@@ -14,7 +14,8 @@ public class FixtureDefTO {
     private String fixtureControllerScript;
     private String channelMuxerClassName;
     private String channelMuxerScript;
-    private long dmxChannels;
+    private long dmxChannels; // sourced from fixtureDefScript
+    private String htmlImg16; // sourced from fixtureDefScript
 
     // used in import/export only
     private List<FixtureDefImageTO> fixtureDefImages;
@@ -174,6 +175,14 @@ public class FixtureDefTO {
 
 	public void setFixtureDefImages(List<FixtureDefImageTO> fixtureDefImages) {
 		this.fixtureDefImages = fixtureDefImages;
+	}
+
+	public String getHtmlImg16() {
+		return htmlImg16;
+	}
+
+	public void setHtmlImg16(String htmlImg16) {
+		this.htmlImg16 = htmlImg16;
 	}
 	
 }
