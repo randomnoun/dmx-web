@@ -33,6 +33,7 @@ import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
+import com.randomnoun.dmx.show.ShowUtils;
 import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
 import com.randomnoun.dmx.web.Table;
@@ -123,7 +124,7 @@ public class MaintainFixtureAction
 		}
 
 		private void init() {
-			this.fixtureDefMap = getFixtureDefMap();
+			this.fixtureDefMap = getFixtureDefsMap();
 			for (int i=0; i<Universe.MAX_CHANNELS; i++) {
 				occupiedDmxValues[i]=-1;
 			}
@@ -272,7 +273,7 @@ public class MaintainFixtureAction
 			Map form = new HashMap();
 			List fixtures = getFixtures();
 			form.put("fixtureDefs", getFixtureDefs());
-			form.put("fixtureDefMap", getFixtureDefMap());
+			form.put("fixtureDefMap", getFixtureDefsMap());
 			form.put("fixtures", fixtures);
 			form.put("fixtures_size", fixtures.size());
 			form.put("fixPanelTypes", getFixPanelTypes());
@@ -301,16 +302,20 @@ public class MaintainFixtureAction
     		return fixtureDefDAO.getFixtureDefs(null);
     	}
     	
-    	public Map getFixtureDefMap() {
+    	public Map getFixtureDefsMap() {
     		AppConfig appConfig = AppConfig.getAppConfig();
     		JdbcTemplate jt = appConfig.getJdbcTemplate();
     		FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
     		List<FixtureDefTO> fixtureDefs = fixtureDefDAO.getFixtureDefs(null);
-    		Map fixtureDefMap = new HashMap();
+    		Map fixtureDefsMap = new HashMap();
     		for (FixtureDefTO fixture : fixtureDefs) {
-    			fixtureDefMap.put(new Long(fixture.getId()), new Long(fixture.getDmxChannels()));
+    			Map fixtureDefMap = new HashMap();
+    			fixtureDefMap.put("dmxChannels", new Long(fixture.getDmxChannels()));
+    			fixtureDefMap.put("htmlImg16", fixture.getHtmlImg16());
+    			fixtureDefsMap.put(new Long(fixture.getId()), fixtureDefMap);
+    			// fixtureDefs[f.type]["img16"]
     		}
-    		return fixtureDefMap;
+    		return fixtureDefsMap;
     	}
     	
     	public List getFixPanelTypes() {
@@ -377,7 +382,7 @@ public class MaintainFixtureAction
 			//System.out.println(Struct.structuredListToString("rows", result.getRows()));
 			//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
 			form.put("fixtureDefs", tableEditor.getFixtureDefs());
-			form.put("fixtureDefMap", tableEditor.getFixtureDefMap());
+			form.put("fixtureDefMap", tableEditor.getFixtureDefsMap());
 			form.put("fixPanelTypes", tableEditor.getFixPanelTypes());
 			form.put("fixtures", result.getRows());
 			form.put("fixtures_size", result.getRows().size());
@@ -385,20 +390,27 @@ public class MaintainFixtureAction
 			request.setAttribute("form", form);
 
 		} else if (action.equals("rfPreview")) {
+			
 			Map<String, String> form = new HashMap();
 			Struct.setFromRequest(form, request, new String[] {
-			 "rfFixtureDefId", "rfCountX", "rfCountY", "rfName", "rfUniverseNumber",
-			 "rfDmxOffset", "rfDmxOffsetGap", "rfDmxAllocation", "rfPanelX", "rfPanelY",
+			 "rfFixtureDefId", "rfCountX", "rfCountY", "rfName", "rfUniverseStart",
+			 "rfDmxOffsetStart", "rfDmxOffsetGap", "rfDmxAllocation",
+			 "rfDmxOffsetCalc", "rfDmxUniverseCalc",
+			 "rfPanelX", "rfPanelY",
 			 "rfPositionX","rfPositionY","rfPositionZ", 
 			 "rfLookingAtX","rfLookingAtY","rfLookingAtZ", 
 			 "rfUpX","rfUpY","rfUpZ" });
 			
+			// @TODO CSV upload if that's what they're doing
 			
 			long cx = Long.parseLong(form.get("rfCountX"));
 			long cy = Long.parseLong(form.get("rfCountY"));
-			long u = Long.parseLong(form.get("rfUniverseNumber"));
-			long dmxOffset = Long.parseLong(form.get("rfDmxOffset"));
-			long dmxOffsetGap = Long.parseLong(form.get("rfDmxOffsetGap"));
+			// hmm.
+			// long u = Long.parseLong(form.get("rfUniverseNumber"));
+			//long dmxOffset = Long.parseLong(form.get("rfDmxOffset"));
+			//long dmxOffsetGap = Long.parseLong(form.get("rfDmxOffsetGap"));
+			TopLevelExpression dmxOffsetExpr = parseExpression(form.get("rfDmxOffsetCalc"));
+			TopLevelExpression dmxUniverseExpr = parseExpression(form.get("rfDmxUniverseCalc"));
 			TopLevelExpression panelXExpr = parseExpression(form.get("rfPanelX"));
 			TopLevelExpression panelYExpr = parseExpression(form.get("rfPanelY"));
 			TopLevelExpression positionXExpr = parseExpression(form.get("rfPositionX"));
@@ -411,6 +423,7 @@ public class MaintainFixtureAction
 			TopLevelExpression upYExpr = parseExpression(form.get("rfUpY"));
 			TopLevelExpression upZExpr = parseExpression(form.get("rfUpZ"));
 			
+			// @TODO everything else in Math.*
 			Map functions = new HashMap();
 			functions.put("floor", new EvalFunction(){
 				public Object evaluate(String functionName, EvalContext context, List arguments)
@@ -433,14 +446,38 @@ public class MaintainFixtureAction
 		            boolean b = ((Boolean)arguments.get(0)).booleanValue();
 		            return b ? arguments.get(1) : arguments.get(2);
 		        }});
+			functions.put("fillDmxOffset", new EvalFunction(){
+				public Object evaluate(String functionName, EvalContext context, List arguments)
+					throws EvalException {
+					if (arguments.size() != 4) { throw new EvalException(functionName + "() must contain four parameters"); }
+					for (int i=0; i<3; i++) { if (arguments.get(i) == null) { throw new EvalException(functionName + "() parameter " + (i+1) + " cannot be null"); } }
+					for (int i=0; i<3; i++) { if (!(arguments.get(i) instanceof Number)) { throw new EvalException(functionName + "() parameter " + (i+1) + " must be numeric"); } }
+					int startUniverse = ((Number) arguments.get(0)).intValue();
+					int startOffset = ((Number) arguments.get(1)).intValue();
+					int numChannels = ((Number) arguments.get(2)).intValue();
+					int n = ((Number) arguments.get(3)).intValue();
+		            return ShowUtils.fillDmxOffset(startUniverse, startOffset, numChannels, n);
+		        }});
+			functions.put("fillDmxUniverse", new EvalFunction(){
+				public Object evaluate(String functionName, EvalContext context, List arguments)
+					throws EvalException {
+					if (arguments.size() != 4) { throw new EvalException(functionName + "() must contain four parameters"); }
+					for (int i=0; i<3; i++) { if (arguments.get(i) == null) { throw new EvalException(functionName + "() parameter " + (i+1) + " cannot be null"); } }
+					for (int i=0; i<3; i++) { if (!(arguments.get(i) instanceof Number)) { throw new EvalException(functionName + "() parameter " + (i+1) + " must be numeric"); } }
+					int startUniverse = ((Number) arguments.get(0)).intValue();
+					int startOffset = ((Number) arguments.get(1)).intValue();
+					int numChannels = ((Number) arguments.get(2)).intValue();
+					int n = ((Number) arguments.get(3)).intValue();
+		            return ShowUtils.fillDmxUniverse(startUniverse, startOffset, numChannels, n);
+		        }});
 			
 			List rows = new ArrayList();
 			
 			int n=0;
-			for (int y=1; y<=cy; y++) {
+			for (int y=0; y<cy; y++) {
 				List row = new ArrayList();
 				rows.add(row);
-				for (int x=1; x<=cx; x++) {
+				for (int x=0; x<cx; x++) {
 					Map cell = new HashMap();
 					row.add(cell);
 					cell.put("x", x); cell.put("y", y);
@@ -449,9 +486,11 @@ public class MaintainFixtureAction
 					name = Text.replaceString(name, "{y}", String.valueOf(y));
 					name = Text.replaceString(name, "{n}", String.valueOf(n));
 					cell.put("name", name);
-					cell.put("offset", "u" + u + "-offset" + dmxOffset);
+					//cell.put("offset", "u" + u + "-offset" + dmxOffset);
 					
 					// @TODO allow side-affects here ?
+					Double dmxUniverse=evalDouble(dmxUniverseExpr, functions, x, y, n);
+					Double dmxOffset=evalDouble(dmxOffsetExpr, functions, x, y, n);
 					Double panelX=evalDouble(panelXExpr, functions, x, y, n);
 			        Double panelY=evalDouble(panelYExpr, functions, x, y, n);
 			        Double positionX=evalDouble(positionXExpr, functions, x, y, n);
@@ -464,14 +503,15 @@ public class MaintainFixtureAction
 			        Double upY=evalDouble(upYExpr, functions, x, y, n);
 			        Double upZ=evalDouble(upZExpr, functions, x, y, n);
 			        
+			        if (dmxUniverse!=null && dmxOffset!=null) { cell.put("offset", "u" + dmxUniverse.intValue() + "-offset" + dmxOffset.intValue()); };
 			        if (panelX!=null && panelY!=null) { cell.put("panel", "(" + panelX + ", " + panelY + ")"); }
 			        if (positionX!=null && positionY!=null && positionZ!=null) { cell.put("position", "(" + positionX + ", " + positionY + ", " + positionZ + ")"); }
 			        if (lookingAtX!=null && lookingAtY!=null && lookingAtZ!=null) { cell.put("lookingAt", "(" + lookingAtX + ", " + lookingAtX + ", " + lookingAtZ + ")"); }
 			        if (upX!=null && upY!=null && upZ!=null) { cell.put("up", "(" + upX + ", " + upY + ", " + upZ + ")"); }
 			        
-			        dmxOffset += dmxOffsetGap + 3; /* @TODO get fixture channel count */
+			        //dmxOffset += dmxOffsetGap + 3; /* @TODO get fixture channel count */
+			        n++;
 				}
-				n++;
 			}
 			
 			Map json = new HashMap();
@@ -512,7 +552,9 @@ public class MaintainFixtureAction
     private Double evalDouble(TopLevelExpression expr, Map functions, long x, long y, long n) {
     	String exprString = null;
     	try {
+    		
     		exprString = ExpressionUtils.expressionToString(expr);
+    		logger.info("Evaluating '" + exprString + "' with x=" + x + ", y=" + y + ", n=" + n);
 	        Evaluator evaluator = new Evaluator();
 	        EvalContext evalContext = new EvalContext();
 			evalContext.setVariable("x", new Long(x));
