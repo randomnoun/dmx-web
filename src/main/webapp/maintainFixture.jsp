@@ -164,6 +164,16 @@ function rfInputChange(e) {
 	var formEl = $("rfForm");
 	formEl.submit();
 }
+function rfInputChangeCalc(e) {
+	var rfDmxAllocation = Form.getInputs('rfForm','radio','rfDmxAllocation').find(function(radio) { return radio.checked; }).value;
+    if (rfDmxAllocation=="loop") {
+		rfDmxLoopChange(e);
+    } else if (rfDmxAllocation=="grid") {
+    	rfDmxGridChange(e);
+    } else {
+    	rfInputChange(e);
+    }
+}
 function rfDmxAllocationChange(e) {
 	var formEl = $("rfForm");
 	var rfDmxAllocation = Form.getInputs('rfForm','radio','rfDmxAllocation').find(function(radio) { return radio.checked; }).value;
@@ -285,6 +295,7 @@ function edtInitPanel() {
     Event.observe($("lhsRepeat"), 'click', lhsRepeat);
     Event.observe($("rfOKButton"), 'click', rfOKButtonClick);
     Event.observe($("rfCancelButton"), 'click', rfCancelButtonClick);
+    Event.observe($("rfFixtureDefId"), 'change', rfInputChangeCalc);
     $$('.rfInput').each(function(el){Event.observe(el,'change',rfInputChange)});
     $$('input[name="rfDmxAllocation"]').each(function(el){Event.observe(el,'change',rfDmxAllocationChange)});
     $$('input[name="rfDmxLoop"]').each(function(el){Event.observe(el,'change',rfDmxLoopChange)});
