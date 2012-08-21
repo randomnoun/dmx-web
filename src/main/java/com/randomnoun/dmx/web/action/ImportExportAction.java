@@ -567,6 +567,10 @@ src/main/resources/export.xml (date of export, totals etc)
 				ze = new ZipEntry("src/main/beanshell/" + Text.replaceString(fixtureDef.getFixtureControllerClassName(), ".", "/") + ".beanshell");
 				zos.putNextEntry(ze);
 				zos.write(fixtureDef.getFixtureControllerScript().getBytes());
+				
+				ze = new ZipEntry("src/main/beanshell/" + Text.replaceString(fixtureDef.getChannelMuxerClassName(), ".", "/") + ".beanshell");
+				zos.putNextEntry(ze);
+				zos.write(fixtureDef.getChannelMuxerScript().getBytes());
 			
 				List<FixtureDefImageTO> fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages("fixtureDefId=" + fixtureDef.getId());
 				for (FixtureDefImageTO fdi : fixtureDefImages) {
@@ -783,11 +787,31 @@ src/main/resources/export.xml (date of export, totals etc)
 						boolean canAdd = byFDCN==null && byFCCN==null && byCMCN==null && byName==null;
 						boolean canReplace = byName!=null && byName==byFDCN && byName==byFCCN && byName==byCMCN; // replace infers replaceWithRename
 						
-						// populate scripts from the rest of the ZIP file; @TODO validate that they're there
-						fixtureDef.setFixtureDefScript(new String(zipMap.get("src/main/beanshell/" + Text.replaceString(fixtureDef.getFixtureDefClassName(), ".", "/") + ".beanshell")));
-						fixtureDef.setFixtureControllerScript(new String(zipMap.get("src/main/beanshell/" + Text.replaceString(fixtureDef.getFixtureControllerClassName(), ".", "/") + ".beanshell")));
-						fixtureDef.setChannelMuxerScript(new String(zipMap.get("src/main/beanshell/" + Text.replaceString(fixtureDef.getChannelMuxerClassName(), ".", "/") + ".beanshell")));
+						// populate scripts from the rest of the ZIP file
+						String path = "src/main/beanshell/" + Text.replaceString(fixtureDef.getFixtureDefClassName(), ".", "/") + ".beanshell";
+						byte[] script = zipMap.get(path);
+						if (script==null) {
+							errors.addError("Missing script", "The FixtureDef script '" + path + "' referenced by fixtureDef '" +  fixtureDef.getName() + "' is missing");
+						} else {
+							fixtureDef.setFixtureDefScript(new String(script));
+						}
 						
+						path = "src/main/beanshell/" + Text.replaceString(fixtureDef.getFixtureControllerClassName(), ".", "/") + ".beanshell";
+						script = zipMap.get(path);
+						if (script==null) {
+							errors.addError("Missing script", "The FixtureController script '" + path + "' referenced by fixtureDef '" +  fixtureDef.getName() + "' is missing");
+						} else {
+							fixtureDef.setFixtureControllerScript(new String(script));
+						}
+						
+						path = "src/main/beanshell/" + Text.replaceString(fixtureDef.getChannelMuxerClassName(), ".", "/") + ".beanshell";
+						script = zipMap.get(path);
+						if (script==null) {
+							errors.addError("Missing script", "The ChannelMuxer script '" + path + "' referenced by fixtureDef '" +  fixtureDef.getName() + "' is missing");
+						} else {
+							fixtureDef.setChannelMuxerScript(new String(script));
+						}
+
 						itemChildren.add(newImportItem(fixtureDefs.get(i).getName(), "fix-" + fixtureDefs.get(i).getId(), "icnFixtureDef2.png", 
 							canAdd, canReplace, !(canAdd || canReplace), 
 							canAdd ? null :
@@ -884,7 +908,9 @@ src/main/resources/export.xml (date of export, totals etc)
 					items.add(itemMap);
 				}
 				
-
+				if (errors.hasErrors()) {
+					logger.info("errors:" + errors.toString());
+				}
 				
 				session.setAttribute("localFilename", localFilename); // @XXX: probably a security risk
 				request.setAttribute("localFilename", localFilename);
