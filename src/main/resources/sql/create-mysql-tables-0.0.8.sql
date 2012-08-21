@@ -2,7 +2,7 @@
 SELECT COUNT(*) FROM device;
 
 -- success if fixture.universeNumber exists
-SELECT COUNT(universeNumber) FROM fixture;
+SELECT COUNT(htmlImg16) FROM fixtureDef;
 
 
 
@@ -35,4 +35,4 @@ ALTER TABLE `fixture` ADD COLUMN `universeNumber` INT(10) UNSIGNED NOT NULL DEFA
   
 UPDATE fixture SET universeNumber=1;
 
-  
+ALTER TABLE `fixtureDef` ADD COLUMN `htmlImg16` VARCHAR(100) DEFAULT NULL AFTER `dmxChannels`;  
