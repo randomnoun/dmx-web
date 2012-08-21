@@ -187,7 +187,7 @@ var dmxTimeSourceText = "-";
   <div id="cnfFixture" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/lhsFixtures.png" title="Fixtures"/><div class="cnfMenuText">Fixtures</div></div>
   <div id="cnfShowDef" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfShows.png" title="Show definitions"/><div class="cnfMenuText">Show definitions</div></div>
   <div id="cnfShow" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/lhsShows.png" title="Shows"/><div class="cnfMenuText">Shows</div></div>
-  <div id="cnfRecord" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfRecord2.png" title="Stages" style="margin-left:3px;"/><div id="cnfRecordText" class="cnfMenuText">Start recording</div></div>
+  <div id="cnfRecord" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfRecord2.png" title="Stages" style="margin-left:3px;"/><div id="cnfRecordText" class="cnfMenuText">Record a show</div></div>
   <div id="cnfResetAudio" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfResetAudio.png" title="Reset audio controller"/><div class="cnfMenuText">Reset audio controller</div></div>
 <%--  <div id="cnfResetDMX" class="cnfControl">Reset DMX device</div>  --%>
   
