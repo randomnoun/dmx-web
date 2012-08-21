@@ -673,35 +673,46 @@ public class ShowUtils {
 		hsv2rgb(((float) h)/360, ((float) s)/100, ((float) v)/100, rgb);
 	}
 	
+	/** Returns the dmx offset of a fixture within a set of fixtures with a given
+	 * starting universe number and offset, assuming that fixtures
+	 * do not span universes and start at channel 1 after the initial universe.
+	 * 
+	 * @see #fillDmxUniverse(int, int, int, int)
+	 * 
+	 * @param startUniverse universe number of the first fixture in the set
+	 * @param startOffset dmx offset of the first fixture in the set
+	 * @param numChannels number of dmx channels between each fixture
+	 * @param n the (0-based) fixture number we are interested in returning the DMX offset for
+	 */
+	public static int fillDmxOffset(int startUniverse, int startOffset, int numChannels, int n) {
+		int startc = (512-startOffset) / numChannels; // number of fixtures in 1st universe
+		int nextc = 512 / numChannels;  // number of fixtures in subsequent universes
+		if (n < startc) { return startOffset + n*numChannels; }
+		return (n % nextc) * numChannels + 1;
+	}
+
+	/** Returns the dmx universe of a fixture within a set of fixtures with a given
+	 * starting universe number and offset, assuming that fixtures
+	 * do not span universes and start at channel 1 after the initial universe.
+	 * 
+	 * @see #fillDmxOffset(int, int, int, int)
+	 * 
+	 * @param startUniverse universe number of the first fixture in the set
+	 * @param startOffset dmx offset of the first fixture in the set
+	 * @param numChannels number of dmx channels between each fixture
+	 * @param n the (0-based) fixture number we are interested in returning the DMX offset for
+	 */
+	public static int fillDmxUniverse(int startUniverse, int startOffset, int numChannels, int n) {
+		int startc = (512-startOffset) / numChannels; // number of fixtures in 1st universe
+		int nextc = 512 / numChannels;  // number of fixtures in subsequent universes
+		if (n < startc) { return startUniverse; }
+		return startUniverse + (n - startc) / nextc;
+	}
+
+	
 	static {
 		colorMap = ClassInspector.getConstantsMap(Color.class, "");
 	}
 	
-	public static void main(String args[]) {
-		int rgb[] = new int[3];
-		hsv2rgb(0.0f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-		hsv2rgb(0.1f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-		hsv2rgb(0.2f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-		hsv2rgb(0.3f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-		hsv2rgb(0.4f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-		hsv2rgb(0.5f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-		hsv2rgb(0.6f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-		hsv2rgb(0.7f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-		hsv2rgb(0.8f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-		hsv2rgb(0.9f, 1.0f, 1.0f, rgb); System.out.println(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-		
-		int hsv[] = new int[3];
-		rgb2hsv(225, 0, 0, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]); 
-		rgb2hsv(225, 153, 0, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
-		rgb2hsv(203, 255, 0, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
-		rgb2hsv(50, 255, 0, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
-		rgb2hsv(0, 255, 102, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
-		rgb2hsv(0, 255, 255, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
-		rgb2hsv(0, 101, 255, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
-		rgb2hsv(50, 0, 255, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
-		rgb2hsv(204, 0, 153, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
-		rgb2hsv(0, 0, 100, hsv); System.out.println(((float)hsv[0]/360) + ", " + hsv[1] + ", " + hsv[2]);
-		
-	}
 	
 }
