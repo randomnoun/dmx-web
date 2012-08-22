@@ -245,44 +245,48 @@ public class MaintainShowAction
 		String action = request.getParameter("action");
 		
 		// @TODO deal with no active stages
-		long activeStageId = appConfig.getActiveStage().getId();
-		
-		// if errors generated from show properties page
-		if (request.getAttribute("errors")!=null) { action=""; }
-		
-		if (action==null) { action = ""; }
-		if (action.equals("")) {
-			// default action displays entry page
-			ShowTableEditor tableEditor = new ShowTableEditor(activeStageId);
-			request.setAttribute("form", tableEditor.readShows(null));
-			
-		} else if (action.equals("maintain") || action.equals("editProperties")) {
-			Map form = new HashMap();
-			Struct.setFromRequest(form, request);
-			
-			//System.out.println(Struct.structuredMapToString("form", form));
-			ShowTableEditor tableEditor = new ShowTableEditor(activeStageId);
-			tableEditor.removeEmptyRows(form);
-			TableEditorResult result = tableEditor.maintainShows(form);
-			//System.out.println("======================================");
-			//System.out.println(Struct.structuredListToString("rows", result.getRows()));
-			//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
-			form.put("shows", result.getRows());
-			form.put("shows_size", result.getRows().size());
-			form.put("showDefs", tableEditor.getShowDefs());
-			form.put("followupShows", tableEditor.getFollowupShows());
-			form.put("showGroups", tableEditor.getShowGroups());
-			request.setAttribute("errors", result.getErrors());
-			request.setAttribute("form", form);
-			
-			if (!result.getErrors().hasErrors(ErrorList.SEVERITY_INVALID) && action.equals("editProperties")) {
-				forward = "showProperties";
-			}
-			
+		if (appConfig.getActiveStage()==null) {
+			request.setAttribute("initMessage", "You must create a stage before adding shows");
+			forward = "cnfPanel";
 		} else {
-			throw new IllegalArgumentException("Invalid action '" + action + "'");
+			long activeStageId = appConfig.getActiveStage().getId();
+			
+			// if errors generated from show properties page
+			if (request.getAttribute("errors")!=null) { action=""; }
+			
+			if (action==null) { action = ""; }
+			if (action.equals("")) {
+				// default action displays entry page
+				ShowTableEditor tableEditor = new ShowTableEditor(activeStageId);
+				request.setAttribute("form", tableEditor.readShows(null));
+				
+			} else if (action.equals("maintain") || action.equals("editProperties")) {
+				Map form = new HashMap();
+				Struct.setFromRequest(form, request);
+				
+				//System.out.println(Struct.structuredMapToString("form", form));
+				ShowTableEditor tableEditor = new ShowTableEditor(activeStageId);
+				tableEditor.removeEmptyRows(form);
+				TableEditorResult result = tableEditor.maintainShows(form);
+				//System.out.println("======================================");
+				//System.out.println(Struct.structuredListToString("rows", result.getRows()));
+				//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
+				form.put("shows", result.getRows());
+				form.put("shows_size", result.getRows().size());
+				form.put("showDefs", tableEditor.getShowDefs());
+				form.put("followupShows", tableEditor.getFollowupShows());
+				form.put("showGroups", tableEditor.getShowGroups());
+				request.setAttribute("errors", result.getErrors());
+				request.setAttribute("form", form);
+				
+				if (!result.getErrors().hasErrors(ErrorList.SEVERITY_INVALID) && action.equals("editProperties")) {
+					forward = "showProperties";
+				}
+				
+			} else {
+				throw new IllegalArgumentException("Invalid action '" + action + "'");
+			}
 		}
-
 		
         return mapping.findForward(forward);
     }

@@ -474,8 +474,10 @@ public class FancyControllerAction
 
 		    	fixValues.add(m);
 		    }
-
-		    request.setAttribute("initMessage", "Messages");
+		    if (request.getAttribute("initMessage")==null) {
+		    	// may be set by other actions returning to config page
+		    	request.setAttribute("initMessage", "Messages");
+		    }
 		    recording = null;
 		    if (action.equals("editRecording")) {
 		    	// stop all shows

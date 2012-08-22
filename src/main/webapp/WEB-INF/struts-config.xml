@@ -103,6 +103,7 @@
         >
           <forward name="success" path="/maintainFixture.jsp"/>
           <forward name="null" className="com.randomnoun.common.webapp.struts.NullForward" path=""/>
+          <forward name="cnfPanel" path="/index.html?panel=cnfPanel"/>
         </action>
         <!-- since firebug can't handle an iframe with the same name as the main page -->
         <action path="/maintainFixture2" 
@@ -123,6 +124,7 @@
         >
           <forward name="success" path="/maintainShow.jsp"/>
           <forward name="showProperties" path="/maintainShowProperty.html"/>
+          <forward name="cnfPanel" path="/index.html?panel=cnfPanel"/>
         </action>
 
       <action path="/maintainShowProperty" 

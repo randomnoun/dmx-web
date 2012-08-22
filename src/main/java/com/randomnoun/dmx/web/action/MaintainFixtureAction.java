@@ -361,175 +361,179 @@ public class MaintainFixtureAction
 		JdbcTemplate jt = appConfig.getJdbcTemplate();
 		String action = request.getParameter("action");
 		
-		// @TODO deal with no active stages
-		long activeStageId = appConfig.getActiveStage().getId();
-		
-		if (action==null) { action = ""; }
-		if (action.equals("")) {
-			// default action displays entry page
-			FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
-			request.setAttribute("form", tableEditor.readFixtures(null));
-			
-		} else if (action.equals("maintain")) {
-			Map form = new HashMap();
-			Struct.setFromRequest(form, request);
-			
-			//System.out.println(Struct.structuredMapToString("form", form));
-			FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
-			tableEditor.removeEmptyRows(form);
-			TableEditorResult result = tableEditor.maintainFixtures(form);
-			//System.out.println("======================================");
-			//System.out.println(Struct.structuredListToString("rows", result.getRows()));
-			//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
-			form.put("fixtureDefs", tableEditor.getFixtureDefs());
-			form.put("fixtureDefMap", tableEditor.getFixtureDefsMap());
-			form.put("fixPanelTypes", tableEditor.getFixPanelTypes());
-			form.put("fixtures", result.getRows());
-			form.put("fixtures_size", result.getRows().size());
-			request.setAttribute("errors", result.getErrors());
-			request.setAttribute("form", form);
-
-		} else if (action.equals("rfPreview")) {
-			
-			Map<String, String> form = new HashMap();
-			Struct.setFromRequest(form, request, new String[] {
-			 "rfFixtureDefId", "rfCountX", "rfCountY", "rfName", "rfUniverseStart",
-			 "rfDmxOffsetStart", "rfDmxOffsetGap", "rfDmxAllocation",
-			 "rfDmxOffsetCalc", "rfDmxUniverseCalc",
-			 "rfPanelX", "rfPanelY",
-			 "rfPositionX","rfPositionY","rfPositionZ", 
-			 "rfLookingAtX","rfLookingAtY","rfLookingAtZ", 
-			 "rfUpX","rfUpY","rfUpZ" });
-			
-			// @TODO CSV upload if that's what they're doing
-			
-			long cx = Long.parseLong(form.get("rfCountX"));
-			long cy = Long.parseLong(form.get("rfCountY"));
-			// hmm.
-			// long u = Long.parseLong(form.get("rfUniverseNumber"));
-			//long dmxOffset = Long.parseLong(form.get("rfDmxOffset"));
-			//long dmxOffsetGap = Long.parseLong(form.get("rfDmxOffsetGap"));
-			TopLevelExpression dmxOffsetExpr = parseExpression(form.get("rfDmxOffsetCalc"));
-			TopLevelExpression dmxUniverseExpr = parseExpression(form.get("rfDmxUniverseCalc"));
-			TopLevelExpression panelXExpr = parseExpression(form.get("rfPanelX"));
-			TopLevelExpression panelYExpr = parseExpression(form.get("rfPanelY"));
-			TopLevelExpression positionXExpr = parseExpression(form.get("rfPositionX"));
-			TopLevelExpression positionYExpr = parseExpression(form.get("rfPositionY"));
-			TopLevelExpression positionZExpr = parseExpression(form.get("rfPositionZ"));
-			TopLevelExpression lookingAtXExpr = parseExpression(form.get("rfLookingAtX"));
-			TopLevelExpression lookingAtYExpr = parseExpression(form.get("rfLookingAtY"));
-			TopLevelExpression lookingAtZExpr = parseExpression(form.get("rfLookingAtZ"));
-			TopLevelExpression upXExpr = parseExpression(form.get("rfUpX"));
-			TopLevelExpression upYExpr = parseExpression(form.get("rfUpY"));
-			TopLevelExpression upZExpr = parseExpression(form.get("rfUpZ"));
-			
-			// @TODO everything else in Math.*
-			Map functions = new HashMap();
-			functions.put("floor", new EvalFunction(){
-				public Object evaluate(String functionName, EvalContext context, List arguments)
-					throws EvalException {
-					if (arguments.size() != 1) { throw new EvalException(functionName + "() must contain one parameter"); }
-		            if (arguments.get(0) == null) { throw new EvalException(functionName + "() parameter cannot be null"); }
-		            if (!(arguments.get(0) instanceof Number)) {
-		                throw new EvalException(functionName + "() parameter must be a numeric type");
-		            }
-		            return Math.floor( ((Number)arguments.get(0)).doubleValue() );				
-		        }});
-			functions.put("iif", new EvalFunction(){
-				public Object evaluate(String functionName, EvalContext context, List arguments)
-					throws EvalException {
-					if (arguments.size() != 3) { throw new EvalException(functionName + "() must contain three parameters"); }
-		            if (arguments.get(0) == null) { throw new EvalException(functionName + "() parameter 1 cannot be null"); }
-		            if (!(arguments.get(0) instanceof Boolean)) {
-		                throw new EvalException(functionName + "() parameter must be a boolean type");
-		            }
-		            boolean b = ((Boolean)arguments.get(0)).booleanValue();
-		            return b ? arguments.get(1) : arguments.get(2);
-		        }});
-			functions.put("fillDmxOffset", new EvalFunction(){
-				public Object evaluate(String functionName, EvalContext context, List arguments)
-					throws EvalException {
-					if (arguments.size() != 4) { throw new EvalException(functionName + "() must contain four parameters"); }
-					for (int i=0; i<3; i++) { if (arguments.get(i) == null) { throw new EvalException(functionName + "() parameter " + (i+1) + " cannot be null"); } }
-					for (int i=0; i<3; i++) { if (!(arguments.get(i) instanceof Number)) { throw new EvalException(functionName + "() parameter " + (i+1) + " must be numeric"); } }
-					int startUniverse = ((Number) arguments.get(0)).intValue();
-					int startOffset = ((Number) arguments.get(1)).intValue();
-					int numChannels = ((Number) arguments.get(2)).intValue();
-					int n = ((Number) arguments.get(3)).intValue();
-		            return ShowUtils.fillDmxOffset(startUniverse, startOffset, numChannels, n);
-		        }});
-			functions.put("fillDmxUniverse", new EvalFunction(){
-				public Object evaluate(String functionName, EvalContext context, List arguments)
-					throws EvalException {
-					if (arguments.size() != 4) { throw new EvalException(functionName + "() must contain four parameters"); }
-					for (int i=0; i<3; i++) { if (arguments.get(i) == null) { throw new EvalException(functionName + "() parameter " + (i+1) + " cannot be null"); } }
-					for (int i=0; i<3; i++) { if (!(arguments.get(i) instanceof Number)) { throw new EvalException(functionName + "() parameter " + (i+1) + " must be numeric"); } }
-					int startUniverse = ((Number) arguments.get(0)).intValue();
-					int startOffset = ((Number) arguments.get(1)).intValue();
-					int numChannels = ((Number) arguments.get(2)).intValue();
-					int n = ((Number) arguments.get(3)).intValue();
-		            return ShowUtils.fillDmxUniverse(startUniverse, startOffset, numChannels, n);
-		        }});
-			
-			List rows = new ArrayList();
-			
-			int n=0;
-			for (int y=0; y<cy; y++) {
-				List row = new ArrayList();
-				rows.add(row);
-				for (int x=0; x<cx; x++) {
-					Map cell = new HashMap();
-					row.add(cell);
-					cell.put("x", x); cell.put("y", y);
-					String name = form.get("rfName");
-					name = Text.replaceString(name, "{x}", String.valueOf(x));
-					name = Text.replaceString(name, "{y}", String.valueOf(y));
-					name = Text.replaceString(name, "{n}", String.valueOf(n));
-					cell.put("name", name);
-					//cell.put("offset", "u" + u + "-offset" + dmxOffset);
-					
-					// @TODO allow side-affects here ?
-					Double dmxUniverse=evalDouble(dmxUniverseExpr, functions, x, y, n);
-					Double dmxOffset=evalDouble(dmxOffsetExpr, functions, x, y, n);
-					Double panelX=evalDouble(panelXExpr, functions, x, y, n);
-			        Double panelY=evalDouble(panelYExpr, functions, x, y, n);
-			        Double positionX=evalDouble(positionXExpr, functions, x, y, n);
-			        Double positionY=evalDouble(positionYExpr, functions, x, y, n);
-			        Double positionZ=evalDouble(positionZExpr, functions, x, y, n);
-			        Double lookingAtX=evalDouble(lookingAtXExpr, functions, x, y, n);
-			        Double lookingAtY=evalDouble(lookingAtYExpr, functions, x, y, n);
-			        Double lookingAtZ=evalDouble(lookingAtZExpr, functions, x, y, n);
-			        Double upX=evalDouble(upXExpr, functions, x, y, n);
-			        Double upY=evalDouble(upYExpr, functions, x, y, n);
-			        Double upZ=evalDouble(upZExpr, functions, x, y, n);
-			        
-			        if (dmxUniverse!=null && dmxOffset!=null) { cell.put("offset", "u" + dmxUniverse.intValue() + "-offset" + dmxOffset.intValue()); };
-			        if (panelX!=null && panelY!=null) { cell.put("panel", "(" + panelX + ", " + panelY + ")"); }
-			        if (positionX!=null && positionY!=null && positionZ!=null) { cell.put("position", "(" + positionX + ", " + positionY + ", " + positionZ + ")"); }
-			        if (lookingAtX!=null && lookingAtY!=null && lookingAtZ!=null) { cell.put("lookingAt", "(" + lookingAtX + ", " + lookingAtX + ", " + lookingAtZ + ")"); }
-			        if (upX!=null && upY!=null && upZ!=null) { cell.put("up", "(" + upX + ", " + upY + ", " + upZ + ")"); }
-			        
-			        //dmxOffset += dmxOffsetGap + 3; /* @TODO get fixture channel count */
-			        n++;
-				}
-			}
-			
-			Map json = new HashMap();
-			json.put("rows", rows);
-			PrintWriter pw = response.getWriter();
-			pw.println("<script>top.rfUpdatePreview(" + Struct.structuredMapToJson(json) + ");</script>\n");
-			pw.flush();
-			forward = "null"; // maps to NullForward
-
-			
+		if (appConfig.getActiveStage()==null) {
+			request.setAttribute("initMessage", "You must create a stage before adding fixtures");
+			forward = "cnfPanel";
 		} else {
-			throw new IllegalArgumentException("Invalid action '" + action + "'");
-		}
+			long activeStageId = appConfig.getActiveStage().getId();
+			
+			if (action==null) { action = ""; }
+			if (action.equals("")) {
+				// default action displays entry page
+				FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
+				request.setAttribute("form", tableEditor.readFixtures(null));
+				
+			} else if (action.equals("maintain")) {
+				Map form = new HashMap();
+				Struct.setFromRequest(form, request);
+				
+				//System.out.println(Struct.structuredMapToString("form", form));
+				FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
+				tableEditor.removeEmptyRows(form);
+				TableEditorResult result = tableEditor.maintainFixtures(form);
+				//System.out.println("======================================");
+				//System.out.println(Struct.structuredListToString("rows", result.getRows()));
+				//System.out.println(Struct.structuredListToString("errors", result.getErrors()));
+				form.put("fixtureDefs", tableEditor.getFixtureDefs());
+				form.put("fixtureDefMap", tableEditor.getFixtureDefsMap());
+				form.put("fixPanelTypes", tableEditor.getFixPanelTypes());
+				form.put("fixtures", result.getRows());
+				form.put("fixtures_size", result.getRows().size());
+				request.setAttribute("errors", result.getErrors());
+				request.setAttribute("form", form);
+	
+			} else if (action.equals("rfPreview")) {
+				
+				Map<String, String> form = new HashMap();
+				Struct.setFromRequest(form, request, new String[] {
+				 "rfFixtureDefId", "rfCountX", "rfCountY", "rfName", "rfUniverseStart",
+				 "rfDmxOffsetStart", "rfDmxOffsetGap", "rfDmxAllocation",
+				 "rfDmxOffsetCalc", "rfDmxUniverseCalc",
+				 "rfPanelX", "rfPanelY",
+				 "rfPositionX","rfPositionY","rfPositionZ", 
+				 "rfLookingAtX","rfLookingAtY","rfLookingAtZ", 
+				 "rfUpX","rfUpY","rfUpZ" });
+				
+				// @TODO CSV upload if that's what they're doing
+				
+				long cx = Long.parseLong(form.get("rfCountX"));
+				long cy = Long.parseLong(form.get("rfCountY"));
+				// hmm.
+				// long u = Long.parseLong(form.get("rfUniverseNumber"));
+				//long dmxOffset = Long.parseLong(form.get("rfDmxOffset"));
+				//long dmxOffsetGap = Long.parseLong(form.get("rfDmxOffsetGap"));
+				TopLevelExpression dmxOffsetExpr = parseExpression(form.get("rfDmxOffsetCalc"));
+				TopLevelExpression dmxUniverseExpr = parseExpression(form.get("rfDmxUniverseCalc"));
+				TopLevelExpression panelXExpr = parseExpression(form.get("rfPanelX"));
+				TopLevelExpression panelYExpr = parseExpression(form.get("rfPanelY"));
+				TopLevelExpression positionXExpr = parseExpression(form.get("rfPositionX"));
+				TopLevelExpression positionYExpr = parseExpression(form.get("rfPositionY"));
+				TopLevelExpression positionZExpr = parseExpression(form.get("rfPositionZ"));
+				TopLevelExpression lookingAtXExpr = parseExpression(form.get("rfLookingAtX"));
+				TopLevelExpression lookingAtYExpr = parseExpression(form.get("rfLookingAtY"));
+				TopLevelExpression lookingAtZExpr = parseExpression(form.get("rfLookingAtZ"));
+				TopLevelExpression upXExpr = parseExpression(form.get("rfUpX"));
+				TopLevelExpression upYExpr = parseExpression(form.get("rfUpY"));
+				TopLevelExpression upZExpr = parseExpression(form.get("rfUpZ"));
+				
+				// @TODO everything else in Math.*
+				Map functions = new HashMap();
+				functions.put("floor", new EvalFunction(){
+					public Object evaluate(String functionName, EvalContext context, List arguments)
+						throws EvalException {
+						if (arguments.size() != 1) { throw new EvalException(functionName + "() must contain one parameter"); }
+			            if (arguments.get(0) == null) { throw new EvalException(functionName + "() parameter cannot be null"); }
+			            if (!(arguments.get(0) instanceof Number)) {
+			                throw new EvalException(functionName + "() parameter must be a numeric type");
+			            }
+			            return Math.floor( ((Number)arguments.get(0)).doubleValue() );				
+			        }});
+				functions.put("iif", new EvalFunction(){
+					public Object evaluate(String functionName, EvalContext context, List arguments)
+						throws EvalException {
+						if (arguments.size() != 3) { throw new EvalException(functionName + "() must contain three parameters"); }
+			            if (arguments.get(0) == null) { throw new EvalException(functionName + "() parameter 1 cannot be null"); }
+			            if (!(arguments.get(0) instanceof Boolean)) {
+			                throw new EvalException(functionName + "() parameter must be a boolean type");
+			            }
+			            boolean b = ((Boolean)arguments.get(0)).booleanValue();
+			            return b ? arguments.get(1) : arguments.get(2);
+			        }});
+				functions.put("fillDmxOffset", new EvalFunction(){
+					public Object evaluate(String functionName, EvalContext context, List arguments)
+						throws EvalException {
+						if (arguments.size() != 4) { throw new EvalException(functionName + "() must contain four parameters"); }
+						for (int i=0; i<3; i++) { if (arguments.get(i) == null) { throw new EvalException(functionName + "() parameter " + (i+1) + " cannot be null"); } }
+						for (int i=0; i<3; i++) { if (!(arguments.get(i) instanceof Number)) { throw new EvalException(functionName + "() parameter " + (i+1) + " must be numeric"); } }
+						int startUniverse = ((Number) arguments.get(0)).intValue();
+						int startOffset = ((Number) arguments.get(1)).intValue();
+						int numChannels = ((Number) arguments.get(2)).intValue();
+						int n = ((Number) arguments.get(3)).intValue();
+			            return ShowUtils.fillDmxOffset(startUniverse, startOffset, numChannels, n);
+			        }});
+				functions.put("fillDmxUniverse", new EvalFunction(){
+					public Object evaluate(String functionName, EvalContext context, List arguments)
+						throws EvalException {
+						if (arguments.size() != 4) { throw new EvalException(functionName + "() must contain four parameters"); }
+						for (int i=0; i<3; i++) { if (arguments.get(i) == null) { throw new EvalException(functionName + "() parameter " + (i+1) + " cannot be null"); } }
+						for (int i=0; i<3; i++) { if (!(arguments.get(i) instanceof Number)) { throw new EvalException(functionName + "() parameter " + (i+1) + " must be numeric"); } }
+						int startUniverse = ((Number) arguments.get(0)).intValue();
+						int startOffset = ((Number) arguments.get(1)).intValue();
+						int numChannels = ((Number) arguments.get(2)).intValue();
+						int n = ((Number) arguments.get(3)).intValue();
+			            return ShowUtils.fillDmxUniverse(startUniverse, startOffset, numChannels, n);
+			        }});
+				
+				List rows = new ArrayList();
+				
+				int n=0;
+				for (int y=0; y<cy; y++) {
+					List row = new ArrayList();
+					rows.add(row);
+					for (int x=0; x<cx; x++) {
+						Map cell = new HashMap();
+						row.add(cell);
+						cell.put("x", x); cell.put("y", y);
+						String name = form.get("rfName");
+						name = Text.replaceString(name, "{x}", String.valueOf(x));
+						name = Text.replaceString(name, "{y}", String.valueOf(y));
+						name = Text.replaceString(name, "{n}", String.valueOf(n));
+						cell.put("name", name);
+						//cell.put("offset", "u" + u + "-offset" + dmxOffset);
+						
+						// @TODO allow side-affects here ?
+						Double dmxUniverse=evalDouble(dmxUniverseExpr, functions, x, y, n);
+						Double dmxOffset=evalDouble(dmxOffsetExpr, functions, x, y, n);
+						Double panelX=evalDouble(panelXExpr, functions, x, y, n);
+				        Double panelY=evalDouble(panelYExpr, functions, x, y, n);
+				        Double positionX=evalDouble(positionXExpr, functions, x, y, n);
+				        Double positionY=evalDouble(positionYExpr, functions, x, y, n);
+				        Double positionZ=evalDouble(positionZExpr, functions, x, y, n);
+				        Double lookingAtX=evalDouble(lookingAtXExpr, functions, x, y, n);
+				        Double lookingAtY=evalDouble(lookingAtYExpr, functions, x, y, n);
+				        Double lookingAtZ=evalDouble(lookingAtZExpr, functions, x, y, n);
+				        Double upX=evalDouble(upXExpr, functions, x, y, n);
+				        Double upY=evalDouble(upYExpr, functions, x, y, n);
+				        Double upZ=evalDouble(upZExpr, functions, x, y, n);
+				        
+				        if (dmxUniverse!=null && dmxOffset!=null) { cell.put("offset", "u" + dmxUniverse.intValue() + "-offset" + dmxOffset.intValue()); };
+				        if (panelX!=null && panelY!=null) { cell.put("panel", "(" + panelX + ", " + panelY + ")"); }
+				        if (positionX!=null && positionY!=null && positionZ!=null) { cell.put("position", "(" + positionX + ", " + positionY + ", " + positionZ + ")"); }
+				        if (lookingAtX!=null && lookingAtY!=null && lookingAtZ!=null) { cell.put("lookingAt", "(" + lookingAtX + ", " + lookingAtX + ", " + lookingAtZ + ")"); }
+				        if (upX!=null && upY!=null && upZ!=null) { cell.put("up", "(" + upX + ", " + upY + ", " + upZ + ")"); }
+				        
+				        //dmxOffset += dmxOffsetGap + 3; /* @TODO get fixture channel count */
+				        n++;
+					}
+				}
+				
+				Map json = new HashMap();
+				json.put("rows", rows);
+				PrintWriter pw = response.getWriter();
+				pw.println("<script>top.rfUpdatePreview(" + Struct.structuredMapToJson(json) + ");</script>\n");
+				pw.flush();
+				forward = "null"; // maps to NullForward
+	
+				
+			} else {
+				throw new IllegalArgumentException("Invalid action '" + action + "'");
+			}
 
-		List rfDmxAllocations = new ArrayList();
-		addElement(rfDmxAllocations, "R", "rows then columns");
-		addElement(rfDmxAllocations, "C", "columns then rows");
-		request.setAttribute("rfDmxAllocations", rfDmxAllocations);
+			List rfDmxAllocations = new ArrayList();
+			addElement(rfDmxAllocations, "R", "rows then columns");
+			addElement(rfDmxAllocations, "C", "columns then rows");
+			request.setAttribute("rfDmxAllocations", rfDmxAllocations);
+		}
 		
         return mapping.findForward(forward);
     }
