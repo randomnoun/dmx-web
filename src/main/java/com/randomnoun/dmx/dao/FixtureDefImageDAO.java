@@ -176,7 +176,7 @@ public class FixtureDefImageDAO {
     	return new FileInputStream(new File(imageBase, fixtureDefImage.getFileLocation()));
     }
 
-    public String sanitiseFilename(String f) {
+    public static String sanitiseFilename(String f) {
     	f = f.toLowerCase();
     	if (f.indexOf("/")!=-1) { f = f.substring(f.lastIndexOf("/")); }
     	if (f.indexOf("\\")!=-1) { f = f.substring(f.lastIndexOf("\\")); }
