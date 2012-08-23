@@ -76,10 +76,7 @@ public class MaintainDeviceAction
     	private final static String[] fieldNames2 = 
     		new String[] { "id", "name", "className", "type", "active", "universeNumber", "devicePropertyCount" };
 
-    	long activeStageId = -1;
-		
-    	public DeviceTableEditor(long activeStageId) {
-    		this.activeStageId = activeStageId;
+    	public DeviceTableEditor() {
     	}
     	
     	// @TODO this is all rather silly...
@@ -263,13 +260,10 @@ public class MaintainDeviceAction
 		JdbcTemplate jt = appConfig.getJdbcTemplate();
 		String action = request.getParameter("action");
 		
-		// @TODO deal with no active stages
-		long activeStageId = appConfig.getActiveStage().getId();
-		
 		if (action==null) { action = ""; }
 		if (action.equals("")) {
 			// default action displays entry page
-			DeviceTableEditor tableEditor = new DeviceTableEditor(activeStageId);
+			DeviceTableEditor tableEditor = new DeviceTableEditor();
 			request.setAttribute("form", tableEditor.readDevices(null));
 			
 		} else if (action.equals("maintain") || action.equals("editProperties")) {
@@ -277,7 +271,7 @@ public class MaintainDeviceAction
 			Struct.setFromRequest(form, request);
 			
 			//System.out.println(Struct.structuredMapToString("form", form));
-			DeviceTableEditor tableEditor = new DeviceTableEditor(activeStageId);
+			DeviceTableEditor tableEditor = new DeviceTableEditor();
 			tableEditor.removeEmptyRows(form);
 			TableEditorResult result = tableEditor.maintainDevices(form);
 			//System.out.println("======================================");
