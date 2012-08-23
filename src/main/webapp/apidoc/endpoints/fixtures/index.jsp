@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" class="hl-en not-logged-in ">
 <head>
     <meta charset="UTF-8" />
-    <title>Show Endpoints &bull; DMX-web Developer Documentation</title>
+    <title>Fixture Endpoints &bull; DMX-web Developer Documentation</title>
 
     <link rel="Shortcut Icon" type="image/x-icon" href="../../images/favicon.ico" />
 
@@ -121,11 +121,11 @@
             <i class="disclosure"></i>
         </a>
             <ul>
-                <li  class="active">
-        <a href="../shows/index.jsp" class="active">Shows</a>
-    </li>
                 <li >
-        <a href="../fixtures/index.jsp" >Fixtures</a>
+        <a href="../shows/index.jsp">Shows</a>
+    </li>
+                <li class="active">
+        <a href="../fixtures/index.jsp" class="active">Fixtures</a>
     </li>
                 <li >
         <a href="../dmx/index.jsp" >DMX Values</a>
@@ -166,7 +166,7 @@
             <section class="nav-page-content" role="main">
                 
     <header>
-        <h1>Show Endpoints</h1>
+        <h1>Fixture Endpoints</h1>
 
         
     </header>
@@ -176,37 +176,37 @@
     <div class="index-nav index-endpoints">
         <ul>
             <li>
-                <a href="index.jsp#show_list">
+                <a href="index.jsp#fixture_list">
                     <span class="type">GET</span>
-                    <b><code>/show/list</code></b>
-                    <span class="description">Retrieves the list of shows.</span>
+                    <b><code>/fixture/list</code></b>
+                    <span class="description">Retrieves the list of fixtures in the active stage.</span>
                     <i></i>
                 </a>
             </li>
             
             <li>
-                <a href="index.jsp#show_start_byid">
+                <a href="index.jsp#fixture_setColor">
                     <span class="type">POST</span>
-                    <b><code>/show/start?showId=</code><span class="token">show-id</span></b>
-                    <span class="description">Starts a show by ID.</span>
+                    <b><code>/fixture/setColor?fixtureId=</code><span class="token">fixture-id</span><code>&color=</code><span class="token">color-value</span></b>
+                    <span class="description">Sets the color of a fixture.</span>
                     <i></i>
                 </a>
             </li>
 
             <li>
-                <a href="index.jsp#show_start_byname">
+                <a href="index.jsp#fixture_setDimmer">
                     <span class="type">POST</span>
-                    <b><code>/show/start?showName=</code><span class="token">show-name</span></b>
-                    <span class="description">Starts a show by name.</span>
+                    <b><code>/fixture/setDimmer?fixtureId=</code><span class="token">fixture-id</span><code>&dimmer=</code><span class="token">dimmer-value</span></b>
+                    <span class="description">Sets the dimmer value of a fixture.</span>
                     <i></i>
                 </a>
             </li>
             
             <li>
-                <a href="index.jsp#show_stop_byid">
+                <a href="index.jsp#fixture_setStrobe">
                     <span class="type">POST</span>
-                    <b><code>/show/stop?showId=</code><span class="token">show-id</span></b>
-                    <span class="description">Stops a show by ID.</span>
+                    <b><code>/fixture/setStrobe?fixtureId=</code><span class="token">fixture-id</span><code>&strobe=</code><span class="token">strobe-value</span></b>
+                    <span class="description">Sets the strobe value of a fixture.</span>
                     <i></i>
                 </a>
             </li>
@@ -214,8 +214,8 @@
             <li>
                 <a href="index.jsp#show_stop_byname">
                     <span class="type">POST</span>
-                    <b><code>/show/stop?showName=</code><span class="token">show-name</span></b>
-                    <span class="description">Stops a show by name.</span>
+                    <b><code>/fixture/setPan?fixtureId=</code><span class="token">fixture-id</span><code>&pan=</code><span class="token">pan-value</span></b>
+                    <span class="description">Sets the pan value of a fixture.</span>
                     <i></i>
                 </a>
             </li>
@@ -223,8 +223,8 @@
             <li>
                 <a href="index.jsp#show_stop_byname">
                     <span class="type">POST</span>
-                    <b><code>/show/stop?showGroupId=</code><span class="token">show-group-id</span></b>
-                    <span class="description">Stops all shows within a show group.</span>
+                    <b><code>/fixture/setTilt?fixtureId=</code><span class="token">fixture-id</span><code>&pan=</code><span class="token">tilt-value</span></b>
+                    <span class="description">Sets the tilt value of a fixture.</span>
                     <i></i>
                 </a>
             </li>
@@ -274,7 +274,7 @@
     <section class="card endpoint" id="show_start_byid">
         <header>
             <h2>
-                <span class="ep-type">POST</span>
+                <span class="ep-type">GET</span>
                 <code>/show/start?showId=</code><span class="token">show-id</span>
             </h2>
         </header>
