@@ -15,6 +15,9 @@ public class ShowTO {
     private long showPropertyCount;
     private long stageId;
 
+    // used in import/export only
+    private List<ShowPropertyTO> showProperties;
+    
     /** Returns the id
      * @return the id
      */
@@ -126,9 +129,17 @@ public class ShowTO {
 	public void setStageId(long stageid) {
 		this.stageId = stageid;
 	}
+
+	public List<ShowPropertyTO> getShowProperties() {
+		return showProperties;
+	}
+
+	public void setShowProperties(List<ShowPropertyTO> showProperties) {
+		this.showProperties = showProperties;
+	}
 	
 	// @TODO put comments in here with the stage, showDef names etc 
-	public String toExportXml(List<ShowPropertyTO> showProperties) {
+	public String toExportXml() {
 		String s = "<show>\n" +
 		    "    <id>" + id + "</id>\n" +
 			"    <stageId>" + stageId + "</stageId>\n" +		
@@ -136,7 +147,7 @@ public class ShowTO {
 			"    <name>" + Text.escapeHtml(name) + "</name>\n" +
 			(onCancelShowId==null ? "" : "    <onCancelShowId>" + onCancelShowId + "</onCancelShowId>\n") +
 			(onCompleteShowId==null ? "" : "    <onCompleteShowId>" + onCompleteShowId + "</onCompleteShowId>\n") +
-			"    <showGroupId>" + showGroupId + "</showGroupId>\n";
+			(showGroupId==null ? "" : "    <showGroupId>" + showGroupId + "</showGroupId>\n");
 		// "    <showPropertyCount>" + showPropertyCount + "</showPropertyCount>\n" +
 		if (showProperties.size() > 0) {
 			s += "    <showProperties>\n";
