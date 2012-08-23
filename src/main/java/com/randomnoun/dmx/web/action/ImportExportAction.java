@@ -223,7 +223,6 @@ public class ImportExportAction
 	
 	public static class FixtureDefContentHandler extends AbstractStackContentHandler {
 		List<FixtureDefTO> result = new ArrayList<FixtureDefTO>();
-		List<FixtureDefImageTO> images = new ArrayList<FixtureDefImageTO>(); // not used 
 		FixtureDefTO fd = null;
 		FixtureDefImageTO fdi = null;
 		Pattern p1 = Pattern.compile("^fixtureDefs/fixtureDef/(id|name|fixtureDefClassName|fixtureControllerClassName|channelMuxerClassName|dmxChannels)$");
@@ -232,9 +231,11 @@ public class ImportExportAction
 			//logger.info("Parsing '" + path + "'");
 			if (stack.equals("fixtureDefs/fixtureDef")) {
 				fd = new FixtureDefTO();
+				fd.setFixtureDefImages(new ArrayList<FixtureDefImageTO>());
 				result.add(fd);
 			} else if (stack.equals("fixtureDefs/fixtureDef/fixtureDefImages/fixtureDefImage")) {
 				fdi = new FixtureDefImageTO();
+				fd.getFixtureDefImages().add(fdi);
 			}
 		}
 		public void elementText(String path, String content) throws SAXException {
@@ -244,8 +245,8 @@ public class ImportExportAction
 				Struct.setValue(fd, m.group(1), content, false, true, false);
 			} else {
 				Matcher m2 = p2.matcher(stack);
-				if (m.matches()) {
-					Struct.setValue(fd, m.group(1), content, false, true, false);
+				if (m2.matches()) {
+					Struct.setValue(fdi, m2.group(1), content, false, true, false);
 				} 
 			}
 		}
@@ -282,6 +283,81 @@ public class ImportExportAction
     	parseXml(is, sdch);
     	return sdch.result;
 	}
+
+    public static class FixtureContentHandler extends AbstractStackContentHandler {
+		List<FixtureTO> result = new ArrayList<FixtureTO>();
+		FixtureTO f = null;
+
+		Pattern p1 = Pattern.compile("^fixtures/fixture/(id|stageId|fixtureDefId|name|universeNumber|dmxOffset|x|y|z|lookingAtX|lookingAtY|lookingAtZ|upX|upY|upZ|sortOrder|fixPanelType|fixPanelX|fixPanelY)$");
+		public void element(String path) throws SAXException {
+			//logger.info("Parsing '" + path + "'");
+			if (stack.equals("fixtures/fixture")) {
+				f = new FixtureTO();
+				result.add(f);
+			}
+		}
+		public void elementText(String path, String content) throws SAXException {
+			//logger.info("Parsing text in '" + path + "'");
+			Matcher m = p1.matcher(stack);
+			if (m.matches()) {
+				Struct.setValue(f, m.group(1), content, false, true, false);
+			}
+		}
+	}
+	
+    private List<FixtureTO> parseFixtures(ByteArrayInputStream is) throws IOException, ParseException {
+    	FixtureContentHandler fch = new FixtureContentHandler();
+    	parseXml(is, fch);
+    	return fch.result;
+	}
+
+    public static class ShowContentHandler extends AbstractStackContentHandler {
+		List<ShowTO> result = new ArrayList<ShowTO>();
+		ShowTO s = null;
+		ShowPropertyTO sp = null;
+
+	    private long id;
+	    private long showDefId;
+	    private String name;
+	    private Long onCancelShowId;
+	    private Long onCompleteShowId;
+	    private Long showGroupId;
+	    private long showPropertyCount;
+	    private long stageId;
+
+		Pattern p1 = Pattern.compile("^shows/show/(id|showDefId|name|onCancelShowId|onCompleteShowId|showGroupId|showPropertyCount|stageId)$");
+		Pattern p2 = Pattern.compile("^shows/show/showProperties/showProperty/(key|value)$");
+		public void element(String path) throws SAXException {
+			//logger.info("Parsing '" + path + "'");
+			if (stack.equals("shows/show")) {
+				s = new ShowTO();
+				s.setShowProperties(new ArrayList<ShowPropertyTO>());
+				result.add(s);
+			} else if (stack.equals("shows/show/showProperties/showProperty")) {
+				sp = new ShowPropertyTO();
+				s.getShowProperties().add(sp);
+			}
+		}
+		public void elementText(String path, String content) throws SAXException {
+			//logger.info("Parsing text in '" + path + "'");
+			Matcher m = p1.matcher(stack);
+			if (m.matches()) {
+				Struct.setValue(s, m.group(1), content, false, true, false);
+			} else {
+				Matcher m2 = p2.matcher(stack);
+				if (m2.matches()) {
+					Struct.setValue(sp, m2.group(1), content, false, true, false);
+				} 
+			}
+		}
+	}
+	
+    private List<ShowTO> parseShows(ByteArrayInputStream is) throws IOException, ParseException {
+    	ShowContentHandler sch = new ShowContentHandler();
+    	parseXml(is, sch);
+    	return sch.result;
+	}
+
     
     public static class StageContentHandler extends AbstractStackContentHandler {
 		List<StageTO> result = new ArrayList<StageTO>();
@@ -309,7 +385,14 @@ public class ImportExportAction
     	return sch.result;
 	}
 
-    
+    /** Returns the preamble that MSAccess puts before an XML table dump.
+     * (Not used)
+     * 
+     * @param tableName
+     * @param now
+     * 
+     * @return XML preamble
+     */
 	public String getMicrosoftPreamble(String tableName, String now) {
     	return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 		    "<dataroot xmlns:od=\"urn:schemas-microsoft-com:officedata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xsi:noNamespaceSchemaLocation=\"" + tableName + ".xsd\" generated=\"" + now + "\">\n";
@@ -403,6 +486,10 @@ public class ImportExportAction
 		ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(jt);
 		DeviceDAO deviceDAO = new DeviceDAO(jt);
 		DevicePropertyDAO devicePropertyDAO = new DevicePropertyDAO(jt);
+
+		boolean devicesChanged = false;
+		boolean anythingElseChanged = false;
+		
 		
 		StageDAO stageDAO = new StageDAO(jt);
 		
@@ -574,7 +661,7 @@ src/main/resources/export.xml (date of export, totals etc)
 			
 				List<FixtureDefImageTO> fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages("fixtureDefId=" + fixtureDef.getId());
 				for (FixtureDefImageTO fdi : fixtureDefImages) {
-					ze = new ZipEntry("src/main/resources/fixtureDefs/" + fixtureDef.getId() + "/" + fdi.getName());
+					ze = new ZipEntry("src/main/resources/fixtureDefs/" + fixtureDef.getId() + "/" + FixtureDefImageDAO.sanitiseFilename(fdi.getName()));
 					zos.putNextEntry(ze);
 					// FileInputStream fis = new FileInputStream(fdi.getFileLocation());
 					is = fixtureDefImageDAO.loadImage(fdi);
@@ -620,7 +707,8 @@ src/main/resources/export.xml (date of export, totals etc)
 				List<ShowTO> shows = showDAO.getShows("stageId=" + stageId);
 				for (ShowTO show : shows) {
 					List<ShowPropertyTO> showProperties = showPropertyDAO.getShowProperties("showId=" + show.getId());
-					showPw.println(Text.indent("    ", show.toExportXml(showProperties)));
+					show.setShowProperties(showProperties);
+					showPw.println(Text.indent("    ", show.toExportXml()));
 				}
 			}
 			showPw.println("</shows>\n");
@@ -690,6 +778,8 @@ src/main/resources/export.xml (date of export, totals etc)
 			if (!errors.hasErrors()){
 
 				Map<Long, Long> remapFixtureDefIds = new HashMap<Long, Long>();
+				Map<Long, Long> remapShowDefIds = new HashMap<Long, Long>();
+				Map<Long, Long> remapStageIds = new HashMap<Long, Long>(); // is this necessary ?
 				
 				// TODO: un-unicode them or something as well
 				String fileUploadTempPath = appConfig.getProperty("webapp.fileUpload.tempDir");
@@ -733,11 +823,17 @@ src/main/resources/export.xml (date of export, totals etc)
 				Map itemMap;
 
 				if (zipMap.containsKey("src/main/resources/device.xml")) {
-					Map deviceMap = newImportItem("Device settings", "devices", "icnDevice.png", false, true, false, "Device settings will replace existing device settings");
-					deviceMap.put("header", true);
-					items.add(deviceMap);
 					List<DeviceTO> currentDevices = deviceDAO.getDevices(null);
 					List<DeviceTO> devices = parseDevices(new ByteArrayInputStream(zipMap.get("src/main/resources/device.xml")));
+					Map deviceMap;
+					if (currentDevices.size() > 0) {
+						deviceMap = newImportItem("Device settings", "devices", "icnDevice.png", false, true, false, "Device settings will replace existing device settings");
+					} else {
+						deviceMap = newImportItem("Device settings", "devices", "icnDevice.png", true, false, false, null);
+					}
+					deviceMap.put("header", true);
+					items.add(deviceMap);
+
 					
 					if (!upload && request.getParameter("devices")!=null) {
 						logger.info("Removing existing devices");
@@ -749,6 +845,7 @@ src/main/resources/export.xml (date of export, totals etc)
 								devicePropertyDAO.deleteDeviceProperty(deviceProperty);
 							}
 							deviceDAO.deleteDevice(device);
+							devicesChanged=true;
 						}
 						logger.info("Importing devices");
 						// @TODO validate this
@@ -759,6 +856,7 @@ src/main/resources/export.xml (date of export, totals etc)
 								logger.info("Importing property '" + deviceProperty.getKey() + "'");
 								deviceProperty.setDeviceId(deviceId);
 								devicePropertyDAO.createDeviceProperty(deviceProperty);
+								devicesChanged = true;
 							}
 						}
 					}
@@ -786,6 +884,11 @@ src/main/resources/export.xml (date of export, totals etc)
 							", byCMCN=" + (byCMCN==null ? null : byCMCN.getName()));
 						boolean canAdd = byFDCN==null && byFCCN==null && byCMCN==null && byName==null;
 						boolean canReplace = byName!=null && byName==byFDCN && byName==byFCCN && byName==byCMCN; // replace infers replaceWithRename
+						itemChildren.add(newImportItem(fixtureDefs.get(i).getName(), "fix-" + fixtureDefs.get(i).getId(), "icnFixtureDef2.png", 
+								canAdd, canReplace, !(canAdd || canReplace), 
+								canAdd ? null :
+								(canReplace ? "A fixture with this name already exists" :
+								 "One of the classes in this fixture definition is used by another fixture")));
 						
 						// populate scripts from the rest of the ZIP file
 						String path = "src/main/beanshell/" + Text.replaceString(fixtureDef.getFixtureDefClassName(), ".", "/") + ".beanshell";
@@ -812,11 +915,6 @@ src/main/resources/export.xml (date of export, totals etc)
 							fixtureDef.setChannelMuxerScript(new String(script));
 						}
 
-						itemChildren.add(newImportItem(fixtureDefs.get(i).getName(), "fix-" + fixtureDefs.get(i).getId(), "icnFixtureDef2.png", 
-							canAdd, canReplace, !(canAdd || canReplace), 
-							canAdd ? null :
-							(canReplace ? "A fixture with this name already exists" :
-							 "One of the classes in this fixture definition is used by another fixture")));
 						if (!upload && request.getParameter("fix-" + fixtureDefs.get(i).getId())!=null) {
 							logger.info("Importing fixtureDef '" + fixtureDefs.get(i).getName() + "'");
 							if (canAdd) {
@@ -826,7 +924,10 @@ src/main/resources/export.xml (date of export, totals etc)
 								for (FixtureDefImageTO fixtureDefImage : fixtureDef.getFixtureDefImages()) {
 									fixtureDefImage.setFixtureDefId(fixtureDef.getId());
 									fixtureDefImageDAO.createFixtureDefImage(fixtureDefImage);
-									fixtureDefImageDAO.saveImage(fixtureDefImage, new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDefs/" + oldId + "/" + fixtureDefImage.getFileLocation())));
+									fixtureDefImageDAO.saveImage(fixtureDefImage, 
+									  new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDefs/" + oldId + "/" + 
+									    FixtureDefImageDAO.sanitiseFilename(fixtureDefImage.getName()))));
+									anythingElseChanged=true;
 								}
 								
 							} else if (canReplace) {
@@ -839,12 +940,16 @@ src/main/resources/export.xml (date of export, totals etc)
 								List<FixtureDefImageTO> fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages("fixtureDefId=" + fixtureDef.getId());
 								for (FixtureDefImageTO fixtureDefImage : fixtureDefImages) {
 									fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
+									anythingElseChanged=true;
 									// @TODO delete old files from local fixtureDef folder
 								}
 								for (FixtureDefImageTO fixtureDefImage : fixtureDef.getFixtureDefImages()) {
 									fixtureDefImage.setFixtureDefId(fixtureDef.getId());
 									fixtureDefImageDAO.createFixtureDefImage(fixtureDefImage);
-									fixtureDefImageDAO.saveImage(fixtureDefImage, new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDefs/" + oldId + "/" + fixtureDefImage.getFileLocation())));
+									fixtureDefImageDAO.saveImage(fixtureDefImage, 
+									  new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDefs/" + oldId + "/" + 
+									    FixtureDefImageDAO.sanitiseFilename(fixtureDefImage.getName()))));
+									anythingElseChanged=true;
 								}
 								// @TODO keep track of the old id when linking stage fixtures to this fixturedef
 							} else {
@@ -862,18 +967,52 @@ src/main/resources/export.xml (date of export, totals etc)
 					List<ShowDefTO> currentShowDefs = showDefDAO.getShowDefs(null);
 					List<ShowDefTO> showDefs = parseShowDefs(new ByteArrayInputStream(zipMap.get("src/main/resources/showDef.xml")));
 					for (int i=0; i<showDefs.size(); i++) {
-						ShowDefTO byName = (ShowDefTO) Struct.getStructuredListObject(currentShowDefs, "name", showDefs.get(i).getName()); // can rename these
+						ShowDefTO showDef = showDefs.get(i);
+						ShowDefTO byName = (ShowDefTO) Struct.getStructuredListObject(currentShowDefs, "name", showDef.getName()); // can rename these
 						boolean canAdd = byName==null;
 						itemChildren.add(newImportItem(showDefs.get(i).getName(), "show-" + showDefs.get(i).getId(), "icnShowDef2.png",
 							canAdd, !canAdd, false, canAdd ? null : "A show definition with this name already exists"));
+						
+						// populate scripts from the rest of the ZIP file
+						String path = "src/main/beanshell/" + Text.replaceString(showDef.getClassName(), ".", "/") + ".beanshell";
+						byte[] script = zipMap.get(path);
+						if (script==null) {
+							errors.addError("Missing script", "The ShowDef script '" + path + "' referenced by showDef '" +  showDef.getName() + "' is missing");
+						} else {
+							showDef.setScript(new String(script));
+						}
+						
 						if (!upload && request.getParameter("show-" + showDefs.get(i).getId())!=null) {
 							logger.info("Importing showDef '" + showDefs.get(i).getName() + "'");
+							if (canAdd) {
+								long oldId=showDef.getId();
+								showDefDAO.createShowDef(showDef); // modifies id field
+								remapShowDefIds.put(oldId, showDef.getId());
+								anythingElseChanged=true;
+								
+							} else {
+								// fixtureDefDAO.deleteFixtureDef(byName);
+								long oldId=showDef.getId();
+								showDef.setId(byName.getId());
+								showDefDAO.updateShowDef(showDef);
+								remapShowDefIds.put(oldId, showDef.getId());
+								anythingElseChanged=true;
+							} 
 						}
 					}
 					items.add(itemMap);
 				}
 				
+				List<FixtureTO> fixtures = null;
+				List<ShowTO> shows = null;
+				if (zipMap.containsKey("src/main/resources/fixture.xml")) {
+					fixtures = parseFixtures(new ByteArrayInputStream(zipMap.get("src/main/resources/fixture.xml")));
+				}
+				if (zipMap.containsKey("src/main/resources/show.xml")) {
+					shows = parseShows(new ByteArrayInputStream(zipMap.get("src/main/resources/show.xml")));
+				}
 				
+				// @TODO ensure only one active stage after import completes
 				if (zipMap.containsKey("src/main/resources/stage.xml")) {
 					itemMap = newImportItem("Stages", null, "icnStage.png", false, false, false, null);
 					List itemChildren = new ArrayList();
@@ -881,7 +1020,8 @@ src/main/resources/export.xml (date of export, totals etc)
 					List<StageTO> currentStages = stageDAO.getStages(null);
 					List<StageTO> stages = parseStages(new ByteArrayInputStream(zipMap.get("src/main/resources/stage.xml")));
 					for (int i=0; i<stages.size(); i++) {
-						StageTO byName = (StageTO) Struct.getStructuredListObject(currentStages, "name", stages.get(i).getName()); // can rename these
+						StageTO stage = stages.get(i);
+						StageTO byName = (StageTO) Struct.getStructuredListObject(currentStages, "name", stage.getName()); // can rename these
 						boolean canAdd = byName==null;
 						// @XXX: the booleans below are a really bad idea
 						Map stageItem = newImportItem(stages.get(i).getName(), "stage-" + stages.get(i).getId(), "icnStage.png", 
@@ -895,14 +1035,58 @@ src/main/resources/export.xml (date of export, totals etc)
 						itemChildren2.add(newImportItem("Shows", "stage-show-" + stages.get(i).getId(), "icnShow.png",
 							canAdd, !canAdd, false, canAdd ? null : "A stage with this name already exists"));
 						
-						if (!upload && request.getParameter("stage-" + stages.get(i).getId())!=null) {
+						long oldId = stage.getId();
+						if (!upload && request.getParameter("stage-" + oldId)!=null) {
 							logger.info("Importing stage '" + stages.get(i).getName() + "'");
+							if (canAdd) {
+								// @TODO handle case if we add fixtures without adding stage
+								stageDAO.createStage(stage);
+								remapStageIds.put(oldId, stage.getId());
+								anythingElseChanged=true;
+							} else {
+								throw new UnsupportedOperationException("Can't replace stages yet");
+							}
 						}
-						if (!upload && request.getParameter("stage-fix-" + stages.get(i).getId())!=null) {
+						if (!upload && request.getParameter("stage-fix-" + oldId)!=null) {
 							logger.info("Importing fixtures for stage '" + stages.get(i).getName() + "'");
+							if (canAdd) {
+								for (Iterator j = fixtures.iterator(); j.hasNext(); ) {
+									FixtureTO fixture = (FixtureTO) j.next(); 
+									if (fixture.getStageId()==oldId) {
+										logger.info("Importing fixture '" + fixture.getName() + "'");
+										fixture.setStageId(remapStageIds.get(oldId));
+										fixture.setFixtureDefId(remapFixtureDefIds.get(fixture.getFixtureDefId()));
+										fixtureDAO.createFixture(fixture);
+										j.remove(); // since stageId has changed
+										anythingElseChanged=true;
+									}
+								}
+							} else {
+								throw new UnsupportedOperationException("Can't replace stage fixtures yet");
+							}
 						}
-						if (!upload && request.getParameter("stage-show-" + stages.get(i).getId())!=null) {
+						if (!upload && request.getParameter("stage-show-" + oldId)!=null) {
 							logger.info("Importing shows for stage '" + stages.get(i).getName() + "'");
+							if (canAdd) {
+								for (Iterator j = shows.iterator(); j.hasNext(); ) {
+									ShowTO show = (ShowTO) j.next(); 
+									if (show.getStageId()==oldId) {
+										logger.info("Importing show '" + show.getName() + "'");
+										show.setStageId(remapStageIds.get(oldId));
+										show.setShowDefId(remapShowDefIds.get(show.getShowDefId()));
+										showDAO.createShow(show);
+										for (ShowPropertyTO sp : show.getShowProperties()) {
+											logger.info("Importing show property '" + sp.getKey() + "' with value '" + sp.getValue() + "'");
+											sp.setShowId(show.getId());
+											showPropertyDAO.createShowProperty(sp);
+										}
+										j.remove(); // since stageId has changed
+										anythingElseChanged=true;
+									}
+								}
+							} else {
+								throw new UnsupportedOperationException("Can't replace stage shows yet");
+							}
 						}
 					}
 					items.add(itemMap);
@@ -910,6 +1094,12 @@ src/main/resources/export.xml (date of export, totals etc)
 				
 				if (errors.hasErrors()) {
 					logger.info("errors:" + errors.toString());
+				}
+				
+				// do an appconfig reload if uploading
+				if (!upload) {
+					if (devicesChanged) { appConfig.reloadDevices(); } 
+					if (anythingElseChanged) { appConfig.reloadFixturesAndShows(); }
 				}
 				
 				session.setAttribute("localFilename", localFilename); // @XXX: probably a security risk
