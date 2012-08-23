@@ -1878,11 +1878,11 @@ ol {
 }
 
 .top-bar .logo {
-	height: 35px;
-	width: 97px;
-	background: url(../images/branding/logo.png) no-repeat 0 4px;
+	height: 20px;
+	width: 113px;
+	background: url(../images/branding/logo.png) no-repeat 0 0px;
 	position: absolute;
-	top: 5px;
+	top: 10px;
 	text-indent: -9999em
 }
 
@@ -1895,7 +1895,7 @@ ol {
 .top-bar h2 {
 	position: absolute;
 	top: 7px;
-	left: 120px;
+	left: 140px;
 	margin: 0
 }
 
