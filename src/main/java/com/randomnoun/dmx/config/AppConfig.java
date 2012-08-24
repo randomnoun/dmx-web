@@ -336,33 +336,37 @@ public class AppConfig extends AppConfigBase {
      * stop any audio that's playing, and reload the fixture/show definitions.
      * 
      * @see #reloadShows()
-     * @see #reloadDevices()
      */
-    public void reloadFixturesAndShows() {
-    	logger.info("reloadFixturesAndShows(): shutting down show threads");
+    public void reloadDevicesFixturesAndShows(boolean reloadDevices) {
+    	logger.info("reloadDevicesFixturesAndShows(): shutting down show threads");
     	shutdownThreads();
     	if (appConfigState!=AppConfigState.STOPPED) {
     		throw new IllegalStateException("Expected appConfig in STOPPED state; found " + appConfigState);
     	}
     	
-    	logger.info("reloadFixturesAndShows(): resetting controller");
+    	logger.info("reloadDevicesFixturesAndShows(): resetting controller");
     	try {
     		controller.blackOut();
     	} catch (Exception e) {
     		// this might fail if the blackOut() method for a fixture is farged
     	}
     	
-    	logger.info("reloadFixturesAndShows(): stopping audio");
+    	logger.info("reloadDevicesFixturesAndShows(): stopping audio");
     	controller.getAudioController().stopAudio();
     	
     	// give the listeners 200 msec to actually do something
     	try { Thread.sleep(200); } catch (InterruptedException ie) { }
     	
-    	logger.info("reloadFixturesAndShows(): shutting down listeners");
+    	logger.info("reloadDevicesFixturesAndShows(): shutting down listeners");
     	shutdownListeners();
 
     	controller.removeAllFixtures();
     	controller.setStage(null);
+    	
+    	if (reloadDevices) {
+    		logger.info("reloadDevicesFixturesAndShows(): shutting down devices");
+    		shutdownDevices();
+    	}
     	
     	// reset scriptContext classloader 
     	// see http://www.beanshell.org/manual/classpath.html#Reloading_Classes
@@ -372,10 +376,17 @@ public class AppConfig extends AppConfigBase {
     	
     	// chronic thread safety problems here
     	exceptionContainer.clearExceptions();
-    	logger.info("reloadFixturesAndShows(): reloading scriptContext");
+    	logger.info("reloadDevicesFixturesAndShows(): reloading scriptContext");
         initScriptContext();
         try {
-        	loadActiveStage();
+        	if (reloadDevices) {
+        		initDmxDevices();
+        		initController(); // also calls loadActiveStage()
+        	} else {
+        		loadActiveStage();
+        		controller.setStage(activeStage);
+        	}
+        	
 	        loadFixtures(getScriptContext(), getController());
 	        loadShowConfigs(getScriptContext(), true);
 	        loadListeners();
@@ -488,11 +499,9 @@ public class AppConfig extends AppConfigBase {
     
     // @TODO cache this ?
     public ScriptEngine getScriptEngine() {
-    	logger.info("getScriptEngine() start");
     	ScriptEngineManager factory = new ScriptEngineManager();
         factory.registerEngineName("Beanshell", new BshScriptEngineFactory());
         ScriptEngine scriptEngine = factory.getEngineByName("Beanshell");
-        logger.info("getScriptEngine() end");
         return scriptEngine;
     }
     
@@ -620,8 +629,6 @@ public class AppConfig extends AppConfigBase {
     }
     
     public void loadFixtures(ScriptContext fixtureScriptContext, Controller scriptController) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-    	
-    	// @TODO may just want to load fixture definitions that have fixtures in active stages
     	
 		List fixturesFromProperties = (List) get("fixtures");
 		if (fixturesFromProperties == null || fixturesFromProperties.size()==0) {
@@ -1012,7 +1019,6 @@ bsh.InterpreterError: null fromValue
     	
 		
 		if (!Text.isBlank((String) getProperty("dev.vlc.host"))) {
-			// hard-coding fixture name in for debugging
 			try {
 				Universe universe = controller.getUniverse(DEFAULT_UNIVERSE);
 				UniverseUpdateListener updateListener = 
@@ -1034,12 +1040,6 @@ bsh.InterpreterError: null fromValue
 			}
 		}
     }
-    
-    public void reloadDevices() {
-    	logger.error("reloadDevices not implemented");
-    	// things
-    }
-    
     
     // @TODO private this method ?
     /** The index of shows in this collection is not the showId. The 
@@ -1214,7 +1214,7 @@ bsh.InterpreterError: null fromValue
 
     }
 
-    /** Invoked by servletContextListener to Shuts down the 
+    /** Invoked by servletContextListener to shut down the 
      * audio controller and dmxDevices */
     public void shutdownDevices() {
     	AudioController audioController = controller.getAudioController();
