@@ -214,7 +214,7 @@ public class MaintainFixtureDefAction
 	    			fixtureDefDAO.updateFixtureDef(fixtureDef);
 	    			errors.addError("Fixture updated", "Fixture definition updated", ErrorList.SEVERITY_OK);
 	    		}
-	    		appConfig.reloadFixturesAndShows();
+	    		appConfig.reloadDevicesFixturesAndShows(false);
     		}
     		if (lngId!=-1) {
     			FixtureDefTO tmp = new FixtureDefTO();

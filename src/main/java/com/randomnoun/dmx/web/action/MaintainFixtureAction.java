@@ -264,7 +264,7 @@ public class MaintainFixtureAction
     			ErrorList errors = getTable().getErrors();
     			errors.addError("Fixtures updated", "Table has been updated", ErrorList.SEVERITY_OK);
     			result.setErrors(errors);
-    			AppConfig.getAppConfig().reloadFixturesAndShows();
+    			AppConfig.getAppConfig().reloadDevicesFixturesAndShows(false);
     		}
     		return result;
     	}

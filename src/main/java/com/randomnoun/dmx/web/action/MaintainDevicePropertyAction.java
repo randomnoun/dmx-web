@@ -147,7 +147,8 @@ public class MaintainDevicePropertyAction
     			ErrorList errors = getTable().getErrors();
     			errors.addError("Devices updated", "Table has been updated", ErrorList.SEVERITY_OK);
     			result.setErrors(errors);
-    			AppConfig.getAppConfig().reloadDevices();
+    			// @TODO probably delay this until all changes have been made
+    			AppConfig.getAppConfig().reloadDevicesFixturesAndShows(true);
     		}
     		return result;
     	}
