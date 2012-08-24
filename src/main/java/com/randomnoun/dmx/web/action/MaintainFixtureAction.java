@@ -391,9 +391,17 @@ public class MaintainFixtureAction
 				form.put("fixtures_size", result.getRows().size());
 				request.setAttribute("errors", result.getErrors());
 				request.setAttribute("form", form);
-	
-			} else if (action.equals("rfPreview")) {
+			
+			} else if (action.equals("clearAll")) {
+				FixtureDAO fixtureDAO = new FixtureDAO(jt);
+				fixtureDAO.deleteFixtures("stageId=" + activeStageId);
+				FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
+				request.setAttribute("form", tableEditor.readFixtures(null));
+				ErrorList errors = new ErrorList();
+    			errors.addError("Fixtures cleared", "All fixtures have been removed from the active stage", ErrorList.SEVERITY_OK);
+    			request.setAttribute("errors", errors);
 				
+			} else if (action.equals("rfPreview")) {
 				Map<String, String> form = new HashMap();
 				Struct.setFromRequest(form, request, new String[] {
 				 "rfFixtureDefId", "rfCountX", "rfCountY", "rfName", "rfUniverseStart",

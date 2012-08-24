@@ -164,5 +164,18 @@ public class FixtureDAO {
             throw new DataIntegrityViolationException("fixture delete failed (" + updated + " rows updated)");
         }
     }
+    
+    /** Delete a fixture, using the supplied SQL WHERE clause.
+    *
+    * @param fixture the fixture to update
+    */
+    public void deleteFixtures(String sqlWhereClause) {
+    	if (sqlWhereClause==null) { throw new NullPointerException("null sqlWhereClause"); }
+        String sql =
+            "DELETE FROM fixture " +
+            " WHERE " + sqlWhereClause;
+        jt.update(sql);
+    }
+    
 }
 

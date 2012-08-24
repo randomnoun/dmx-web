@@ -78,6 +78,13 @@ BODY { font-size: 8pt; font-family: Arial; }
   text-align: center; color: #000044; font-size: 18pt;
   cursor: pointer; 
 }
+.lhsMenuItemRed {
+  width: 180px; height: 70px; background-image: url("image/button-red.png");
+  /*background-color: #AAAAFF; */ ; margin: 10px;
+  text-align: center; color: white; font-size: 18pt;
+  cursor: pointer; 
+}
+
 .edtSubmit {
   width: 180px; height: 70px; background-image: url("image/button-green.png");
   /*background-color: #AAAAFF; */ ; margin-top: 10px;
@@ -291,8 +298,9 @@ function rfUpdatePreview(json) {
 function edtInitPanel() {
     Event.observe($("edtSubmit"), 'click', edtSubmitClick);
     Event.observe($("lhsCancel"), 'click', lhsCancelClick);
-    Event.observe($("lhsOK"), 'click', lhsOKClick);
     Event.observe($("lhsRepeat"), 'click', lhsRepeat);
+    Event.observe($("lhsOK"), 'click', lhsOKClick);
+    Event.observe($("lhsClearAll"), 'click', lhsClearAll);
     Event.observe($("rfOKButton"), 'click', rfOKButtonClick);
     Event.observe($("rfCancelButton"), 'click', rfCancelButtonClick);
     Event.observe($("rfFixtureDefId"), 'change', rfInputChangeCalc);
@@ -331,6 +339,13 @@ function lhsOKClick() {
 function lhsRepeat() {
 	$("repeatFixtureDiv").style.display = "block";
 }
+function lhsClearAll() {
+	if (confirm("Are you sure you wish to remove all fixtures on the active stage?")) {
+		isSubmitting=true; // don't warn about other changes
+		document.forms[0].elements["action"].value="clearAll";
+		document.forms[0].submit();
+	}
+}
 function rfOKButtonClick() {
 	$("repeatFixtureDiv").style.display = "none";
 }
@@ -354,6 +369,7 @@ function initWindow() {
   <div id="lhsCancel" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/back.png" title="Back"/><div class="lhsMenuText">Back</div></div>
   <div id="lhsRepeat" class="lhsMenuItem"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsFixtureRepeat.png" title="Repeat Fixture"/><div class="lhsMenuText2">Repeat Fixture</div></div>
   <div id="lhsOK" class="lhsMenuItemGreen"><img class="lhsMenuIcon" width="70" height="70" src="image/save.png" title="OK"/><div class="lhsMenuText">OK</div></div>
+  <div id="lhsClearAll" class="lhsMenuItemRed" style="position: absolute; bottom:10px;"><img class="lhsMenuIcon" width="70" height="70" src="image/lhsBlackout.png" title="Clear All"/><div class="lhsMenuText">Clear All</div></div>
 </div>
 
 <div id="rhsMessage">Messages</div>
