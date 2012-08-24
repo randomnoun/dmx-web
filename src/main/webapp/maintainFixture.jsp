@@ -347,7 +347,12 @@ function lhsClearAll() {
 	}
 }
 function rfOKButtonClick() {
+	var formEl = $("rfForm");
 	$("repeatFixtureDiv").style.display = "none";
+	formEl.removeAttribute("target");
+	formEl["action"].value="rfRepeatFixtures";
+	formEl.submit();
+	
 }
 function rfCancelButtonClick() {
 	$("repeatFixtureDiv").style.display = "none";

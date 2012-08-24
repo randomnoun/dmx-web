@@ -359,6 +359,7 @@ public class MaintainFixtureAction
 		AppConfig appConfig = AppConfig.getAppConfig();
 		String forward = "success";
 		JdbcTemplate jt = appConfig.getJdbcTemplate();
+		FixtureDAO fixtureDAO = new FixtureDAO(jt);
 		String action = request.getParameter("action");
 		
 		if (appConfig.getActiveStage()==null) {
@@ -393,7 +394,6 @@ public class MaintainFixtureAction
 				request.setAttribute("form", form);
 			
 			} else if (action.equals("clearAll")) {
-				FixtureDAO fixtureDAO = new FixtureDAO(jt);
 				fixtureDAO.deleteFixtures("stageId=" + activeStageId);
 				FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
 				request.setAttribute("form", tableEditor.readFixtures(null));
@@ -401,7 +401,7 @@ public class MaintainFixtureAction
     			errors.addError("Fixtures cleared", "All fixtures have been removed from the active stage", ErrorList.SEVERITY_OK);
     			request.setAttribute("errors", errors);
 				
-			} else if (action.equals("rfPreview")) {
+			} else if (action.equals("rfPreview") || action.equals("rfRepeatFixtures")) {
 				Map<String, String> form = new HashMap();
 				Struct.setFromRequest(form, request, new String[] {
 				 "rfFixtureDefId", "rfCountX", "rfCountY", "rfName", "rfUniverseStart",
@@ -413,7 +413,7 @@ public class MaintainFixtureAction
 				 "rfUpX","rfUpY","rfUpZ" });
 				
 				// @TODO CSV upload if that's what they're doing
-				
+				long fixtureDefId = Long.parseLong(form.get("rfFixtureDefId"));
 				long cx = Long.parseLong(form.get("rfCountX"));
 				long cy = Long.parseLong(form.get("rfCountY"));
 				// hmm.
@@ -500,19 +500,19 @@ public class MaintainFixtureAction
 						//cell.put("offset", "u" + u + "-offset" + dmxOffset);
 						
 						// @TODO allow side-affects here ?
-						Double dmxUniverse=evalDouble(dmxUniverseExpr, functions, x, y, n);
-						Double dmxOffset=evalDouble(dmxOffsetExpr, functions, x, y, n);
-						Double panelX=evalDouble(panelXExpr, functions, x, y, n);
-				        Double panelY=evalDouble(panelYExpr, functions, x, y, n);
-				        Double positionX=evalDouble(positionXExpr, functions, x, y, n);
-				        Double positionY=evalDouble(positionYExpr, functions, x, y, n);
-				        Double positionZ=evalDouble(positionZExpr, functions, x, y, n);
-				        Double lookingAtX=evalDouble(lookingAtXExpr, functions, x, y, n);
-				        Double lookingAtY=evalDouble(lookingAtYExpr, functions, x, y, n);
-				        Double lookingAtZ=evalDouble(lookingAtZExpr, functions, x, y, n);
-				        Double upX=evalDouble(upXExpr, functions, x, y, n);
-				        Double upY=evalDouble(upYExpr, functions, x, y, n);
-				        Double upZ=evalDouble(upZExpr, functions, x, y, n);
+						Long dmxUniverse=evalLong(dmxUniverseExpr, functions, x, y, n);
+						Long dmxOffset=evalLong(dmxOffsetExpr, functions, x, y, n);
+						Long panelX=evalLong(panelXExpr, functions, x, y, n);
+						Long panelY=evalLong(panelYExpr, functions, x, y, n);
+						Long positionX=evalLong(positionXExpr, functions, x, y, n);
+						Long positionY=evalLong(positionYExpr, functions, x, y, n);
+						Long positionZ=evalLong(positionZExpr, functions, x, y, n);
+						Long lookingAtX=evalLong(lookingAtXExpr, functions, x, y, n);
+						Long lookingAtY=evalLong(lookingAtYExpr, functions, x, y, n);
+						Long lookingAtZ=evalLong(lookingAtZExpr, functions, x, y, n);
+						Long upX=evalLong(upXExpr, functions, x, y, n);
+						Long upY=evalLong(upYExpr, functions, x, y, n);
+						Long upZ=evalLong(upZExpr, functions, x, y, n);
 				        
 				        if (dmxUniverse!=null && dmxOffset!=null) { cell.put("offset", "u" + dmxUniverse.intValue() + "-offset" + dmxOffset.intValue()); };
 				        if (panelX!=null && panelY!=null) { cell.put("panel", "(" + panelX + ", " + panelY + ")"); }
@@ -522,16 +522,50 @@ public class MaintainFixtureAction
 				        
 				        //dmxOffset += dmxOffsetGap + 3; /* @TODO get fixture channel count */
 				        n++;
+				        
+				        if (action.equals("rfRepeatFixtures")) {
+				        	// @TODO ensure these things are set first
+				        	FixtureTO fixture = new FixtureTO();
+				        	fixture.setFixtureDefId(fixtureDefId);
+				        	fixture.setName(name);
+				        	fixture.setStageId(activeStageId);
+				        	fixture.setFixPanelType("M"); // matrix
+				        	fixture.setDmxOffset(dmxOffset.longValue());
+				        	fixture.setUniverseNumber(dmxUniverse.longValue());
+				        	fixture.setFixPanelX(panelX.longValue());
+				        	fixture.setX(positionX.longValue());
+				        	fixture.setY(positionY.longValue());
+				        	fixture.setZ(positionZ.longValue());
+				        	fixture.setLookingAtX(lookingAtX.longValue());
+				        	fixture.setLookingAtY(lookingAtY.longValue());
+				        	fixture.setLookingAtZ(lookingAtZ.longValue());
+				        	fixture.setUpX(upX.longValue());
+				        	fixture.setUpY(upY.longValue());
+				        	fixture.setUpZ(upZ.longValue());
+				        	fixtureDAO.createFixture(fixture);
+				        }
 					}
 				}
 				
-				Map json = new HashMap();
-				json.put("rows", rows);
-				PrintWriter pw = response.getWriter();
-				pw.println("<script>top.rfUpdatePreview(" + Struct.structuredMapToJson(json) + ");</script>\n");
-				pw.flush();
-				forward = "null"; // maps to NullForward
-	
+				
+				if (action.equals("rfRepeatFixtures")) {
+					FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
+					request.setAttribute("form", tableEditor.readFixtures(null));
+					ErrorList errors = new ErrorList();
+	    			errors.addError("Fixtures added", "Table updated", ErrorList.SEVERITY_OK);
+	    			request.setAttribute("errors", errors);
+					forward = "success";
+					
+				} else if (action.equals("rfPreview")) {
+					Map json = new HashMap();
+					json.put("rows", rows);
+					PrintWriter pw = response.getWriter();
+					pw.println("<script>top.rfUpdatePreview(" + Struct.structuredMapToJson(json) + ");</script>\n");
+					pw.flush();
+					forward = "null"; // maps to NullForward
+				} else {
+					throw new IllegalStateException("Expected 'rfRepeatFixtures' or 'rfPreview'; found '" + action + "'");
+				}
 				
 			} else {
 				throw new IllegalArgumentException("Invalid action '" + action + "'");
@@ -561,7 +595,7 @@ public class MaintainFixtureAction
         }
     }
     
-    private Double evalDouble(TopLevelExpression expr, Map functions, long x, long y, long n) {
+    private Long evalLong(TopLevelExpression expr, Map functions, long x, long y, long n) {
     	String exprString = null;
     	try {
     		
@@ -576,7 +610,7 @@ public class MaintainFixtureAction
 	        
 	        Object result = evaluator.visit(expr, evalContext);
 	        logger.info("Evaluating '" + exprString + "' as " + result);
-	        return ((Number)result).doubleValue();
+	        return ((Number)result).longValue();
     	} catch (Exception e) {
     		// TODO log or return an error string
     		logger.error("Exception evaluating '" + exprString + "'", e);
