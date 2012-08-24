@@ -916,8 +916,8 @@ src/main/resources/export.xml (date of export, totals etc)
 						}
 
 						if (!upload && request.getParameter("fix-" + fixtureDefs.get(i).getId())!=null) {
-							logger.info("Importing fixtureDef '" + fixtureDefs.get(i).getName() + "'");
 							if (canAdd) {
+								logger.info("Importing fixtureDef '" + fixtureDefs.get(i).getName() + "'");
 								long oldId=fixtureDef.getId();
 								fixtureDefDAO.createFixtureDef(fixtureDef); // modifies id field
 								remapFixtureDefIds.put(oldId, fixtureDef.getId());
@@ -931,6 +931,7 @@ src/main/resources/export.xml (date of export, totals etc)
 								}
 								
 							} else if (canReplace) {
+								logger.info("Replacing fixtureDef '" + fixtureDefs.get(i).getName() + "'");
 								// fixtureDefDAO.deleteFixtureDef(byName);
 								long oldId=fixtureDef.getId();
 								fixtureDef.setId(byName.getId());
@@ -941,7 +942,7 @@ src/main/resources/export.xml (date of export, totals etc)
 								for (FixtureDefImageTO fixtureDefImage : fixtureDefImages) {
 									fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
 									anythingElseChanged=true;
-									// @TODO delete old files from local fixtureDef folder
+									// @TODO also delete old files from local fixtureDef folder
 								}
 								for (FixtureDefImageTO fixtureDefImage : fixtureDef.getFixtureDefImages()) {
 									fixtureDefImage.setFixtureDefId(fixtureDef.getId());
@@ -983,14 +984,15 @@ src/main/resources/export.xml (date of export, totals etc)
 						}
 						
 						if (!upload && request.getParameter("show-" + showDefs.get(i).getId())!=null) {
-							logger.info("Importing showDef '" + showDefs.get(i).getName() + "'");
 							if (canAdd) {
+								logger.info("Importing showDef '" + showDefs.get(i).getName() + "'");
 								long oldId=showDef.getId();
 								showDefDAO.createShowDef(showDef); // modifies id field
 								remapShowDefIds.put(oldId, showDef.getId());
 								anythingElseChanged=true;
 								
 							} else {
+								logger.info("Replacing showDef '" + showDefs.get(i).getName() + "'");
 								// fixtureDefDAO.deleteFixtureDef(byName);
 								long oldId=showDef.getId();
 								showDef.setId(byName.getId());
@@ -1036,56 +1038,81 @@ src/main/resources/export.xml (date of export, totals etc)
 							canAdd, !canAdd, false, canAdd ? null : "A stage with this name already exists"));
 						
 						long oldId = stage.getId();
-						if (!upload && request.getParameter("stage-" + oldId)!=null) {
-							logger.info("Importing stage '" + stages.get(i).getName() + "'");
+						boolean importStage = request.getParameter("stage-" + oldId)!=null;
+						boolean importStageFixtures = request.getParameter("stage-fix-" + oldId)!=null;
+						boolean importStageShows = request.getParameter("stage-show-" + oldId)!=null;
+						if (importStageFixtures && !importStage) {
+							throw new IllegalArgumentException("Fixture import for stage '" + stage.getName() + "' requires stage import to be also checked");
+						}
+						if (importStageShows && !importStage) {
+							throw new IllegalArgumentException("Show import for stage '" + stage.getName() + "' requires stage import to be also checked");
+						}
+						if (!upload && importStage) {
 							if (canAdd) {
+								logger.info("Importing stage '" + stages.get(i).getName() + "'");
 								// @TODO handle case if we add fixtures without adding stage
 								stageDAO.createStage(stage);
 								remapStageIds.put(oldId, stage.getId());
 								anythingElseChanged=true;
-							} else {
-								throw new UnsupportedOperationException("Can't replace stages yet");
-							}
-						}
-						if (!upload && request.getParameter("stage-fix-" + oldId)!=null) {
-							logger.info("Importing fixtures for stage '" + stages.get(i).getName() + "'");
-							if (canAdd) {
-								for (Iterator j = fixtures.iterator(); j.hasNext(); ) {
-									FixtureTO fixture = (FixtureTO) j.next(); 
-									if (fixture.getStageId()==oldId) {
-										logger.info("Importing fixture '" + fixture.getName() + "'");
-										fixture.setStageId(remapStageIds.get(oldId));
-										fixture.setFixtureDefId(remapFixtureDefIds.get(fixture.getFixtureDefId()));
-										fixtureDAO.createFixture(fixture);
-										j.remove(); // since stageId has changed
-										anythingElseChanged=true;
+							} else { // canReplace assumed
+								logger.info("Replacing stage '" + stages.get(i).getName() + "'");
+								stage.setId(byName.getId());
+								stageDAO.updateStage(stage);
+								// if also importing fixtures for this stage, delete existing fixtures
+								if (importStageFixtures) {
+									for (FixtureTO fixture : fixtureDAO.getFixtures("stageId=" + stage.getId())) {
+										logger.info("Removing fixture '" + fixture.getName() + "'");
+										fixtureDAO.deleteFixture(fixture);
 									}
 								}
-							} else {
-								throw new UnsupportedOperationException("Can't replace stage fixtures yet");
-							}
-						}
-						if (!upload && request.getParameter("stage-show-" + oldId)!=null) {
-							logger.info("Importing shows for stage '" + stages.get(i).getName() + "'");
-							if (canAdd) {
-								for (Iterator j = shows.iterator(); j.hasNext(); ) {
-									ShowTO show = (ShowTO) j.next(); 
-									if (show.getStageId()==oldId) {
-										logger.info("Importing show '" + show.getName() + "'");
-										show.setStageId(remapStageIds.get(oldId));
-										show.setShowDefId(remapShowDefIds.get(show.getShowDefId()));
-										showDAO.createShow(show);
-										for (ShowPropertyTO sp : show.getShowProperties()) {
-											logger.info("Importing show property '" + sp.getKey() + "' with value '" + sp.getValue() + "'");
-											sp.setShowId(show.getId());
-											showPropertyDAO.createShowProperty(sp);
-										}
-										j.remove(); // since stageId has changed
-										anythingElseChanged=true;
+								// if also importing shows for this stage, delete existing shows
+								if (importStageShows) {
+									for (ShowTO show : showDAO.getShows("stageId=" + stage.getId())) {
+										logger.info("Removing show '" + show.getName() + "'");
+										showDAO.deleteShow(show);
 									}
 								}
-							} else {
-								throw new UnsupportedOperationException("Can't replace stage shows yet");
+								
+								remapStageIds.put(oldId, stage.getId());
+								//remapFixtureDefIds.put(oldId, stage.getId());
+								//remapShowDefIds.put(oldId, stage.getId());
+								anythingElseChanged=true;
+								
+							}
+						}
+						if (!upload && importStageFixtures) {
+							logger.info("Importing fixtures for stage '" + stage.getName() + "'");
+							// existing fixtures have been removed, so no need for canAdd test
+							for (Iterator j = fixtures.iterator(); j.hasNext(); ) {
+								FixtureTO fixture = (FixtureTO) j.next(); 
+								if (fixture.getStageId()==oldId) {
+									logger.info("Importing fixture '" + fixture.getName() + "'");
+									fixture.setStageId(remapStageIds.get(oldId));
+									fixture.setFixtureDefId(remapFixtureDefIds.get(fixture.getFixtureDefId()));
+									fixtureDAO.createFixture(fixture);
+									j.remove(); // since stageId has changed
+									anythingElseChanged=true;
+								}
+							}
+						}
+						if (!upload && importStageShows) {
+							logger.info("Importing shows for stage '" + stage.getName() + "'");
+							// existing shows have been removed, so no need for canAdd test
+							for (Iterator j = shows.iterator(); j.hasNext(); ) {
+								ShowTO show = (ShowTO) j.next(); 
+								if (show.getStageId()==oldId) {
+									logger.info("Importing show '" + show.getName() + "'");
+									show.setStageId(remapStageIds.get(oldId));
+									show.setShowDefId(remapShowDefIds.get(show.getShowDefId()));
+									showDAO.createShow(show);
+									for (ShowPropertyTO sp : show.getShowProperties()) {
+										logger.info("Importing show property '" + sp.getKey() + "' with value '" + sp.getValue() + "'");
+										sp.setShowId(show.getId());
+										showPropertyDAO.createShowProperty(sp);
+									}
+									j.remove(); // since stageId has changed
+									anythingElseChanged=true;
+								}
 							}
 						}
 					}
@@ -1098,8 +1125,9 @@ src/main/resources/export.xml (date of export, totals etc)
 				
 				// do an appconfig reload if uploading
 				if (!upload) {
-					if (devicesChanged) { appConfig.reloadDevices(); } 
-					if (anythingElseChanged) { appConfig.reloadFixturesAndShows(); }
+					if (devicesChanged || anythingElseChanged) {
+						appConfig.reloadDevicesFixturesAndShows(devicesChanged);
+					}
 				}
 				
 				session.setAttribute("localFilename", localFilename); // @XXX: probably a security risk
