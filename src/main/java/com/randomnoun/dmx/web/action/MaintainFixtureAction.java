@@ -533,6 +533,7 @@ public class MaintainFixtureAction
 				        	fixture.setDmxOffset(dmxOffset.longValue());
 				        	fixture.setUniverseNumber(dmxUniverse.longValue());
 				        	fixture.setFixPanelX(panelX.longValue());
+				        	fixture.setFixPanelY(panelY.longValue());
 				        	fixture.setX(positionX.longValue());
 				        	fixture.setY(positionY.longValue());
 				        	fixture.setZ(positionZ.longValue());
