@@ -794,9 +794,17 @@ bsh.InterpreterError: null fromValue
 					logger.error("Error whilst creating fixture " + fixtureTO.getId() + ": '" + fixtureTO.getName() + "'; no fixtureDef found with id ' " + fixtureDefId + "'");
 				} else {
 					logger.debug("Creating scripted fixture '" + fixtureTO.getName() + "' at dmxOffset + " + fixtureTO.getDmxOffset() + " from database");
+					// check that we have enough universes for this fixture
+					int universeId = (int) fixtureTO.getUniverseNumber() - 1;
+					while (controller.getUniverses().size() <= universeId) {
+						logger.debug("Creating empty universe " + controller.getUniverses().size()); // 0-based
+						Universe u = new Universe(controller.getUniverses().size());
+			    		u.setTimeSource(new WallClockTimeSource());
+						controller.getUniverses().add(u);
+					}
 					Fixture fixture = new Fixture(fixtureTO.getName(), 
-						fixtureDef, 
-						controller.getUniverse((int)fixtureTO.getUniverseNumber()-1), (int) fixtureTO.getDmxOffset());
+						fixtureDef, controller.getUniverse(universeId), 
+						(int) fixtureTO.getDmxOffset());
 					if (fixtureTO.getX()!=null) { fixture.setPosition(fixtureTO.getX(), fixtureTO.getY(), fixtureTO.getZ()); }
 					if (fixtureTO.getLookingAtX()!=null) { fixture.setLookingAt(fixtureTO.getLookingAtX(), fixtureTO.getLookingAtY(), fixtureTO.getLookingAtZ()); }
 					if (fixtureTO.getUpX()!=null) { fixture.setUpVector(fixtureTO.getUpX(), fixtureTO.getUpY(), fixtureTO.getUpZ()); }
