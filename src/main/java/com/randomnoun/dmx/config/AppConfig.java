@@ -625,6 +625,7 @@ public class AppConfig extends AppConfigBase {
 		controller.setUniverses(universes);
 		controller.setAudioController(audioController);
 		controller.setStage(activeStage);
+		controller.setResourcePath((String) this.get("webapp.resource.path"));
 		
     }
     
