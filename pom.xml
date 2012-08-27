@@ -108,6 +108,16 @@
            	<type>java-source</type>
            	<scope>provided</scope>
            </dependency>
+           <dependency>
+           	<groupId>javax.media</groupId>
+           	<artifactId>jmf</artifactId>
+           	<version>2.1.1e</version>
+           </dependency>
+           <dependency>
+           	<groupId>xuggle</groupId>
+           	<artifactId>xuggle-xuggler</artifactId>
+           	<version>5.4</version>
+           </dependency>
   </dependencies>
     <scm>
     <connection>scm:cvs:pserver:vmaint@cvs.dev.randomnoun:/randomnoun:dmx-web</connection>
