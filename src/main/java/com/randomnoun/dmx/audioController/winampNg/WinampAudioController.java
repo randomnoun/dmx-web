@@ -13,7 +13,8 @@ import com.randomnoun.dmx.ExceptionContainerImpl;
 import com.randomnoun.dmx.audioController.AudioController;
 
 /** An implementation of AudioController which uses Winamp 
- * to generate audio
+ * to generate audio. The Winamp application is controlled using the 
+ * WinampNG socket interface, which must be installed for this to work.
  * 
  * @author knoxg
  */
