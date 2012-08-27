@@ -1,5 +1,9 @@
 package com.randomnoun.dmx;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +20,9 @@ import com.randomnoun.dmx.stage.Stage;
  * update the audio and lighting environment, and to receive
  * information from audio sources (frequency, beats).  
  * 
+ * @TODO should ensure that set() methods are only invoked by com.randomnoun.*
+ * classes, or put the show-visible controller into a separate class.
+ * 
  * @author knoxg
  */
 public class Controller {
@@ -25,6 +32,7 @@ public class Controller {
 	List<Fixture> fixtures;
 	AudioController audioController;
 	AudioSource audioSource;
+	File resourcePath;
 
 	Logger logger = Logger.getLogger(Controller.class);
 	
@@ -293,6 +301,13 @@ public class Controller {
 		this.stage = stage;
 	}
 	
+	public void setResourcePath(String path) {
+		this.resourcePath = new File(path);
+	}
+	
+	public InputStream getResource(String name) throws FileNotFoundException {
+		return new FileInputStream(new File(resourcePath, name));
+	}
 	
 	
 }
