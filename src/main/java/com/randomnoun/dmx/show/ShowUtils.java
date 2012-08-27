@@ -1,9 +1,31 @@
 package com.randomnoun.dmx.show;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+
+import org.apache.log4j.Logger;
 
 import com.randomnoun.common.ClassInspector;
+import com.randomnoun.common.Text;
+import com.randomnoun.dmx.Controller;
+import com.randomnoun.dmx.config.AppConfig;
+import com.randomnoun.dmx.fixture.Fixture;
+import com.randomnoun.dmx.fixture.FixtureController;
+import com.randomnoun.dmx.fixture.FixtureControllerMatrix;
 
 /**
  * @TODO various color model parameter ranges are inconsistent
@@ -18,6 +40,8 @@ import com.randomnoun.common.ClassInspector;
 public class ShowUtils {
 
 	static Map colorMap;
+	
+	static Logger logger = Logger.getLogger(ShowUtils.class);
 	
 	/** @deprecated use {@link #getColorByName(String)} instead */
 	public static Color toColor(String colorName) {
@@ -708,6 +732,125 @@ public class ShowUtils {
 		if (n < startc) { return startUniverse; }
 		return startUniverse + (n - startc) / nextc;
 	}
+
+	
+	public static FixtureControllerMatrix getFixtureControllerMatrix(Controller c, String fixtureNameTemplate) {
+        // @TODO: detect {y} before {x}
+		FixtureControllerMatrix fcm = new FixtureControllerMatrix();
+        String fixtureNameRegex = Text.replaceString(fixtureNameTemplate, "{x}", "(.*)");
+        fixtureNameRegex = Text.replaceString(fixtureNameRegex, "{y}", "(.*)");
+        //Controller c = getController();
+        Pattern p = Pattern.compile(fixtureNameRegex);
+        int maxX=0, maxY=0, minX=Integer.MAX_VALUE, minY=Integer.MAX_VALUE;
+        for (Fixture f : c.getFixtures()) {
+            Matcher m = p.matcher(f.getName());
+            if (m.matches()) {
+                maxX = Math.max(maxX, Integer.parseInt(m.group(1)));
+                maxY = Math.max(maxY, Integer.parseInt(m.group(2)));
+                minX = Math.min(minX, Integer.parseInt(m.group(1)));
+                minY = Math.min(minY, Integer.parseInt(m.group(2)));
+            }
+        }
+        logger.debug("getFixtureControllerMatrix(): found matrix " + fixtureNameTemplate + " with minX=" + minX + ", minY=" + minY + ", maxX=" + maxX + ", maxY=" + maxY);
+        FixtureController[][] fcs = new FixtureController[maxX-minX+1][maxY-minY+1];
+        for (int x=minX; x<=maxX; x++) {
+            for (int y=minY; y<=maxY; y++) {
+                //logger.debug("finding fixture at x=" + x + ", y=" + y);
+                String name = Text.replaceString(fixtureNameTemplate, "{x}", String.valueOf(x));
+                name = Text.replaceString(name, "{y}", String.valueOf(y));
+                fcs[x-minX][y-minY] = c.getFixtureControllerByNameNoEx(name);
+                if (fcs[x-minX][y-minY]==null) {
+                    logger.warn("getFixtureControllerMatrix(): missing fixture '" + name + "' in matrix");
+                }
+            }
+        }
+        fcm.setMinX(minX); fcm.setMinY(minY);
+        fcm.setMaxX(maxX); fcm.setMaxY(maxY);
+        fcm.setFixtureControllers(fcs);
+        return fcm;
+    }
+	
+    public static BufferedImage[] getImages(Controller controller, String resourceName) {
+        // InputStream is = getController().getClass().getResourceAsStream("matrix-animations/" + resourceName);
+        logger.info("Reading images from '" + resourceName + "'");
+        try {
+            InputStream is = controller.getResource(resourceName);
+            ImageInputStream stream = ImageIO.createImageInputStream(is);
+            Iterator readers = ImageIO.getImageReaders(stream);
+            if (!readers.hasNext()) {
+                logger.error("no image reader found");
+                return null;
+            }
+            ImageReader reader = (ImageReader) readers.next();
+            reader.setInput(stream); // don't omit this line!
+            int numImages = reader.getNumImages(true); // don't use false!
+            logger.info("numImages = " + numImages);
+            BufferedImage[] bi = new BufferedImage[numImages];
+            for (int i = 0; i < numImages; i++) {
+                BufferedImage frame = reader.read(i);
+                /*
+                BufferedImage resizedImage = new BufferedImage(maxX, maxY, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = resizedImage.createGraphics();
+                g.setComposite(AlphaComposite.Src);
+                // g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                // g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                g.drawImage(frame, 0, 0, maxX, maxY, null);
+                g.dispose();
+                */
+                bi[i] = frame;
+                //logger.info("image[" + i + "] = " + image);
+            }
+            is.close();
+            return bi;
+        } catch (Exception e) {
+            logger.error("Could not read resource '" + resourceName + "'", e);
+            return null;
+        }
+    }
+    
+    public static BufferedImage[] getResizedImages(Controller controller, String resourceName, int width, int height) {
+        // InputStream is = getController().getClass().getResourceAsStream("matrix-animations/" + resourceName);
+        logger.info("Reading images from '" + resourceName + "'");
+        try {
+            InputStream is = controller.getResource(resourceName);
+            ImageInputStream stream = ImageIO.createImageInputStream(is);
+            Iterator readers = ImageIO.getImageReaders(stream);
+            if (!readers.hasNext()) {
+                logger.error("no image reader found");
+                return null;
+            }
+            ImageReader reader = (ImageReader) readers.next();
+            reader.setInput(stream); // don't omit this line!
+            int numImages = reader.getNumImages(true); // don't use false!
+            logger.info("numImages = " + numImages);
+            BufferedImage[] bi = new BufferedImage[numImages];
+            for (int i = 0; i < numImages; i++) {
+                BufferedImage frame = reader.read(i);
+                BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = resizedImage.createGraphics();
+                g.setComposite(AlphaComposite.Src);
+                // g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                // g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                g.drawImage(frame, 0, 0, width, height, null);
+                g.dispose();
+                
+                bi[i] = resizedImage;
+                //logger.info("image[" + i + "] = " + image);
+            }
+            is.close();
+            return bi;
+        } catch (Exception e) {
+            logger.error("Could not read resource '" + resourceName + "'", e);
+            return null;
+        }
+    }
+    
 
 	
 	static {
