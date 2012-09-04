@@ -354,11 +354,11 @@ public class AppConfig extends AppConfigBase {
     	logger.info("reloadDevicesFixturesAndShows(): stopping audio");
     	controller.getAudioController().stopAudio();
     	
-    	// give the listeners 200 msec to actually do something
-    	try { Thread.sleep(200); } catch (InterruptedException ie) { }
-    	
     	logger.info("reloadDevicesFixturesAndShows(): shutting down listeners");
     	shutdownListeners();
+
+    	// give the listeners 200 msec for threads to close down
+    	try { Thread.sleep(200); } catch (InterruptedException ie) { }
 
     	controller.removeAllFixtures();
     	controller.setStage(null);
@@ -389,7 +389,7 @@ public class AppConfig extends AppConfigBase {
         	
 	        loadFixtures(getScriptContext(), getController());
 	        loadShowConfigs(getScriptContext(), true);
-	        loadListeners();
+        	loadListeners();
         } catch (Throwable t) {
     		initialisationFailure = new RuntimeException("Could not initialise application", t);
     	}
