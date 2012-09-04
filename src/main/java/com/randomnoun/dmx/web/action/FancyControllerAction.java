@@ -166,7 +166,7 @@ public class FancyControllerAction
 		}
     }
     
-    public void setPanelAttributes(Map result, String panel, int universeIdx, Recording recording) {
+    public void setPanelAttributes(Map result, String panel, int universeIdx, int bankId, Recording recording) {
     	AppConfig appConfig = AppConfig.getAppConfig();
     	Controller controller = appConfig.getController();
 		if (panel.equals("dmxPanel")) {
@@ -178,7 +178,8 @@ public class FancyControllerAction
     		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
     		result.put("now", sdf.format(new Date(u.getTime())));
     		result.put("dmxValues", dmxValues);
-
+            result.put("currentUniverse", universeIdx);
+            result.put("currentBank", bankId);
 			/*
 			int[] d = u.getAllDmxChannelValues();
 			String j = "";
@@ -291,7 +292,7 @@ public class FancyControllerAction
 		
 		int currentBank = 0;
 		Integer currentBankInt = (Integer) session.getAttribute("currentBank");
-		if (currentBankInt!=null) { currentBank = currentBankInt; }
+		if (currentBankInt!=null) { currentBank = currentBankInt % 2; }
 		int universeIdx = currentBank / 2;
 		
 		Recording recording = (Recording) session.getAttribute("recording");
@@ -541,7 +542,7 @@ public class FancyControllerAction
 		    		request.setAttribute("recShowDefName", showDef.getName());
 		    		request.setAttribute("recModifiedFixtureIds", fixtureIds);
 		    		request.setAttribute("recModifiedDmxChannels", recording.getModifiedDmxChannels());
-		    		request.setAttribute("reqRecording", recording); // request.recording doesn't work in JSTL
+		    		request.setAttribute("recRecording", recording); // request.recording doesn't work in JSTL
 		    		session.setAttribute("recording", recording);
 				}
 		    };
@@ -551,7 +552,9 @@ public class FancyControllerAction
 		    }
 		    
 		    Map version = getVersionData();
-	    	request.setAttribute("dmxValues", dmxValues);
+		    request.setAttribute("dmxCurrentUniverse", new Long(universeIdx));
+		    request.setAttribute("dmxCurrentBank", new Long(currentBank));
+		    request.setAttribute("dmxValues", dmxValues);
     		request.setAttribute("fixValues", fixValues);
     		request.setAttribute("fixtures", fixtures);
 	    	request.setAttribute("controller", controller);
@@ -581,7 +584,7 @@ public class FancyControllerAction
     		
     		result.put("panel", panel);
     		result.put("serverTime", System.currentTimeMillis());
-    		setPanelAttributes(result, panel, universeIdx, recording);
+    		setPanelAttributes(result, panel, universeIdx, currentBank, recording);
     		
     		/*
     		String eventMaskString = request.getParameter("eventMask");
@@ -625,7 +628,7 @@ public class FancyControllerAction
     			Map resultMap = new HashMap();
     			resultMap.put("panel", panel);
     			resultMap.put("serverTime", System.currentTimeMillis());
-    			setPanelAttributes(resultMap, panel, universeIdx, recording);
+    			setPanelAttributes(resultMap, panel, universeIdx, currentBank, recording);
     			
     			// @TODO make this much more compact (diffs only?)
     			pw.println("<script>top.updatePanelComet(" + Struct.structuredMapToJson(resultMap) + ");</script>\n");
@@ -700,7 +703,25 @@ public class FancyControllerAction
     		} else {
     			result.put("message", "Value out of range");
     		}
-	    	
+    		
+    	} else if (action.equals("nextBank")) {
+    		currentBank++;
+    		if (currentBank==2) { universeIdx=(universeIdx+1) % controller.getUniverses().size(); }
+    		result.put("message", "Switching to bank " + (currentBank+1) + " on universe " + (universeIdx + 1));
+    		result.put("currentUniverse", new Long(universeIdx));
+    		result.put("currentBank", new Long(currentBank));    		
+
+    	} else if (action.equals("prevBank")) {
+    		currentBank--;
+    		if (currentBank==-1) { 
+    			currentBank=1; 
+    			universeIdx=universeIdx-1; 
+    			if (universeIdx==-1) { universeIdx = controller.getUniverses().size()-1; } 
+    		}
+    		result.put("message", "Switching to bank " + (currentBank+1) + " on universe " + (universeIdx + 1));
+    		result.put("currentUniverse", new Long(universeIdx));
+    		result.put("currentBank", new Long(currentBank));    		
+
     	} else if (action.equals("blackOut")) {
     		if (fixtureId == -1) {
     			boolean showsStopped = false;

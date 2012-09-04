@@ -1046,9 +1046,13 @@ var dmxHighlightedChannel=null; // fixture being editted via slider
 var dmxSlider=null;
 var dmxUIUpdateOnly = false;
 function dmxInitPanel() {
-    var x,y,f;
+	
+	// could either create all universes/banks here and then just display the active one
+	// or update the elements on a single panel to reflect the current universe/bank 
+	
+    var x,y,f,dmxBoxEl;
     var dv=$("dmxValues");
-    for (var i=1; i<=255; i++) { 
+    for (var i=1; i<=256; i++) { 
         x=20+((i-1)%16)*50; y=90+Math.floor((i-1)/16)*30;
         var dmxEl=new Element("div", { "class" : "dmxValue",
           "id" : "dmxBox[" + i + "]", 
@@ -1064,11 +1068,12 @@ function dmxInitPanel() {
     }
     for (var i=0; i<fixtures.length; i++) {
     	f=fixtures[i];
-    	if (f.universeIdx==0) {
+    	if (f.universeIdx==0 && f.dmxOffset<=256) {
     	  var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
     		"<img src=\"" + fixtureDefs[f.type]["img16"] + "\">");
-    	  $("dmxBox[" + f["dmxOffset"] + "]").insert({'top':dmxFixtureIconEl});
-    	  $("dmxBox[" + f["dmxOffset"] + "]").className="dmxValueWithFixture";
+    	  var dmxBoxEl=$("dmxBox[" + f["dmxOffset"] + "]");
+    	  dmxBoxEl.insert({'top':dmxFixtureIconEl});
+    	  dmxBoxEl.className="dmxValueWithFixture";
     	}  
     }
     dmxSlider = new Control.Slider("dmxSliderHandle", "dmxSlider", {
@@ -1080,6 +1085,9 @@ function dmxInitPanel() {
     Event.observe('dmxSliderScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(dmxSlider, 0.1));  // IE/Opera
     Event.observe('dmxSliderScrollArea', 'click', dmxValueClick);
     $("dmxSliderScrollArea").style.visibility="hidden";
+    
+    Event.observe($("dmxPrevBank"), 'click', dmxPrevBank);
+    Event.observe($("dmxNextBank"), 'click', dmxNextBank);
 
     // Event.observe($("dmxImmediate"), 'click', dmxImmediateClick);
 }
@@ -1133,9 +1141,11 @@ function dmxValueClick(event) {
         off=dmxSelectedFixture["dmxOffset"];
         dc=fixtureDefs[dmxSelectedFixture.type]["dmxChannels"];
         for (j=off; j<off+dc; j++) {
-            el = $("dmxBox[" + j + "]");
-            el.removeClassName("dmxSelectGroup");
-            el.removeClassName("dmxSelect");
+        	if (j>=1 && j<=256) {  // @XXX: visible universe/bank
+	            el = $("dmxBox[" + j + "]");
+	            el.removeClassName("dmxSelectGroup");
+	            el.removeClassName("dmxSelect");
+        	}
         }
     }
     el = $("dmxBox[" + ch + "]");
@@ -1205,14 +1215,7 @@ function dmxKeypress(event) {
         break;
     case Event.KEY_ESC:
     	//dmxSelectedValue.innerHTML = "0";
-    	v = dmxOrigValue;
-    	dmxValues[dmxSelectedChannel-1]=v;
-    	dmxSelectedValue.innerHTML = v;
-        dmxSelectedValue.removeClassName("dmxSelectedValue");
-        Event.stopObserving(document, 'keypress', dmxKeypress);
-        Event.stopObserving(document, 'keydown', dmxKeydown);
-        dmxSelectedChannel=null;
-        event.stop();
+    	dmxCancelValueUpdate();
     	break;
     case Event.KEY_RETURN:
     	dmxSelectedValue.removeClassName("dmxSelectedValue");
@@ -1246,7 +1249,16 @@ function dmxSliderKeypress(event) {
     	  // alert("down");
     	  break;
     }
-
+}
+function dmxCancelValueUpdate() {
+	v = dmxOrigValue;
+	dmxValues[dmxSelectedChannel-1]=v;
+	dmxSelectedValue.innerHTML = v;
+    dmxSelectedValue.removeClassName("dmxSelectedValue");
+    Event.stopObserving(document, 'keypress', dmxKeypress);
+    Event.stopObserving(document, 'keydown', dmxKeydown);
+    dmxSelectedChannel=null;
+    event.stop();	
 }
 
 function dmxValueOnMouseOver(event) {
@@ -1260,9 +1272,11 @@ function dmxValueOnMouseOver(event) {
         off=dmxSelectedFixture["dmxOffset"];
         dc=fixtureDefs[dmxSelectedFixture.type]["dmxChannels"];
     	for (j=off; j<off+dc; j++) {
-    		el = $("dmxBox[" + j + "]");
-    		el.removeClassName("dmxSelectGroup");
-    		el.removeClassName("dmxSelect");
+    		if (j>=1 && j<=256) {  // @XXX: visible universe/bank
+    		    el = $("dmxBox[" + j + "]");
+    		    el.removeClassName("dmxSelectGroup");
+    		    el.removeClassName("dmxSelect");
+    		}
     	}
     }
     el=$("dmxTimeSource");
@@ -1291,13 +1305,15 @@ function dmxValueOnMouseOver(event) {
     	" (Channel: " + (ch-off) + ")");
     //}
     for (j=off; j<off+dc; j++) {
-    	el = $("dmxBox[" + j + "]");
-    	if (j==ch) {
-    		el.removeClassName("dmxSelectGroup");
-    		el.addClassName("dmxSelect");
-    		dmxHighlightedChannel=ch;
-    	} else {
-    		el.addClassName("dmxSelectGroup");
+    	if (j>=1 && j<=256) {  // @XXX: visible universe/bank
+    	    el = $("dmxBox[" + j + "]");
+    	    if (j==ch) {
+    	    	el.removeClassName("dmxSelectGroup");
+    	    	el.addClassName("dmxSelect");
+    	    	dmxHighlightedChannel=ch;
+    	    } else {
+    	    	el.addClassName("dmxSelectGroup");
+    	    }
     	}
     }
 	dmxSliderEl=$("dmxSliderScrollArea");
@@ -1329,6 +1345,7 @@ function dmxValueOnMouseOut(event) {
 }
 
 function dmxUpdatePanel(json) {
+	dmxSetUniverse(json.currentUniverse, json.currentBank);
     var dmxValuesNew = json.dmxValues.split(",");
     for (var i=1; i<=255; i++) {
         var el = $("dmxValue[" + i + "]");
@@ -1356,6 +1373,47 @@ function dmxUpdatePanel(json) {
     }
     if (json.logCount!==undefined) { logUpdateNotification(json.logCount); }
     if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
+}
+
+function dmxSetUniverse(newDmxCurrentUniverse, newDmxCurrentBank) {
+	if (dmxCurrentUniverse!=newDmxCurrentUniverse ||
+		dmxCurrentBank!=newDmxCurrentBank) {
+		// clear any selected offset(s)
+		if (dmxSelectedChannel!=null) { cancelDmxValueUpdate(); }
+		// update universeContainer
+		dmxCurrentUniverse=newDmxCurrentUniverse;
+		dmxCurrentBank=newDmxCurrentBank;
+		$("dmxCurrentUniverse").update(dmxCurrentUniverse+1);
+		$("dmxCurrentBank").update(dmxCurrentBank+1);
+
+		// @TODO update all the dmx controls to reflect current universe/bank
+		for (var i=1; i<=256; i++) { 
+			var dmxEl = $("dmxBox[" + i + "]");
+			dmxEl.update(
+	          "<div class=\"dmxOffset\">" + (i+dmxCurrentBank*256) + "</div>" +
+	          "<div id=\"dmxValue[" + i + "]\">" + dmxValues[i+dmxCurrentBank*256-1] + "</div>"
+	          );
+	    }
+	    for (var i=0; i<fixtures.length; i++) {
+	    	f=fixtures[i];
+	    	if (f.universeIdx==0) {
+	    	  var dmxFixtureIconEl=new Element("div", {"class" : "dmxFixtureIcon" }).update(
+	    		"<img src=\"" + fixtureDefs[f.type]["img16"] + "\">");
+	    	  $("dmxBox[" + f["dmxOffset"] + "]").insert({'top':dmxFixtureIconEl});
+	    	  $("dmxBox[" + f["dmxOffset"] + "]").className="dmxValueWithFixture";
+	    	}  
+	    }
+	}
+		
+	
+}
+
+function dmxPrevBank() {
+	sendRequest('fancyController.html?action=prevBank', dmxUpdatePanel);
+}
+
+function dmxNextBank() {
+	sendRequest('fancyController.html?action=nextBank', dmxUpdatePanel);
 }
 
 

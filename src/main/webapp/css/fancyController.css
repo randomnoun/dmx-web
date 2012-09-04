@@ -410,13 +410,13 @@ BODY {
   position: absolute; top: 5px; left: 220px; width: 180px; height: 70px;
 }
 */
-#dmxUniverseContainer { position: absolute; top: 0px; left: 15px; width: 180px; height: 70px; }
+#dmxUniverse { position: absolute; top: 0px; left: 15px; width: 180px; height: 70px; }
 .dmxButtonL { display: inline-block; cursor: pointer; width: 53px; height: 45px; background-image: url("../image/rbutton-blue.png"); }
 .dmxButtonR { display: inline-block; cursor: pointer; float: right; width: 53px; height: 45px; background-image: url("../image/rbutton-blue.png"); }
-.dmxFrameContainer { position: relative; width: 180px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/dmxUniverse-back.png"); } 
-.dmxFrame { display: inline-block;  }
-#dmxCurrentFrame { position: absolute; display: block; left: 56px; top: -4px; width: 66px; height: 20px; text-align: right; color: #7369b5; font-family: "LcdD"; font-size: 20pt; }
-#dmxTotalFrames { position: absolute; display: block; left: 56px; top: 17px; width: 66px; height: 20px; text-align: right; color: #7369b5; font-family: "LcdD"; font-size: 20pt; }
+.dmxUniverseContainer { position: relative; width: 180px; height: 45px; margin-left: 10px; margin-top: 10px; background-image: url("../image/dmxUniverse-back.png"); } 
+.dmxuniverse { display: inline-block;  }
+#dmxCurrentUniverse { position: absolute; display: block; left: 56px; top: -4px; width: 66px; height: 20px; text-align: right; color: #7369b5; font-family: "LcdD"; font-size: 20pt; }
+#dmxCurrentBank { position: absolute; display: block; left: 56px; top: 17px; width: 66px; height: 20px; text-align: right; color: #7369b5; font-family: "LcdD"; font-size: 20pt; }
 
 #dmxTimeSource {
   position: absolute; top: 5px; left: 420px; width: 400px; height: 70px;
