@@ -1,6 +1,7 @@
 package com.randomnoun.dmx.web;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -82,9 +83,16 @@ public class FixtureImageServlet extends javax.servlet.http.HttpServlet implemen
 				String filename = pathInfo.substring(pos+1);
 				FixtureDefImageTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fixtureDefId, filename);
 				response.setContentType(fixtureDefImage.getContentType());
-	    		response.setContentLength((int) fixtureDefImage.getSize());
-	    		InputStream is = fixtureDefImageDAO.loadImage(fixtureDefImage);
-	    		StreamUtils.copyStream(is, response.getOutputStream());
+	    		InputStream is;
+	    		try {
+		    		is = fixtureDefImageDAO.loadImage(fixtureDefImage);
+		    		response.setContentLength((int) fixtureDefImage.getSize());
+		    		StreamUtils.copyStream(is, response.getOutputStream());
+		    		is.close();
+	    		} catch (FileNotFoundException fnfe) {
+		    		response.setContentLength(0);
+	    			// @TODO: use placeholder image 
+	    		}
 	    		return;
 			}
 		} catch (Exception e) {
