@@ -12,8 +12,6 @@ import java.util.TooManyListenersException;
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 
 import org.apache.log4j.Logger;
 
@@ -59,6 +57,7 @@ public class UsbProWidget extends DmxDevice {
 	OutputStream outputStream = null;
 	InputStream inputStream = null;
 	UsbProWidgetTranslator usbProTranslator = null;
+	UsbProWidgetUniverseUpdateListener upwuul = null;
 	
 	/** Create a new low-level interface to a Enttec USB Pro Widget.
 	 * 
@@ -122,7 +121,7 @@ public class UsbProWidget extends DmxDevice {
 					//	       SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
 				    usbProTranslator = new UsbProWidgetTranslator(inputStream, outputStream);
-				    serialPort.addEventListener(new UsbProWidgetSerialPortEventListener(usbProTranslator));
+				    serialPort.addEventListener(new UsbProWidgetSerialPortEventListener(this, usbProTranslator));
 				    serialPort.notifyOnDataAvailable(true);
 				    serialPort.notifyOnOutputEmpty(true);
 			    }
@@ -139,6 +138,13 @@ public class UsbProWidget extends DmxDevice {
 	 */
 	public UsbProWidgetTranslator getUsbProWidgetTranslator() {
 		return usbProTranslator;
+	}
+
+	public void notifyRemoved() {
+		logger.info("USB Widget removed; closing universe updater and serial port event listener");
+		upwuul.stopThread();
+	    close();
+		
 	}
 	
 	/** Closes any streams/resources held by this class.
@@ -170,39 +176,6 @@ public class UsbProWidget extends DmxDevice {
 		connected = false;
 	}
 	
-	public static class UsbProWidgetSerialPortEventListener implements SerialPortEventListener {
-		/** Object which will translate received bytes into ResponseMessages */
-		UsbProWidgetTranslator usbProWidgetTranslator;
-		
-		public UsbProWidgetSerialPortEventListener(UsbProWidgetTranslator usbProWidgetTranslator) {
-			this.usbProWidgetTranslator = usbProWidgetTranslator;
-		}
-		public void serialEvent(SerialPortEvent arg0) {
-			switch (arg0.getEventType()) {
-				case SerialPortEvent.BI:
-				case SerialPortEvent.OE:
-				case SerialPortEvent.FE:
-				case SerialPortEvent.PE:
-				case SerialPortEvent.CD:
-				case SerialPortEvent.CTS:
-				case SerialPortEvent.DSR:
-				case SerialPortEvent.RI:
-				case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
-				    break;
-		
-				case SerialPortEvent.DATA_AVAILABLE:
-					try {
-						usbProWidgetTranslator.readData();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				    
-			}
-		}
-	}
-
-
 	public List<TimestampedException> getExceptions() {
 		return exceptionContainer.getExceptions();
 	}
@@ -212,8 +185,12 @@ public class UsbProWidget extends DmxDevice {
 	}
 
 	@Override
-	public UniverseUpdateListener getUniverseUpdateListener() {
-		return new UsbProWidgetUniverseUpdateListener(this);
+	public synchronized UniverseUpdateListener getUniverseUpdateListener() {
+		if (upwuul==null) {
+			upwuul=new UsbProWidgetUniverseUpdateListener(this);
+		}
+		return upwuul;
+		// return new UsbProWidgetUniverseUpdateListener(this);
 	}
 	
     public List getDefaultProperties() {

@@ -50,10 +50,11 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 						upuul.getTranslator().sendOutputOnlySendDMXPacketRequest((byte) 0, upuul.dmxState);
 					} catch (IOException e) {
 						done = true;
-						upuul.widget.exceptionContainer.addException(e);
+						upuul.widget.exceptionContainer.addException(new IOException("Error writing to device '" + upuul.widget.getName() + "'", e));
+						upuul.widget.notifyRemoved();
 						e.printStackTrace();
 					} catch (NullPointerException npe) {
-						logger.debug("No UsbProWidgetTranslator instance; stopping UsbProUpdaterThread");
+						logger.warn("No UsbProWidgetTranslator instance; stopping UsbProUpdaterThread");
 						done = true;
 					}
 				}
@@ -86,7 +87,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 	}
 	
 	public void startThread() {
-		if (t!=null) { throw new IllegalStateException("Thread already started"); }
+		if (t!=null && t.isAlive()) { throw new IllegalStateException("Thread already started"); }
 		t = new UsbProUpdaterThread(this);
 		t.start();
 	}
