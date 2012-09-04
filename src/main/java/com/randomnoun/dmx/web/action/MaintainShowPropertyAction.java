@@ -241,7 +241,11 @@ public class MaintainShowPropertyAction
 				// default action displays entry page
 				ShowPropertyTableEditor tableEditor = new ShowPropertyTableEditor(showId);
 				request.setAttribute("form", tableEditor.readShowProperties(null));
-				
+				if (action.equals("editProperties")) {
+					ErrorList errors = new ErrorList();
+	    			errors.addError("Shows updated", "Table has been updated; retrieving show properties.", ErrorList.SEVERITY_OK);
+					request.setAttribute("errors", errors);
+				}
 			} else if (action.equals("maintain")) {
 				Map form = new HashMap();
 				Struct.setFromRequest(form, request);
