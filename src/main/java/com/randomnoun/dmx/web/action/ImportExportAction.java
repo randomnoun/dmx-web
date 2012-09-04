@@ -182,7 +182,6 @@ public class ImportExportAction
 	
 	public static class DeviceContentHandler extends AbstractStackContentHandler {
 		List<DeviceTO> result = new ArrayList<DeviceTO>();
-		//List<DevicePropertyTO> properties = null; // not used
 		DeviceTO d = null;
 		DevicePropertyTO prop = null;
 		Pattern p1 = Pattern.compile("^devices/device/(name|className|type|active|universeNumber)$");
@@ -225,10 +224,9 @@ public class ImportExportAction
 		List<FixtureDefTO> result = new ArrayList<FixtureDefTO>();
 		FixtureDefTO fd = null;
 		FixtureDefImageTO fdi = null;
-		Pattern p1 = Pattern.compile("^fixtureDefs/fixtureDef/(id|name|fixtureDefClassName|fixtureControllerClassName|channelMuxerClassName|dmxChannels)$");
+		Pattern p1 = Pattern.compile("^fixtureDefs/fixtureDef/(id|name|fixtureDefClassName|fixtureControllerClassName|channelMuxerClassName|dmxChannels|htmlImg16)$");
 		Pattern p2 = Pattern.compile("^fixtureDefs/fixtureDef/fixtureDefImages/fixtureDefImage/(fixtureDefId|name|description|size|contentType)$");
 		public void element(String path) throws SAXException {
-			//logger.info("Parsing '" + path + "'");
 			if (stack.equals("fixtureDefs/fixtureDef")) {
 				fd = new FixtureDefTO();
 				fd.setFixtureDefImages(new ArrayList<FixtureDefImageTO>());
@@ -263,14 +261,12 @@ public class ImportExportAction
 		ShowDefTO sd = null;
 		Pattern p1 = Pattern.compile("^showDefs/showDef/(id|name|className|javadoc|isRecorded)$");
 		public void element(String path) throws SAXException {
-			//logger.info("Parsing '" + path + "'");
 			if (stack.equals("showDefs/showDef")) {
 				sd = new ShowDefTO();
 				result.add(sd);
 			}
 		}
 		public void elementText(String path, String content) throws SAXException {
-			//logger.info("Parsing text in '" + path + "'");
 			Matcher m = p1.matcher(stack);
 			if (m.matches()) {
 				Struct.setValue(sd, m.group(1).equals("isRecorded") ? "recorded" : m.group(1), content, false, true, false);
@@ -290,14 +286,12 @@ public class ImportExportAction
 
 		Pattern p1 = Pattern.compile("^fixtures/fixture/(id|stageId|fixtureDefId|name|universeNumber|dmxOffset|x|y|z|lookingAtX|lookingAtY|lookingAtZ|upX|upY|upZ|sortOrder|fixPanelType|fixPanelX|fixPanelY)$");
 		public void element(String path) throws SAXException {
-			//logger.info("Parsing '" + path + "'");
 			if (stack.equals("fixtures/fixture")) {
 				f = new FixtureTO();
 				result.add(f);
 			}
 		}
 		public void elementText(String path, String content) throws SAXException {
-			//logger.info("Parsing text in '" + path + "'");
 			Matcher m = p1.matcher(stack);
 			if (m.matches()) {
 				Struct.setValue(f, m.group(1), content, false, true, false);
@@ -328,7 +322,6 @@ public class ImportExportAction
 		Pattern p1 = Pattern.compile("^shows/show/(id|showDefId|name|onCancelShowId|onCompleteShowId|showGroupId|showPropertyCount|stageId)$");
 		Pattern p2 = Pattern.compile("^shows/show/showProperties/showProperty/(key|value)$");
 		public void element(String path) throws SAXException {
-			//logger.info("Parsing '" + path + "'");
 			if (stack.equals("shows/show")) {
 				s = new ShowTO();
 				s.setShowProperties(new ArrayList<ShowPropertyTO>());
@@ -339,7 +332,6 @@ public class ImportExportAction
 			}
 		}
 		public void elementText(String path, String content) throws SAXException {
-			//logger.info("Parsing text in '" + path + "'");
 			Matcher m = p1.matcher(stack);
 			if (m.matches()) {
 				Struct.setValue(s, m.group(1), content, false, true, false);
@@ -364,14 +356,12 @@ public class ImportExportAction
 		StageTO s = null;
 		Pattern p1 = Pattern.compile("^stages/stage/(id|name|filename|active|fixPanelBackgroundImage)$");
 		public void element(String path) throws SAXException {
-			//logger.info("Parsing '" + path + "'");
 			if (stack.equals("stages/stage")) {
 				s = new StageTO();
 				result.add(s);
 			}
 		}
 		public void elementText(String path, String content) throws SAXException {
-			//logger.info("Parsing text in '" + path + "'");
 			Matcher m = p1.matcher(stack);
 			if (m.matches()) {
 				Struct.setValue(s, m.group(1), content, false, true, false);
@@ -398,17 +388,15 @@ public class ImportExportAction
 		    "<dataroot xmlns:od=\"urn:schemas-microsoft-com:officedata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xsi:noNamespaceSchemaLocation=\"" + tableName + ".xsd\" generated=\"" + now + "\">\n";
     }
     
-	// new item with replace
 	/**
 	 * 
 	 * @param text description of item
 	 * @param name HTML name of checkbox element
 	 * @param image icon image
 	 * @param canAdd if true, item can be imported as-is with no conflicts
-	 * @param canAddWithRename if true, item can be imported if it is renamed
-	 * @param canReplace if ture, item can be imported to replace an existing item
-	 * 
-	 * @param reason if non-null, gives reason for canAdd values
+	 * @param canReplace if true, item can be imported to replace an existing item
+	 * @param showError if true, will overlay a warning icon over the icon image
+	 * @param reason if non-null, textual reason for error (will be incorporated into the icon's HTML title attribute)
 	 * 
 	 * @return
 	 */
@@ -777,6 +765,8 @@ src/main/resources/export.xml (date of export, totals etc)
 				
 			if (!errors.hasErrors()){
 
+				// remaps here are Maps of id numbers contained in the source file to the id numbers 
+				// created in the database during the import process
 				Map<Long, Long> remapFixtureDefIds = new HashMap<Long, Long>();
 				Map<Long, Long> remapShowDefIds = new HashMap<Long, Long>();
 				Map<Long, Long> remapStageIds = new HashMap<Long, Long>(); // is this necessary ?
@@ -786,6 +776,7 @@ src/main/resources/export.xml (date of export, totals etc)
 				String localFilename;
 				File f;
 				if (upload) {
+					// @XXX sanitise for '../'-style nastiness 
 					logger.info("Received fileUpload (userFilename='" + userFilename + "')");
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 	    			localFilename = sdf.format(new Date()) + "-" + userFilename;
@@ -883,7 +874,7 @@ src/main/resources/export.xml (date of export, totals etc)
 							", byFCCN=" + (byFCCN==null ? null : byFCCN.getName()) + 
 							", byCMCN=" + (byCMCN==null ? null : byCMCN.getName()));
 						boolean canAdd = byFDCN==null && byFCCN==null && byCMCN==null && byName==null;
-						boolean canReplace = byName!=null && byName==byFDCN && byName==byFCCN && byName==byCMCN; // replace infers replaceWithRename
+						boolean canReplace = byName!=null && (byFDCN==null || byName==byFDCN) && (byFCCN==null || byName==byFCCN) && (byCMCN==null || byName==byCMCN); // replace infers replaceWithRename
 						itemChildren.add(newImportItem(fixtureDefs.get(i).getName(), "fix-" + fixtureDefs.get(i).getId(), "icnFixtureDef2.png", 
 								canAdd, canReplace, !(canAdd || canReplace), 
 								canAdd ? null :
