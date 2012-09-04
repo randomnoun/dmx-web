@@ -157,7 +157,8 @@ public class FixtureDefTO {
 			// "<fixtureControllerScript>" + fixtureControllerScript + "</fixtureControllerScript>" +
 			"    <channelMuxerClassName>" + channelMuxerClassName + "</channelMuxerClassName>\n" +
 			// "<channelMuxerScript>" + channelMuxerScript + "</channelMuxerScript>" +
-			"    <dmxChannels>" + dmxChannels + "</dmxChannels>\n";
+			"    <dmxChannels>" + dmxChannels + "</dmxChannels>\n" +
+			(htmlImg16 == null ? "" : "    <htmlImg16>" + htmlImg16 + "</htmlImg16>\n");
 		if (fixtureDefImages.size() > 0) {
 			s += "    <fixtureDefImages>\n";
 			for (FixtureDefImageTO fdi : fixtureDefImages) {
