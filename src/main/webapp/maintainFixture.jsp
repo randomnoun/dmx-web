@@ -120,7 +120,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 .smallInput { width: 40px; }
 .smallInput2 { width: 30px; }
 #repeatFixtureDiv { 
-  width: 1000px; height: 500px; 
+  width: 1000px; height: 560px; 
   padding: 10px; 
   border: solid 2px black; 
   display: none; 
@@ -130,7 +130,7 @@ SELECT { color: black; margin: 0px; font-size: 8pt; }
 .rfTitle1 { font-size: 14pt; font-weight: bold; padding-bottom: 15px;  }
 .rfTitle2 { position: absolute; font-size: 14pt; font-weight: bold; padding-bottom: 15px; left: 420px; top: 10px;}
 #rfPreviewContainer { 
-  position: absolute; top: 40px; left: 420px; width: 580px; height: 580px;
+  position: absolute; top: 40px; left: 420px; width: 580px; height: 520px;
   overflow: scroll;  
 }  
 .rfPreview {
@@ -320,8 +320,13 @@ function edtUpdateDmxOffset(rowId) {
     var fixtureId = new Number(document.forms[0].elements["fixtures[" + rowId + "].fixtureDefId"].value).floor();
     var dmxOffset = new Number(document.forms[0].elements["fixtures[" + rowId + "].dmxOffset"].value).floor();
     var dmxFinish = fixtureDefMap[fixtureId].dmxChannels + dmxOffset - 1;
+    var htmlImg16 = fixtureDefMap[fixtureId].htmlImg16;
     trEl.getElementsByTagName("TD")[5].innerHTML = dmxFinish;
-    imgEl.setAttribute("src", "image/fixture/" + fixtureId + "/" + fixtureDefMap[fixtureId].htmlImg16);
+    if (htmlImg16==null) {
+    	imgEl.setAttribute("src", "image/fixturePlaceholder.png");
+    } else {
+    	imgEl.setAttribute("src", "image/fixture/" + fixtureId + "/" + htmlImg16);
+	}
     // alert("Updating row " + rowId + " to " + dmxFinish);    
 }
 
@@ -614,28 +619,28 @@ function initWindow() {
 <tr><td colspan="2">Type of fixture:</td><td><r:select data="${form.fixtureDefs}" name="rfFixtureDefId" value="" displayColumn="name" valueColumn="id" /></td></tr>
 <tr><td colspan="2">Number of fixtures:</td><td><input class="rfInput" style="width: 30px;" type="text" name="rfCountX" value="1" /> x <input class="rfInput" style="width:30px;" type="text" name="rfCountY" value="1" /> columns (<span style="font-family: Courier New; font-size: 8pt;">x</span>) x rows (<span style="font-family: Courier New; font-size: 8pt;">y</span>)</td></tr>
 <tr><td colspan="2">Names of fixtures:</td><td><input class="rfInput" type="text" name="rfName" value="something-{x}-{y}" /></td></tr>
-<tr><td colspan="2">Starting universe:</td><td><input class="rfInput" type="text" name="rfDmxUniverseStart" value="1" /></td></tr>
-<tr><td colspan="2">Starting DMX offset:</td><td><input class="rfInput" type="text" name="rfDmxOffsetStart" value="1" /></td></tr>
+<tr><td colspan="2">Starting universe:</td><td><input class="rfInput" type="text" name="rfDmxUniverseStart" value="<c:out value='${form.lastFreeUniverse}'/>" /></td></tr>
+<tr><td colspan="2">Starting DMX offset:</td><td><input class="rfInput" type="text" name="rfDmxOffsetStart" value="<c:out value='${form.lastFreeOffset}'/>" /></td></tr>
 <tr><td colspan="2">DMX offset gap between fixtures:</td><td><input class="rfInput" type="text" name="rfDmxOffsetGap" value="0" /></td></tr>
 <tr><td colspan="2">DMX offset allocation:</td><td>
   <input type="radio" name="rfDmxAllocation" value="grid" checked /> Grid<br/>
-  <input type="radio" name="rfDmxAllocation" value="loop" /> Looped<br/>
+  <input type="radio" name="rfDmxAllocation" value="loop" /> Snake<br/>
   <input type="radio" name="rfDmxAllocation" value="csv"/> CSV<br/>
   <input type="radio" name="rfDmxAllocation" value="calculated"/> Calculated<br/>
   </td>
 <tr id="rfDmxAllocationLoop" style="display: none;"><td colspan="2"></td><td>
   <div style="margin-top: 10px; height: 40px;">
   <span style="float:left;"><input class="" type="radio" name="rfDmxLoop" value="loop-rd" checked/></span> 
-  <span style="float:left; margin-right:5px;"><img src="image/config/loop-rd.png"/></span>Loop alternating left-to-right, then right-to-left, downwards<br/>
+  <span style="float:left; margin-right:5px;"><img src="image/config/loop-rd.png"/></span>Snake alternating left-to-right, then right-to-left, downwards<br/>
   </div><div style="height: 40px; clear:left;">
   <span style="float:left; clear: left;"><input class="" type="radio" name="rfDmxLoop" value="loop-ld"/></span> 
-  <span style="float:left; margin-right:5px;"><img src="image/config/loop-ld.png"/></span>Loop alternating right-to-left, then left-to-right, downwards<br/>
+  <span style="float:left; margin-right:5px;"><img src="image/config/loop-ld.png"/></span>Snake alternating right-to-left, then left-to-right, downwards<br/>
   </div><div style="height: 40px; clear:left;">
   <span style="float:left; clear: left;"><input class="" type="radio" name="rfDmxLoop" value="loop-ru"/></span> 
-  <span style="float:left; margin-right:5px;"><img src="image/config/loop-ru.png"/></span>Loop alternating left-to-right, then right-to-left, upwards<br/>
+  <span style="float:left; margin-right:5px;"><img src="image/config/loop-ru.png"/></span>Snake alternating left-to-right, then right-to-left, upwards<br/>
   </div><div style="height: 40px; clear:left;">
   <span style="float:left; clear: left;"><input class="" type="radio" name="rfDmxLoop" value="loop-ld"/></span> 
-  <span style="float:left; margin-right:5px;"><img src="image/config/loop-lu.png"/></span>Loop alternating right-to-left, then left-to-right, upwards<br/>
+  <span style="float:left; margin-right:5px;"><img src="image/config/loop-lu.png"/></span>Snake alternating right-to-left, then left-to-right, upwards<br/>
   </div>
 </td>
 </tr>
@@ -681,8 +686,8 @@ function initWindow() {
 <tr class="rfDmxCalcRow"><td>Y:</td><td><input class="rfInput" type="text" name="rfPositionY" value="y * 10" /></td></tr>
 <tr class="rfDmxCalcRow"><td>Z:</td><td><input class="rfInput" type="text" name="rfPositionZ" value="1" /></td></tr>
 <tr class="rfDmxCalcRow"><td rowspan="3">3D looking at position <img src="image/help-icon.png" title="A point that this fixture is looking towards (in it's initial state)" /></td>
-    <td>X:</td><td><input class="rfInput" type="text" name="rfLookingAtX" value="x + 1" /></td></tr>
-<tr class="rfDmxCalcRow"><td>Y:</td><td><input class="rfInput" type="text" name="rfLookingAtY" value="y" /></td></tr>
+    <td>X:</td><td><input class="rfInput" type="text" name="rfLookingAtX" value="x * 10 + 1" /></td></tr>
+<tr class="rfDmxCalcRow"><td>Y:</td><td><input class="rfInput" type="text" name="rfLookingAtY" value="y * 10" /></td></tr>
 <tr class="rfDmxCalcRow"><td>Z:</td><td><input class="rfInput" type="text" name="rfLookingAtZ" value="0" /></td></tr>
 <tr class="rfDmxCalcRow"><td rowspan="3">3D up vector <img src="image/help-icon.png" title="The direction of up, with the fixture at local co-ordinates (0,0,0)" /></td>
     <td>X:</td><td><input class="rfInput" type="text" name="rfUpX" value="0" /></td></tr>

@@ -79,9 +79,9 @@ public class MaintainFixtureAction
     		new String[] { "id", "fixtureDefId", "name", "universeNumber", "dmxOffset", "sortOrder", "x", "y", "z",
     		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ", "fixPanelType", "fixPanelX", "fixPanelY" };
     	
-    	// for row removal
+    	// for row removal; universe number and panel type is prepopulated 
     	private final static String[] fieldNames2 = 
-    		new String[] { "id", "fixtureDefId", "name", "universeNumber", "dmxOffset", "sortOrder", "x", "y", "z",
+    		new String[] { "id", "fixtureDefId", "name", "dmxOffset", "sortOrder", "x", "y", "z",
     		"lookingAtX", "lookingAtY", "lookingAtZ", "upX", "upY", "upZ", "fixPanelX", "fixPanelY" };
         	
     	
@@ -180,7 +180,7 @@ public class MaintainFixtureAction
 	    	    long fixtureDefId = Long.parseLong(table.getRowValue("fixtureDefId"));
 	    	    long dmxOffset = Long.parseLong(table.getRowValue("dmxOffset"));
 	    	    long universeNumber = Long.parseLong(table.getRowValue("universeNumber"));
-	    	    long numChannels = ((Long) fixtureDefMap.get(fixtureDefId)).longValue();
+	    	    long numChannels = ((Long) ((Map) fixtureDefMap.get(fixtureDefId)).get("dmxChannels")).longValue();
 	    	    
 	    	    // @TODO do this across all universes
 	    	    if (universeNumber==1) {
@@ -225,6 +225,7 @@ public class MaintainFixtureAction
 	    	    double check = upX*(lookingAtX-initialX) +
 	    	      upY*(lookingAtY-initialY) +
 	    	      upZ*(lookingAtZ-initialZ);
+	    	    /*
 	    	    if (Math.abs(check)>0.001) { // arbitrary error threshold
     	    		table.getErrors().addError(
     	    			"fixtures[" + table.getCurrentRow() + "].lookingAtX," +
@@ -236,6 +237,7 @@ public class MaintainFixtureAction
     	    		   " with normal vector (" + upX + ", " + upY + ", " + upZ + ")", 
     	    		   ErrorList.SEVERITY_INVALID);
 	    	    }
+	    	    */
 	    	    // @TODO convert upX, upY, upZ to unit length
     	    }
     	    
@@ -277,9 +279,31 @@ public class MaintainFixtureAction
 			form.put("fixtures", fixtures);
 			form.put("fixtures_size", fixtures.size());
 			form.put("fixPanelTypes", getFixPanelTypes());
+			setLastFreeOffset(form, (Map) form.get("fixtureDefMap"), (List) form.get("fixtures"));
 			return form;
     	}
-    	
+
+    	/** Sets the lastFreeUniverse and lastFreeOffset request attributes */ 
+	    public void setLastFreeOffset(Map form, Map fixtureDefMap, List fixtures) {
+		    long lastUniverse=0, lastOffset=0;
+		    for (int i=0; i<fixtures.size(); i++) {
+			    long thisFixtureDefId = ((Number) ((Map)fixtures.get(i)).get("fixtureDefId")).longValue();
+			    long thisUniverse = ((Number) ((Map)fixtures.get(i)).get("universeNumber")).longValue();
+			    long thisOffset = ((Number) ((Map)fixtures.get(i)).get("dmxOffset")).longValue();
+			    long thisDmxChannels = ((Number) ((Map)fixtureDefMap.get(thisFixtureDefId)).get("dmxChannels")).longValue();
+			    if (thisUniverse>lastUniverse) {
+				    lastUniverse=thisUniverse;
+				    lastOffset=thisOffset + thisDmxChannels - 1;
+			    } else if (thisUniverse==lastUniverse) {
+				    lastOffset=Math.max(lastOffset, thisOffset + thisDmxChannels - 1);
+			    }
+		    }
+		    lastOffset = lastOffset + 1;
+		    if (lastOffset==513) { lastOffset=0; lastUniverse++; }
+		    form.put("lastFreeUniverse", lastUniverse);
+		    form.put("lastFreeOffset", lastOffset);
+	    }
+
     	public List getFixtures() {
     		AppConfig appConfig = AppConfig.getAppConfig();
     		JdbcTemplate jt = appConfig.getJdbcTemplate();
@@ -303,16 +327,17 @@ public class MaintainFixtureAction
     	}
     	
     	public Map getFixtureDefsMap() {
+    		// @XXX: this hits the FixtureDefDAO twice for no particular reason
     		AppConfig appConfig = AppConfig.getAppConfig();
     		JdbcTemplate jt = appConfig.getJdbcTemplate();
     		FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
     		List<FixtureDefTO> fixtureDefs = fixtureDefDAO.getFixtureDefs(null);
     		Map fixtureDefsMap = new HashMap();
-    		for (FixtureDefTO fixture : fixtureDefs) {
+    		for (FixtureDefTO fixtureDef : fixtureDefs) {
     			Map fixtureDefMap = new HashMap();
-    			fixtureDefMap.put("dmxChannels", new Long(fixture.getDmxChannels()));
-    			fixtureDefMap.put("htmlImg16", fixture.getHtmlImg16());
-    			fixtureDefsMap.put(new Long(fixture.getId()), fixtureDefMap);
+    			fixtureDefMap.put("dmxChannels", new Long(fixtureDef.getDmxChannels()));
+    			fixtureDefMap.put("htmlImg16", fixtureDef.getHtmlImg16());
+    			fixtureDefsMap.put(new Long(fixtureDef.getId()), fixtureDefMap);
     			// fixtureDefs[f.type]["img16"]
     		}
     		return fixtureDefsMap;
@@ -334,7 +359,6 @@ public class MaintainFixtureAction
     	}
     	
    }
-      
       
     
     /**
@@ -390,6 +414,7 @@ public class MaintainFixtureAction
 				form.put("fixPanelTypes", tableEditor.getFixPanelTypes());
 				form.put("fixtures", result.getRows());
 				form.put("fixtures_size", result.getRows().size());
+				tableEditor.setLastFreeOffset(form, (Map) form.get("fixtureDefMap"), (List) form.get("fixtures"));
 				request.setAttribute("errors", result.getErrors());
 				request.setAttribute("form", form);
 			
@@ -517,7 +542,7 @@ public class MaintainFixtureAction
 				        if (dmxUniverse!=null && dmxOffset!=null) { cell.put("offset", "u" + dmxUniverse.intValue() + "-offset" + dmxOffset.intValue()); };
 				        if (panelX!=null && panelY!=null) { cell.put("panel", "(" + panelX + ", " + panelY + ")"); }
 				        if (positionX!=null && positionY!=null && positionZ!=null) { cell.put("position", "(" + positionX + ", " + positionY + ", " + positionZ + ")"); }
-				        if (lookingAtX!=null && lookingAtY!=null && lookingAtZ!=null) { cell.put("lookingAt", "(" + lookingAtX + ", " + lookingAtX + ", " + lookingAtZ + ")"); }
+				        if (lookingAtX!=null && lookingAtY!=null && lookingAtZ!=null) { cell.put("lookingAt", "(" + lookingAtX + ", " + lookingAtY + ", " + lookingAtZ + ")"); }
 				        if (upX!=null && upY!=null && upZ!=null) { cell.put("up", "(" + upX + ", " + upY + ", " + upZ + ")"); }
 				        
 				        //dmxOffset += dmxOffsetGap + 3; /* @TODO get fixture channel count */
@@ -550,6 +575,8 @@ public class MaintainFixtureAction
 				
 				
 				if (action.equals("rfRepeatFixtures")) {
+					AppConfig.getAppConfig().reloadDevicesFixturesAndShows(false);
+					
 					FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
 					request.setAttribute("form", tableEditor.readFixtures(null));
 					ErrorList errors = new ErrorList();
