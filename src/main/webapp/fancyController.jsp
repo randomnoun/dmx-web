@@ -42,6 +42,8 @@
 <r:setJavascriptVar name="shows" value="${shows}" />
 <r:setJavascriptVar name="fixtures" value="${fixtures}" />
 <r:setJavascriptVar name="fixtureDefs" value="${fixtureDefs}" />
+<r:setJavascriptVar name="dmxCurrentUniverse" value="${dmxCurrentUniverse}" />
+<r:setJavascriptVar name="dmxCurrentBank" value="${dmxCurrentBank}" />
 <r:setJavascriptVar name="dmxValues" value="${dmxValues}" />
 <r:setJavascriptVar name="fixValues" value="${fixValues}" />
 <r:setJavascriptVar name="version" value="${version}" />
@@ -49,8 +51,8 @@
 <r:setJavascriptVar name="javadocUrl" value="${javadocUrl}" />
 <r:setJavascriptVar name="pageId" value="${pageId}" />
 <r:setJavascriptVar name="logCount" value="${logCount}" />
-<r:setJavascriptVar name="isRecording" value="${reqRecording!=null}" />
-<c:if test="${reqRecording!=null}">
+<r:setJavascriptVar name="isRecording" value="${recRecording!=null}" />
+<c:if test="${recRecording!=null}">
 <r:setJavascriptVar name="recCurrentFrame" value="${recCurrentFrame}" />
 <r:setJavascriptVar name="recTotalFrames" value="${recTotalFrames}" />
 <r:setJavascriptVar name="recShowDefId" value="${recShowDefId}" />
@@ -58,13 +60,11 @@
 <r:setJavascriptVar name="recModifiedFixtureIds" value="${recModifiedFixtureIds}" />
 <r:setJavascriptVar name="recModifiedDmxChannels" value="${recModifiedDmxChannels}" />
 </c:if>
-<c:if test="${reqRecording==null}">
+<c:if test="${recRecording==null}">
 var recCurrentFrame = 0;
 var recTotalFrames = 1;
 </c:if>
 <r:setJavascriptVar name="initMessage" value="${initMessage}" />
-<r:setJavascriptVar name="dmxTotalBanks" value="${dmxTotalBank}" /> // a universe is 2 banks
-<r:setJavascriptVar name="dmxCurrentBank" value="${dmxCurrentBank}" />
 var dmxTimeSourceText = "-";
 <%-- this will be a client-side include eventually --%>
 <jsp:include page="js/fancyController.js" />
@@ -154,8 +154,8 @@ var dmxTimeSourceText = "-";
 </div>
 
 <div id="dmxPanel" style="display: none;">
-  <div id="dmxUniverseContainer">
-    <div class="dmxFrameContainer"><div id="dmxPrevFrame" class="dmxButtonL" style="margin-left: 0px; "><img src="image/rbutton-prev.png" width="53" height="45"/></div><div id="dmxCurrentFrame">1</div><div id="dmxTotalFrames">2</div><div id="dmxNextFrame" class="recButtonR"><img src="image/rbutton-next.png" width="53" height="45"/></div></div>
+  <div id="dmxUniverse">
+    <div class="dmxUniverseContainer"><div id="dmxPrevBank" class="dmxButtonL" style="margin-left: 0px; "><img src="image/rbutton-prev.png" width="53" height="45"/></div><div id="dmxCurrentUniverse">1</div><div id="dmxCurrentBank">2</div><div id="dmxNextBank" class="recButtonR"><img src="image/rbutton-next.png" width="53" height="45"/></div></div>
   </div>
 <%--
   <div id="dmxImmediate" class="dmxControl">Immediate ON</div>
