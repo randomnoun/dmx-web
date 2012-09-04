@@ -742,32 +742,39 @@ public class ShowUtils {
         //Controller c = getController();
         Pattern p = Pattern.compile(fixtureNameRegex);
         int maxX=0, maxY=0, minX=Integer.MAX_VALUE, minY=Integer.MAX_VALUE;
+        FixtureController[][] fcs;
         for (Fixture f : c.getFixtures()) {
             Matcher m = p.matcher(f.getName());
             if (m.matches()) {
-                maxX = Math.max(maxX, Integer.parseInt(m.group(1)));
-                maxY = Math.max(maxY, Integer.parseInt(m.group(2)));
-                minX = Math.min(minX, Integer.parseInt(m.group(1)));
-                minY = Math.min(minY, Integer.parseInt(m.group(2)));
+            	try { maxX = Math.max(maxX, Integer.parseInt(m.group(1))); } catch (NumberFormatException nfe) { /* ignored */ }
+            	try { maxY = Math.max(maxY, Integer.parseInt(m.group(2))); } catch (NumberFormatException nfe) { /* ignored */ }
+            	try { minX = Math.min(minX, Integer.parseInt(m.group(1))); } catch (NumberFormatException nfe) { /* ignored */ }
+            	try { minY = Math.min(minY, Integer.parseInt(m.group(2))); } catch (NumberFormatException nfe) { /* ignored */ }
             }
         }
-        logger.debug("getFixtureControllerMatrix(): found matrix " + fixtureNameTemplate + " with minX=" + minX + ", minY=" + minY + ", maxX=" + maxX + ", maxY=" + maxY);
-        FixtureController[][] fcs = new FixtureController[maxX-minX+1][maxY-minY+1];
-        for (int x=minX; x<=maxX; x++) {
-            for (int y=minY; y<=maxY; y++) {
-                //logger.debug("finding fixture at x=" + x + ", y=" + y);
-                String name = Text.replaceString(fixtureNameTemplate, "{x}", String.valueOf(x));
-                name = Text.replaceString(name, "{y}", String.valueOf(y));
-                fcs[x-minX][y-minY] = c.getFixtureControllerByNameNoEx(name);
-                if (fcs[x-minX][y-minY]==null) {
-                    logger.warn("getFixtureControllerMatrix(): missing fixture '" + name + "' in matrix");
-                }
-            }
+        if (maxX<minX || maxY<minY) {
+        	logger.debug("getFixtureControllerMatrix(): matrix '" + fixtureNameTemplate + "' not found");
+        	maxX=0; minX=0; maxY=0; minY=0;
+        	return null;
+        } else {
+	        logger.debug("getFixtureControllerMatrix(): found matrix '" + fixtureNameTemplate + "' with minX=" + minX + ", minY=" + minY + ", maxX=" + maxX + ", maxY=" + maxY);
+	        fcs = new FixtureController[maxX-minX+1][maxY-minY+1];
+	        for (int x=minX; x<=maxX; x++) {
+	            for (int y=minY; y<=maxY; y++) {
+	                //logger.debug("finding fixture at x=" + x + ", y=" + y);
+	                String name = Text.replaceString(fixtureNameTemplate, "{x}", String.valueOf(x));
+	                name = Text.replaceString(name, "{y}", String.valueOf(y));
+	                fcs[x-minX][y-minY] = c.getFixtureControllerByNameNoEx(name);
+	                if (fcs[x-minX][y-minY]==null) {
+	                    logger.warn("getFixtureControllerMatrix(): missing fixture '" + name + "' in matrix");
+	                }
+	            }
+	        }
+	        fcm.setMinX(minX); fcm.setMinY(minY);
+	        fcm.setMaxX(maxX); fcm.setMaxY(maxY);
+	        fcm.setFixtureControllers(fcs);
+	        return fcm;
         }
-        fcm.setMinX(minX); fcm.setMinY(minY);
-        fcm.setMaxX(maxX); fcm.setMaxY(maxY);
-        fcm.setFixtureControllers(fcs);
-        return fcm;
     }
 	
     public static BufferedImage[] getImages(Controller controller, String resourceName) {
