@@ -546,8 +546,9 @@ public class AppConfig extends AppConfigBase {
 				String name = device.getName();
 				logger.info("Created device " + deviceTO.getClassName() + " '" + device.getName() + "' on universe " + deviceTO.getUniverseNumber());
 			} catch (Exception e) {
-				logger.error("Could not instantiate device '" + deviceTO.getClassName() + "' for universe " + deviceTO.getUniverseNumber(), e);
-				addAppConfigException(e);
+				IOException ioe = new IOException("Could not open device '" + deviceTO.getName() + "'", e);
+				logger.error("Could not instantiate device " + deviceTO.getClassName () + " '" + deviceTO.getName() + "' on universe " + deviceTO.getUniverseNumber(), ioe);
+				addAppConfigException(ioe);
 				// @TODO: necessary to create a null device here ?
 				device = new NullDmxDevice(deviceProperties);
 			}
@@ -556,7 +557,14 @@ public class AppConfig extends AppConfigBase {
 			dmxDeviceConfigs.add(ddc);
 
 			logger.info("Opening device " + deviceTO.getClassName() + " '" + device.getName() + "' on universe " + deviceTO.getUniverseNumber());
-			device.open();
+			// @XXX: exception handling in device class 
+			//try {
+				device.open();
+			//} catch (Exception e) {
+			//	IOException ioe = new IOException("Could not open device '" + deviceTO.getName() + "'", e);
+			//	logger.error("Could not open device '" + device.getName() + "'", ioe);
+			//	addAppConfigException(ioe);
+			//}
 		}
 		
 		

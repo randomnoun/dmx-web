@@ -86,11 +86,13 @@ public class UsbProWidget extends DmxDevice {
 			usbProTranslator = openPort();
 			connected = true;
 		} catch (java.lang.UnsatisfiedLinkError ule) {
-			logger.error("Error opening port '" + portName + "; java.library.path=" + System.getProperty("java.library.path"), ule);
-			exceptionContainer.addException(ule);
+			IOException ioe = new IOException("Could not open device '" + getName() + "'", ule);
+			logger.error("Could not open device '" + getName() + "', port '" + portName + "; java.library.path=" + System.getProperty("java.library.path"), ule);
+			exceptionContainer.addException(ioe);
 		} catch (Exception e) {
-			logger.error("Error opening port '" + portName + "'", e);
-			exceptionContainer.addException(e);
+			IOException ioe = new IOException("Could not open device '" + getName() + "'", e);
+			logger.error("Could not open device '" + getName () + "', port '" + portName + "'", e);
+			exceptionContainer.addException(ioe);
 		}
 	}
 
