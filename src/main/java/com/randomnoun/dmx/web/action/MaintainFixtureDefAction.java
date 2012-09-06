@@ -145,9 +145,10 @@ public class MaintainFixtureDefAction
     			}
     		}
     		if (found!=null) {
+    			// @TODO probably mention if this is on another stage
     			request.setAttribute("fixtureDef", fixtureDef);
     			errors.addError("Fixture patched", "You cannot delete this fixture since it has been " +
-    				"patched at DMX offset " + found.getDmxOffset() + ". " +
+    				"patched at DMX offset " + found.getDmxOffset() + " with name '" + found.getName() + "'. " +
     				"Remove this fixture from the Fixtures configuration page and try again.", ErrorList.SEVERITY_ERROR);
     		} else {
 	    		fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages(fixtureDef);
