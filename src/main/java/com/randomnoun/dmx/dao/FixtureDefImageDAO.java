@@ -56,7 +56,7 @@ public class FixtureDefImageDAO {
 	    return (List<FixtureDefImageTO>) jt.query(sql, new FixtureDefImageDAORowMapper());
     }
 
-    /** Return a list of fixtureDefImages for a given fixture.
+    /** Return a list of fixtureDefImages for a given fixtureDef.
      *
      * @param fixtureDef the fixtureDefTO to return images for
      *
@@ -88,7 +88,7 @@ public class FixtureDefImageDAO {
 
     /** Return a fixtureDefImage for a given fixture definition id / filename
     *
-    * @param fixtureDefId the fixtureDefImageId
+    * @param fixtureDefId the fixtureDefId
     * @param filename the filename
     *
     * @return the requested FixtureDefImageTO object
@@ -194,6 +194,8 @@ public class FixtureDefImageDAO {
     
     /** Deletes a fixtureDefImage from the database, and
      * removes any filesystem resources.
+    *
+    * @TODO remove folder if empty
     *
     * The id column of the object will be populated on return
     *

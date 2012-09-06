@@ -62,7 +62,7 @@ public class FixtureImageServlet extends javax.servlet.http.HttpServlet implemen
 		doGet(request, response);
 	}
     
-	/** Lets get this turkey stand on the road
+	/** Process a HTTP request
 	 * 
 	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
