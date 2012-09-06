@@ -437,7 +437,7 @@ function initWindow() {
 <input type="hidden" name="fixtureDef.fixtureControllerScript" value="" />
 <input type="hidden" name="fixtureDef.channelMuxerScript" value="" />
 <c:if test="${fixtureDef.fixtureDefClassName != null}" >    
-<tr><td valign="top">Fixture class:</td>
+<tr><td valign="top">Classname:</td>
     <td><c:out value="${fixtureDef.fixtureDefClassName}"/></td></tr>    
 </c:if>    
 <tr><td valign="top">Fixture script:</td>
@@ -449,7 +449,7 @@ function initWindow() {
 <div id="channelMuxerTabSheet" class="tabSheet">
 <table>
 <c:if test="${fixtureDef.channelMuxerClassName != null}" >    
-<tr><td valign="top">Channel Muxer class:</td>
+<tr><td valign="top">Classname:</td>
     <td><c:out value="${fixtureDef.channelMuxerClassName}"/></td></tr>    
 </c:if>    
 <tr><td valign="top">Channel Muxer script:</td>
@@ -460,7 +460,7 @@ function initWindow() {
 <div id="controllerTabSheet" class="tabSheet">
 <table>
 <c:if test="${fixtureDef.fixtureControllerClassName != null}" >    
-<tr><td valign="top">Controller class:</td>
+<tr><td valign="top">Classname:</td>
     <td><c:out value="${fixtureDef.fixtureControllerClassName}"/></td></tr>    
 </c:if>    
 <tr><td valign="top">Controller script:</td>
@@ -477,7 +477,7 @@ You must create a fixture before you can attach documents
 <input type="hidden" name="action" value="submitFile" />
 <input type="hidden" name="fixtureDefId" value="${fixtureDef.id}" />
 <table>
-<tr><td valign="top">Image attachments:</td>
+<tr><td valign="top">Fixture attachments:</td>
     <td><input id="attachment" type="file" name="attachment" style="width: 400px;"/>
     </td>
 <tr><td>Description:</td>
@@ -518,13 +518,14 @@ You must create a fixture before you can attach documents
 </c:choose>
 </div>
 
+
 </div>
 
 
 <div id="edtSubmit" class="edtSubmit"></div>
 </c:if>
 </table>
-</form>
+</form> <!-- missing opening tag ? -->
 
 
 </div>
