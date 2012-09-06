@@ -285,7 +285,7 @@ public class MaintainFixtureAction
 
     	/** Sets the lastFreeUniverse and lastFreeOffset request attributes */ 
 	    public void setLastFreeOffset(Map form, Map fixtureDefMap, List fixtures) {
-		    long lastUniverse=0, lastOffset=0;
+		    long lastUniverse=1, lastOffset=0;
 		    for (int i=0; i<fixtures.size(); i++) {
 			    long thisFixtureDefId = ((Number) ((Map)fixtures.get(i)).get("fixtureDefId")).longValue();
 			    long thisUniverse = ((Number) ((Map)fixtures.get(i)).get("universeNumber")).longValue();
