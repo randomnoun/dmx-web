@@ -114,9 +114,12 @@
         </action>
 
       <action path="/maintainShowDef" 
+          name="fileUpload"
           type="com.randomnoun.dmx.web.action.MaintainShowDefAction"
         >
           <forward name="success" path="/maintainShowDef.jsp"/>
+          <forward name="json" path="/misc/json.jsp"/>
+          <forward name="script" path="/misc/script.jsp"/>
         </action>
 
       <action path="/maintainShow" 

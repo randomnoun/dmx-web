@@ -8,6 +8,7 @@
 %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
+<%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt" %>
 <fmt:setLocale value="${locale}"/>
 <fmt:setBundle basename="resources.i18n.general" var="generalBundle" />
 <% 
@@ -29,6 +30,7 @@
     <title><%= appConfig.getProperty("webapp.titlePrefix") %> Maintain show definitions</title>
 
     <link rel="shortcut icon" href="image/favicon.png" />
+    <link rel="stylesheet" href="css/tabs.css" type="text/css" />
 
     <!-- JavaScript -->
     <script src="mjs?js=prototype" type="text/javascript"></script>
@@ -76,12 +78,12 @@ BODY { font-size: 8pt; font-family: Arial; }
   cursor: pointer; 
 }
 .edtSubmit {
+  position: absolute; left: 20px; top: 610px;
   width: 180px; height: 70px; background-image: url("image/button-green.png");
   /*background-color: #AAAAFF; */ ; margin-top: 10px;
   text-align: center; color: #000044; font-size: 18pt;
   cursor: pointer; 
 }
-
 
 .showDef { font-size: 8pt; font-family: Arial;}
 .showDef TD { font-size: 8pt; font-family: Arial;}
@@ -108,6 +110,43 @@ BODY { font-size: 8pt; font-family: Arial; }
     background-repeat: no-repeat;
 }
 
+
+#progressBar { 
+  padding-top: 5px; 
+}
+#progressBarBox { 
+  width: 200px; 
+  height: 6px; 
+  background: #eee;
+  border: solid 1px black;
+}
+#progressBarBoxContent { 
+  width: 0; 
+  height: 6px; 
+  border-right: 1px solid #9ACB34; 
+  background: #9ACB34; 
+}
+
+#tabContainer {
+    position: absolute;
+    left: 20px; 
+    width: 956px;
+}
+.tabSheet {
+    position:absolute;
+    left:20px; /*top:60px;*/
+    margin-top: 0px;
+    border-style: none solid solid solid;
+    border-width: 1px;
+    border-color: threedshadow;
+    background-color: white;
+    padding: 2px;
+    width: 950px;
+    overflow-x: auto; 
+    overflow-y: auto; 
+    /*height: 550px;*/  
+}
+
 </style>
 <script>
 <r:setJavascriptVar name="errorLines" value="${errorLines}" />
@@ -115,6 +154,7 @@ BODY { font-size: 8pt; font-family: Arial; }
 <r:setJavascriptVar name="recordedShowDefIds" value="${recordedShowDefIds}" />
 
 var edtScriptEditor;
+var edtTabNames = new Array('show', 'attachment');
 
 function edtGetShowDef() {
 	var showDefIdEl = document.getElementById("showDefId");
@@ -177,10 +217,20 @@ function edtHighlightRow(startTime, lineNumberContainerDiv, errorLines) {
 
 function edtInitPanel() {
 	<c:if test="${showDef!=null}" >
+	
+	// top: 38px;
+    var tabContainerEl=$("tabContainer");
+    var offsets = Position.positionedOffset(tabContainerEl);
+    for (var i=0; i<edtTabNames.length; i++) {
+        $(edtTabNames[i] + "TabSheet").style.top = (offsets[1] + 22) + "px";
+        $(edtTabNames[i] + "TabSheet").style.height = (572 - offsets[1]) + "px";
+    }
+	
     edtScriptEditor = CodeMirror.fromTextArea('showDef.script', {
         lineNumbers: true,
         disableSpellcheck: true,
-        height: "570px", width: "850px",
+        height: (522-offsets[1]) + "px", width: "850px",
+        width: "850px",
         parserfile: ["tokenizejava.js","parsejava.js"],
         stylesheet: "css/codemirror/javacolors.css",
         path: "js/codemirror/",
@@ -193,6 +243,13 @@ function edtInitPanel() {
         "<img class=\"lhsMenuIcon\" width=\"70\" height=\"70\" src=\"image/save.png\" title=\"Update\"/><div class=\"lhsMenuText\">Update</div>"
     );		
     Event.observe(edtSubmitEl, 'click', edtSubmitClick);
+    
+    if ($("attachment")) { $("attachment").value = ""; }
+    if ($("addFile")) { 
+    	$("addFile").disabled = false; 
+        Event.observe($("addFile"), 'click', edtAddFile);
+    }
+    
     </c:if>
     <c:if test="${showDef==null}" >
     edtChangeShowDef();
@@ -202,25 +259,104 @@ function edtInitPanel() {
     Event.observe($("lhsOK"), 'click', lhsOKClick);
 }
 
+function edtAddFile() {
+	$("uploadForm").target="uploadTarget"
+    document.forms[1].submit();
+    $("progressBar").style.display = 'block';
+    $("progressBarText").update("upload in progress: 0%");
+    $("addFile").disabled = true;
+    window.setTimeout(edtRefreshProgress, 1500);
+}
+
+function edtRefreshProgress() {
+	new Ajax.Request("maintainShowDef.html?action=getProgress", {
+        method:'get', // evalJSON:true,
+        onSuccess: function(transport) {
+            edtUpdateProgress(transport.responseJSON);
+        }
+    });	
+}
+
+function edtUpdateProgress(json) {
+    $("progressBarText").update("upload in progress: " + json.percentDone + "%");
+    $("progressBarBoxContent").style.width = parseInt(json.percentDone * 2) + "px";
+    window.setTimeout(edtRefreshProgress, 1000);
+} 
+
+//invoked by iframe script
+function edtCompletedUploadError(text) {
+    alert(text);
+    $("addFile").disabled = false;
+}
+
+function edtCompletedUploadOK(id, sizeInUnits, name, description) {
+    var newRowEl = new Element("tr", { "id" : "file[" + id + "]" });
+    newRowEl.appendChild(new Element("td"));
+    newRowEl.appendChild(new Element("td").update(
+        "<input type=\"button\" name=\"image" + id + "\" value=\"Delete\" onclick=\"edtDeleteFile(" + id + ")\"/> " + 
+        "<a href=\"image/show/" + showDefId + "/" + name + "\" target=\"_new\">" + name + "</a> (" + sizeInUnits + ") " + description + "<br/>"));
+    $("lastImageRow").insert({'before': newRowEl});
+    if ($("attachment")) { $("attachment").value = ""; }
+    if ($("description")) { $("description").value = ""; }
+    $("addFile").disabled = false;
+}
+
+function edtDeleteFile(showDefAttachmentId) {
+	if (confirm("Are you sure you wish to delete this attachment?")) {
+		new Ajax.Request("maintainShowDef.html?action=deleteFile&showDefId=<c:out value='${showDef.id}'/>&fileId=" + showDefAttachmentId, {
+	        method:'get', // evalJSON:true,
+	        onSuccess: function(transport) {
+	            edtDeleteFileComplete(transport.responseJSON);
+	        }
+	    }); 		
+	}
+}
+
+function edtDeleteFileComplete(json) {
+	var result = json["result"];
+	if (result=="success") {
+		var fileId = json["fileId"];
+		$("file[" + fileId + "]").remove();
+	} else {
+		var message = json["message"];
+		alert(message);
+	}
+}
+
+function edtSetTab(newTab) {
+	<c:if test="${showDef!=null}" >
+	for (var i=0; i<edtTabNames.length; i++) {
+		$(edtTabNames[i] + "TabSheet").style.visibility = (newTab==edtTabNames[i] ? "visible" : "hidden");
+		$(edtTabNames[i] + "Tab").className = (newTab==edtTabNames[i] ? "current" : "");
+	}
+	</c:if>
+	return false;
+}
+
+
 function edtDeleteShowDef() {
     if (confirm("Are you sure you want to delete this show definition?")) {
         document.location = "maintainShowDef.html?action=deleteShowDef&showDefId=" + showDefId;     
     }
 }
 
-function edtSubmitClick() { document.forms[0].submit(); }
+function edtSubmitClick() { edtSubmit(); }
 function lhsCancelClick() { document.location = "index.html?panel=cnfPanel"; }
-function lhsOKClick() { document.forms[0].submit(); };
+function lhsOKClick() { edtSubmit(); };
+
+function edtSubmit() {
+	document.forms[0].elements["showDef.name"].value=$("showDef.name").value;
+	document.forms[0].submit();
+}
+
 
 function initWindow() {
 	edtInitPanel();
+	edtSetTab('show'); // @TODO: check errorList
 }
 
 </script>
 </head>
-<html>
-
-
 <body onload="initWindow()">
 <div id="lhsLogo"><span style="position: relative; top: 3px; left: 8px;">DMX-WEB Show definitions</span></div>
 <div class="lhsMenuContainer">
@@ -235,12 +371,12 @@ function initWindow() {
 <div id="edtPanel" >
 <jsp:include page="misc/errorHeader.jsp" />
 
-<form action="maintainShowDef.html" method="post">
 <table class="showDef" width="900px;">
 <col width="100px;"/>
 <col width="100px;"/>
 <col width="700px;"/>
 <c:if test="${showDef==null}" >
+<form action="maintainShowDef.html" method="post">
 <tr><td>Select show definition:</td>
     <td><r:select name="showDefId" value="${showDefId}" data="${showDefs}" 
   displayColumn="name" valueColumn="id"  onchange="edtChangeShowDef()" /></td>
@@ -253,26 +389,98 @@ function initWindow() {
     <td></td>
     <td><input type="button" name="createShowDef" value="Create new show definition" onclick="edtNewShowDef()" /></td>
 </tr>
+</form>
 </c:if>
+
+
 <c:if test="${showDef!=null}" >
-<input type="hidden" name="showDef.id" value="${showDef.id}" />
-<input type="hidden" name="updateShowDef" value="Y" />
 <tr><td>Name:</td>
     <td colspan="2"><r:input type="text" name="showDef.name" value="${showDef.name}"/>
     <c:if test="${showDef.id!=-1}" >
     <input type="button" name="deleteShowDef" value="Delete this show definition" onclick="edtDeleteShowDef()" /></td>
     </c:if>
-    </td></tr>
-<tr><td valign="top">Script:</td>
-    <td colspan="2"><r:input type="textarea" name="showDef.script" value="${showDef.script}" rows="25" cols="100"/></td></tr>
-<tr><td></td>
-    <td>
-    <div id="edtSubmit" class="edtSubmit"></div>
     </td>
 </tr>
-</c:if>
+</table>
+
+<div id="tabContainer" class="tabs"><ul>
+<li id="showTab" class="current"><a onclick="edtSetTab('show')">Show</a></li>
+<li id="attachmentTab"><a onclick="edtSetTab('attachment')" >Attachments</a></li>
+</ul></div>
+
+<div id="showTabSheet" class="tabSheet">
+<form action="maintainShowDef.html" method="post">
+<table>   
+<input type="hidden" name="showDef.id" value="${showDef.id}" />
+<input type="hidden" name="updateShowDef" value="Y" />
+<input type="hidden" name="showDef.name" value="<c:out value='${showDef.name}'/>"/>
+<c:if test="${showDef.className != null}" >    
+<tr><td valign="top">Classname:</td>
+    <td><c:out value="${showDef.className}"/></td></tr>    
+</c:if> 
+<tr><td valign="top">Script:</td>
+    <td colspan="2"><r:input type="textarea" name="showDef.script" value="${showDef.script}" rows="25" cols="100"/></td>
+</tr>
 </table>
 </form>
+</div>
+
+<div id="attachmentTabSheet" class="tabSheet">
+<c:choose><c:when test="${showDef.id==-1}">
+You must create a show before you can attach documents
+</c:when>
+<c:otherwise>
+<form id="uploadForm" action="maintainShowDef.html" method="post" enctype="multipart/form-data">
+<input type="hidden" name="action" value="submitFile" />
+<input type="hidden" name="showDefId" value="${showDef.id}" />
+<table>
+<tr><td valign="top">Show attachments:</td>
+    <td><input id="attachment" type="file" name="attachment" style="width: 400px;"/>
+    </td>
+<tr><td>Description:</td>
+    <td><input id="description" type="text" name="description" size="30" />
+        <input id="addFile", type="button" name="addFile" value="Add" />
+    </td>
+</tr>
+<tr><td></td>
+    <td>
+    <div id="progressBar" style="display: block;">
+      <div id="theMeter">
+        <div id="progressBarBox">
+           <div id="progressBarBoxContent"></div>
+        </div>
+        <div id="progressBarText"></div>            
+      </div>
+    </div>
+    </td>
+</tr>    
+<tr><td></td>
+    <td><iframe name="uploadTarget" id="uploadTarget" style="width:100px; height:1px; border:0px solid #fff;"/></iframe>
+    </td>
+</tr>    
+
+<c:if test="${showDefAttachments!=null}" >
+<c:forEach var="showDefAttachment" items="${showDefAttachments}" >
+<tr id="file[<c:out value='${showDefAttachment.id}'/>]"><td valign="top"></td> 
+    <td><input type="button" value="Delete" onclick="edtDeleteFile(<c:out value="${showDefAttachment.id}"/>)"/> <a href="image/show/<c:out value="${showDefAttachment.showDefId}"/>/<c:out value="${showDefAttachment.name}"/>" target="_new"><c:out value="${showDefAttachment.name}"/></a> (<c:out value="${showDefAttachment.sizeInUnits}"/>) <c:out value="${showDefAttachment.description}"/><br/>
+    </td>    
+</tr>
+</c:forEach>
+</c:if>
+<tr id="lastImageRow" />
+</table>
+</form>
+</c:otherwise>
+</c:choose>
+</div>
+
+</div>
+
+<div id="edtSubmit" class="edtSubmit"></div>
+
+</c:if>
+</table>
+
 
 
 </div>

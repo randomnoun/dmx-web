@@ -24,6 +24,8 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.upload.FormFile;
+import org.apache.struts.upload.MultipartRequestHandler;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import bsh.BSHAmbiguousName;
@@ -37,17 +39,20 @@ import com.randomnoun.common.StreamUtils;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
+import com.randomnoun.common.webapp.upload.FileProgressTO;
+import com.randomnoun.common.webapp.upload.ProgressTO;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.ShowDAO;
+import com.randomnoun.dmx.dao.ShowDefAttachmentDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.editor.RecordedShow;
 import com.randomnoun.dmx.to.FixtureDefImageTO;
-import com.randomnoun.dmx.to.FixtureTO;
+import com.randomnoun.dmx.to.ShowDefAttachmentTO;
 import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowTO;
+import com.randomnoun.dmx.web.ExtendedMultiPartRequestHandler;
 
 /**
  * Show definition maintenance action.
@@ -95,7 +100,9 @@ public class MaintainShowDefAction
     	ErrorList errors = new ErrorList();
     	
     	ShowDefDAO showDefDAO = new ShowDefDAO(jt);
+    	ShowDefAttachmentDAO showDefAttachmentDAO = new ShowDefAttachmentDAO(jt);
     	ShowDefTO showDef;
+    	List<ShowDefAttachmentTO> showDefAttachments;
 
     	long showDefId = -1;
     	String showDefIdString = request.getParameter("showDefId");
@@ -107,7 +114,9 @@ public class MaintainShowDefAction
     	
     	if (action.equals("getShowDef")) {
     		showDef = showDefDAO.getShowDef(showDefId);
+    		showDefAttachments = showDefAttachmentDAO.getShowDefAttachments(showDef);
     		request.setAttribute("showDef", showDef);
+    		request.setAttribute("showDefAttachments", showDefAttachments);
     		
     	} else if (action.equals("newShowDef")) {
     		showDef = new ShowDefTO();
@@ -127,11 +136,16 @@ public class MaintainShowDefAction
     			}
     		}
     		if (found!=null) {
+    			// @TODO probably mention if this is on another stage
     			request.setAttribute("showDef", showDef);
     			errors.addError("Show registered", "You cannot delete this show since it has been " +
-    				"registered in the active show list. " +
+    				"registered in the active show list as '" + found.getName() + "'. " +
     				"Remove this show from the Shows configuration page and try again.", ErrorList.SEVERITY_ERROR);
     		} else {
+    			showDefAttachments = showDefAttachmentDAO.getShowDefAttachments(showDef);
+	    		for (ShowDefAttachmentTO showDefAttachment : showDefAttachments) {
+	    			showDefAttachmentDAO.deleteShowDefAttachment(showDefAttachment);
+	    		}
 	    		showDefDAO.deleteShowDef(showDef);
 	    		errors.addError("Show deleted", "Show definition deleted", ErrorList.SEVERITY_OK);
     		}
@@ -170,6 +184,75 @@ public class MaintainShowDefAction
 	    		}
 	    		appConfig.reloadShows();
     		} 
+    		if (lngId!=-1) {
+    			ShowDefTO tmp = new ShowDefTO();
+    			tmp.setId(lngId);
+        		showDefAttachments = showDefAttachmentDAO.getShowDefAttachments(tmp);
+        		request.setAttribute("showDefAttachments", showDefAttachments);
+    		}
+    		
+    	} else if (action.equals("getProgress")) {
+    		logger.debug("Getting progress in session '" + request.getSession().getId() + "'"); 
+    		FileProgressTO progressTO = (FileProgressTO) session.getAttribute(ExtendedMultiPartRequestHandler.PROGRESS_SESSION_KEY);
+    		if (progressTO==null) {
+    			request.setAttribute("json", "{ 'percentDone' : 0 }" );
+    		} else {
+    			request.setAttribute("json", progressToJson(progressTO));
+    		}
+    	    forward="json";
+    	
+    	} else if (action.equals("submitFile")) {
+    		String script = "";
+    		if (request.getAttribute(MultipartRequestHandler.ATTRIBUTE_MAX_LENGTH_EXCEEDED)!=null) {
+    			// errors.addError("Image not uploaded", "Maximum sizelimit exceeded", ErrorList.SEVERITY_OK);
+    			script = "parent.edtCompletedUploadError(\"Maximum sizelimit exceeded\");";
+    		} else {
+    			String description = ((String[]) actionForm.getMultipartRequestHandler().getAllElements().get("description"))[0];
+	            Map files = actionForm.getMultipartRequestHandler().getFileElements();
+	            FormFile file = (FormFile) files.get("attachment");
+	            if (file.getFileSize()==0) {
+	            	script = "parent.edtCompletedUploadError(\"Zero-byte file submitted\");";
+	            } else {
+		            ShowDefAttachmentTO showDefAttachment = new ShowDefAttachmentTO();
+		            showDefAttachment.setShowDefId(showDefId);
+		            showDefAttachment.setName(file.getFileName());
+		            showDefAttachment.setDescription(description);
+		            showDefAttachment.setSize(file.getFileSize());
+		            showDefAttachment.setContentType(file.getContentType());
+		            showDefAttachmentDAO.createShowDefAttachment(showDefAttachment);
+		            showDefAttachmentDAO.writeStream(showDefAttachment, file.getInputStream());
+		            // errors.addError("Image uploaded", "Documentation file '" + fileName + "' (" + fileSize + " bytes) uploaded OK", ErrorList.SEVERITY_OK);
+		            script = "parent.edtCompletedUploadOK(" + showDefAttachment.getId() + ", \"" + showDefAttachment.getSizeInUnits() + 
+		              "\", \"" + Text.escapeJavascript2(showDefAttachment.getName()) + "\", \"" + Text.escapeJavascript2(showDefAttachment.getDescription()) + "\");";
+	            }
+    		}
+    		request.setAttribute("script", script);
+    		forward = "script";
+    		
+    	} else if (action.equals("getFile")) {
+    		long fileId = Long.parseLong(request.getParameter("fileId"));
+    		ShowDefAttachmentTO showDefAttachment = showDefAttachmentDAO.getShowDefAttachment(fileId);
+    		response.setContentType(showDefAttachment.getContentType());
+    		response.setContentLength((int) showDefAttachment.getSize());
+    		InputStream is = showDefAttachmentDAO.getInputStream(showDefAttachment);
+    		StreamUtils.copyStream(is, response.getOutputStream());
+    		forward = null;
+    		
+    	} else if (action.equals("deleteFile")) {
+    		Map result = new HashMap();
+    		try {
+	    		long fileId = Long.parseLong(request.getParameter("fileId"));
+	    		ShowDefAttachmentTO showDefAttachment = showDefAttachmentDAO.getShowDefAttachment(fileId);
+	    		showDefAttachmentDAO.deleteShowDefAttachment(showDefAttachment);
+	    		result.put("result", "success");
+	    		result.put("fileId", new Long(fileId));
+    		} catch (Exception e) {
+    			logger.error("Exception deleting file", e);
+    			result.put("result", "failure");
+    			result.put("message", e.getMessage());
+    		}
+    		request.setAttribute("json", Struct.structuredMapToJson(result));
+    		forward = "json";
     		
     	} else if (action.equals("")) {
     		// initial page load
@@ -374,5 +457,27 @@ public class MaintainShowDefAction
 		}
 		return errorLines;
     }
+    
+    public String progressToJson(FileProgressTO progress) {
+    	String subtasksJSON;
+    	if (progress.getSubtasks()==null) {
+    		subtasksJSON = "null";
+    	} else {
+    		subtasksJSON = "";
+	    	synchronized(progress.getSubtasks()) {
+	    		for (int i=0; i<progress.getSubtasks().size(); i++) {
+	    			ProgressTO subtask = (ProgressTO) progress.getSubtasks().get(i);
+		    		subtasksJSON += (subtasksJSON.equals("") ? "" : ", ") + progressToJson(progress);
+		    	}
+	    	}
+	    	subtasksJSON = "[" + subtasksJSON + "]";
+    	}
+    	return 
+    	  "{ 'percentDone' : " + progress.getPercentDone() +  "', " +
+    	  "  'status' : '" + Text.escapeJavascript2(progress.getStatus()) + "', " +  // use enums
+    	  "  'subTasks' : " + subtasksJSON + " }";
+    }
+
+    
 }
 

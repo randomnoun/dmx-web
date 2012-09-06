@@ -1,5 +1,7 @@
 package com.randomnoun.dmx.to;
 
+import java.util.List;
+
 import com.randomnoun.common.Text;
 
 public class ShowDefTO {
@@ -11,6 +13,10 @@ public class ShowDefTO {
     private String javadoc;
     private boolean isRecorded;
 
+    // used in import/export only
+    private List<ShowDefAttachmentTO> showDefAttachments;
+
+    
     /** Returns the id
      * @return the id
      */
