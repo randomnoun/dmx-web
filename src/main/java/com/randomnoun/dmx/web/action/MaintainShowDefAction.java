@@ -182,7 +182,9 @@ public class MaintainShowDefAction
 	    			showDefDAO.updateShowDef(showDef);
 	    			errors.addError("Show updated", "Show definition updated", ErrorList.SEVERITY_OK);
 	    		}
+	    		long startTime = System.currentTimeMillis();
 	    		appConfig.reloadShows();
+	    		logger.info("show reload time=" + ((System.currentTimeMillis() - startTime)/1000.0) + " sec");
     		} 
     		if (lngId!=-1) {
     			ShowDefTO tmp = new ShowDefTO();
@@ -220,7 +222,7 @@ public class MaintainShowDefAction
 		            showDefAttachment.setSize(file.getFileSize());
 		            showDefAttachment.setContentType(file.getContentType());
 		            showDefAttachmentDAO.createShowDefAttachment(showDefAttachment);
-		            showDefAttachmentDAO.writeStream(showDefAttachment, file.getInputStream());
+		            showDefAttachmentDAO.setInputStreamData(showDefAttachment, file.getInputStream());
 		            // errors.addError("Image uploaded", "Documentation file '" + fileName + "' (" + fileSize + " bytes) uploaded OK", ErrorList.SEVERITY_OK);
 		            script = "parent.edtCompletedUploadOK(" + showDefAttachment.getId() + ", \"" + showDefAttachment.getSizeInUnits() + 
 		              "\", \"" + Text.escapeJavascript2(showDefAttachment.getName()) + "\", \"" + Text.escapeJavascript2(showDefAttachment.getDescription()) + "\");";

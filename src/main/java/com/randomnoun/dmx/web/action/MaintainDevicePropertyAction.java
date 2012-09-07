@@ -148,7 +148,10 @@ public class MaintainDevicePropertyAction
     			errors.addError("Devices updated", "Table has been updated", ErrorList.SEVERITY_OK);
     			result.setErrors(errors);
     			// @TODO probably delay this until all changes have been made
+    			long startTime = System.currentTimeMillis();
     			AppConfig.getAppConfig().reloadDevicesFixturesAndShows(true);
+	    		logger.info("device reload time=" + ((System.currentTimeMillis() - startTime)/1000.0) + " sec");
+
     		}
     		return result;
     	}

@@ -157,7 +157,10 @@ public class MaintainDeviceAction
     			ErrorList errors = getTable().getErrors();
     			errors.addError("Devices updated", "Table has been updated", ErrorList.SEVERITY_OK);
     			result.setErrors(errors);
-    			AppConfig.getAppConfig().reloadDevicesFixturesAndShows(true);
+
+    			long startTime = System.currentTimeMillis();
+	    		AppConfig.getAppConfig().reloadDevicesFixturesAndShows(true);
+	    		logger.info("device reload time=" + ((System.currentTimeMillis() - startTime)/1000.0) + " sec");
     		}
     		return result;
     	}

@@ -215,7 +215,10 @@ public class MaintainFixtureDefAction
 	    			fixtureDefDAO.updateFixtureDef(fixtureDef);
 	    			errors.addError("Fixture updated", "Fixture definition updated", ErrorList.SEVERITY_OK);
 	    		}
+	    		long startTime = System.currentTimeMillis();
 	    		appConfig.reloadDevicesFixturesAndShows(false);
+	    		logger.info("fixture reload time=" + ((System.currentTimeMillis() - startTime)/1000.0) + " sec");
+	    		
     		}
     		if (lngId!=-1) {
     			FixtureDefTO tmp = new FixtureDefTO();
@@ -253,7 +256,7 @@ public class MaintainFixtureDefAction
 		            fixtureDefAttachment.setSize(file.getFileSize());
 		            fixtureDefAttachment.setContentType(file.getContentType());
 		            fixtureDefAttachmentDAO.createFixtureDefAttachment(fixtureDefAttachment);
-		            fixtureDefAttachmentDAO.saveImage(fixtureDefAttachment, file.getInputStream());
+		            fixtureDefAttachmentDAO.setInputStreamData(fixtureDefAttachment, file.getInputStream());
 		            // errors.addError("Image uploaded", "Documentation file '" + fileName + "' (" + fileSize + " bytes) uploaded OK", ErrorList.SEVERITY_OK);
 		            script = "parent.edtCompletedUploadOK(" + fixtureDefAttachment.getId() + ", \"" + fixtureDefAttachment.getSizeInUnits() + 
 		              "\", \"" + Text.escapeJavascript2(fixtureDefAttachment.getName()) + "\", \"" + Text.escapeJavascript2(fixtureDefAttachment.getDescription()) + "\");";
@@ -267,7 +270,7 @@ public class MaintainFixtureDefAction
     		FixtureDefAttachmentTO fixtureDefAttachment = fixtureDefAttachmentDAO.getFixtureDefAttachment(fileId);
     		response.setContentType(fixtureDefAttachment.getContentType());
     		response.setContentLength((int) fixtureDefAttachment.getSize());
-    		InputStream is = fixtureDefAttachmentDAO.loadImage(fixtureDefAttachment);
+    		InputStream is = fixtureDefAttachmentDAO.getInputStream(fixtureDefAttachment);
     		StreamUtils.copyStream(is, response.getOutputStream());
     		forward = null;
     		

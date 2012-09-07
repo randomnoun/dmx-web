@@ -266,7 +266,10 @@ public class MaintainFixtureAction
     			ErrorList errors = getTable().getErrors();
     			errors.addError("Fixtures updated", "Table has been updated", ErrorList.SEVERITY_OK);
     			result.setErrors(errors);
-    			AppConfig.getAppConfig().reloadDevicesFixturesAndShows(false);
+    			
+	    		long startTime = System.currentTimeMillis();
+				AppConfig.getAppConfig().reloadDevicesFixturesAndShows(false);
+	    		logger.info("fixture reload time=" + ((System.currentTimeMillis() - startTime)/1000.0) + " sec");
     		}
     		return result;
     	}
@@ -575,7 +578,10 @@ public class MaintainFixtureAction
 				
 				
 				if (action.equals("rfRepeatFixtures")) {
+		    		long startTime = System.currentTimeMillis();
 					AppConfig.getAppConfig().reloadDevicesFixturesAndShows(false);
+		    		logger.info("fixture reload time=" + ((System.currentTimeMillis() - startTime)/1000.0) + " sec");
+
 					
 					FixtureTableEditor tableEditor = new FixtureTableEditor(activeStageId);
 					request.setAttribute("form", tableEditor.readFixtures(null));

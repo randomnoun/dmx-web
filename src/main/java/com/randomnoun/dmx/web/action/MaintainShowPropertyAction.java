@@ -148,7 +148,9 @@ public class MaintainShowPropertyAction
     			ErrorList errors = getTable().getErrors();
     			errors.addError("Shows updated", "Table has been updated", ErrorList.SEVERITY_OK);
     			result.setErrors(errors);
-    			AppConfig.getAppConfig().reloadShows();
+	    		long startTime = System.currentTimeMillis();
+	    		AppConfig.getAppConfig().reloadShows();
+	    		logger.info("show reload time=" + ((System.currentTimeMillis() - startTime)/1000.0) + " sec");
     		}
     		return result;
     	}

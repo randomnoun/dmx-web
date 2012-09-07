@@ -144,7 +144,11 @@ public class MaintainStageAction
     			ErrorList errors = getTable().getErrors();
     			errors.addError("Stages updated", "Table has been updated", ErrorList.SEVERITY_OK);
     			result.setErrors(errors);
-    			AppConfig.getAppConfig().reloadDevicesFixturesAndShows(false);
+
+    			long startTime = System.currentTimeMillis();
+	    		AppConfig.getAppConfig().reloadDevicesFixturesAndShows(false);
+	    		logger.info("stage reload time=" + ((System.currentTimeMillis() - startTime)/1000.0) + " sec");
+    			
     		}
     		return result;
     	}

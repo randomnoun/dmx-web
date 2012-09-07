@@ -232,6 +232,7 @@ public class AppConfig extends AppConfigBase {
 
         AppConfig newInstance = new AppConfig();
     	try {
+    		long startTime = System.currentTimeMillis();
     		newInstance.exceptionContainer = new ExceptionContainerImpl();
 	        newInstance.initHostname();
 	        newInstance.loadProperties();  // properties depends on hostname
@@ -251,7 +252,8 @@ public class AppConfig extends AppConfigBase {
 	        //newInstance.initCometEventManager();
 
 	        newInstance.appConfigState = AppConfigState.RUNNING;
-	        logger.info("appConfig now in " + newInstance.appConfigState + " state");
+	        logger.info("appConfig now in " + newInstance.appConfigState + " state; " +
+	          "initialisation time=" + ((System.currentTimeMillis() - startTime)/1000.0) + " sec");
     	} catch (Throwable t) {
     		newInstance.initialisationFailure = new RuntimeException("Could not initialise application", t);
     	}
@@ -976,6 +978,7 @@ bsh.InterpreterError: null fromValue
 						try {
 							constructorType = 1;
 							constructor = showClass.getConstructor(long.class, Controller.class, Properties.class);
+							logger.warn("Show " + showTO.getId() + " using deprecated constructor");
 						} catch (Exception e2) {
 							AppConfigException ace = new AppConfigException("Error whilst instantiating show " + showTO.getId() + ": '" + showTO.getName() + "'", e2);
 							exceptionContainer.addException(ace);
