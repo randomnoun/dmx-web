@@ -23,12 +23,21 @@ public abstract class RecordedShow extends Show {
 
 	// @TODO get rid of any shows still using Maps.
 	
+	public RecordedShow() {
+		super();
+	}
+	
 	protected RecordedShow(long id, Controller controller, String name, long length, Map properties) {
 		this(id, controller, name, length, (Properties) properties);
 	}
 	
 	protected RecordedShow(long id, Controller controller, String name, long length, Properties properties) {
 		super(id, controller, name, length, properties);
+	}
+	
+	
+	public void init() { 
+		super.init();
 	}
 
 	/** This method is used by the web UI to load a recording for playback and modification */ 
