@@ -49,6 +49,7 @@ import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.FixtureDefAttachmentDAO;
 import com.randomnoun.dmx.dao.ShowDAO;
+import com.randomnoun.dmx.dao.ShowDefAttachmentDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.dao.ShowPropertyDAO;
 import com.randomnoun.dmx.dao.StageDAO;
@@ -57,6 +58,7 @@ import com.randomnoun.dmx.to.DeviceTO;
 import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
+import com.randomnoun.dmx.to.ShowDefAttachmentTO;
 import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowPropertyTO;
 import com.randomnoun.dmx.to.ShowTO;
@@ -469,6 +471,7 @@ public class ImportExportAction
 		FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
 		FixtureDefAttachmentDAO fixtureDefAttachmentDAO = new FixtureDefAttachmentDAO(jt);
 		ShowDefDAO showDefDAO = new ShowDefDAO(jt);
+		ShowDefAttachmentDAO showDefAttachmentDAO = new ShowDefAttachmentDAO(jt);
 		FixtureDAO fixtureDAO = new FixtureDAO(jt);
 		ShowDAO showDAO = new ShowDAO(jt);
 		ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(jt);
@@ -652,7 +655,7 @@ src/main/resources/export.xml (date of export, totals etc)
 					ze = new ZipEntry("src/main/resources/fixtureDefs/" + fixtureDef.getId() + "/" + FixtureDefAttachmentDAO.sanitiseFilename(fda.getName()));
 					zos.putNextEntry(ze);
 					// FileInputStream fis = new FileInputStream(fdi.getFileLocation());
-					is = fixtureDefAttachmentDAO.loadImage(fda);
+					is = fixtureDefAttachmentDAO.getInputStream(fda);
 					StreamUtils.copyStream(is, zos);
 					is.close();
 					
@@ -684,7 +687,18 @@ src/main/resources/export.xml (date of export, totals etc)
 				ze = new ZipEntry("src/main/beanshell/" + Text.replaceString(showDef.getClassName(), ".", "/") + ".beanshell");
 				zos.putNextEntry(ze);
 				zos.write(showDef.getScript().getBytes());
+
+				List<ShowDefAttachmentTO> showDefAttachments = showDefAttachmentDAO.getShowDefAttachments("showDefId=" + showDef.getId());
+				for (ShowDefAttachmentTO sda : showDefAttachments) {
+					ze = new ZipEntry("src/main/resources/showDefs/" + showDef.getId() + "/" + ShowDefAttachmentDAO.sanitiseFilename(sda.getName()));
+					zos.putNextEntry(ze);
+					// FileInputStream fis = new FileInputStream(fdi.getFileLocation());
+					is = showDefAttachmentDAO.getInputStream(sda);
+					StreamUtils.copyStream(is, zos);
+					is.close();
+				}
 				
+				showDef.setShowDefAttachments(showDefAttachments);
 				showDefPw.println(Text.indent("    ", showDef.toExportXml()));
 			}
 			showDefPw.println("</showDefs>\n");
@@ -911,14 +925,14 @@ src/main/resources/export.xml (date of export, totals etc)
 								logger.info("Importing fixtureDef '" + fixtureDefs.get(i).getName() + "'");
 								long oldId=fixtureDef.getId();
 								fixtureDefDAO.createFixtureDef(fixtureDef); // modifies id field
+								anythingElseChanged=true;
 								remapFixtureDefIds.put(oldId, fixtureDef.getId());
 								for (FixtureDefAttachmentTO fixtureDefAttachment : fixtureDef.getFixtureDefAttachments()) {
 									fixtureDefAttachment.setFixtureDefId(fixtureDef.getId());
 									fixtureDefAttachmentDAO.createFixtureDefAttachment(fixtureDefAttachment);
-									fixtureDefAttachmentDAO.saveImage(fixtureDefAttachment, 
+									fixtureDefAttachmentDAO.setInputStreamData(fixtureDefAttachment, 
 									  new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDefs/" + oldId + "/" + 
 									    FixtureDefAttachmentDAO.sanitiseFilename(fixtureDefAttachment.getName()))));
-									anythingElseChanged=true;
 								}
 								
 							} else if (canReplace) {
@@ -927,23 +941,21 @@ src/main/resources/export.xml (date of export, totals etc)
 								long oldId=fixtureDef.getId();
 								fixtureDef.setId(byName.getId());
 								fixtureDefDAO.updateFixtureDef(fixtureDef);
+								anythingElseChanged=true;
 								remapFixtureDefIds.put(oldId, fixtureDef.getId());
 								// @TODO update in-place if most of the attributes are the same
 								List<FixtureDefAttachmentTO> fixtureDefAttachments = fixtureDefAttachmentDAO.getFixtureDefAttachments("fixtureDefId=" + fixtureDef.getId());
 								for (FixtureDefAttachmentTO fixtureDefAttachment : fixtureDefAttachments) {
 									fixtureDefAttachmentDAO.deleteFixtureDefAttachment(fixtureDefAttachment);
-									anythingElseChanged=true;
-									// @TODO also delete old files from local fixtureDef folder
 								}
 								for (FixtureDefAttachmentTO fixtureDefAttachment : fixtureDef.getFixtureDefAttachments()) {
 									fixtureDefAttachment.setFixtureDefId(fixtureDef.getId());
 									fixtureDefAttachmentDAO.createFixtureDefAttachment(fixtureDefAttachment);
-									fixtureDefAttachmentDAO.saveImage(fixtureDefAttachment, 
+									fixtureDefAttachmentDAO.setInputStreamData(fixtureDefAttachment, 
 									  new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDefs/" + oldId + "/" + 
 									    FixtureDefAttachmentDAO.sanitiseFilename(fixtureDefAttachment.getName()))));
-									anythingElseChanged=true;
 								}
-								// @TODO keep track of the old id when linking stage fixtures to this fixturedef
+								
 							} else {
 								logger.warn("Cannot import fixtureDef '" + fixtureDefs.get(i).getName() + "'; ignoring");
 							}
@@ -979,8 +991,16 @@ src/main/resources/export.xml (date of export, totals etc)
 								logger.info("Importing showDef '" + showDefs.get(i).getName() + "'");
 								long oldId=showDef.getId();
 								showDefDAO.createShowDef(showDef); // modifies id field
-								remapShowDefIds.put(oldId, showDef.getId());
 								anythingElseChanged=true;
+								remapShowDefIds.put(oldId, showDef.getId());
+								for (ShowDefAttachmentTO showDefAttachment : showDef.getShowDefAttachments()) {
+									showDefAttachment.setShowDefId(showDef.getId());
+									showDefAttachmentDAO.createShowDefAttachment(showDefAttachment);
+									showDefAttachmentDAO.setInputStreamData(showDefAttachment, 
+									  new ByteArrayInputStream(zipMap.get("src/main/resources/showDefs/" + oldId + "/" + 
+									    FixtureDefAttachmentDAO.sanitiseFilename(showDefAttachment.getName()))));
+								}
+
 								
 							} else {
 								logger.info("Replacing showDef '" + showDefs.get(i).getName() + "'");
@@ -990,6 +1010,19 @@ src/main/resources/export.xml (date of export, totals etc)
 								showDefDAO.updateShowDef(showDef);
 								remapShowDefIds.put(oldId, showDef.getId());
 								anythingElseChanged=true;
+
+								List<ShowDefAttachmentTO> showDefAttachments = showDefAttachmentDAO.getShowDefAttachments("showDefId=" + showDef.getId());
+								for (ShowDefAttachmentTO showDefAttachment : showDefAttachments) {
+									showDefAttachmentDAO.deleteShowDefAttachment(showDefAttachment);
+								}
+								for (ShowDefAttachmentTO showDefAttachment : showDef.getShowDefAttachments()) {
+									showDefAttachment.setShowDefId(showDef.getId());
+									showDefAttachmentDAO.createShowDefAttachment(showDefAttachment);
+									showDefAttachmentDAO.setInputStreamData(showDefAttachment, 
+									  new ByteArrayInputStream(zipMap.get("src/main/resources/showDefs/" + oldId + "/" + 
+									    ShowDefAttachmentDAO.sanitiseFilename(showDefAttachment.getName()))));
+								}
+
 							} 
 						}
 					}

@@ -1,5 +1,7 @@
 package com.randomnoun.dmx.to;
 
+import com.randomnoun.common.Text;
+
 public class ShowDefAttachmentTO {
 
     private long id;
@@ -119,5 +121,16 @@ public class ShowDefAttachmentTO {
         this.description = description;
     }
 
+    
+    public String toExportXml() {
+    	return "<showDefAttachment>\n" + 
+    		"    <showDefId>" + showDefId + "</showDefId>\n" +
+    		"    <name>" + Text.escapeHtml(name) + "</name>\n" +
+    		"    <description>" + description + "</description>\n" +
+    		"    <size>" + size + "</size>\n" +
+    		"    <contentType>" + Text.escapeHtml(contentType) + "</contentType>\n" +
+    		"</showDefAttachment>\n";
+    }
+    
 }
 

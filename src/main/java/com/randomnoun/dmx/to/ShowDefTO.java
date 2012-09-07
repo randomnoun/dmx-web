@@ -95,14 +95,23 @@ public class ShowDefTO {
 	}
 	
 	public String toExportXml() {
-		return "<showDef>\n" +
+		String s = "<showDef>\n" +
 			"    <id>" + id + "</id>\n" +
 			"    <name>" + Text.escapeHtml(name) + "</name>\n" +
 			"    <className>" + className + "</className>\n" +
 			//"<script>" + script + "</script>\n" +
 			"    <javadoc>" + Text.escapeHtml(javadoc) + "</javadoc>\n" +
-			"    <isRecorded>" + isRecorded + "</isRecorded>\n" +
-			"</showDef>\n";
+			"    <isRecorded>" + isRecorded + "</isRecorded>\n";
+			
+		if (showDefAttachments.size() > 0) {
+			s += "    <showDefAttachments>\n";
+			for (ShowDefAttachmentTO sda : showDefAttachments) {
+				s += Text.indent("        ", sda.toExportXml());
+			}
+			s += "    </showDefAttachments>\n";
+		}
+		s += "</showDef>\n";
+		return s;
 	}
 
 	public Class getShowClass() {
