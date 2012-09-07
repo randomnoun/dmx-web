@@ -85,7 +85,7 @@ public class FixtureAttachmentServlet extends javax.servlet.http.HttpServlet imp
 				response.setContentType(fixtureDefAttachment.getContentType());
 	    		InputStream is;
 	    		try {
-		    		is = fixtureDefAttachmentDAO.loadImage(fixtureDefAttachment);
+		    		is = fixtureDefAttachmentDAO.getInputStream(fixtureDefAttachment);
 		    		response.setContentLength((int) fixtureDefAttachment.getSize());
 		    		StreamUtils.copyStream(is, response.getOutputStream());
 		    		is.close();

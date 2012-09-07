@@ -160,7 +160,9 @@ public class FixtureDefAttachmentDAO {
         return fixtureDefAttachmentId;
     }
     
-    public void saveImage(FixtureDefAttachmentTO fixtureDefAttachment, InputStream is) throws IOException {
+    /** Copy the data supplied by an input stream into this fixtureDefAttachment. 
+     * The inputStream will be completely read by this method */
+    public void setInputStreamData(FixtureDefAttachmentTO fixtureDefAttachment, InputStream is) throws IOException {
     	File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
     	File newFile = new File(imageBase, fixtureDefAttachment.getFileLocation());
     	if (!newFile.getParentFile().isDirectory()) {
@@ -171,7 +173,7 @@ public class FixtureDefAttachmentDAO {
     	fos.close();
     }
     
-    public InputStream loadImage(FixtureDefAttachmentTO fixtureDefAttachment) throws FileNotFoundException {
+    public InputStream getInputStream(FixtureDefAttachmentTO fixtureDefAttachment) throws FileNotFoundException {
     	File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
     	return new FileInputStream(new File(imageBase, fixtureDefAttachment.getFileLocation()));
     }

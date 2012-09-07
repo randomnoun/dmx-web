@@ -161,13 +161,13 @@ public class ShowDefAttachmentDAO {
     }
     
     /** Copies all data from the supplied input stream to the file location associated with the
-     * given showDefAttachment
+     * given showDefAttachment. The inputStream will be completely read by this method.
      * 
      * @param showDefAttachment
      * @param is
      * @throws IOException
      */
-    public void writeStream(ShowDefAttachmentTO showDefAttachment, InputStream is) throws IOException {
+    public void setInputStreamData(ShowDefAttachmentTO showDefAttachment, InputStream is) throws IOException {
     	File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
     	File newFile = new File(imageBase, showDefAttachment.getFileLocation());
     	if (!newFile.getParentFile().isDirectory()) {
