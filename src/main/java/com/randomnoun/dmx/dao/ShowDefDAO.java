@@ -3,13 +3,17 @@ package com.randomnoun.dmx.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.randomnoun.common.spring.StringRowMapper;
+import com.randomnoun.dmx.to.ShowDefAttachmentTO;
 import com.randomnoun.dmx.to.ShowDefTO;
 
 public class ShowDefDAO {
@@ -27,6 +31,42 @@ public class ShowDefDAO {
             s.setRecorded("Y".equals(rs.getString("ynRecorded")));
             return s;
         }
+    }
+    
+    private static class ShowDefWithAttachmentResultSetExtractor implements ResultSetExtractor {
+		public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
+			List<ShowDefTO> result = new ArrayList<ShowDefTO>();
+			long lastShowDefId = -1;
+			ShowDefTO s = null;
+			while (rs.next()) {
+				long showDefId = rs.getLong("showDefId");
+				if (showDefId!=lastShowDefId) {
+					s = new ShowDefTO();
+					s.setId(showDefId);
+		            s.setName(rs.getString("showDefName"));
+		            s.setClassName(rs.getString("className"));
+		            s.setScript(rs.getString("script"));
+		            s.setJavadoc(rs.getString("javadoc"));
+		            s.setRecorded("Y".equals(rs.getString("ynRecorded")));
+		            s.setShowDefAttachments(new ArrayList<ShowDefAttachmentTO>());
+		            result.add(s);
+				}
+				long showDefAttachmentId = rs.getLong("showDefAttachmentId");
+				if (!rs.wasNull()) {
+					ShowDefAttachmentTO a = new ShowDefAttachmentTO();
+					a.setId(showDefAttachmentId);
+		            a.setShowDefId(showDefId);
+		            a.setName(rs.getString("showDefAttachmentName"));
+		            a.setSize(rs.getLong("size"));
+		            a.setContentType(rs.getString("contentType"));
+		            a.setFileLocation(rs.getString("fileLocation"));
+		            a.setDescription(rs.getString("description"));
+		            s.getShowDefAttachments().add(a);
+				}
+			}
+			return result;
+		}
+    	
     }
 
     public ShowDefDAO(JdbcTemplate jt) {
@@ -47,6 +87,17 @@ public class ShowDefDAO {
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
 	    return (List<ShowDefTO>) jt.query(sql, new ShowDefDAORowMapper());
     }
+
+    
+	public List<ShowDefTO> getShowDefsWithAttachments(String sqlWhereClause) {
+        String sql =
+            "SELECT showDef.id AS showDefId, showDef.name AS showDefName, className, script, javadoc, ynRecorded, " +
+            " showDefAttachment.id AS showDefAttachmentId, showDefAttachment.name AS showDefAttachmentName, size, contentType, fileLocation, description " +
+            " FROM showDef LEFT JOIN showDefAttachment " +
+            " ON showDef.id = showDefAttachment.showDefId " + 
+            (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
+	    return (List<ShowDefTO>) jt.query(sql, new ShowDefWithAttachmentResultSetExtractor());
+	}
 
     /** Return a showDef
      *
@@ -140,5 +191,6 @@ public class ShowDefDAO {
 	   while (classes.contains(packageName + "." + className + maxClass)) { maxClass++; }
 	   return maxClass;
    }
+
    
 }
