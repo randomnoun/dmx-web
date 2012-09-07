@@ -16,9 +16,6 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.randomnoun.common.StreamUtils;
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.dao.FixtureDefImageDAO.FixtureDefImageDAORowMapper;
-import com.randomnoun.dmx.to.FixtureDefImageTO;
-import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.ShowDefAttachmentTO;
 import com.randomnoun.dmx.to.ShowDefTO;
 
