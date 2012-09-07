@@ -35,6 +35,18 @@ ALTER TABLE `fixture` ADD COLUMN `universeNumber` INT(10) UNSIGNED NOT NULL DEFA
   
 UPDATE fixture SET universeNumber=1;
 
+CREATE TABLE `showDefAttachment` (
+  `id` INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `showDefId` INTEGER(10) UNSIGNED NOT NULL,
+  `name` VARCHAR(200) NOT NULL,
+  `size` INTEGER(10) UNSIGNED NOT NULL,
+  `contentType` VARCHAR(100) NOT NULL,
+  `fileLocation` VARCHAR(200) NOT NULL,
+  `description` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`)
+)
+ENGINE = InnoDB;
+
 ALTER TABLE `fixtureDef` ADD COLUMN `htmlImg16` VARCHAR(100) DEFAULT NULL AFTER `dmxChannels`;  
 
 CREATE TABLE `fixtureDefAttachment` (
@@ -54,6 +66,4 @@ SELECT id, fixtureDefId, name, size, contentType, fileLocation, description
 FROM fixtureDefImage;
 
 DROP TABLE fixtureDefImage;
-
-
 
