@@ -776,12 +776,24 @@ public class ShowUtils {
 	        return fcm;
         }
     }
+
+    /** @deprecated use the other one */
+	public static BufferedImage[] getImages(Controller controller, String resourceName) {
+		logger.info("Reading images from '" + resourceName + "'");
+		try {
+	        InputStream is = controller.getResource(resourceName);
+	        BufferedImage[] result = getImages(controller, is);
+	        is.close();
+        return result;
+		} catch (Exception e) {
+            logger.error("Could not read resource '" + resourceName + "'", e);
+            return null;
+        }
+	}
 	
-    public static BufferedImage[] getImages(Controller controller, String resourceName) {
+    public static BufferedImage[] getImages(Controller controller, InputStream is) {
         // InputStream is = getController().getClass().getResourceAsStream("matrix-animations/" + resourceName);
-        logger.info("Reading images from '" + resourceName + "'");
         try {
-            InputStream is = controller.getResource(resourceName);
             ImageInputStream stream = ImageIO.createImageInputStream(is);
             Iterator readers = ImageIO.getImageReaders(stream);
             if (!readers.hasNext()) {
@@ -813,16 +825,29 @@ public class ShowUtils {
             is.close();
             return bi;
         } catch (Exception e) {
-            logger.error("Could not read resource '" + resourceName + "'", e);
+            logger.error("Could not read resource", e);
             return null;
         }
     }
-    
+
+    /** @deprecated use the other one */
     public static BufferedImage[] getResizedImages(Controller controller, String resourceName, int width, int height) {
+		logger.info("Reading images from '" + resourceName + "'");
+		try {
+	        InputStream is = controller.getResource(resourceName);
+	        BufferedImage[] result = getResizedImages(controller, is, width, height);
+	        is.close();
+        return result;
+		} catch (Exception e) {
+            logger.error("Could not read resource '" + resourceName + "'", e);
+            return null;
+        }
+	}
+    
+    public static BufferedImage[] getResizedImages(Controller controller, InputStream is, int width, int height) {
         // InputStream is = getController().getClass().getResourceAsStream("matrix-animations/" + resourceName);
-        logger.info("Reading images from '" + resourceName + "'");
+        // logger.info("Reading images from '" + resourceName + "'");
         try {
-            InputStream is = controller.getResource(resourceName);
             ImageInputStream stream = ImageIO.createImageInputStream(is);
             Iterator readers = ImageIO.getImageReaders(stream);
             if (!readers.hasNext()) {
@@ -853,7 +878,7 @@ public class ShowUtils {
             is.close();
             return bi;
         } catch (Exception e) {
-            logger.error("Could not read resource '" + resourceName + "'", e);
+            logger.error("Could not read resource", e);
             return null;
         }
     }
