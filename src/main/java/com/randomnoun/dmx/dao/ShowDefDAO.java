@@ -50,6 +50,7 @@ public class ShowDefDAO {
 		            s.setRecorded("Y".equals(rs.getString("ynRecorded")));
 		            s.setShowDefAttachments(new ArrayList<ShowDefAttachmentTO>());
 		            result.add(s);
+		            lastShowDefId = showDefId;
 				}
 				long showDefAttachmentId = rs.getLong("showDefAttachmentId");
 				if (!rs.wasNull()) {
@@ -95,7 +96,8 @@ public class ShowDefDAO {
             " showDefAttachment.id AS showDefAttachmentId, showDefAttachment.name AS showDefAttachmentName, size, contentType, fileLocation, description " +
             " FROM showDef LEFT JOIN showDefAttachment " +
             " ON showDef.id = showDefAttachment.showDefId " + 
-            (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
+            (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause) +
+            " ORDER BY showDef.id, showDefAttachment.id";
 	    return (List<ShowDefTO>) jt.query(sql, new ShowDefWithAttachmentResultSetExtractor());
 	}
 
