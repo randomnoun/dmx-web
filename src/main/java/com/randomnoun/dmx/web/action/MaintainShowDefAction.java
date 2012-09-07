@@ -425,9 +425,13 @@ public class MaintainShowDefAction
 				errors.addError("script", "Invalid class", "Class " + className + " does not extend com.randomnoun.dmx.Show"); 
 			} else {
 				Properties nullProperties = new Properties();
-				@SuppressWarnings("unchecked")
-				Constructor constructor = clazz.getConstructor(long.class, Controller.class, Properties.class);
-				showObj = (Show) constructor.newInstance(0L, testController, nullProperties);
+				try {
+					Constructor constructor = clazz.getConstructor(long.class, Controller.class, Properties.class);
+					showObj = (Show) constructor.newInstance(0L, testController, nullProperties);
+				} catch (NoSuchMethodException nsme) {
+					Constructor constructor = clazz.getConstructor();
+					showObj = (Show) constructor.newInstance();
+				}
 			}
 			return RecordedShow.class.isAssignableFrom(clazz);
 		} catch (Exception e) {
