@@ -1,5 +1,6 @@
 package com.randomnoun.dmx.config;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
@@ -148,7 +149,6 @@ public class AppConfig extends AppConfigBase {
     	}
     	synchronized public ShowThread getThread() {
     		// @TODO possibly use thread pools here
-    		// @TODO threadIds
     		boolean newThread = false;
     		if (showThread==null) {
     			if (appConfig.appConfigState != AppConfigState.RUNNING) { 
@@ -907,13 +907,13 @@ bsh.InterpreterError: null fromValue
 		
 		// I'm assuming all this needs to go into a separate classLoader eventually
 		// @TODO see all the comments above for fixture defs
-		Map scriptedShowDefs = new HashMap(); // id -> scripted show class object
-		Map scriptedShowDescriptions = new HashMap(); // id -> scripted show javadoc
+		Map<Long, ShowDefTO> scriptedShowDefs = new HashMap<Long, ShowDefTO>(); // id -> showDef object containing scripted show class object
+		//Map scriptedShowDescriptions = new HashMap(); // id -> scripted show javadoc
 		ShowDefDAO showDefDAO = new ShowDefDAO(getJdbcTemplate());
 		
 		// NB: slightly different SQL for JET here
-		List showDefsFromDatabase = showDefDAO.getShowDefs(
-			"id IN " +
+		List showDefsFromDatabase = showDefDAO.getShowDefsWithAttachments(
+			"showDef.id IN " +
 			" (SELECT DISTINCT showDefId FROM `show` WHERE stageId IN " +
 			"   (SELECT id FROM stage WHERE active='Y'))");
 		if (showDefsFromDatabase == null || showDefsFromDatabase.size()==0) {
@@ -930,8 +930,9 @@ bsh.InterpreterError: null fromValue
 						"return " + showDef.getClassName() + ".class;\n" ;
 					Class clazz = (Class) getScriptEngine().eval(testScript, showScriptContext);
 					if (Show.class.isAssignableFrom(clazz)) {
-						scriptedShowDefs.put(showDef.getId(), clazz);
-						scriptedShowDescriptions.put(showDef.getId(), showDef.getJavadoc());
+						showDef.setShowClass(clazz);
+						scriptedShowDefs.put(showDef.getId(), showDef);
+						// scriptedShowDescriptions.put(showDef.getId(), showDef.getJavadoc());
 					} else {
 						logger.error("Error processing show " + showDef.getId() + ": '" + showDef.getName() + "'; className='" + showDef.getClassName() + "' does not extend com.randomnoun.dmx.Show"); 
 					}
@@ -960,24 +961,31 @@ bsh.InterpreterError: null fromValue
 			for (int i = 0; i < showsFromDatabase.size(); i++) {
 				ShowTO showTO = (ShowTO) showsFromDatabase.get(i);
 				long showDefId = showTO.getShowDefId();
-				Class showClass = (Class) scriptedShowDefs.get(showDefId);
+				ShowDefTO showDef = scriptedShowDefs.get(showDefId);
 				Constructor constructor = null;
-				if (showClass==null) {
-					AppConfigException ace = new AppConfigException("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no show found with id '" + showDefId + "'");
+				int constructorType = 0; // 0=no-args, 1=args (deprecated)
+				if (showDef == null || showDef.getShowClass()==null) {
+					AppConfigException ace = new AppConfigException("Error whilst creating show " + showTO.getId() + ": '" + showTO.getName() + "'; no showDef found with id '" + showDefId + "'");
 					logger.error(ace);
 				} else {
+					Class showClass = showDef.getShowClass();
 					try {
-						constructor = showClass.getConstructor(long.class, Controller.class, Properties.class);
+						constructorType = 0;
+						constructor = showClass.getConstructor();
 					} catch (Exception e) {
-						AppConfigException ace = new AppConfigException("Error whilst instantiating show " + showTO.getId() + ": '" + showTO.getName() + "'", e);
-						exceptionContainer.addException(ace);
-						logger.error(ace);
+						try {
+							constructorType = 1;
+							constructor = showClass.getConstructor(long.class, Controller.class, Properties.class);
+						} catch (Exception e2) {
+							AppConfigException ace = new AppConfigException("Error whilst instantiating show " + showTO.getId() + ": '" + showTO.getName() + "'", e2);
+							exceptionContainer.addException(ace);
+							logger.error(ace);
+						}
 					}
 				}
-				if (showClass==null || constructor==null) {
+				if (constructor==null) {
 					// errors logged above 
 				} else {
-					String javadoc = (String) scriptedShowDescriptions.get(showDefId);
 					logger.debug("Creating scripted show '" + showTO.getName() + "' from database");
 					Properties showProperties = new Properties();
 					//if (showTO.getOnCompleteShowId()!=null) { showProperties.put("onCompleteShowId", showTO.getOnCompleteShowId().toString()); }
@@ -987,20 +995,32 @@ bsh.InterpreterError: null fromValue
 					Show showObj;
 					try {
 						if (addToAppConfig) {
+							// @TODO load with shows
 							if (showTO.getShowPropertyCount()>0) {
 								List<ShowPropertyTO> showPropertyTOs = showPropertyDAO.getShowProperties("showId=" + showTO.getId());
 								for (ShowPropertyTO showProperty : showPropertyTOs) {
 									showProperties.put(showProperty.getKey(), showProperty.getValue());
 								}
 							}
-							showObj = (Show) constructor.newInstance(showTO.getId(), controller, showProperties);
+							if (constructorType==0) {
+								showObj = (Show) constructor.newInstance();
+								showObj.setId(showTO.getId());
+								showObj.setController(controller);
+								showObj.setProperties(showProperties);
+							} else {
+								showObj = (Show) constructor.newInstance(showTO.getId(), controller, showProperties);
+							}
 							if (showTO.getOnCompleteShowId()!=null) { showObj.setOnCompleteShowId(showTO.getOnCompleteShowId().longValue()); }
 							if (showTO.getOnCancelShowId()!=null) { showObj.setOnCancelShowId(showTO.getOnCancelShowId().longValue()); }
 							if (showTO.getShowGroupId()!=null) { showObj.setShowGroupId(showTO.getShowGroupId().longValue()); }
+							showObj.setShowDefAttachments(
+								new File(getProperty("webapp.fileUpload.path"), "showDefs/" + showDef.getId()), 
+								showDef.getShowDefAttachments());
 							if (!Text.isBlank(showTO.getName())) { showObj.setName(showTO.getName()); }
-							if (!Text.isBlank(javadoc) && showObj.getDescription()==null) { 
-								showObj.setDescription(removeCommentTokens(javadoc)); 
+							if (!Text.isBlank(showDef.getJavadoc()) && showObj.getDescription()==null) { 
+								showObj.setDescription(removeCommentTokens(showDef.getJavadoc())); 
 							}
+							showObj.init(); // @TODO move most of the constructor code in each show to this method
 							ShowConfig showConfig = new ShowConfig(this, showTO.getId(), showObj);
 							showConfigs.put(showTO.getId(), showConfig);
 							showConfigsByName.put(showObj.getName(), showConfig); 
