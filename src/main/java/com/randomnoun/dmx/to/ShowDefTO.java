@@ -13,9 +13,8 @@ public class ShowDefTO {
     private String javadoc;
     private boolean isRecorded;
 
-    // used in import/export only
+    private Class showClass;
     private List<ShowDefAttachmentTO> showDefAttachments;
-
     
     /** Returns the id
      * @return the id
@@ -104,6 +103,22 @@ public class ShowDefTO {
 			"    <javadoc>" + Text.escapeHtml(javadoc) + "</javadoc>\n" +
 			"    <isRecorded>" + isRecorded + "</isRecorded>\n" +
 			"</showDef>\n";
+	}
+
+	public Class getShowClass() {
+		return showClass;
+	}
+
+	public void setShowClass(Class showClass) {
+		this.showClass = showClass;
+	}
+
+	public List<ShowDefAttachmentTO> getShowDefAttachments() {
+		return showDefAttachments;
+	}
+
+	public void setShowDefAttachments(List<ShowDefAttachmentTO> showDefAttachments) {
+		this.showDefAttachments = showDefAttachments;
 	}
     
     
