@@ -20,8 +20,8 @@ public class ShowThread extends Thread {
 	
 
 	public void run() {
-		show.audioSource = showAudioSource;
-		show.state = Show.State.SHOW_RUNNING;
+		show.setAudioSource(showAudioSource);
+		show.setState(Show.State.SHOW_RUNNING);
 		AppConfig appConfig = AppConfig.getAppConfig();
 		long onCancelShowId = show.getOnCancelShowId();
 		long onCompleteShowId = show.getOnCompleteShowId();
@@ -29,11 +29,11 @@ public class ShowThread extends Thread {
 		while (onWithTheShow) {
 			try {
 				showAudioSource.open(); // listen for the beat
-				show.state = Show.State.SHOW_RUNNING;
+				show.setState(Show.State.SHOW_RUNNING);
 				logger.debug("Playing show '" + show.getName() + "'");
 				show.internalReset();
 				show.play();
-				show.state = Show.State.SHOW_STOPPED; // although the thread is still running, really...
+				show.setState(Show.State.SHOW_STOPPED); // although the thread is still running, really...
 				onWithTheShow=false;
 				if (show.isCancelled()) { 
 					logger.debug("Show '" + show.getName() + "' was cancelled");
@@ -57,7 +57,7 @@ public class ShowThread extends Thread {
 			} catch (Exception e) {
 				onWithTheShow = false;
 				logger.debug("Show '" + show.getName() + "' threw an exception", e);
-				show.state = Show.State.SHOW_STOPPED_WITH_EXCEPTION;
+				show.setState(Show.State.SHOW_STOPPED_WITH_EXCEPTION);
 				show.setLastException(e);
 				AppConfig.getAppConfig().addShowException(show, e);
 				if (onCancelShowId!=-1 && appConfig.getAppConfigState()==AppConfigState.RUNNING) {
