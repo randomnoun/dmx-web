@@ -15,7 +15,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.to.FixtureDefImageTO;
+import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.StageTO;
 
 // currently, only one stage can be active at one time

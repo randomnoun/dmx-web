@@ -47,14 +47,14 @@ import com.randomnoun.dmx.dao.DeviceDAO;
 import com.randomnoun.dmx.dao.DevicePropertyDAO;
 import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
-import com.randomnoun.dmx.dao.FixtureDefImageDAO;
+import com.randomnoun.dmx.dao.FixtureDefAttachmentDAO;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.dao.ShowPropertyDAO;
 import com.randomnoun.dmx.dao.StageDAO;
 import com.randomnoun.dmx.to.DevicePropertyTO;
 import com.randomnoun.dmx.to.DeviceTO;
-import com.randomnoun.dmx.to.FixtureDefImageTO;
+import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
 import com.randomnoun.dmx.to.ShowDefTO;
@@ -223,16 +223,16 @@ public class ImportExportAction
 	public static class FixtureDefContentHandler extends AbstractStackContentHandler {
 		List<FixtureDefTO> result = new ArrayList<FixtureDefTO>();
 		FixtureDefTO fd = null;
-		FixtureDefImageTO fdi = null;
+		FixtureDefAttachmentTO fdi = null;
 		Pattern p1 = Pattern.compile("^fixtureDefs/fixtureDef/(id|name|fixtureDefClassName|fixtureControllerClassName|channelMuxerClassName|dmxChannels|htmlImg16)$");
 		Pattern p2 = Pattern.compile("^fixtureDefs/fixtureDef/fixtureDefImages/fixtureDefImage/(fixtureDefId|name|description|size|contentType)$");
 		public void element(String path) throws SAXException {
 			if (stack.equals("fixtureDefs/fixtureDef")) {
 				fd = new FixtureDefTO();
-				fd.setFixtureDefImages(new ArrayList<FixtureDefImageTO>());
+				fd.setFixtureDefImages(new ArrayList<FixtureDefAttachmentTO>());
 				result.add(fd);
 			} else if (stack.equals("fixtureDefs/fixtureDef/fixtureDefImages/fixtureDefImage")) {
-				fdi = new FixtureDefImageTO();
+				fdi = new FixtureDefAttachmentTO();
 				fd.getFixtureDefImages().add(fdi);
 			}
 		}
@@ -467,7 +467,7 @@ public class ImportExportAction
 		String action = request.getParameter("action");
 
 		FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
-		FixtureDefImageDAO fixtureDefImageDAO = new FixtureDefImageDAO(jt);
+		FixtureDefAttachmentDAO fixtureDefImageDAO = new FixtureDefAttachmentDAO(jt);
 		ShowDefDAO showDefDAO = new ShowDefDAO(jt);
 		FixtureDAO fixtureDAO = new FixtureDAO(jt);
 		ShowDAO showDAO = new ShowDAO(jt);
@@ -647,9 +647,9 @@ src/main/resources/export.xml (date of export, totals etc)
 				zos.putNextEntry(ze);
 				zos.write(fixtureDef.getChannelMuxerScript().getBytes());
 			
-				List<FixtureDefImageTO> fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages("fixtureDefId=" + fixtureDef.getId());
-				for (FixtureDefImageTO fdi : fixtureDefImages) {
-					ze = new ZipEntry("src/main/resources/fixtureDefs/" + fixtureDef.getId() + "/" + FixtureDefImageDAO.sanitiseFilename(fdi.getName()));
+				List<FixtureDefAttachmentTO> fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages("fixtureDefId=" + fixtureDef.getId());
+				for (FixtureDefAttachmentTO fdi : fixtureDefImages) {
+					ze = new ZipEntry("src/main/resources/fixtureDefs/" + fixtureDef.getId() + "/" + FixtureDefAttachmentDAO.sanitiseFilename(fdi.getName()));
 					zos.putNextEntry(ze);
 					// FileInputStream fis = new FileInputStream(fdi.getFileLocation());
 					is = fixtureDefImageDAO.loadImage(fdi);
@@ -912,12 +912,12 @@ src/main/resources/export.xml (date of export, totals etc)
 								long oldId=fixtureDef.getId();
 								fixtureDefDAO.createFixtureDef(fixtureDef); // modifies id field
 								remapFixtureDefIds.put(oldId, fixtureDef.getId());
-								for (FixtureDefImageTO fixtureDefImage : fixtureDef.getFixtureDefImages()) {
+								for (FixtureDefAttachmentTO fixtureDefImage : fixtureDef.getFixtureDefImages()) {
 									fixtureDefImage.setFixtureDefId(fixtureDef.getId());
 									fixtureDefImageDAO.createFixtureDefImage(fixtureDefImage);
 									fixtureDefImageDAO.saveImage(fixtureDefImage, 
 									  new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDefs/" + oldId + "/" + 
-									    FixtureDefImageDAO.sanitiseFilename(fixtureDefImage.getName()))));
+									    FixtureDefAttachmentDAO.sanitiseFilename(fixtureDefImage.getName()))));
 									anythingElseChanged=true;
 								}
 								
@@ -929,18 +929,18 @@ src/main/resources/export.xml (date of export, totals etc)
 								fixtureDefDAO.updateFixtureDef(fixtureDef);
 								remapFixtureDefIds.put(oldId, fixtureDef.getId());
 								// @TODO update in-place if most of the attributes are the same
-								List<FixtureDefImageTO> fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages("fixtureDefId=" + fixtureDef.getId());
-								for (FixtureDefImageTO fixtureDefImage : fixtureDefImages) {
+								List<FixtureDefAttachmentTO> fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages("fixtureDefId=" + fixtureDef.getId());
+								for (FixtureDefAttachmentTO fixtureDefImage : fixtureDefImages) {
 									fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
 									anythingElseChanged=true;
 									// @TODO also delete old files from local fixtureDef folder
 								}
-								for (FixtureDefImageTO fixtureDefImage : fixtureDef.getFixtureDefImages()) {
+								for (FixtureDefAttachmentTO fixtureDefImage : fixtureDef.getFixtureDefImages()) {
 									fixtureDefImage.setFixtureDefId(fixtureDef.getId());
 									fixtureDefImageDAO.createFixtureDefImage(fixtureDefImage);
 									fixtureDefImageDAO.saveImage(fixtureDefImage, 
 									  new ByteArrayInputStream(zipMap.get("src/main/resources/fixtureDefs/" + oldId + "/" + 
-									    FixtureDefImageDAO.sanitiseFilename(fixtureDefImage.getName()))));
+									    FixtureDefAttachmentDAO.sanitiseFilename(fixtureDefImage.getName()))));
 									anythingElseChanged=true;
 								}
 								// @TODO keep track of the old id when linking stage fixtures to this fixturedef

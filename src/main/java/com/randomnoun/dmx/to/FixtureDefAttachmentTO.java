@@ -2,7 +2,7 @@ package com.randomnoun.dmx.to;
 
 import com.randomnoun.common.Text;
 
-public class FixtureDefImageTO {
+public class FixtureDefAttachmentTO {
 
     private long id;
     private long fixtureDefId;

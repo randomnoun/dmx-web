@@ -21,8 +21,8 @@ import com.randomnoun.common.MRUCache;
 import com.randomnoun.common.StreamUtils;
 import com.randomnoun.common.Text;
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.dao.FixtureDefImageDAO;
-import com.randomnoun.dmx.to.FixtureDefImageTO;
+import com.randomnoun.dmx.dao.FixtureDefAttachmentDAO;
+import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 
 /**
  * Deliver a fixture definition image
@@ -69,7 +69,7 @@ public class FixtureImageServlet extends javax.servlet.http.HttpServlet implemen
 	@SuppressWarnings("unchecked")
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
-		FixtureDefImageDAO fixtureDefImageDAO = new FixtureDefImageDAO(AppConfig.getAppConfig().getJdbcTemplate());
+		FixtureDefAttachmentDAO fixtureDefImageDAO = new FixtureDefAttachmentDAO(AppConfig.getAppConfig().getJdbcTemplate());
 		
 		String pathInfo = request.getPathInfo();
 		if (pathInfo==null) { pathInfo=""; }
@@ -81,7 +81,7 @@ public class FixtureImageServlet extends javax.servlet.http.HttpServlet implemen
 				// @TODO caching things
 				int fixtureDefId = Integer.parseInt(pathInfo.substring(0, pos));
 				String filename = pathInfo.substring(pos+1);
-				FixtureDefImageTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fixtureDefId, filename);
+				FixtureDefAttachmentTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fixtureDefId, filename);
 				response.setContentType(fixtureDefImage.getContentType());
 	    		InputStream is;
 	    		try {

@@ -48,7 +48,7 @@ import com.randomnoun.dmx.dao.ShowDefAttachmentDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.editor.RecordedShow;
-import com.randomnoun.dmx.to.FixtureDefImageTO;
+import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.ShowDefAttachmentTO;
 import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowTO;

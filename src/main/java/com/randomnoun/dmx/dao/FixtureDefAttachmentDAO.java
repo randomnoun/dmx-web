@@ -16,16 +16,16 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.randomnoun.common.StreamUtils;
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.to.FixtureDefImageTO;
+import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.FixtureDefTO;
 
-public class FixtureDefImageDAO {
+public class FixtureDefAttachmentDAO {
 
     private JdbcTemplate jt;
 
     public static class FixtureDefImageDAORowMapper implements RowMapper {
         public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-            FixtureDefImageTO f = new FixtureDefImageTO();
+            FixtureDefAttachmentTO f = new FixtureDefAttachmentTO();
             f.setId(rs.getLong("id"));
             f.setFixtureDefId(rs.getLong("fixtureDefId"));
             f.setName(rs.getString("name"));
@@ -37,7 +37,7 @@ public class FixtureDefImageDAO {
         }
     }
 
-    public FixtureDefImageDAO(JdbcTemplate jt) {
+    public FixtureDefAttachmentDAO(JdbcTemplate jt) {
         this.jt = jt;
     }
 
@@ -48,12 +48,12 @@ public class FixtureDefImageDAO {
      *
      * @return a list of FixtureDefImageTO objects that satisfy the supplied criteria
      */
-    public List<FixtureDefImageTO> getFixtureDefImages(String sqlWhereClause) {
+    public List<FixtureDefAttachmentTO> getFixtureDefImages(String sqlWhereClause) {
         String sql =
             "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description " +
             " FROM fixtureDefImage " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
-	    return (List<FixtureDefImageTO>) jt.query(sql, new FixtureDefImageDAORowMapper());
+	    return (List<FixtureDefAttachmentTO>) jt.query(sql, new FixtureDefImageDAORowMapper());
     }
 
     /** Return a list of fixtureDefImages for a given fixtureDef.
@@ -62,12 +62,12 @@ public class FixtureDefImageDAO {
      *
      * @return a list of FixtureDefImageTO objects
      */
-    public List<FixtureDefImageTO> getFixtureDefImages(FixtureDefTO fixtureDef) {
+    public List<FixtureDefAttachmentTO> getFixtureDefImages(FixtureDefTO fixtureDef) {
         String sql =
             "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description" +
             " FROM fixtureDefImage " +
             " WHERE fixtureDefId = " + fixtureDef.getId();
-	    return (List<FixtureDefImageTO>) jt.query(sql, new FixtureDefImageDAORowMapper());
+	    return (List<FixtureDefAttachmentTO>) jt.query(sql, new FixtureDefImageDAORowMapper());
     }
     
     
@@ -77,8 +77,8 @@ public class FixtureDefImageDAO {
      *
      * @return the requested FixtureDefImageTO object
      */
-    public FixtureDefImageTO getFixtureDefImage(long fixtureDefImageId) {
-        return (FixtureDefImageTO) jt.queryForObject(
+    public FixtureDefAttachmentTO getFixtureDefImage(long fixtureDefImageId) {
+        return (FixtureDefAttachmentTO) jt.queryForObject(
             "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description " +
             " FROM fixtureDefImage " +
             " WHERE id = ?",
@@ -93,8 +93,8 @@ public class FixtureDefImageDAO {
     *
     * @return the requested FixtureDefImageTO object
     */
-   public FixtureDefImageTO getFixtureDefImage(long fixtureDefId, String filename) {
-       return (FixtureDefImageTO) jt.queryForObject(
+   public FixtureDefAttachmentTO getFixtureDefImage(long fixtureDefId, String filename) {
+       return (FixtureDefAttachmentTO) jt.queryForObject(
            "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description " +
            " FROM fixtureDefImage " +
            " WHERE fixtureDefId = ? AND name = ?",
@@ -107,7 +107,7 @@ public class FixtureDefImageDAO {
      *
      * @param fixtureDefImage the fixtureDefImage to update
      */
-    public void updateFixtureDefImage(FixtureDefImageTO fixtureDefImage) {
+    public void updateFixtureDefImage(FixtureDefAttachmentTO fixtureDefImage) {
         String sql =
             "UPDATE fixtureDefImage " +
             " SET fixtureDefId=?, name=?, size=?, contentType=?, fileLocation=?, description=? " + 
@@ -134,7 +134,7 @@ public class FixtureDefImageDAO {
      *
      * @return the id of the new record
      */
-    public long createFixtureDefImage(FixtureDefImageTO fixtureDefImage) {
+    public long createFixtureDefImage(FixtureDefAttachmentTO fixtureDefImage) {
     	fixtureDefImage.setFileLocation(
     		"fixtureDefs/" + fixtureDefImage.getFixtureDefId() + "/" + 
     		sanitiseFilename(fixtureDefImage.getName()));
@@ -160,7 +160,7 @@ public class FixtureDefImageDAO {
         return fixtureDefImageId;
     }
     
-    public void saveImage(FixtureDefImageTO fixtureDefImage, InputStream is) throws IOException {
+    public void saveImage(FixtureDefAttachmentTO fixtureDefImage, InputStream is) throws IOException {
     	File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
     	File newFile = new File(imageBase, fixtureDefImage.getFileLocation());
     	if (!newFile.getParentFile().isDirectory()) {
@@ -171,7 +171,7 @@ public class FixtureDefImageDAO {
     	fos.close();
     }
     
-    public InputStream loadImage(FixtureDefImageTO fixtureDefImage) throws FileNotFoundException {
+    public InputStream loadImage(FixtureDefAttachmentTO fixtureDefImage) throws FileNotFoundException {
     	File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
     	return new FileInputStream(new File(imageBase, fixtureDefImage.getFileLocation()));
     }
@@ -202,7 +202,7 @@ public class FixtureDefImageDAO {
     * @param fixtureDefImage the fixtureDefImage to delete
     *
     */
-   public void deleteFixtureDefImage(FixtureDefImageTO fixtureDefImage) {
+   public void deleteFixtureDefImage(FixtureDefAttachmentTO fixtureDefImage) {
        String sql =
            "DELETE FROM fixtureDefImage " + 
            " WHERE id = ?";

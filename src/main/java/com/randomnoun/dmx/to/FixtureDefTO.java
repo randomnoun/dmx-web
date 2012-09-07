@@ -18,7 +18,7 @@ public class FixtureDefTO {
     private String htmlImg16; // sourced from fixtureDefScript
 
     // used in import/export only
-    private List<FixtureDefImageTO> fixtureDefImages;
+    private List<FixtureDefAttachmentTO> fixtureDefImages;
     
     /** Returns the id
      * @return the id
@@ -161,7 +161,7 @@ public class FixtureDefTO {
 			(htmlImg16 == null ? "" : "    <htmlImg16>" + htmlImg16 + "</htmlImg16>\n");
 		if (fixtureDefImages.size() > 0) {
 			s += "    <fixtureDefImages>\n";
-			for (FixtureDefImageTO fdi : fixtureDefImages) {
+			for (FixtureDefAttachmentTO fdi : fixtureDefImages) {
 				s += Text.indent("        ", fdi.toExportXml());
 			}
 			s += "    </fixtureDefImages>\n";
@@ -170,11 +170,11 @@ public class FixtureDefTO {
 		return s;
 	}
 
-	public List<FixtureDefImageTO> getFixtureDefImages() {
+	public List<FixtureDefAttachmentTO> getFixtureDefImages() {
 		return fixtureDefImages;
 	}
 
-	public void setFixtureDefImages(List<FixtureDefImageTO> fixtureDefImages) {
+	public void setFixtureDefImages(List<FixtureDefAttachmentTO> fixtureDefImages) {
 		this.fixtureDefImages = fixtureDefImages;
 	}
 

@@ -49,12 +49,12 @@ import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.FixtureDAO;
 import com.randomnoun.dmx.dao.FixtureDefDAO;
-import com.randomnoun.dmx.dao.FixtureDefImageDAO;
+import com.randomnoun.dmx.dao.FixtureDefAttachmentDAO;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
 import com.randomnoun.dmx.show.Show;
-import com.randomnoun.dmx.to.FixtureDefImageTO;
+import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
 import com.randomnoun.dmx.web.ExtendedMultiPartRequestHandler;
@@ -106,10 +106,10 @@ public class MaintainFixtureDefAction
     	ErrorList errors = new ErrorList();
     	
     	FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
-    	FixtureDefImageDAO fixtureDefImageDAO = new FixtureDefImageDAO(appConfig.getJdbcTemplate());
+    	FixtureDefAttachmentDAO fixtureDefImageDAO = new FixtureDefAttachmentDAO(appConfig.getJdbcTemplate());
     	
     	FixtureDefTO fixtureDef;
-    	List<FixtureDefImageTO> fixtureDefImages;
+    	List<FixtureDefAttachmentTO> fixtureDefImages;
 
     	long fixtureDefId = -1;
     	String fixtureDefIdString = request.getParameter("fixtureDefId");
@@ -152,7 +152,7 @@ public class MaintainFixtureDefAction
     				"Remove this fixture from the Fixtures configuration page and try again.", ErrorList.SEVERITY_ERROR);
     		} else {
 	    		fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages(fixtureDef);
-	    		for (FixtureDefImageTO fixtureDefImage : fixtureDefImages) {
+	    		for (FixtureDefAttachmentTO fixtureDefImage : fixtureDefImages) {
 	    			fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
 	    		}
 	    		fixtureDefDAO.deleteFixtureDef(fixtureDef);
@@ -246,7 +246,7 @@ public class MaintainFixtureDefAction
 	            if (file.getFileSize()==0) {
 	            	script = "parent.edtCompletedUploadError(\"Zero-byte file submitted\");";
 	            } else {
-		            FixtureDefImageTO fixtureDefImage = new FixtureDefImageTO();
+		            FixtureDefAttachmentTO fixtureDefImage = new FixtureDefAttachmentTO();
 		            fixtureDefImage.setFixtureDefId(fixtureDefId);
 		            fixtureDefImage.setName(file.getFileName());
 		            fixtureDefImage.setDescription(description);
@@ -264,7 +264,7 @@ public class MaintainFixtureDefAction
     		
     	} else if (action.equals("getFile")) {
     		long fileId = Long.parseLong(request.getParameter("fileId"));
-    		FixtureDefImageTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fileId);
+    		FixtureDefAttachmentTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fileId);
     		response.setContentType(fixtureDefImage.getContentType());
     		response.setContentLength((int) fixtureDefImage.getSize());
     		InputStream is = fixtureDefImageDAO.loadImage(fixtureDefImage);
@@ -275,7 +275,7 @@ public class MaintainFixtureDefAction
     		Map result = new HashMap();
     		try {
 	    		long fileId = Long.parseLong(request.getParameter("fileId"));
-	    		FixtureDefImageTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fileId);
+	    		FixtureDefAttachmentTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fileId);
 	    		fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
 	    		result.put("result", "success");
 	    		result.put("fileId", new Long(fileId));

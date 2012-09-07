@@ -20,9 +20,9 @@ import com.randomnoun.common.MRUCache;
 import com.randomnoun.common.StreamUtils;
 import com.randomnoun.common.Text;
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.dao.FixtureDefImageDAO;
+import com.randomnoun.dmx.dao.FixtureDefAttachmentDAO;
 import com.randomnoun.dmx.dao.StageDAO;
-import com.randomnoun.dmx.to.FixtureDefImageTO;
+import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.StageTO;
 
 /**
