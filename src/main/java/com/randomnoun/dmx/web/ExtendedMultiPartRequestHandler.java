@@ -193,7 +193,6 @@ public class ExtendedMultiPartRequestHandler
         // ModuleConfig ac = (ModuleConfig) request.getAttribute(Globals.MODULE_KEY);
     	
     	AppConfig appConfig = AppConfig.getAppConfig();
-    	logger.debug("Hmm?");
     	long maxFilesize=20971520; // 20MB
     	long diskThreshold=1048576; // 1MB
     	if (appConfig.getProperty("webapp.fileUpload.maxFilesize")!=null) {
