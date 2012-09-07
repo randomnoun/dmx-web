@@ -34,16 +34,16 @@ import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
  * where nnn is the fixtureDefId and filename is the attached file to that
  * fixture definition.
  */
-public class FixtureImageServlet extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
+public class FixtureAttachmentServlet extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
 
      /** Cache of images */
      public static Map cache = new MRUCache(100, 0, null);
      
      /** Logger for this class */
-     public static final Logger logger = Logger.getLogger(FixtureImageServlet.class);
+     public static final Logger logger = Logger.getLogger(FixtureAttachmentServlet.class);
      
      
-	public FixtureImageServlet() {
+	public FixtureAttachmentServlet() {
 		super();
 	}
 	
@@ -69,7 +69,7 @@ public class FixtureImageServlet extends javax.servlet.http.HttpServlet implemen
 	@SuppressWarnings("unchecked")
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
-		FixtureDefAttachmentDAO fixtureDefImageDAO = new FixtureDefAttachmentDAO(AppConfig.getAppConfig().getJdbcTemplate());
+		FixtureDefAttachmentDAO fixtureDefAttachmentDAO = new FixtureDefAttachmentDAO(AppConfig.getAppConfig().getJdbcTemplate());
 		
 		String pathInfo = request.getPathInfo();
 		if (pathInfo==null) { pathInfo=""; }
@@ -81,12 +81,12 @@ public class FixtureImageServlet extends javax.servlet.http.HttpServlet implemen
 				// @TODO caching things
 				int fixtureDefId = Integer.parseInt(pathInfo.substring(0, pos));
 				String filename = pathInfo.substring(pos+1);
-				FixtureDefAttachmentTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fixtureDefId, filename);
-				response.setContentType(fixtureDefImage.getContentType());
+				FixtureDefAttachmentTO fixtureDefAttachment = fixtureDefAttachmentDAO.getFixtureDefAttachment(fixtureDefId, filename);
+				response.setContentType(fixtureDefAttachment.getContentType());
 	    		InputStream is;
 	    		try {
-		    		is = fixtureDefImageDAO.loadImage(fixtureDefImage);
-		    		response.setContentLength((int) fixtureDefImage.getSize());
+		    		is = fixtureDefAttachmentDAO.loadImage(fixtureDefAttachment);
+		    		response.setContentLength((int) fixtureDefAttachment.getSize());
 		    		StreamUtils.copyStream(is, response.getOutputStream());
 		    		is.close();
 	    		} catch (FileNotFoundException fnfe) {

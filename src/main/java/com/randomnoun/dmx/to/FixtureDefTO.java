@@ -18,7 +18,7 @@ public class FixtureDefTO {
     private String htmlImg16; // sourced from fixtureDefScript
 
     // used in import/export only
-    private List<FixtureDefAttachmentTO> fixtureDefImages;
+    private List<FixtureDefAttachmentTO> fixtureDefAttachments;
     
     /** Returns the id
      * @return the id
@@ -159,23 +159,23 @@ public class FixtureDefTO {
 			// "<channelMuxerScript>" + channelMuxerScript + "</channelMuxerScript>" +
 			"    <dmxChannels>" + dmxChannels + "</dmxChannels>\n" +
 			(htmlImg16 == null ? "" : "    <htmlImg16>" + htmlImg16 + "</htmlImg16>\n");
-		if (fixtureDefImages.size() > 0) {
-			s += "    <fixtureDefImages>\n";
-			for (FixtureDefAttachmentTO fdi : fixtureDefImages) {
-				s += Text.indent("        ", fdi.toExportXml());
+		if (fixtureDefAttachments.size() > 0) {
+			s += "    <fixtureDefAttachments>\n";
+			for (FixtureDefAttachmentTO fda : fixtureDefAttachments) {
+				s += Text.indent("        ", fda.toExportXml());
 			}
-			s += "    </fixtureDefImages>\n";
+			s += "    </fixtureDefAttachments>\n";
 		}
 		s += "</fixtureDef>\n";
 		return s;
 	}
 
-	public List<FixtureDefAttachmentTO> getFixtureDefImages() {
-		return fixtureDefImages;
+	public List<FixtureDefAttachmentTO> getFixtureDefAttachments() {
+		return fixtureDefAttachments;
 	}
 
-	public void setFixtureDefImages(List<FixtureDefAttachmentTO> fixtureDefImages) {
-		this.fixtureDefImages = fixtureDefImages;
+	public void setFixtureDefAttachments(List<FixtureDefAttachmentTO> fixtureDefAttachments) {
+		this.fixtureDefAttachments = fixtureDefAttachments;
 	}
 
 	public String getHtmlImg16() {

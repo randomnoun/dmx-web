@@ -23,7 +23,7 @@ public class FixtureDefAttachmentDAO {
 
     private JdbcTemplate jt;
 
-    public static class FixtureDefImageDAORowMapper implements RowMapper {
+    public static class FixtureDefAttachmentDAORowMapper implements RowMapper {
         public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
             FixtureDefAttachmentTO f = new FixtureDefAttachmentTO();
             f.setId(rs.getLong("id"));
@@ -41,128 +41,128 @@ public class FixtureDefAttachmentDAO {
         this.jt = jt;
     }
 
-    /** Return a list of fixtureDefImages, using the supplied SQL WHERE clause. If a
+    /** Return a list of fixtureDefAttachments, using the supplied SQL WHERE clause. If a
      * null sqlWhereClause if supplied, all clients are returned.
      *
      * @param sqlWhereClause a condition to apply to the SQL SELECT
      *
-     * @return a list of FixtureDefImageTO objects that satisfy the supplied criteria
+     * @return a list of FixtureDefAttachmentTO objects that satisfy the supplied criteria
      */
-    public List<FixtureDefAttachmentTO> getFixtureDefImages(String sqlWhereClause) {
+    public List<FixtureDefAttachmentTO> getFixtureDefAttachments(String sqlWhereClause) {
         String sql =
             "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description " +
-            " FROM fixtureDefImage " +
+            " FROM fixtureDefAttachment " +
             (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause);
-	    return (List<FixtureDefAttachmentTO>) jt.query(sql, new FixtureDefImageDAORowMapper());
+	    return (List<FixtureDefAttachmentTO>) jt.query(sql, new FixtureDefAttachmentDAORowMapper());
     }
 
-    /** Return a list of fixtureDefImages for a given fixtureDef.
+    /** Return a list of fixtureDefAttachments for a given fixtureDef.
      *
      * @param fixtureDef the fixtureDefTO to return images for
      *
-     * @return a list of FixtureDefImageTO objects
+     * @return a list of FixtureDefAttachmentTO objects
      */
-    public List<FixtureDefAttachmentTO> getFixtureDefImages(FixtureDefTO fixtureDef) {
+    public List<FixtureDefAttachmentTO> getFixtureDefAttachments(FixtureDefTO fixtureDef) {
         String sql =
             "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description" +
-            " FROM fixtureDefImage " +
+            " FROM fixtureDefAttachment " +
             " WHERE fixtureDefId = " + fixtureDef.getId();
-	    return (List<FixtureDefAttachmentTO>) jt.query(sql, new FixtureDefImageDAORowMapper());
+	    return (List<FixtureDefAttachmentTO>) jt.query(sql, new FixtureDefAttachmentDAORowMapper());
     }
     
     
-    /** Return a fixtureDefImage
+    /** Return a fixtureDefAttachment
      *
-     * @param fixtureDefImageId the fixtureDefImageId
+     * @param fixtureDefAttachmentId the fixtureDefAttachmentId
      *
-     * @return the requested FixtureDefImageTO object
+     * @return the requested FixtureDefAttachmentTO object
      */
-    public FixtureDefAttachmentTO getFixtureDefImage(long fixtureDefImageId) {
+    public FixtureDefAttachmentTO getFixtureDefAttachment(long fixtureDefAttachmentId) {
         return (FixtureDefAttachmentTO) jt.queryForObject(
             "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description " +
-            " FROM fixtureDefImage " +
+            " FROM fixtureDefAttachment " +
             " WHERE id = ?",
-            new Object[] { new Long(fixtureDefImageId) }, 
-            new FixtureDefImageDAORowMapper());
+            new Object[] { new Long(fixtureDefAttachmentId) }, 
+            new FixtureDefAttachmentDAORowMapper());
     }
 
-    /** Return a fixtureDefImage for a given fixture definition id / filename
+    /** Return a fixtureDefAttachment for a given fixture definition id / filename
     *
     * @param fixtureDefId the fixtureDefId
     * @param filename the filename
     *
-    * @return the requested FixtureDefImageTO object
+    * @return the requested FixtureDefAttachmentTO object
     */
-   public FixtureDefAttachmentTO getFixtureDefImage(long fixtureDefId, String filename) {
+   public FixtureDefAttachmentTO getFixtureDefAttachment(long fixtureDefId, String filename) {
        return (FixtureDefAttachmentTO) jt.queryForObject(
            "SELECT id, fixtureDefId, name, size, contentType, fileLocation, description " +
-           " FROM fixtureDefImage " +
+           " FROM fixtureDefAttachment " +
            " WHERE fixtureDefId = ? AND name = ?",
            new Object[] { new Long(fixtureDefId), filename }, 
-           new FixtureDefImageDAORowMapper());
+           new FixtureDefAttachmentDAORowMapper());
    }
     
     
-    /** Update a fixtureDefImage
+    /** Update a fixtureDefAttachment
      *
-     * @param fixtureDefImage the fixtureDefImage to update
+     * @param fixtureDefAttachment the fixtureDefAttachment to update
      */
-    public void updateFixtureDefImage(FixtureDefAttachmentTO fixtureDefImage) {
+    public void updateFixtureDefAttachment(FixtureDefAttachmentTO fixtureDefAttachment) {
         String sql =
-            "UPDATE fixtureDefImage " +
+            "UPDATE fixtureDefAttachment " +
             " SET fixtureDefId=?, name=?, size=?, contentType=?, fileLocation=?, description=? " + 
             " WHERE id = ?";
         int updated = jt.update(sql, 
             new Object[] { 
-                fixtureDefImage.getFixtureDefId(),
-                fixtureDefImage.getName(),
-                fixtureDefImage.getSize(),
-                fixtureDefImage.getContentType(),
-                fixtureDefImage.getFileLocation(),
-                fixtureDefImage.getDescription(),
-                fixtureDefImage.getId() });
+                fixtureDefAttachment.getFixtureDefId(),
+                fixtureDefAttachment.getName(),
+                fixtureDefAttachment.getSize(),
+                fixtureDefAttachment.getContentType(),
+                fixtureDefAttachment.getFileLocation(),
+                fixtureDefAttachment.getDescription(),
+                fixtureDefAttachment.getId() });
         if (updated!=1) {
-            throw new DataIntegrityViolationException("fixtureDefImage update failed (" + updated + " rows updated)");
+            throw new DataIntegrityViolationException("fixtureDefAttachment update failed (" + updated + " rows updated)");
         }
     }
 
-    /** Inserts a fixtureDefImage into the database.
+    /** Inserts a fixtureDefAttachment into the database.
      *
      * The id column of the object will be populated on return
      *
-     * @param fixtureDefImage the fixtureDefImage to insert
+     * @param fixtureDefAttachment the fixtureDefAttachment to insert
      *
      * @return the id of the new record
      */
-    public long createFixtureDefImage(FixtureDefAttachmentTO fixtureDefImage) {
-    	fixtureDefImage.setFileLocation(
-    		"fixtureDefs/" + fixtureDefImage.getFixtureDefId() + "/" + 
-    		sanitiseFilename(fixtureDefImage.getName()));
+    public long createFixtureDefAttachment(FixtureDefAttachmentTO fixtureDefAttachment) {
+    	fixtureDefAttachment.setFileLocation(
+    		"fixtureDefs/" + fixtureDefAttachment.getFixtureDefId() + "/" + 
+    		sanitiseFilename(fixtureDefAttachment.getName()));
     	// @TODO check for duplicate filenames + add a discriminator
     	
         String sql =
-            "INSERT INTO fixtureDefImage " + 
+            "INSERT INTO fixtureDefAttachment " + 
             " (fixtureDefId, name, size, contentType, fileLocation, description) " +
             " VALUES (?, ?, ?, ?, ?, ?)";
         long updated = jt.update(sql,
             new Object[] { 
-                fixtureDefImage.getFixtureDefId(),		
-                fixtureDefImage.getName(),
-                fixtureDefImage.getSize(),
-                fixtureDefImage.getContentType(),
-                fixtureDefImage.getFileLocation(),
-                fixtureDefImage.getDescription()});
+                fixtureDefAttachment.getFixtureDefId(),		
+                fixtureDefAttachment.getName(),
+                fixtureDefAttachment.getSize(),
+                fixtureDefAttachment.getContentType(),
+                fixtureDefAttachment.getFileLocation(),
+                fixtureDefAttachment.getDescription()});
         if (updated!=1) {
-            throw new DataIntegrityViolationException("fixtureDefImage insert failed (" + updated + " rows updated)");
+            throw new DataIntegrityViolationException("fixtureDefAttachment insert failed (" + updated + " rows updated)");
         }
-        long fixtureDefImageId = jt.queryForLong("SELECT LAST_INSERT_ID()");
-        fixtureDefImage.setId(fixtureDefImageId);
-        return fixtureDefImageId;
+        long fixtureDefAttachmentId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        fixtureDefAttachment.setId(fixtureDefAttachmentId);
+        return fixtureDefAttachmentId;
     }
     
-    public void saveImage(FixtureDefAttachmentTO fixtureDefImage, InputStream is) throws IOException {
+    public void saveImage(FixtureDefAttachmentTO fixtureDefAttachment, InputStream is) throws IOException {
     	File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
-    	File newFile = new File(imageBase, fixtureDefImage.getFileLocation());
+    	File newFile = new File(imageBase, fixtureDefAttachment.getFileLocation());
     	if (!newFile.getParentFile().isDirectory()) {
     		newFile.getParentFile().mkdirs();
     	}
@@ -171,9 +171,9 @@ public class FixtureDefAttachmentDAO {
     	fos.close();
     }
     
-    public InputStream loadImage(FixtureDefAttachmentTO fixtureDefImage) throws FileNotFoundException {
+    public InputStream loadImage(FixtureDefAttachmentTO fixtureDefAttachment) throws FileNotFoundException {
     	File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
-    	return new FileInputStream(new File(imageBase, fixtureDefImage.getFileLocation()));
+    	return new FileInputStream(new File(imageBase, fixtureDefAttachment.getFileLocation()));
     }
 
     public static String sanitiseFilename(String f) {
@@ -183,7 +183,7 @@ public class FixtureDefAttachmentDAO {
     	if (f.indexOf(":")!=-1) { f = f.substring(f.lastIndexOf(":")); }
     	for (int i=0; i<f.length(); i++) {
     		char ch = f.charAt(i);
-    		if ((ch>='0' && ch<='9') || (ch>='a' && ch<='z') || ch=='.') {
+    		if ((ch>='0' && ch<='9') || (ch>='a' && ch<='z') || (ch>='A' && ch<='Z') || ch=='.') {
     			// ok
     		} else {
     			f = f.substring(0, i) + "_" + f.substring(i+1);
@@ -192,31 +192,31 @@ public class FixtureDefAttachmentDAO {
     	return f;
     }
     
-    /** Deletes a fixtureDefImage from the database, and
+    /** Deletes a fixtureDefAttachment from the database, and
      * removes any filesystem resources.
     *
     * @TODO remove folder if empty
     *
     * The id column of the object will be populated on return
     *
-    * @param fixtureDefImage the fixtureDefImage to delete
+    * @param fixtureDefAttachment the fixtureDefAttachment to delete
     *
     */
-   public void deleteFixtureDefImage(FixtureDefAttachmentTO fixtureDefImage) {
+   public void deleteFixtureDefAttachment(FixtureDefAttachmentTO fixtureDefAttachment) {
        String sql =
-           "DELETE FROM fixtureDefImage " + 
+           "DELETE FROM fixtureDefAttachment " + 
            " WHERE id = ?";
        long updated = jt.update(sql,
            new Object[] { 
-               fixtureDefImage.getId(),		
+               fixtureDefAttachment.getId(),		
            });
        if (updated!=1) {
-           throw new DataIntegrityViolationException("fixtureDefImage delete failed (" + updated + " rows updated)");
+           throw new DataIntegrityViolationException("fixtureDefAttachment delete failed (" + updated + " rows updated)");
        }
    		File imageBase = new File(AppConfig.getAppConfig().getProperty("webapp.fileUpload.path"));
-   		File file = new File(imageBase, fixtureDefImage.getFileLocation());
+   		File file = new File(imageBase, fixtureDefAttachment.getFileLocation());
    		if (!file.delete()) {
-   			throw new DataIntegrityViolationException("fixtureDefImage delete failed - could not remove filesystem resource");
+   			throw new DataIntegrityViolationException("fixtureDefAttachment delete failed - could not remove filesystem resource");
    		}
    }
 

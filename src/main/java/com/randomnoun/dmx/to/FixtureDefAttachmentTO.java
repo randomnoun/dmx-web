@@ -123,13 +123,13 @@ public class FixtureDefAttachmentTO {
 
     
     public String toExportXml() {
-    	return "<fixtureDefImage>\n" + 
+    	return "<fixtureDefAttachment>\n" + 
     		"    <fixtureDefId>" + fixtureDefId + "</fixtureDefId>\n" +
     		"    <name>" + Text.escapeHtml(name) + "</name>\n" +
     		"    <description>" + description + "</description>\n" +
     		"    <size>" + size + "</size>\n" +
     		"    <contentType>" + Text.escapeHtml(contentType) + "</contentType>\n" +
-    		"</fixtureDefImage>\n";
+    		"</fixtureDefAttachment>\n";
     }
     
 }

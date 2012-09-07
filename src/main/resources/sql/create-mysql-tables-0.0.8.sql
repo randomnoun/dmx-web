@@ -1,8 +1,8 @@
--- success if device exists
+-- guard SQL: return success if fisrt SQL statement executed successfully, fail if script not applied
 SELECT COUNT(*) FROM device;
 
--- success if fixture.universeNumber exists
-SELECT COUNT(htmlImg16) FROM fixtureDef;
+-- guard SQL: return success if last SQL statement executed successfully, fail if script not completely applied
+SELECT COUNT(*) FROM fixtureDefAttachment;
 
 
 
@@ -36,3 +36,24 @@ ALTER TABLE `fixture` ADD COLUMN `universeNumber` INT(10) UNSIGNED NOT NULL DEFA
 UPDATE fixture SET universeNumber=1;
 
 ALTER TABLE `fixtureDef` ADD COLUMN `htmlImg16` VARCHAR(100) DEFAULT NULL AFTER `dmxChannels`;  
+
+CREATE TABLE `fixtureDefAttachment` (
+  `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+  `fixtureDefId` INTEGER UNSIGNED NOT NULL,
+  `name` VARCHAR(200) NOT NULL,
+  `size` INTEGER UNSIGNED NOT NULL,
+  `contentType` VARCHAR(200) NOT NULL,
+  `fileLocation` VARCHAR(200) NOT NULL COMMENT 'relative to app base specified in appConfig',
+  `description` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`)
+)
+ENGINE = InnoDB;
+
+INSERT INTO fixtureDefAttachment (id, fixtureDefId, name, size, contentType, fileLocation, description)
+SELECT id, fixtureDefId, name, size, contentType, fileLocation, description
+FROM fixtureDefImage;
+
+DROP TABLE fixtureDefImage;
+
+
+

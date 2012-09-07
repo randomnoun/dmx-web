@@ -91,7 +91,7 @@ public class ShowDefAttachmentDAO {
     * @param showDefId the showDefId
     * @param filename the filename
     *
-    * @return the requested FixtureDefImageTO object
+    * @return the requested ShowDefImageTO object
     */
    public ShowDefAttachmentTO getShowDefAttachment(long showDefId, String filename) {
        return (ShowDefAttachmentTO) jt.queryForObject(

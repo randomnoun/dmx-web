@@ -39,8 +39,8 @@
     <servlet-class>com.randomnoun.dmx.web.MultiJavascriptServlet</servlet-class>
   </servlet>
   <servlet>
-    <servlet-name>fixtureImageServlet</servlet-name>
-    <servlet-class>com.randomnoun.dmx.web.FixtureImageServlet</servlet-class>
+    <servlet-name>fixtureAttachmentServlet</servlet-name>
+    <servlet-class>com.randomnoun.dmx.web.FixtureAttachmentServlet</servlet-class>
   </servlet>
   <servlet>
     <servlet-name>showAttachmentServlet</servlet-name>
@@ -64,7 +64,7 @@
     <url-pattern>*.html</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
-    <servlet-name>fixtureImageServlet</servlet-name>
+    <servlet-name>fixtureAttachmentServlet</servlet-name>
     <url-pattern>/image/fixture/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>

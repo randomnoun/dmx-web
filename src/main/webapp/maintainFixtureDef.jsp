@@ -328,9 +328,9 @@ function edtCompletedUploadOK(id, sizeInUnits, name, description) {
     $("addFile").disabled = false;
 }
 
-function edtDeleteFile(fixtureDefImageId) {
+function edtDeleteFile(fixtureDefAttachmentId) {
 	if (confirm("Are you sure you wish to delete this attachment?")) {
-		new Ajax.Request("maintainFixtureDef.html?action=deleteFile&fixtureDefId=<c:out value='${fixtureDef.id}'/>&fileId=" + fixtureDefImageId, {
+		new Ajax.Request("maintainFixtureDef.html?action=deleteFile&fixtureDefId=<c:out value='${fixtureDef.id}'/>&fileId=" + fixtureDefAttachmentId, {
 	        method:'get', // evalJSON:true,
 	        onSuccess: function(transport) {
 	            edtDeleteFileComplete(transport.responseJSON);
@@ -502,11 +502,11 @@ You must create a fixture before you can attach documents
     </td>
 </tr>    
 
-<c:if test="${fixtureDefImages!=null}" >
-<c:forEach var="fixtureDefImage" items="${fixtureDefImages}" >
-<tr id="file[<c:out value='${fixtureDefImage.id}'/>]"><td valign="top"></td> 
-    <!--  maintainFixtureDef.html?action=getFile&fileId=<c:out value="${fixtureDefImage.id}"/>"   -->
-    <td><input type="button" value="Delete" onclick="edtDeleteFile(<c:out value="${fixtureDefImage.id}"/>)"/> <a href="image/fixture/<c:out value="${fixtureDefImage.fixtureDefId}"/>/<c:out value="${fixtureDefImage.name}"/>" target="_new"><c:out value="${fixtureDefImage.name}"/></a> (<c:out value="${fixtureDefImage.sizeInUnits}"/>) <c:out value="${fixtureDefImage.description}"/><br/>
+<c:if test="${fixtureDefAttachments!=null}" >
+<c:forEach var="fixtureDefAttachment" items="${fixtureDefAttachments}" >
+<tr id="file[<c:out value='${fixtureDefAttachment.id}'/>]"><td valign="top"></td> 
+    <!--  maintainFixtureDef.html?action=getFile&fileId=<c:out value="${fixtureDefAttachment.id}"/>"   -->
+    <td><input type="button" value="Delete" onclick="edtDeleteFile(<c:out value="${fixtureDefAttachment.id}"/>)"/> <a href="image/fixture/<c:out value="${fixtureDefAttachment.fixtureDefId}"/>/<c:out value="${fixtureDefAttachment.name}"/>" target="_new"><c:out value="${fixtureDefAttachment.name}"/></a> (<c:out value="${fixtureDefAttachment.sizeInUnits}"/>) <c:out value="${fixtureDefAttachment.description}"/><br/>
     </td>    
 </tr>
 </c:forEach>

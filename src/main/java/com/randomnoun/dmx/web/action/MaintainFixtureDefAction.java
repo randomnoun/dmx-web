@@ -106,10 +106,10 @@ public class MaintainFixtureDefAction
     	ErrorList errors = new ErrorList();
     	
     	FixtureDefDAO fixtureDefDAO = new FixtureDefDAO(jt);
-    	FixtureDefAttachmentDAO fixtureDefImageDAO = new FixtureDefAttachmentDAO(appConfig.getJdbcTemplate());
+    	FixtureDefAttachmentDAO fixtureDefAttachmentDAO = new FixtureDefAttachmentDAO(appConfig.getJdbcTemplate());
     	
     	FixtureDefTO fixtureDef;
-    	List<FixtureDefAttachmentTO> fixtureDefImages;
+    	List<FixtureDefAttachmentTO> fixtureDefAttachments;
 
     	long fixtureDefId = -1;
     	String fixtureDefIdString = request.getParameter("fixtureDefId");
@@ -121,9 +121,9 @@ public class MaintainFixtureDefAction
     	
     	if (action.equals("getFixtureDef")) {
     		fixtureDef = fixtureDefDAO.getFixtureDef(fixtureDefId);
-    		fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages(fixtureDef);
+    		fixtureDefAttachments = fixtureDefAttachmentDAO.getFixtureDefAttachments(fixtureDef);
     		request.setAttribute("fixtureDef", fixtureDef);
-    		request.setAttribute("fixtureDefImages", fixtureDefImages);
+    		request.setAttribute("fixtureDefAttachments", fixtureDefAttachments);
     		
     	} else if (action.equals("newFixtureDef")) {
     		fixtureDef = new FixtureDefTO();
@@ -151,9 +151,9 @@ public class MaintainFixtureDefAction
     				"patched at DMX offset " + found.getDmxOffset() + " with name '" + found.getName() + "'. " +
     				"Remove this fixture from the Fixtures configuration page and try again.", ErrorList.SEVERITY_ERROR);
     		} else {
-	    		fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages(fixtureDef);
-	    		for (FixtureDefAttachmentTO fixtureDefImage : fixtureDefImages) {
-	    			fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
+	    		fixtureDefAttachments = fixtureDefAttachmentDAO.getFixtureDefAttachments(fixtureDef);
+	    		for (FixtureDefAttachmentTO fixtureDefAttachment : fixtureDefAttachments) {
+	    			fixtureDefAttachmentDAO.deleteFixtureDefAttachment(fixtureDefAttachment);
 	    		}
 	    		fixtureDefDAO.deleteFixtureDef(fixtureDef);
 	    		errors.addError("Fixture deleted", "Fixture definition deleted", ErrorList.SEVERITY_OK);
@@ -220,8 +220,8 @@ public class MaintainFixtureDefAction
     		if (lngId!=-1) {
     			FixtureDefTO tmp = new FixtureDefTO();
     			tmp.setId(lngId);
-        		fixtureDefImages = fixtureDefImageDAO.getFixtureDefImages(tmp);
-        		request.setAttribute("fixtureDefImages", fixtureDefImages);
+        		fixtureDefAttachments = fixtureDefAttachmentDAO.getFixtureDefAttachments(tmp);
+        		request.setAttribute("fixtureDefAttachments", fixtureDefAttachments);
     		}
     		
     	} else if (action.equals("getProgress")) {
@@ -246,17 +246,17 @@ public class MaintainFixtureDefAction
 	            if (file.getFileSize()==0) {
 	            	script = "parent.edtCompletedUploadError(\"Zero-byte file submitted\");";
 	            } else {
-		            FixtureDefAttachmentTO fixtureDefImage = new FixtureDefAttachmentTO();
-		            fixtureDefImage.setFixtureDefId(fixtureDefId);
-		            fixtureDefImage.setName(file.getFileName());
-		            fixtureDefImage.setDescription(description);
-		            fixtureDefImage.setSize(file.getFileSize());
-		            fixtureDefImage.setContentType(file.getContentType());
-		            fixtureDefImageDAO.createFixtureDefImage(fixtureDefImage);
-		            fixtureDefImageDAO.saveImage(fixtureDefImage, file.getInputStream());
+		            FixtureDefAttachmentTO fixtureDefAttachment = new FixtureDefAttachmentTO();
+		            fixtureDefAttachment.setFixtureDefId(fixtureDefId);
+		            fixtureDefAttachment.setName(file.getFileName());
+		            fixtureDefAttachment.setDescription(description);
+		            fixtureDefAttachment.setSize(file.getFileSize());
+		            fixtureDefAttachment.setContentType(file.getContentType());
+		            fixtureDefAttachmentDAO.createFixtureDefAttachment(fixtureDefAttachment);
+		            fixtureDefAttachmentDAO.saveImage(fixtureDefAttachment, file.getInputStream());
 		            // errors.addError("Image uploaded", "Documentation file '" + fileName + "' (" + fileSize + " bytes) uploaded OK", ErrorList.SEVERITY_OK);
-		            script = "parent.edtCompletedUploadOK(" + fixtureDefImage.getId() + ", \"" + fixtureDefImage.getSizeInUnits() + 
-		              "\", \"" + Text.escapeJavascript2(fixtureDefImage.getName()) + "\", \"" + Text.escapeJavascript2(fixtureDefImage.getDescription()) + "\");";
+		            script = "parent.edtCompletedUploadOK(" + fixtureDefAttachment.getId() + ", \"" + fixtureDefAttachment.getSizeInUnits() + 
+		              "\", \"" + Text.escapeJavascript2(fixtureDefAttachment.getName()) + "\", \"" + Text.escapeJavascript2(fixtureDefAttachment.getDescription()) + "\");";
 	            }
     		}
     		request.setAttribute("script", script);
@@ -264,10 +264,10 @@ public class MaintainFixtureDefAction
     		
     	} else if (action.equals("getFile")) {
     		long fileId = Long.parseLong(request.getParameter("fileId"));
-    		FixtureDefAttachmentTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fileId);
-    		response.setContentType(fixtureDefImage.getContentType());
-    		response.setContentLength((int) fixtureDefImage.getSize());
-    		InputStream is = fixtureDefImageDAO.loadImage(fixtureDefImage);
+    		FixtureDefAttachmentTO fixtureDefAttachment = fixtureDefAttachmentDAO.getFixtureDefAttachment(fileId);
+    		response.setContentType(fixtureDefAttachment.getContentType());
+    		response.setContentLength((int) fixtureDefAttachment.getSize());
+    		InputStream is = fixtureDefAttachmentDAO.loadImage(fixtureDefAttachment);
     		StreamUtils.copyStream(is, response.getOutputStream());
     		forward = null;
     		
@@ -275,8 +275,8 @@ public class MaintainFixtureDefAction
     		Map result = new HashMap();
     		try {
 	    		long fileId = Long.parseLong(request.getParameter("fileId"));
-	    		FixtureDefAttachmentTO fixtureDefImage = fixtureDefImageDAO.getFixtureDefImage(fileId);
-	    		fixtureDefImageDAO.deleteFixtureDefImage(fixtureDefImage);
+	    		FixtureDefAttachmentTO fixtureDefAttachment = fixtureDefAttachmentDAO.getFixtureDefAttachment(fileId);
+	    		fixtureDefAttachmentDAO.deleteFixtureDefAttachment(fixtureDefAttachment);
 	    		result.put("result", "success");
 	    		result.put("fileId", new Long(fileId));
     		} catch (Exception e) {
