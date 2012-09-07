@@ -234,6 +234,7 @@ function edtInitPanel() {
         parserfile: ["tokenizejava.js","parsejava.js"],
         stylesheet: "css/codemirror/javacolors.css",
         path: "js/codemirror/",
+        tabSize : 4,
         tabMode : "shift",
         initCallback : edtEditorInitialisationCallback
     });
