@@ -31,8 +31,10 @@ function initLookups() {
 }
 // return value formatted as string with 2 decimal places
 function twoDigits(v) {
-  var t = Math.floor(v*100)/100;
-  //t.replace(/^(.*)\.([0-9]$/, "${1}\.${2}0");
+  var t = new String(Math.floor(v*100)/100);
+  var pos = t.indexOf(".");
+  if (pos==-1) { t += ".00"; } else if (pos==t.length-2) { t += "0"; }
+  //t = t.replace(/^(.*)\.([0-9])$/, "$1\.$20");
   return t;
 }
 // @TODO timeout this text or something
