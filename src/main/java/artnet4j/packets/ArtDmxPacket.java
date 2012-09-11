@@ -31,7 +31,7 @@ public class ArtDmxPacket extends ArtNetPacket {
         setData(new byte[530]);
         setHeader();
         setProtocol();
-        data.setInt8(0x02, 13);
+        // data.setInt8(0x02, 13); Physical field ?
     }
 
     /**
