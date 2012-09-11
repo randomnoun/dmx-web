@@ -32,7 +32,6 @@ public class ArtDmxPacket extends ArtNetPacket {
         setData(new byte[530]);
         setHeader();
         setProtocol();
-        // data.setInt8(0x02, 13); Physical field ?
     }
 
     /**
@@ -114,7 +113,6 @@ public class ArtDmxPacket extends ArtNetPacket {
      *            the subnetID to set
      */
     public void setSubnetID(int subnetID) {
-    	// this.subnetID = subnetID & 0x0f;
     	setUniverse(subnetID, universeID);
     }
 
@@ -132,7 +130,6 @@ public class ArtDmxPacket extends ArtNetPacket {
      *            the universeID to set
      */
     public void setUniverseID(int universeID) {
-        //this.universeID = universeID & 0x0f;
     	setUniverse(subnetID, universeID);
     }
 }
