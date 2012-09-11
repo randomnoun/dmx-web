@@ -25,6 +25,7 @@ public class ArtDmxPacket extends ArtNetPacket {
     private int sequenceID;
     private int subnetID;
     private int universeID;
+    private int physicalID;
 
     public ArtDmxPacket() {
         super(PacketType.ART_OUTPUT);
@@ -65,6 +66,10 @@ public class ArtDmxPacket extends ArtNetPacket {
     public int getSubnetID() {
         return subnetID;
     }
+    
+    public int getPhysicalID() {
+    	return physicalID;
+    }
 
     /**
      * @return the universeID
@@ -98,13 +103,19 @@ public class ArtDmxPacket extends ArtNetPacket {
         sequenceID = id % 0xff;
         data.setInt8(id, 12);
     }
+    
+    public void setPhysicalID(int id) {
+    	physicalID = id % 0xff;
+    	data.setInt8(physicalID, 13); 
+    }
 
-    /**
+    /**  
      * @param subnetID
      *            the subnetID to set
      */
     public void setSubnetID(int subnetID) {
-        this.subnetID = subnetID & 0x0f;
+    	// this.subnetID = subnetID & 0x0f;
+    	setUniverse(subnetID, universeID);
     }
 
     public void setUniverse(int subnetID, int universeID) {
@@ -121,6 +132,7 @@ public class ArtDmxPacket extends ArtNetPacket {
      *            the universeID to set
      */
     public void setUniverseID(int universeID) {
-        this.universeID = universeID & 0x0f;
+        //this.universeID = universeID & 0x0f;
+    	setUniverse(subnetID, universeID);
     }
 }
