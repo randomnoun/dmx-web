@@ -93,6 +93,7 @@ public class ArtNet extends DmxDevice implements ArtNetDiscoveryListener {
 	public void open() {
 		try {
 			artNet4jObj = new artnet4j.ArtNet();
+			// logger.error("XXX: broadcast disabled");
 			artNet4jObj.setBroadCastAddress(broadcastAddress); // destination IP
 			artNet4jObj.setUdpSendPort(udpSendPort);
 			artNet4jObj.setUdpRecvPort(udpRecvPort);
@@ -105,8 +106,8 @@ public class ArtNet extends DmxDevice implements ArtNetDiscoveryListener {
 				timeout++;
 			}
             if (artNetDestNode==null) {
-            	logger.error("Could not find artNet node at broadcastAddress '" + broadcastAddress + "'");
-            	exceptionContainer.addException(new IOException("Could not find artNet node at broadcastAddress '" + broadcastAddress + "'"));
+            	logger.error("Could not find artNet node via broadcastAddress '" + broadcastAddress + "'");
+            	exceptionContainer.addException(new IOException("Could not find artNet node via broadcastAddress '" + broadcastAddress + "'"));
             }
 			connected = true;
 		} catch (Exception e) {
