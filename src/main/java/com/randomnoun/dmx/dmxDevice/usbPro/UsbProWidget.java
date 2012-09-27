@@ -171,7 +171,9 @@ public class UsbProWidget extends DmxDevice {
 			outputStream = null; 
 		}
 		if (serialPort!=null) {
-			try { serialPort.removeEventListener(); } catch (Exception e2) { logger.error(e2); exceptionContainer.addException(e2); } 
+			try { serialPort.removeEventListener(); } 
+			catch (NullPointerException npe) { /* already removed */ } 
+			catch (Exception e2) { logger.error(e2); exceptionContainer.addException(e2); } 
 			try { serialPort.close(); } catch (Exception e2) { logger.error(e2); exceptionContainer.addException(e2); } 
 			serialPort = null; 
 		}
