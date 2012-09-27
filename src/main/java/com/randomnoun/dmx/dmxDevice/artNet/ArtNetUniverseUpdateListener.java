@@ -84,14 +84,18 @@ public class ArtNetUniverseUpdateListener implements UniverseUpdateListener {
 					// race condition here maybe
 					hasChanged = false;
 					try {
-						logger.debug("Sending DMX data");
+						logger.debug("Sending DMX data to " + anuul.artNetUnicastAddress);
 						ArtDmxPacket dmx = new ArtDmxPacket();
 						dmx.setUniverse(anuul.artNetSubnetId, anuul.artNetUniverseId);
 						dmx.setDMX(anuul.dmxState, anuul.dmxState.length);
 						dmx.setSequenceID(0);
+						dmx.setPhysicalID(0);
+						
 									
 						anuul.getArtNet4jObj().unicastPacket(dmx, anuul.artNetUnicastAddress);
+						//anuul.getArtNet4jObj().unicastPacket(dmx, "192.168.0.62");
 					} catch (NullPointerException npe) {
+						logger.error(npe);
 						logger.debug("No ArtNetUpdaterThread instance; stopping ArtNetUpdaterThread");
 						done = true;
 					} catch (IOException e) {
