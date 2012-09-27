@@ -2,14 +2,20 @@ package com.randomnoun.dmx.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.randomnoun.dmx.to.FixtureTO;
+import com.randomnoun.dmx.to.ShowDefAttachmentTO;
+import com.randomnoun.dmx.to.ShowDefTO;
+import com.randomnoun.dmx.to.ShowPropertyTO;
 import com.randomnoun.dmx.to.ShowTO;
 
 public class ShowDAO {
@@ -41,13 +47,50 @@ public class ShowDAO {
         }
     }
     
+    private static class ShowWithPropertyResultSetExtractor implements ResultSetExtractor {
+		public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
+			List<ShowTO> result = new ArrayList<ShowTO>();
+			long lastShowId = -1;
+			ShowTO s = null;
+			while (rs.next()) {
+				long showId = rs.getLong("showId");
+				if (showId!=lastShowId) {
+					s = new ShowTO();
+					s.setId(showId);
+					s.setShowDefId(rs.getLong("showDefId"));
+		            s.setName(rs.getString("name"));
+		            s.setOnCancelShowId(rs.getLong("onCancelShowId"));
+		            if (rs.wasNull()) { s.setOnCancelShowId(null); }
+		            s.setOnCompleteShowId(rs.getLong("onCompleteShowId"));
+		            if (rs.wasNull()) { s.setOnCompleteShowId(null); }
+		            s.setShowGroupId(rs.getLong("showGroupId"));
+		            if (rs.wasNull()) { s.setShowGroupId(null); }
+		            s.setStageId(rs.getLong("stageId"));
+		            s.setShowProperties(new ArrayList<ShowPropertyTO>());
+		            result.add(s);
+		            lastShowId = showId;
+				}
+				long showPropertyId = rs.getLong("showPropertyId");
+				if (!rs.wasNull()) {
+					ShowPropertyTO p = new ShowPropertyTO();
+					p.setId(showPropertyId);
+		            p.setShowId(showId);
+		            p.setKey(rs.getString("key"));
+		            p.setValue(rs.getString("value"));
+		            s.getShowProperties().add(p);
+				}
+			}
+			return result;
+		}
+    	
+    }
     
     public ShowDAO(JdbcTemplate jt) {
         this.jt = jt;
     }
 
     /** Return a list of shows, using the supplied SQL WHERE clause. If a
-     * null sqlWhereClause if supplied, all clients are returned.
+     * null sqlWhereClause if supplied, all shows are returned.
      *
      * @param sqlWhereClause a condition to apply to the SQL SELECT
      *
@@ -62,7 +105,7 @@ public class ShowDAO {
     }
 
     /** Return a list of shows, using the supplied SQL WHERE clause. If a
-     * null sqlWhereClause if supplied, all clients are returned.
+     * null sqlWhereClause if supplied, all shows are returned.
      *
      * @param sqlWhereClause a condition to apply to the SQL SELECT
      *
@@ -77,7 +120,24 @@ public class ShowDAO {
             " GROUP BY `show`.id";
 	    return (List<ShowTO>) jt.query(sql, new ShowWithPropertyCountDAORowMapper());
     }
-    
+
+    /** Return a list of shows, using the supplied SQL WHERE clause. If a
+     * null sqlWhereClause if supplied, all shows are returned.
+     *
+     * @param sqlWhereClause a condition to apply to the SQL SELECT
+     *
+     * @return a list of ShowTO objects that satisfy the supplied criteria
+     */
+    public List<ShowTO> getShowsWithProperties(String sqlWhereClause) {
+        String sql =
+            "SELECT `show`.id AS showId, showDefId, name, onCancelShowId, onCompleteShowId, showGroupId, stageId, showProperty.id AS showPropertyId, showId, `key`, value " +
+            " FROM `show` LEFT JOIN `showProperty` " +
+            " ON `show`.id = `showProperty`.showId " +
+            (sqlWhereClause == null ? "" : " WHERE " + sqlWhereClause) +
+            " ORDER BY `show`.id";
+	    return (List<ShowTO>) jt.query(sql, new ShowWithPropertyResultSetExtractor());
+    }
+
     
     /** Return a show
      *

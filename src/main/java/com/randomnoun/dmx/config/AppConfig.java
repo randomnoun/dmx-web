@@ -955,7 +955,7 @@ bsh.InterpreterError: null fromValue
 			return;
 		}
 		
-		List showsFromDatabase = new ShowDAO(getJdbcTemplate()).getShowsWithPropertyCounts("stageId=" + activeStage.getId());
+		List showsFromDatabase = new ShowDAO(getJdbcTemplate()).getShowsWithProperties("stageId=" + activeStage.getId());
 		ShowPropertyDAO showPropertyDAO = new ShowPropertyDAO(getJdbcTemplate());
 		if (showsFromDatabase == null || showsFromDatabase.size()==0) {
 			logger.warn("No show instances in database");
@@ -998,12 +998,11 @@ bsh.InterpreterError: null fromValue
 					Show showObj;
 					try {
 						if (addToAppConfig) {
-							// @TODO load with shows
-							if (showTO.getShowPropertyCount()>0) {
-								List<ShowPropertyTO> showPropertyTOs = showPropertyDAO.getShowProperties("showId=" + showTO.getId());
-								for (ShowPropertyTO showProperty : showPropertyTOs) {
-									showProperties.put(showProperty.getKey(), showProperty.getValue());
-								}
+							//if (showTO.getShowPropertyCount()>0) {
+							//List<ShowPropertyTO> showPropertyTOs = showPropertyDAO.getShowProperties("showId=" + showTO.getId());
+							List<ShowPropertyTO> showPropertyTOs = showTO.getShowProperties();
+							for (ShowPropertyTO showProperty : showPropertyTOs) {
+								showProperties.put(showProperty.getKey(), showProperty.getValue());
 							}
 							if (constructorType==0) {
 								showObj = (Show) constructor.newInstance();
