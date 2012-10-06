@@ -2,6 +2,7 @@ package com.randomnoun.dmx.web.action;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.sql.*;
 import java.util.*;
@@ -21,6 +22,8 @@ import com.randomnoun.common.Struct;
 import com.randomnoun.common.http.HttpUtil;
 import com.randomnoun.common.security.User;
 import com.randomnoun.common.spring.StructuredResultReader;
+import com.randomnoun.dmx.audioController.AudioController;
+import com.randomnoun.dmx.audioSource.AudioSource;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.DeviceDAO;
 import com.randomnoun.dmx.dmxDevice.DmxDevice;
@@ -31,6 +34,8 @@ import com.randomnoun.dmx.web.TableEditor.TableEditorResult;
 
 /*
  * @XXX we should probably have startUniverseIdx and endUniverseIdx
+ * @XXX also, only one active audiocontroller / audiosource. perhaps. who knows. 
+ * 
  * values per device to handle devices that span multiple universes.
  *
  * NB: it should be OK to have multiple devices generating output
@@ -71,12 +76,15 @@ public class MaintainDeviceAction
     public static class DeviceTableEditor extends TableEditor {
 
     	private final static String[] fieldNames = 
-    		new String[] { "id", "name", "className", "type", "active", "universeNumber" };
+    		new String[] { "id", "name", "className", "active", "universeNumber" };
 
     	private final static String[] fieldNames2 = 
-    		new String[] { "id", "name", "className", "type", "active", "universeNumber", "devicePropertyCount" };
+    		new String[] { "id", "name", "className", "active", "universeNumber", "devicePropertyCount" };
 
-    	public DeviceTableEditor() {
+    	String deviceType;
+    	
+    	public DeviceTableEditor(String deviceType) {
+    		this.deviceType = deviceType;
     	}
     	
     	// @TODO this is all rather silly...
@@ -88,15 +96,21 @@ public class MaintainDeviceAction
     		DeviceDAO deviceDAO = new DeviceDAO(jt);
     		DeviceTO device = new DeviceTO();
     		Struct.setFromMap(device, row, false, true, false, fieldNames);
+    		device.setType(deviceType);
     		deviceDAO.createDevice(device);
 		}
 
+    	/** @TODO: the reason this is so awfully slow is that the update detection isn't working
+    	 * (rows are being updated in the DB even though they haven't changed in the UI).
+    	 * Also: batch updates ?
+    	 */
 		@Override
 		public void updateRow(Map row) throws Exception {
 			JdbcTemplate jt = AppConfig.getAppConfig().getJdbcTemplate();
     		DeviceDAO deviceDAO = new DeviceDAO(jt);
     		DeviceTO device = new DeviceTO();
     		Struct.setFromMap(device, row, false, true, false, fieldNames);
+    		device.setType(deviceType);
     		deviceDAO.updateDevice(device);
 		}
 
@@ -191,7 +205,7 @@ public class MaintainDeviceAction
     		AppConfig appConfig = AppConfig.getAppConfig();
     		JdbcTemplate jt = appConfig.getJdbcTemplate();
     		DeviceDAO deviceDAO = new DeviceDAO(jt);
-    		List<DeviceTO> devices = deviceDAO.getDevicesWithPropertyCounts(null);
+    		List<DeviceTO> devices = deviceDAO.getDevicesWithPropertyCounts("type='" + deviceType + "'");
     		// holy freaking christ. This is 12 types of wrong. Or 1:02AM types of wrong. Take your pick.
     		List devicesAsMaps = new ArrayList();
     		for (DeviceTO device : devices) {
@@ -202,38 +216,46 @@ public class MaintainDeviceAction
     		return devicesAsMaps;
     	}
     	
+    	// D=DMX, S=audioSource, C=audioController
     	
     	public List getDeviceClassNames() {
     		AppConfig appConfig = AppConfig.getAppConfig();
-    		List deviceClassNames = (List) appConfig.get("deviceClassNames");
-    		for (int i=0; i<deviceClassNames.size(); i++) {
-    			Map m = (Map) deviceClassNames.get(i);
-    			String c = (String) m.get("id");
-    			String n = c;
-    			try {
-    				Class clazz = Class.forName(c);
-    				Constructor con = clazz.getConstructor(Map.class);
-    				DmxDevice d = (DmxDevice) con.newInstance(new Object[] { null });
-    				n = d.getName();
-    			} catch (Exception e) {
-    				logger.error("Could not determine name of DmxDevice '" + c + "'", e);
-    			}
-    			m.put("name", n);
-    			
+    		List deviceClassNames = null;
+    		Class deviceSuperClass = null;
+    		if (deviceType.equals("D")) {
+    			deviceSuperClass = DmxDevice.class;
+    			deviceClassNames = (List) appConfig.get("dmxDeviceClassNames");
+    		} else if (deviceType.equals("C")) {
+    			deviceSuperClass = AudioController.class;
+    			deviceClassNames = (List) appConfig.get("audioControllerClassNames");    			
+    		} else if (deviceType.equals("S")) {
+    			deviceSuperClass = AudioSource.class;
+    			deviceClassNames = (List) appConfig.get("audioSourceClassNames");
+    		} else {
+    			throw new IllegalArgumentException("illegal deviceType '" + deviceType + "'; expected 'D', 'S' or 'C'.");
     		}
     		
+    		for (int i=0; i<deviceClassNames.size(); i++) {
+    			Map deviceMap = (Map) deviceClassNames.get(i);
+    			String deviceClassName = (String) deviceMap.get("id");
+    			String deviceName = deviceClassName;
+    			try {
+    				Class clazz = Class.forName(deviceClassName);
+    				Constructor con = clazz.getConstructor(Map.class);
+    				Object deviceObj = con.newInstance(new Object[] { null });
+    				if (!deviceSuperClass.isAssignableFrom(clazz)) {
+    					throw new IllegalStateException("device type '" + deviceSuperClass.getName() + "' is not assignable from device '" + deviceClassName + "'");
+    				}
+    				Method getNameMethod = clazz.getMethod("getName", new Class[] {}); 
+    				deviceName = (String) getNameMethod.invoke(deviceObj);
+    			} catch (Exception e) {
+    				logger.error("Could not determine name of device '" + deviceClassName + "'", e);
+    			}
+    			deviceMap.put("name", deviceName);
+    			
+    		}
     		return deviceClassNames;
-    		
     	}
-    	
-    	/*
-    	public List getFollowupDevices() {
-    		AppConfig appConfig = AppConfig.getAppConfig();
-    		JdbcTemplate jt = appConfig.getJdbcTemplate();
-    		DeviceDAO deviceDAO = new DeviceDAO(jt);
-    		return deviceDAO.getDevices(null);
-    	}
-		*/
     	
    }
       
@@ -261,12 +283,17 @@ public class MaintainDeviceAction
 		AppConfig appConfig = AppConfig.getAppConfig();
 		String forward = "success";
 		JdbcTemplate jt = appConfig.getJdbcTemplate();
+		String deviceType = request.getParameter("deviceType");
 		String action = request.getParameter("action");
+		
+		if (!("D".equals(deviceType) || "C".equals(deviceType) || "S".equals(deviceType))) {
+			throw new IllegalArgumentException("Unknown deviceType '" + deviceType + "'; expected 'D', 'C' or 'S'");
+		}
 		
 		if (action==null) { action = ""; }
 		if (action.equals("")) {
 			// default action displays entry page
-			DeviceTableEditor tableEditor = new DeviceTableEditor();
+			DeviceTableEditor tableEditor = new DeviceTableEditor(deviceType);
 			request.setAttribute("form", tableEditor.readDevices(null));
 			
 		} else if (action.equals("maintain") || action.equals("editProperties")) {
@@ -274,7 +301,7 @@ public class MaintainDeviceAction
 			Struct.setFromRequest(form, request);
 			
 			//System.out.println(Struct.structuredMapToString("form", form));
-			DeviceTableEditor tableEditor = new DeviceTableEditor();
+			DeviceTableEditor tableEditor = new DeviceTableEditor(deviceType);
 			tableEditor.removeEmptyRows(form);
 			TableEditorResult result = tableEditor.maintainDevices(form);
 			//System.out.println("======================================");
@@ -297,7 +324,7 @@ public class MaintainDeviceAction
 			throw new IllegalArgumentException("Invalid action '" + action + "'");
 		}
 
-		
+		request.setAttribute("deviceType", deviceType);
         return mapping.findForward(forward);
     }
     

@@ -2,6 +2,7 @@ package com.randomnoun.dmx.web.action;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.sql.*;
 import java.util.*;
@@ -21,6 +22,8 @@ import com.randomnoun.common.Struct;
 import com.randomnoun.common.http.HttpUtil;
 import com.randomnoun.common.security.User;
 import com.randomnoun.common.spring.StructuredResultReader;
+import com.randomnoun.dmx.audioController.AudioController;
+import com.randomnoun.dmx.audioSource.AudioSource;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.DeviceDAO;
 import com.randomnoun.dmx.dao.DevicePropertyDAO;
@@ -67,10 +70,10 @@ public class MaintainDevicePropertyAction
     	private final static String[] fieldNames = 
     		new String[] { "id", "key", "value" };
     	
-    	private long deviceId;
+    	private DeviceTO deviceTO;
     	
-    	public DevicePropertyTableEditor(long deviceId) {
-    		this.deviceId = deviceId;
+    	public DevicePropertyTableEditor(DeviceTO deviceTO) {
+    		this.deviceTO = deviceTO;
     	}
     	
     	@Override
@@ -78,10 +81,10 @@ public class MaintainDevicePropertyAction
     		AppConfig appConfig = AppConfig.getAppConfig();
     		JdbcTemplate jt = appConfig.getJdbcTemplate();
     		DevicePropertyDAO devicePropertyDAO = new DevicePropertyDAO(jt);
-    		DevicePropertyTO device = new DevicePropertyTO();
-    		device.setDeviceId(deviceId);
-    		Struct.setFromMap(device, row, false, true, false, fieldNames);
-    		devicePropertyDAO.createDeviceProperty(device);
+    		DevicePropertyTO deviceProperty = new DevicePropertyTO();
+    		deviceProperty.setDeviceId(deviceTO.getId());
+    		Struct.setFromMap(deviceProperty, row, false, true, false, fieldNames);
+    		devicePropertyDAO.createDeviceProperty(deviceProperty);
 		}
 
 		@Override
@@ -89,7 +92,7 @@ public class MaintainDevicePropertyAction
 			JdbcTemplate jt = AppConfig.getAppConfig().getJdbcTemplate();
 			DevicePropertyDAO devicePropertyDAO = new DevicePropertyDAO(jt);
     		DevicePropertyTO deviceProperty = new DevicePropertyTO();
-    		deviceProperty.setDeviceId(deviceId);
+    		deviceProperty.setDeviceId(deviceTO.getId());
     		Struct.setFromMap(deviceProperty, row, false, true, false, fieldNames);
     		devicePropertyDAO.updateDeviceProperty(deviceProperty);
 		}
@@ -99,7 +102,7 @@ public class MaintainDevicePropertyAction
 			JdbcTemplate jt = AppConfig.getAppConfig().getJdbcTemplate();
 			DevicePropertyDAO devicePropertyDAO = new DevicePropertyDAO(jt);
 			DevicePropertyTO deviceProperty = new DevicePropertyTO();
-			deviceProperty.setDeviceId(deviceId);
+			deviceProperty.setDeviceId(deviceTO.getId());
     		Struct.setFromMap(deviceProperty, row, false, true, false, fieldNames);
     		devicePropertyDAO.deleteDeviceProperty(deviceProperty);
 		}
@@ -164,14 +167,73 @@ public class MaintainDevicePropertyAction
 			return form;
     	}
     	
+    	
     	public List getDeviceProperties() {
     		AppConfig appConfig = AppConfig.getAppConfig();
     		JdbcTemplate jt = appConfig.getJdbcTemplate();
-    		DeviceDAO deviceDAO = new DeviceDAO(jt);
     		DevicePropertyDAO devicePropertyDAO = new DevicePropertyDAO(jt);
-    		//Device device = appConfig.getDevice(deviceId);
-    		DeviceTO deviceTO = deviceDAO.getDevice(deviceId);
-    		DmxDevice device = null;
+    		
+    		String deviceType = deviceTO.getType();
+    		Object deviceObj = null;
+    		List defaultProperties = null;
+    		
+    		Class deviceSuperClass = null;
+    		if (deviceType.equals("D")) {
+    			deviceSuperClass = DmxDevice.class;
+    		} else if (deviceType.equals("C")) {
+    			deviceSuperClass = AudioController.class;
+    		} else if (deviceType.equals("S")) {
+    			deviceSuperClass = AudioSource.class;
+    		} else {
+    			throw new IllegalArgumentException("illegal deviceType '" + deviceType + "'; expected 'D', 'S' or 'C'.");
+    		}
+    		
+			String deviceClassName = deviceTO.getClassName();
+			try {
+				Class clazz = Class.forName(deviceClassName);
+				Constructor con = clazz.getConstructor(Map.class);
+				deviceObj = con.newInstance(new Object[] { null });
+				if (!deviceSuperClass.isAssignableFrom(clazz)) {
+					throw new IllegalStateException("device type '" + deviceSuperClass.getName() + "' is not assignable from device '" + deviceClassName + "'");
+				}
+				Method getDefaultPropertiesMethod = clazz.getMethod("getDefaultProperties", new Class[] {}); 
+				defaultProperties = (List) getDefaultPropertiesMethod.invoke(deviceObj);
+			} catch (Exception e) {
+				logger.error("Could not determine name of device '" + deviceClassName + "'", e);
+			}
+			
+			List<DevicePropertyTO> properties = devicePropertyDAO.getDeviceProperties("deviceId=" + deviceTO.getId());
+    		List propertiesAsMaps = new ArrayList();
+    		for (DevicePropertyTO property : properties) {
+    			Map devicePropertyMap = new HashMap();
+    			Struct.setFromObject(devicePropertyMap, property, false, true, true, fieldNames);
+    			propertiesAsMaps.add(devicePropertyMap);
+    		}
+    		if (deviceObj!=null) {
+    			// shouldn't these be displayed initially in the same order as returned in defaultProperties ?
+	    		for (Iterator i = defaultProperties.iterator(); i.hasNext(); ) {
+	    			PropertyDef defaultProperty = (PropertyDef) i.next();
+	    			if (Struct.getStructuredListItem(propertiesAsMaps, "key", defaultProperty.getKey())==null) {
+	    				Map newProperty = new HashMap();
+	    				newProperty.put("key", defaultProperty.getKey());
+	    				newProperty.put("value", defaultProperty.getDefaultValue());
+	    				newProperty.put("description", defaultProperty.getDescription());
+	    				propertiesAsMaps.add(newProperty);
+	    			} else {
+	    				Map newProperty = Struct.getStructuredListItem(propertiesAsMaps, "key", defaultProperty.getKey());
+	    				newProperty.put("description", defaultProperty.getDescription());
+	    			}
+	    		}
+    		}
+    		Struct.sortStructuredList(propertiesAsMaps, "key");
+    		return propertiesAsMaps;
+    	}
+    	
+    	
+    	/*
+    	public List getDeviceProperties() {
+    		AppConfig appConfig = AppConfig.getAppConfig();
+    		
     		//List<DevicePropertyTO> properties = new ArrayList<DevicePropertyTO>();
     		try {
 				Class clazz = Class.forName(deviceTO.getClassName());
@@ -207,6 +269,7 @@ public class MaintainDevicePropertyAction
     		Struct.sortStructuredList(propertiesAsMaps, "key");
     		return propertiesAsMaps;
     	}
+    	*/
     	
    }
       
@@ -237,12 +300,14 @@ public class MaintainDevicePropertyAction
 		String action = request.getParameter("action");
 		
 		long deviceId = Long.parseLong(request.getParameter("deviceId"));
-		request.setAttribute("deviceId", new Long(deviceId));
-		
+		DeviceDAO deviceDAO = new DeviceDAO(jt);
+		//Device device = appConfig.getDevice(deviceId);
+		DeviceTO deviceTO = deviceDAO.getDevice(deviceId);
+
 		if (action==null) { action = ""; }
 		if (action.equals("") || action.equals("editProperties")) {
 			// default action displays entry page
-			DevicePropertyTableEditor tableEditor = new DevicePropertyTableEditor(deviceId);
+			DevicePropertyTableEditor tableEditor = new DevicePropertyTableEditor(deviceTO);
 			request.setAttribute("form", tableEditor.readDeviceProperties(null));
 			
 		} else if (action.equals("maintain")) {
@@ -250,7 +315,7 @@ public class MaintainDevicePropertyAction
 			Struct.setFromRequest(form, request);
 			
 			//System.out.println(Struct.structuredMapToString("form", form));
-			DevicePropertyTableEditor tableEditor = new DevicePropertyTableEditor(deviceId);
+			DevicePropertyTableEditor tableEditor = new DevicePropertyTableEditor(deviceTO);
 			tableEditor.removeEmptyRows(form);
 			TableEditorResult result = tableEditor.maintainDeviceProperties(form);
 			//System.out.println("======================================");
@@ -265,7 +330,8 @@ public class MaintainDevicePropertyAction
 			throw new IllegalArgumentException("Invalid action '" + action + "'");
 		}
 
-		
+		request.setAttribute("deviceId", new Long(deviceId));
+		request.setAttribute("deviceType", deviceTO.getType());
         return mapping.findForward(forward);
     }
     
