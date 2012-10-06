@@ -10,6 +10,19 @@
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
 <% 
     AppConfig appConfig = AppConfig.getAppConfig();
+	String deviceType = (String) request.getAttribute("deviceType");
+	String deviceTypeString;
+	boolean hasUniverse = false;
+	if (deviceType.equals("D")) {
+		deviceTypeString = "DMX interface";
+		hasUniverse = true;
+	} else if (deviceType.equals("S")) {
+		deviceTypeString = "Audio source";
+	} else if (deviceType.equals("C")) {
+		deviceTypeString = "Audio controller";
+	} else {
+		throw new IllegalStateException("Unknown deviceType '" + deviceType + "'");
+	}
 %>
 <html>
 <head>
@@ -23,7 +36,7 @@
     <meta name="revisit-after" content="2 days" />
     <meta name="keywords" content="nothing-in-particular" />
     
-    <title><%= appConfig.getProperty("webapp.titlePrefix") %> Maintain Device Properties</title>
+    <title><%= appConfig.getProperty("webapp.titlePrefix") %> Maintain <%= deviceTypeString %> Properties</title>
      
     <link rel="shortcut icon" href="images/favicon.png" />
     
@@ -115,7 +128,7 @@ var tblObj = new rnTable(
   'id',                                    // table key field 
   'entryTable',                               // clientside table id
   'mainForm',                                 // enclosing clientside form id
-  'Are you sure you wish to delete this device property ?',
+  'Are you sure you wish to delete this <%= deviceTypeString %> property ?',
     new Array(
       'id', 'key', 'value')
 );
@@ -134,7 +147,7 @@ function edtSubmitClick() {
     checkModify('mainForm',tblObj); 
     document.forms[0].submit();
 }
-function lhsCancelClick() { document.location = "maintainDevice.html"; }
+function lhsCancelClick() { document.location = "maintainDevice.html?deviceType=<%= deviceType%>"; }
 function lhsOKClick() { 
     isSubmitting=true; 
     checkModify('mainForm',tblObj); 

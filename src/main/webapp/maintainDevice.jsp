@@ -10,6 +10,19 @@
 <%@ taglib uri="/WEB-INF/common.tld" prefix="r" %>
 <% 
     AppConfig appConfig = AppConfig.getAppConfig();
+	String deviceType = (String) request.getAttribute("deviceType");
+	String deviceTypeString;
+	boolean hasUniverse = false;
+	if (deviceType.equals("D")) {
+		deviceTypeString = "DMX interface";
+		hasUniverse = true;
+	} else if (deviceType.equals("S")) {
+		deviceTypeString = "Audio source";
+	} else if (deviceType.equals("C")) {
+		deviceTypeString = "Audio controller";
+	} else {
+		throw new IllegalStateException("Unknown deviceType '" + deviceType + "'");
+	}
 %>
 <html>
 <head>
@@ -23,7 +36,7 @@
     <meta name="revisit-after" content="2 days" />
     <meta name="keywords" content="nothing-in-particular" />
     
-    <title><%= appConfig.getProperty("webapp.titlePrefix") %> Maintain DMX Interfaces</title>
+    <title><%= appConfig.getProperty("webapp.titlePrefix") %> Maintain <%= deviceTypeString %></title>
      
     <link rel="shortcut icon" href="images/favicon.png" />
     
@@ -115,9 +128,9 @@ var tblObj = new rnTable(
   'id',                                    // table key field 
   'entryTable',                               // clientside table id
   'mainForm',                                 // enclosing clientside form id
-  'Are you sure you wish to delete this device ?',
+  'Are you sure you wish to delete this <%= deviceTypeString %> ?',
     new Array(
-      'id', 'name', 'className', 'type', 'active', 'universeNumber' )
+      'id', 'name', 'className', 'active', 'universeNumber' )
 );
 
 
@@ -177,13 +190,16 @@ function initWindow() {
 <form id="mainForm" name="mainForm" method="post" action="maintainDevice.html">
     <input type="hidden" name="action" value="maintain" /> 
     <input type="hidden" name="deviceId" value="" />
-<table border="0" cellpadding="1" cellspacing="1" id="entryTable">
+    <input type="hidden" name="deviceType" value="<%= deviceType %>" />
+    <table border="0" cellpadding="1" cellspacing="1" id="entryTable">
     <tr valign="bottom"> 
     <td class="formHeader">&nbsp;</td>
     <td class="formHeader" style="background-color: #000052">Name <img src="image/help-icon.png" align="right" title="Descriptive name" /></td>
     <td class="formHeader" style="background-color: #000052">Interface Type <img src="image/help-icon.png" align="right" title="The type of this interface" /></td>
     <td class="formHeader" style="background-color: #000052">Active <img src="image/help-icon.png" align="right" title="Generate output on this device ?" /></td>
+    <% if (hasUniverse) { %>
     <td class="formHeader" style="background-color: #000052">Universe number <img src="image/help-icon.png" align="right" title="The universe number within dmx-web that represents this device" /></td>
+    <% } %>
     <td class="formHeader" style="background-color: #000052" colspan="2" >Properties <img src="image/help-icon.png" align="right" title="Custom device properties" /></td>
 </tr>
    <c:forEach var="rowData" varStatus="rowStatus" items="${form.devices}" > 
@@ -215,9 +231,11 @@ function initWindow() {
                            <td class="<r:onError name='devices[${rowStatus.index}].active' text='errorBg' />"> 
                                   <r:input type="checkbox" styleClass="smallInput formfield rj" name="devices[${rowStatus.index}].active" trueValue="Y" value="${rowData.active}" onchange="edtUpdateActive(${rowStatus.index})"/>
                            </td>
+                           <% if (hasUniverse) { %>
                            <td class="<r:onError name='devices[${rowStatus.index}].universeNumber' text='errorBg' />"> 
                                <r:input type="text" styleClass="formfield" name="devices[${rowStatus.index}].universeNumber" value="${rowData.universeNumber}" />
                            </td>
+                           <% } %>
                            <td><c:out value='${rowData.devicePropertyCount}'/> properties</td>
                            <td><input type="button" onclick="edtEditProperties(<c:out value='${rowData.id}'/>)" value="Edit..." /></td>
                        </tr>
@@ -238,9 +256,11 @@ function initWindow() {
                            <td class="<r:onError name='devices[${rowStatus.index}].active' text='errorBg' />"> 
                                <r:input type="checkbox" styleClass="smallInput formfield rj" name="devices[${rowStatus.index}].active" trueValue="Y" value="${rowData.active}" onchange="edtUpdateActive(${rowStatus.index})"/>
                            </td>
+                           <% if (hasUniverse) { %>
                            <td class="<r:onError name='devices[${rowStatus.index}].universeNumber' text='errorBg' />"> 
                                <r:input type="text" styleClass="formfield" name="devices[${rowStatus.index}].universeNumber" value="${rowData.universeNumber}" />
                            </td>
+                           <% } %>
                            <td><c:out value='${rowData.devicePropertyCount}'/> properties</td>
                            <td><input type="button" onclick="edtEditProperties(<c:out value='${rowData.id}'/>)" value="Edit..." /></td>
                     </tr>
@@ -255,7 +275,9 @@ function initWindow() {
                 <td><input type="text" class="formfield" name="devices[<c:out value='${form.devices_size}' />].name" value="" size="30"></td>
 	            <td><r:select name="devices[${form.devices_size}].className" data="${form.classNames}" value="" displayColumn="name" valueColumn="id" firstOption="(please select...)" /></td>
                 <td><input type="checkbox" class="smallInput formfield rj" name="devices[<c:out value='${form.devices_size}' />].active" trueValue="Y" value="" ></td>
+                <% if (hasUniverse) { %>
                 <td><input type="text" class="formfield" name="devices[<c:out value='${form.devices_size}' />].universeNumber" value="" size="30"></td>
+                <% } %>
                 <td></td>
                 <td></td>
             </tr>
