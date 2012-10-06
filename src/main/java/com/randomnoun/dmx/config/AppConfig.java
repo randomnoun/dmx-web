@@ -33,7 +33,9 @@ import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.ExceptionContainerImpl;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.audioController.AudioController;
+import com.randomnoun.dmx.audioController.NullAudioController;
 import com.randomnoun.dmx.audioSource.AudioSource;
+import com.randomnoun.dmx.audioSource.NullAudioSource;
 import com.randomnoun.dmx.dao.DeviceDAO;
 import com.randomnoun.dmx.dao.DevicePropertyDAO;
 import com.randomnoun.dmx.dao.FixtureDAO;
@@ -526,7 +528,9 @@ public class AppConfig extends AppConfigBase {
 		JdbcTemplate jt = getJdbcTemplate();
 		DeviceDAO deviceDAO = new DeviceDAO(jt);
 		DevicePropertyDAO devicePropertyDAO = new DevicePropertyDAO(jt);
-		List<DeviceTO> devices = deviceDAO.getDevicesWithPropertyCounts("active='Y'");
+
+		// @TODO same thing as ShowDAO here (Properties, not PropertyCounts)
+		List<DeviceTO> devices = deviceDAO.getDevicesWithPropertyCounts("active='Y' AND type='D'");
 		Collections.sort(devices, new Comparator<DeviceTO>() {
 			public int compare(DeviceTO o1, DeviceTO o2) {
 				return o1.getUniverseNumber().compareTo(o2.getUniverseNumber());
@@ -535,20 +539,20 @@ public class AppConfig extends AppConfigBase {
 			DeviceTO deviceTO = devices.get(i);
 			DmxDevice device = null;
 			Map deviceProperties = new HashMap();
+			if (deviceTO.getDevicePropertyCount()>0) {
+				List<DevicePropertyTO> devicePropertyTOs = devicePropertyDAO.getDeviceProperties("deviceId=" + deviceTO.getId());
+				for (DevicePropertyTO deviceProperty : devicePropertyTOs) {
+					deviceProperties.put(deviceProperty.getKey(), deviceProperty.getValue());
+				}
+			}		
+			Class clazz = Class.forName(deviceTO.getClassName());
+			Constructor con = clazz.getConstructor(Map.class);
 			try {
-				if (deviceTO.getDevicePropertyCount()>0) {
-					List<DevicePropertyTO> devicePropertyTOs = devicePropertyDAO.getDeviceProperties("deviceId=" + deviceTO.getId());
-					for (DevicePropertyTO deviceProperty : devicePropertyTOs) {
-						deviceProperties.put(deviceProperty.getKey(), deviceProperty.getValue());
-					}
-				}		
-				Class clazz = Class.forName(deviceTO.getClassName());
-				Constructor con = clazz.getConstructor(Map.class);
 				device = (DmxDevice) con.newInstance(new Object[] { deviceProperties });
 				String name = device.getName();
 				logger.info("Created device " + deviceTO.getClassName() + " '" + device.getName() + "' on universe " + deviceTO.getUniverseNumber());
 			} catch (Exception e) {
-				IOException ioe = new IOException("Could not open device '" + deviceTO.getName() + "'", e);
+				IOException ioe = new IOException("Could not create device '" + deviceTO.getName() + "'", e);
 				logger.error("Could not instantiate device " + deviceTO.getClassName () + " '" + deviceTO.getName() + "' on universe " + deviceTO.getUniverseNumber(), ioe);
 				addAppConfigException(ioe);
 				// @TODO: necessary to create a null device here ?
@@ -557,16 +561,9 @@ public class AppConfig extends AppConfigBase {
 			// convert to 0-based universe index
 			DmxDeviceConfig ddc = new DmxDeviceConfig(this, deviceTO.getUniverseNumber().intValue() - 1, device);
 			dmxDeviceConfigs.add(ddc);
-
 			logger.info("Opening device " + deviceTO.getClassName() + " '" + device.getName() + "' on universe " + deviceTO.getUniverseNumber());
 			// @XXX: exception handling in device class 
-			//try {
-				device.open();
-			//} catch (Exception e) {
-			//	IOException ioe = new IOException("Could not open device '" + deviceTO.getName() + "'", e);
-			//	logger.error("Could not open device '" + device.getName() + "'", ioe);
-			//	addAppConfigException(ioe);
-			//}
+			device.open();
 		}
 		
 		
@@ -586,6 +583,12 @@ public class AppConfig extends AppConfigBase {
     
     private void initController() throws InstantiationException, IllegalAccessException, ClassNotFoundException, PortInUseException, IOException, TooManyListenersException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 
+		JdbcTemplate jt = getJdbcTemplate();
+		DeviceDAO deviceDAO = new DeviceDAO(jt);
+		DevicePropertyDAO devicePropertyDAO = new DevicePropertyDAO(jt);
+		AudioController audioController = null;
+		AudioSource audioSource = null;
+		
     	// this should always create at least one universe (idx 0)
     	List<Universe> universes = new ArrayList<Universe>();
     	int maxUniverseIdx=0;
@@ -598,7 +601,42 @@ public class AppConfig extends AppConfigBase {
     		universes.add(universe);
     	}
     	
+		List<DeviceTO> devices = deviceDAO.getDevicesWithPropertyCounts("active='Y' AND type='C'");
+		if (devices.size()>0) {
+			DeviceTO deviceTO = devices.get(0);
+			Map acProperties = new HashMap();
+			if (deviceTO.getDevicePropertyCount()>0) {
+				List<DevicePropertyTO> devicePropertyTOs = devicePropertyDAO.getDeviceProperties("deviceId=" + deviceTO.getId());
+				for (DevicePropertyTO deviceProperty : devicePropertyTOs) {
+					acProperties.put(deviceProperty.getKey(), deviceProperty.getValue());
+				}
+			}		
+			Class clazz = Class.forName(deviceTO.getClassName());
+			Constructor con = clazz.getConstructor(Map.class);
+			try {
+				audioController = (AudioController) con.newInstance(new Object[] { acProperties });
+				String name = audioController.getName();
+				logger.info("Created audioController " + deviceTO.getClassName() + " '" + audioController.getName() + "'");
+			} catch (Exception e) {
+				IOException ioe = new IOException("Could not create audioController '" + deviceTO.getName() + "'", e);
+				logger.error("Could not instantiate audioController " + deviceTO.getClassName () + " '" + deviceTO.getName() + "'", ioe);
+				addAppConfigException(ioe);
+				// @TODO: necessary to create a null device here ?
+				audioController = new NullAudioController(acProperties);
+			}
+			try {
+				audioController.open();
+			} catch (Exception e) {
+				// @TODO hmmmmmmmmmmmmmmmmmm.........
+				logger.error("Couldn't open audioController", e);
+			}
+		} else {
+			logger.info("No audioController configured; using NullAudioController");
+			audioController = new NullAudioController(null);
+			audioController.open();
+		}
 		
+    	/* audio controller from properties file
 		String acClassname = (String) this.get("audioController.class");
 		if (acClassname==null) {
 			acClassname = "com.randomnoun.dmx.protocol.nullDevice.NullAudioController";
@@ -613,7 +651,45 @@ public class AppConfig extends AppConfigBase {
 			// @TODO hmmmmmmmmmmmmmmmmmm.........
 			logger.error("Couldn't open audioController", e);
 		}
+		*/
 
+		// @TODO load with earlier thingo
+		devices = deviceDAO.getDevicesWithPropertyCounts("active='Y' AND type='S'");
+		if (devices.size()>0) {
+			DeviceTO deviceTO = devices.get(0);
+			Map asProperties = new HashMap();
+			if (deviceTO.getDevicePropertyCount()>0) {
+				List<DevicePropertyTO> devicePropertyTOs = devicePropertyDAO.getDeviceProperties("deviceId=" + deviceTO.getId());
+				for (DevicePropertyTO deviceProperty : devicePropertyTOs) {
+					asProperties.put(deviceProperty.getKey(), deviceProperty.getValue());
+				}
+			}		
+			Class clazz = Class.forName(deviceTO.getClassName());
+			Constructor con = clazz.getConstructor(Map.class);
+			try {
+				audioSource = (AudioSource) con.newInstance(new Object[] { asProperties });
+				String name = audioSource.getName();
+				logger.info("Created audioSource " + deviceTO.getClassName() + " '" + audioSource.getName() + "'");
+			} catch (Exception e) {
+				IOException ioe = new IOException("Could not create audioSource '" + deviceTO.getName() + "'", e);
+				logger.error("Could not instantiate audioSource " + deviceTO.getClassName () + " '" + deviceTO.getName() + "'", ioe);
+				addAppConfigException(ioe);
+				// @TODO: necessary to create a null device here ?
+				audioSource = new NullAudioSource(asProperties);
+			}
+			try {
+				audioSource.open();
+			} catch (Exception e) {
+				// @TODO hmmmmmmmmmmmmmmmmmm.........
+				logger.error("Couldn't open audioController", e);
+			}
+		} else {
+			logger.info("No audioSource configured; using NullAudioSource");
+			audioSource = new NullAudioSource(null);
+			audioSource.open();
+		}
+		
+		/* audio source from properties file 
 		String asClassname = (String) this.get("audioSource.class");
 		if (asClassname==null) {
 			asClassname = "com.randomnoun.dmx.protocol.nullDevice.NullAudioSource";
@@ -628,9 +704,12 @@ public class AppConfig extends AppConfigBase {
 			// @TODO hmmmmmmmmmmmmmmmmmm.........
 			logger.error("Couldn't open audioController", e);
 		}
+		*/
+
 		
 		loadActiveStage();
-		
+
+		this.audioSource = audioSource;
 		controller = new Controller();
 		controller.setUniverses(universes);
 		controller.setAudioController(audioController);
