@@ -2,6 +2,7 @@ package com.randomnoun.dmx.to;
 
 import com.randomnoun.common.Text;
 
+/** @TODO property types */
 public class ShowPropertyTO {
 
     private long id;
