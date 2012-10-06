@@ -1,6 +1,7 @@
 package com.randomnoun.dmx.audioSource;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import com.randomnoun.dmx.event.BeatListener;
  */
 public abstract class AudioSource implements ExceptionContainer {
 
+	/** A list of objects that will be notified when this audio source generates a 'beat' */
 	private List<BeatListener> listeners = new ArrayList<BeatListener>();
 	
 	/** Create a new AudioController. 
@@ -77,6 +79,18 @@ public abstract class AudioSource implements ExceptionContainer {
 		for (BeatListener listener : listeners) {
 			listener.setBeat();
 		}
+	}
+	
+	/** Name returned for UI */
+	public abstract String getName();
+	
+	/** Default properties for this audio source 
+	 *
+	 * @return List of PropertyDef objects
+	 * 
+	 */
+	public List getDefaultProperties() {
+		return Collections.EMPTY_LIST;
 	}
 	
 }

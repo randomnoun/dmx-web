@@ -23,6 +23,8 @@ public class NullAudioSource extends AudioSource {
 		bassMidTreble = new float[3];
 		spectrum = new float[2][256];
 	}
+	
+	public String getName() { return "Null audio source"; }
 
 	public List<TimestampedException> getExceptions() {
 		return exceptionContainer.getExceptions();

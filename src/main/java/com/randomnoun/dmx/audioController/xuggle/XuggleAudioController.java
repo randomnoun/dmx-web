@@ -12,6 +12,14 @@ import com.randomnoun.dmx.ExceptionContainer.TimestampedException;
 import com.randomnoun.dmx.audioController.AudioController;
 import com.randomnoun.dmx.audioController.NullAudioController;
 
+
+/** An implementation of AudioController which uses Xuggle's JMF implementation 
+ * to generate audio. 
+ *
+ * @TODO implement it. talk about how it sounds better if you use cables made out of gold.
+ * 
+ * @author knoxg
+ */
 public class XuggleAudioController extends AudioController implements
 		ExceptionContainer {
 
@@ -22,6 +30,8 @@ public class XuggleAudioController extends AudioController implements
 		super(properties);
 		exceptionContainer = new ExceptionContainerImpl();
 	}
+	
+	public String getName() { return "Java Xuggle JMF"; }
 
 	// TODO: this may block for a shockingly long time
 	/**

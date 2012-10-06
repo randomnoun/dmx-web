@@ -1,5 +1,7 @@
 package com.randomnoun.dmx.audioController;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.randomnoun.dmx.ExceptionContainer;
@@ -38,4 +40,16 @@ public abstract class AudioController implements ExceptionContainer {
 	/** Sets the audio volume, in percent (0.0 - 100.0) */
 	public abstract void setVolume(double volumePercent);
 
+	/** Name returned for UI */
+	public abstract String getName();
+	
+	/** Default properties for this audio controller 
+	 *
+	 * @return List of PropertyDef objects
+	 * 
+	 */
+	public List getDefaultProperties() {
+		return Collections.EMPTY_LIST;
+	}
+	
 }

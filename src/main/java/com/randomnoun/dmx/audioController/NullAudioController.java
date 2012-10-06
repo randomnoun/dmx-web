@@ -2,6 +2,7 @@ package com.randomnoun.dmx.audioController;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.ExceptionContainerImpl;
+import com.randomnoun.dmx.PropertyDef;
 
 /** A null audio controller
  * 
@@ -25,8 +27,9 @@ public class NullAudioController extends AudioController
 		super(properties);
 		exceptionContainer = new ExceptionContainerImpl();
 	}
-
-	// TODO: this may block for a shockingly long time
+	
+    public String getName() { return "Null controller"; }
+	
 	/** The NullAudioController will do nothing when requested
 	 * to play audio.
 	 */
@@ -34,10 +37,16 @@ public class NullAudioController extends AudioController
 	public void playAudioFile(String filename) {
 	}
 
+	/** The NullAudioController will do nothing when requested
+	 * to stop audio
+	 */
 	@Override
 	public void stopAudio() {
 	}
 
+	/** The NullAudioController will do nothing when requested
+	 * to set the volume
+	 */
 	@Override
 	public void setVolume(double volumePercent) {
 	}

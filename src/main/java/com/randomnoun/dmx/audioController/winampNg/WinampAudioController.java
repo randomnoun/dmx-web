@@ -2,6 +2,7 @@ package com.randomnoun.dmx.audioController.winampNg;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,10 +11,11 @@ import org.apache.log4j.Logger;
 import com.randomnoun.common.Text;
 import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.ExceptionContainerImpl;
+import com.randomnoun.dmx.PropertyDef;
 import com.randomnoun.dmx.audioController.AudioController;
 
-/** An implementation of AudioController which uses Winamp 
- * to generate audio. The Winamp application is controlled using the 
+/** An implementation of AudioController which uses WinAMP 
+ * to generate audio. The WinAMP application is controlled using the 
  * WinampNG socket interface, which must be installed for this to work.
  * 
  * @author knoxg
@@ -36,6 +38,7 @@ public class WinampAudioController extends AudioController
 	
 	public WinampAudioController(Map properties) throws IOException {
 		super(properties);
+		
 		this.host = (String) properties.get("host");
 		this.port = Integer.parseInt((String) properties.get("port"));
 		this.password = (String) properties.get("password");
@@ -48,6 +51,20 @@ public class WinampAudioController extends AudioController
 		exceptionContainer = new ExceptionContainerImpl();
 	}
 	
+	public String getName() { return "WinAMP (NG interface)"; }
+	
+	public List getDefaultProperties() {
+        List properties = new ArrayList();
+        properties.add(new PropertyDef("host", "Host name", "localhost"));
+        properties.add(new PropertyDef("port", "Port", "18443"));
+        properties.add(new PropertyDef("timeout", "Timeout (msec)", "3000"));
+        properties.add(new PropertyDef("password", "Password", "abc123"));
+        // @TODO make this more sane, i.e. /home/somewhere/audio for unix 
+        // and C:\somewhere windowsy\My Music for windows, say
+        properties.add(new PropertyDef("defaultPath", "Default path", "C:\\DCB\\audio"));
+        return properties;
+    }  
+	
 	public void open() {
 		winamp = new WinampNG(host, port, timeout, true);
 		try {
@@ -56,7 +73,7 @@ public class WinampAudioController extends AudioController
 			connected = true;
 		} catch (Exception e) {
 			logger.error("Exception connecting to Winamp audio controller", e);
-			exceptionContainer.addException(new RuntimeException("Exception connecting to Winamp audio controller"));			
+			exceptionContainer.addException(new RuntimeException("Exception connecting to WinAMP audio controller"));			
 		}
 	}
 
@@ -192,7 +209,7 @@ public class WinampAudioController extends AudioController
 			try {
 				winamp.disconnect();
 			} catch (IOException ioe) {
-				logger.error("Exception closing NGWinAmp audioController", ioe);
+				logger.error("Exception closing WinAMP audioController", ioe);
 			}
 			connected = false;
 		}
