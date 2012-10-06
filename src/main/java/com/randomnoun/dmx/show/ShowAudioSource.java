@@ -68,5 +68,10 @@ public class ShowAudioSource extends AudioSource implements BeatListener {
 		return audioSource.getSpectrum();
 	}
 
+	@Override
+	public String getName() {
+		return audioSource.getName();
+	}
+
 	
 }	
