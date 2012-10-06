@@ -81,6 +81,12 @@ public class UsbProWidget extends DmxDevice {
 	
 	public String getName() { return "Enttec USB Pro"; }
 	
+	public List getDefaultProperties() {
+        List properties = new ArrayList();
+        properties.add(new PropertyDef("portName", "COM port", "COM1"));
+        return properties;
+    }  
+	
 	public void open() {
 		try {
 			usbProTranslator = openPort();
@@ -197,11 +203,7 @@ public class UsbProWidget extends DmxDevice {
 		// return new UsbProWidgetUniverseUpdateListener(this);
 	}
 	
-    public List getDefaultProperties() {
-        List properties = new ArrayList();
-        properties.add(new PropertyDef("portName", "COM port", "COM1"));
-        return properties;
-  }  
+    
 
 	
 }
