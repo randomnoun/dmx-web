@@ -181,8 +181,10 @@ var dmxTimeSourceText = "-";
 </div>
 
 <div id="cnfPanel" style="display: none;">
-  <div id="cnfDevice" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfDevice.png" title="Stages"/><div class="cnfMenuText">DMX interfaces</div></div>
   <div id="cnfStage" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfStage.png" title="Stages"/><div class="cnfMenuText">Stages</div></div>
+  <div id="cnfDevice" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfDevice.png" title="DMX interfaces"/><div class="cnfMenuText">DMX interfaces</div></div>
+  <div id="cnfAudioController" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfAudioController.png" title="Audio controllers"/><div class="cnfMenuText">Audio controllers</div></div>
+  <div id="cnfAudioSource" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfAudioSource.png" title="Audio sources"/><div class="cnfMenuText">Audio sources</div></div>
   <div id="cnfFixtureDef" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfFixtures.png" title="Fixture definitions"/><div class="cnfMenuText">Fixture definitions</div></div>
   <div id="cnfFixture" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/lhsFixtures.png" title="Fixtures"/><div class="cnfMenuText">Fixtures</div></div>
   <div id="cnfShowDef" class="cnfControl"><img class="cnfMenuIcon" width="70" height="70" src="image/cnfShows.png" title="Show definitions"/><div class="cnfMenuText">Show definitions</div></div>

@@ -1502,8 +1502,10 @@ function logUpdateNotification(logCount) {
 /******************************* CONFIG PANEL ******************************/
 
 function cnfInitPanel() {
-	Event.observe($("cnfDevice"), 'click', cnfDeviceClick);
 	Event.observe($("cnfStage"), 'click', cnfStageClick);
+	Event.observe($("cnfDevice"), 'click', cnfDeviceClick);
+	Event.observe($("cnfAudioController"), 'click', cnfAudioControllerClick);
+	Event.observe($("cnfAudioSource"), 'click', cnfAudioSourceClick);
 	Event.observe($("cnfRecord"), 'click', cnfRecordClick);
 	Event.observe($("cnfFixtureDef"), 'click', cnfFixtureDefClick);
     Event.observe($("cnfFixture"), 'click', cnfFixtureClick);
@@ -1524,12 +1526,17 @@ function cnfInitPanel() {
     }
     
 }
-
-function cnfDeviceClick() {
-    document.location="maintainDevice.html";
-}
 function cnfStageClick() {
     document.location="maintainStage.html";
+}
+function cnfDeviceClick() {
+    document.location="maintainDevice.html?deviceType=D";
+}
+function cnfAudioControllerClick() {
+    document.location="maintainDevice.html?deviceType=C";
+}
+function cnfAudioSourceClick() {
+    document.location="maintainDevice.html?deviceType=S";
 }
 function cnfRecordClick() {
 	// NB: may be called when cnfPanel not visible
