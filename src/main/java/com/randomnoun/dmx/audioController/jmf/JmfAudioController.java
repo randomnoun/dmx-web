@@ -18,6 +18,13 @@ import com.randomnoun.dmx.ExceptionContainerImpl;
 import com.randomnoun.dmx.audioController.AudioController;
 import com.randomnoun.dmx.audioController.NullAudioController;
 
+/** An implementation of AudioController which uses Sun's JMF implementation 
+ * to generate audio. 
+ *
+ * @TODO implement it
+ * 
+ * @author knoxg
+ */
 public class JmfAudioController extends AudioController implements
 		ExceptionContainer {
 
@@ -28,6 +35,7 @@ public class JmfAudioController extends AudioController implements
 
 	public JmfAudioController(Map properties) throws IOException {
 		super(properties);
+		if (properties==null) { return; } // when called from maintain devices page
 		exceptionContainer = new ExceptionContainerImpl();
 		this.defaultPath = (String) properties.get("defaultPath");
 		if (defaultPath != null && !defaultPath.endsWith("/")) {
@@ -35,6 +43,8 @@ public class JmfAudioController extends AudioController implements
 		}
 
 	}
+	
+	public String getName() { return "Java Native JMF"; }
 
 	// TODO: this may block for a shockingly long time
 	/**
