@@ -480,7 +480,12 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         // for getting tomcat version. eventually.
         // MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
-        String winAmpLocation = Registry.getSystemValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Winamp", "UninstallString");
+        String winAmpLocation;
+        try {
+        	winAmpLocation = Registry.getSystemValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Winamp", "UninstallString");
+        } catch (IllegalStateException ise) {
+        	winAmpLocation = ""; // you don't get a registry on unix. Except for the wine one. Which I'm ignoring for the time being.
+        }
         if (winAmpLocation!=null) {
 	        if (winAmpLocation.startsWith("\"")) {
 	        	winAmpLocation = winAmpLocation.substring(1, winAmpLocation.length()-2);
@@ -489,6 +494,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         } else {
         	winAmpLocation = "";
         }
+        
         
         String dmxWebLocation = Registry.getSystemValue("SOFTWARE\\Randomnoun\\DMX-web", "InstallDir");
         if (dmxWebLocation!=null) {
