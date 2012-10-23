@@ -9,7 +9,7 @@
   <groupId>com.randomnoun.dmx</groupId>
   <artifactId>dmx-web</artifactId>
   <packaging>war</packaging>
-  <version>0.0.8</version>
+  <version>0.0.9-SNAPSHOT</version>
   <name>dmx-web</name>
   <url>http://maven.apache.org</url>
   <dependencies>
@@ -122,7 +122,6 @@
     <scm>
     <connection>scm:cvs:pserver:vmaint@cvs.dev.randomnoun:/randomnoun:dmx-web</connection>
     <developerConnection>scm:cvs:pserver:vmaint@cvs.dev.randomnoun:/randomnoun:dmx-web</developerConnection>
-    <tag>dmx-web-0_0_8</tag>
   </scm>
   
   <build>
