@@ -23,13 +23,21 @@ public class ExceptionContainerImpl implements ExceptionContainer {
 		exceptionList.clear();
 	}
 	public void addException(Throwable t) {
-		if (exceptionList.size()>0) {
-			TimestampedException le = exceptionList.get(exceptionList.size()-1);
+		for (int i=exceptionList.size()-1; i>=0; i--) {
+			TimestampedException le = exceptionList.get(i);
 			if (ExceptionUtils.getStackTrace(le.getException()).equals(ExceptionUtils.getStackTrace(t))) {
 				le.recur(System.currentTimeMillis());
 				return;
 			}
 		}
+		/*if (exceptionList.size()>0) {
+			TimestampedException le = exceptionList.get(exceptionList.size()-1);
+			if (ExceptionUtils.getStackTrace(le.getException()).equals(ExceptionUtils.getStackTrace(t))) {
+				le.recur(System.currentTimeMillis());
+				return;
+			}
+		}*/
+		
 		TimestampedException te = new TimestampedException(System.currentTimeMillis(), t);
 		exceptionList.add(te);
 	}
