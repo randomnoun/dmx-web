@@ -92,7 +92,14 @@ public class ShowThread extends Thread {
 	    		}
     		}
     	}
-
+	}
+	
+	public void resetException() {
+		if (show.getState()==Show.State.SHOW_STOPPED_WITH_EXCEPTION) {
+			show.setState(Show.State.SHOW_STOPPED);
+			//show.setLastException(null);
+			logger.debug("Show '" + show.getName() + "' exception reset");
+		}
 	}
 	
 }
