@@ -61,7 +61,7 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 				try {
 					// sleeping here so that we're not sending a universe DMX update for every individual channel update
 					// @TODO sync with whatever update rate the device wants
-					Thread.sleep(50);
+					if (!done) { Thread.sleep(50); }
 				} catch (InterruptedException e) {
 				}
 			}
@@ -93,7 +93,19 @@ public class UsbProWidgetUniverseUpdateListener implements UniverseUpdateListene
 	}
 	
 	public void stopThread() {
-		if (t!=null) { t.done(); }
+		if (t!=null) {
+			t.done();
+			// wait for thread to die
+			int retries = 0;
+			while (t.isAlive() && retries < 10) {
+				try { Thread.sleep(10); } catch (InterruptedException ie) { }
+				retries++;
+			}
+			if (t.isAlive()) { 
+				logger.error("Thread still alive after stopThread()");
+				t.stop();
+			}
+		}
 	}
 	public UsbProWidgetTranslator getTranslator() { return translator; }
 
