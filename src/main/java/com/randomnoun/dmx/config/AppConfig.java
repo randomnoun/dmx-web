@@ -25,6 +25,7 @@ import javax.script.ScriptException;
 
 import bsh.engine.BshScriptEngineFactory;
 
+import com.randomnoun.common.ExceptionUtils;
 import com.randomnoun.common.PropertyParser;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.webapp.struts.AppConfigBase;
@@ -91,6 +92,9 @@ public class AppConfig extends AppConfigBase {
 
     /** Global instance */
     public static AppConfig instance = null;
+    
+    /** To prevent recursion in scripts that refer to the AppConfig when they shouldn't */
+    public static boolean initialising = false;
 
     public static final String CONFIG_RESOURCE_LOCATION = "/dmx-web.properties";
     
@@ -230,6 +234,22 @@ public class AppConfig extends AppConfigBase {
      * @throws IllegalArgumentException 
      * @throws SecurityException */
     public synchronized static void initialise() {
+    	if (instance!=null && 
+    		!(instance.appConfigState==AppConfigState.UNINITIALISED ||
+    		instance.appConfigState==AppConfigState.STOPPED)) {
+    		System.err.println("Cannot initialise appConfig when in " + instance.appConfigState + " state");
+    		return;
+    	}
+    	if (initialising) {
+    		// get a trace of where this happened
+    		Exception e = new RuntimeException("Cannot re-initialise appConfig: already initialising");
+    		System.err.println(ExceptionUtils.getStackTraceWithRevisions(e, AppConfig.class.getClassLoader(), 
+    			ExceptionUtils.HIGHLIGHT_TEXT, "com.randomnoun."));
+    		return;
+    	}
+    	
+    	initialising = true;
+    	instance = null;
     	System.out.println("Initialising dmx-web...");
 
         AppConfig newInstance = new AppConfig();
@@ -262,6 +282,7 @@ public class AppConfig extends AppConfigBase {
 
         // assign this to the singleton instance, even if initialisation failed
         instance = newInstance;
+        initialising = false;
     }
 
     private void initSecurityManager() {
@@ -1256,7 +1277,11 @@ bsh.InterpreterError: null fromValue
     		// @TODO cancel & restart show ?
     		thread.cancel();
     	} else {
-    		logger.warn("Not cancelling show " + showId + " '" + showConfig.getShow().getName() + "' since it is not running");
+    		if (showConfig.getShow().getState()==Show.State.SHOW_STOPPED_WITH_EXCEPTION) {
+    			thread.resetException();
+    		} else {
+    			logger.warn("Not cancelling show " + showId + " '" + showConfig.getShow().getName() + "' since it is not running");
+    		}
     	}
     	// NB: show may not be completely finished at this stage
     }
