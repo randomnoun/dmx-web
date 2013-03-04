@@ -38,14 +38,15 @@ public class WinampAudioController extends AudioController
 	
 	public WinampAudioController(Map properties) throws IOException {
 		super(properties);
-		
-		this.host = (String) properties.get("host");
-		this.port = Integer.parseInt((String) properties.get("port"));
-		this.password = (String) properties.get("password");
-		this.timeout = Integer.parseInt((String) properties.get("timeout"));
-		this.defaultPath = (String) properties.get("defaultPath");
-		if (defaultPath != null && !defaultPath.endsWith("/")) {
-			defaultPath += "/";
+		if (properties!=null) {
+			this.host = (String) properties.get("host");
+			this.port = Integer.parseInt((String) properties.get("port"));
+			this.password = (String) properties.get("password");
+			this.timeout = Integer.parseInt((String) properties.get("timeout"));
+			this.defaultPath = (String) properties.get("defaultPath");
+			if (defaultPath != null && !defaultPath.endsWith("/")) {
+				defaultPath += "/";
+			}
 		}
 		connected = false;
 		exceptionContainer = new ExceptionContainerImpl();
