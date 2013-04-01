@@ -533,6 +533,6 @@ You must create a fixture before you can attach documents
 
 </div>
 </div>
+<jsp:include page="/misc/analytics.jsp" />
 </body>
-
 </html>

@@ -715,5 +715,6 @@ function initWindow() {
 </div>
 
 <iframe id="rfPreviewUpdateFrame" name="rfPreviewUpdateFrame" src="about:blank"></iframe>
+<jsp:include page="/misc/analytics.jsp" />
 </body>
 </html>

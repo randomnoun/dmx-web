@@ -486,6 +486,6 @@ You must create a show before you can attach documents
 
 </div>
 </div>
+<jsp:include page="/misc/analytics.jsp" />
 </body>
-
 </html>

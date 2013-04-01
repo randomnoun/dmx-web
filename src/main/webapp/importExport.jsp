@@ -319,6 +319,6 @@ function initWindow() {
 	</div>
 
 </div>
-
+<jsp:include page="/misc/analytics.jsp" />
 </body>
 </html>

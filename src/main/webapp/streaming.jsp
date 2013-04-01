@@ -59,4 +59,5 @@
     }
 %>            
     </div>
+<jsp:include page="/misc/analytics.jsp" />    
 </body></html>

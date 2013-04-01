@@ -211,6 +211,6 @@ var dmxTimeSourceText = "-";
 </div>
 <iframe id="cometFrame" src="about:blank"></iframe>
 
-
+<jsp:include page="/misc/analytics.jsp" />
 </body>
 </html>

@@ -61,6 +61,6 @@ Things to try:
 <li><a href="debug.html">Debug page</a></li>
 <li><a href="streaming.html">Streaming video</a></li>
 </ul>
-
+<jsp:include page="/misc/analytics.jsp" />
 </body>
 </html>

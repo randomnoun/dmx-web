@@ -95,5 +95,6 @@ Startcode: <input name="startCode" value="<%= startCode==null ? "" : startCode %
     </tr>
 </table>
 </form>
+<jsp:include page="/misc/analytics.jsp" />
 </body>
 </html>

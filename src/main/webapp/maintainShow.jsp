@@ -285,6 +285,6 @@ function initWindow() {
             </tr>
         </table>
 </form>
-
+<jsp:include page="/misc/analytics.jsp" />
 </body>
 </html>
