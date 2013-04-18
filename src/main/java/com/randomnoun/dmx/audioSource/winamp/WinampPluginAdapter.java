@@ -75,19 +75,22 @@ public class WinampPluginAdapter {
 					}
 					exceptionOnLastConnection = false;
 				} catch (HttpException e) {
-					if (!exceptionOnLastConnection) { e.printStackTrace(); }
+					Exception e2 = new IOException("Problem with audio source '" + winamp.audioSource.getName() + "'", e);
+					if (!exceptionOnLastConnection) { e2.printStackTrace(); }
 					exceptionOnLastConnection = true;
-					winamp.exceptionContainer.addException(e);
+					winamp.exceptionContainer.addException(e2);
 					if (!retryEnabled) { done = true; }
 				} catch (IOException e) {
-					if (!exceptionOnLastConnection) { e.printStackTrace(); }
+					Exception e2 = new IOException("Problem with audio source '" + winamp.audioSource.getName() + "'", e);
+					if (!exceptionOnLastConnection) { e2.printStackTrace(); }
 					exceptionOnLastConnection = true;
-					winamp.exceptionContainer.addException(e);
+					winamp.exceptionContainer.addException(e2);
 					if (!retryEnabled) { done = true; }
 				} catch (Exception e) {
-					if (!exceptionOnLastConnection) { e.printStackTrace(); }
+					Exception e2 = new IOException("Problem with audio source '" + winamp.audioSource.getName() + "'", e);
+					if (!exceptionOnLastConnection) { e2.printStackTrace(); }
 					exceptionOnLastConnection = true;
-					winamp.exceptionContainer.addException(e);
+					winamp.exceptionContainer.addException(e2);
 					if (!retryEnabled) { done = true; }
 				}
 			}
