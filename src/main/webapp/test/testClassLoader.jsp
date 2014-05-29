@@ -8,7 +8,7 @@
 %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt" %>
-<%@ taglib uri="/WEB-INF/common.tld" prefix="mm" %>
+<%@ taglib uri="http://java.randomnoun.com/taglib/common" prefix="mm" %>
 <fmt:setLocale value="${locale}"/>
 <fmt:setBundle basename="resources.i18n.test" var="testBundle" scope="request"/>
 <mm:authCheck/>
