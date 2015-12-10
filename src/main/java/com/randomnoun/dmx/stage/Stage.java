@@ -1,11 +1,8 @@
 package com.randomnoun.dmx.stage;
 
-import java.awt.Color;
-
-import com.randomnoun.dmx.Universe;
-import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
-
 /** This class represents a stage, containing fixtures, (virtual?) universes and shows.
+ * 
+ * <p>All the world is one of these. [citation needed]
  * 
  * @author knoxg
  */
@@ -14,7 +11,7 @@ public class Stage {
 	private long id;
 	private String name;
 	private boolean active;
-	private String fixPanelBackgroundImage;
+	private String fixPanelBackgroundImage; // fixture panel background image
 	
 	public Stage(long id, String name, String fixPanelBackgroundImage, boolean active) {
 		this.id = id;
