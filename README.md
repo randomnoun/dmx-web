@@ -34,7 +34,7 @@ Looking back from the vantage-point of 2020 there's a few things that are a bit 
 * and most of those require COM DLLs or other third-party software running to do the actual work
 * there's no documentation whatsoever
 * it's not very easy to get running
-* new fixtures and shows and created using the Beanshell scripting language, which isn't as nice as using a WYSIWYG UI, 
+* new fixtures and shows are created using the Beanshell scripting language, which isn't as nice as using a WYSIWYG UI, 
   but arguably gives you a bit more flexibility. 
 * there's a handful of fixures and shows in the java source code, but most examples of these 
   are sitting in a database on my local machine, so creating more of those without any documentation might be somewhat challenging.
