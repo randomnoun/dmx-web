@@ -28,7 +28,7 @@ Looking back from the vantage-point of 2020 there's a few things that are a bit 
   for an IFRAME with a src containing a document that never finishes loading (\*) .
   That document contains a never-ending(\*) series of \<script>...\</script> tags which change the page state.
   These days you'd probably use websockets instead.
-* it was designed to run on a 1024x768 resolution monitor and predated bootstrap, so the UI isn't even remotely responsive
+* it was designed to run on a 1024x768 resolution monitor and predates bootstrap, so the UI isn't even remotely responsive
 * there's only a handful of fixtures defined, and the fixture framework only supports a limited set of properties
 * there's only a handful of DMX devices / sound inputs and outputs, of varying levels of completeness
 * and most of those require COM DLLs or other third-party software running to do the actual work
