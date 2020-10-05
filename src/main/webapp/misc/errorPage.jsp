@@ -6,7 +6,9 @@
   pageEncoding="ISO-8859-1"
   import="java.util.*,java.text.*,com.randomnoun.common.ExceptionUtils"
 %>
-<% response.setStatus(500); %>
+<%
+	response.setStatus(500);
+%>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- $Id$ -->
 <head>
@@ -14,7 +16,7 @@
 </head>
 <body style="font-family: Arial;">
 <%
-  /*
+	/*
   for (Enumeration e = request.getAttributeNames(); e.hasMoreElements(); ) {
 	  String attributeName = (String) e.nextElement();
 	  System.out.println(attributeName + ": " + request.getAttribute(attributeName));
@@ -41,17 +43,18 @@
 <td valign="top">
   <b>An error has occurred in the application</b>
   <br/><br/>
-  <b>Message:</b> <%= message %>
+  <b>Message:</b> <%=message%>
   <br/><br/>
-  <b>Request URI:</b> <%= request.getAttribute("javax.servlet.error.request_uri") %> 
-  <br/><b>Request Time:</b> <%= timeString %>
+  <b>Request URI:</b> <%=request.getAttribute("javax.servlet.error.request_uri")%> 
+  <br/><b>Request Time:</b> <%=timeString%>
   <%-- should only display this in development mode, otherwise log or email it --%>
   <br/><br/>
-  <% if (exception!=null) { %>
+  <%
+  	if (exception!=null) {
+  %>
   <b>Stack trace:</b> <a href="javascript:void();" onclick="x = document.getElementById('stackTrace').style; x.display = (x.display=='block' ? 'none' : 'block');">Click to display</a>
-  <div id="stackTrace" style="display:none"><pre><%= 
-    ExceptionUtils.getStackTraceWithRevisions(exception, this.getClass().getClassLoader(),
-    ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun.,org.apache.jsp.") %></pre></div>
+  <div id="stackTrace" style="display:none"><pre><%=ExceptionUtils.getStackTraceWithRevisions(exception, this.getClass().getClassLoader(),
+    ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun.,org.apache.jsp.")%></pre></div>
   <% } %>
 </td>
 </tr>
