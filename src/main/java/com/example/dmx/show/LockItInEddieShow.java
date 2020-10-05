@@ -14,7 +14,7 @@ import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.ShowUtils;
 import com.randomnoun.dmx.PropertyDef;
   
-/** Tilt the washes to 45 degrees, start some entertaining music,
+/** Tilt the washes to 45 degrees, play the 'Who wants to be a millionaire' musical sting,
  * and then swing them down to point ahead.
  *
  * @author knoxg
