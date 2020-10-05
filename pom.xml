@@ -125,12 +125,37 @@
            	<artifactId>xuggle-xuggler</artifactId>
            	<version>5.4</version>
            </dependency>
+           
+           
+           <!--  stuff that used to be in the jdk -->
+		<dependency>
+		    <groupId>javax.xml.bind</groupId>
+		    <artifactId>jaxb-api</artifactId>
+		    <version>2.2.11</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.sun.xml.bind</groupId>
+		    <artifactId>jaxb-core</artifactId>
+		    <version>2.2.11</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.sun.xml.bind</groupId>
+		    <artifactId>jaxb-impl</artifactId>
+		    <version>2.2.11</version>
+		</dependency>
+		<dependency>
+		    <groupId>javax.activation</groupId>
+		    <artifactId>activation</artifactId>
+		    <version>1.1.1</version>
+		</dependency>
+           
+           
   </dependencies>
 
 <scm>
 	<connection>scm:git:ssh://git@gitlab.dev.randomnoun:2222/randomnoun/dmx-web.git</connection>
 	<developerConnection>scm:git:ssh://git@gitlab.dev.randomnoun:2222/randomnoun/dmx-web.git</developerConnection>
-	<url>http://gitlab.dev.randomonun/randomnoun/dmx-web</url>
+	<url>http://gitlab.dev.randomnoun/randomnoun/dmx-web</url>
   </scm>
   
   <build>
