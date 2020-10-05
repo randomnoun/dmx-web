@@ -52,13 +52,15 @@ public class SecurityManager extends java.lang.SecurityManager {
 	
 	
 	// ////////// non-check methods - will just defer to parentManager
-	
+
+	/*
 	@Override
 	public boolean getInCheck() {
 		// NB: may need to do some more processing here
 		if (parentManager!=null) { parentManager.getInCheck(); }
 		return false;
 	}
+	*/
 
 	/* subclass protected
 	@Override
@@ -275,12 +277,14 @@ public class SecurityManager extends java.lang.SecurityManager {
 		if (parentManager!=null) { parentManager.checkPropertyAccess(key); }
 	}
 
+	/*
 	@Override
 	public boolean checkTopLevelWindow(Object window) {
 		debug("checkTopLevelWindow(" + window.getClass().getName() + ")");
 		if (parentManager!=null) { return parentManager.checkTopLevelWindow(window); }
 		return true;
 	}
+	*/
 
 	@Override
 	public void checkPrintJobAccess() {
@@ -288,6 +292,7 @@ public class SecurityManager extends java.lang.SecurityManager {
 		if (parentManager!=null) { parentManager.checkPrintJobAccess(); }
 	}
 
+	/*
 	@Override
 	public void checkSystemClipboardAccess() {
 		debug("checkSystemClipboardAccess()");
@@ -299,6 +304,7 @@ public class SecurityManager extends java.lang.SecurityManager {
 		debug("checkAwtEventQueueAccess()");
 		if (parentManager!=null) { parentManager.checkAwtEventQueueAccess(); }
 	}
+	*/
 
 	@Override
 	public void checkPackageAccess(String pkg) {
@@ -318,11 +324,13 @@ public class SecurityManager extends java.lang.SecurityManager {
 		if (parentManager!=null) { parentManager.checkSetFactory(); }
 	}
 
+	/*
 	@Override
 	public void checkMemberAccess(Class<?> clazz, int which) {
 		debug("checkMemberAccess(" + clazz.getName() + ", " + which + ")");
 		if (parentManager!=null) { parentManager.checkMemberAccess(clazz, which); }
 	}
+	*/
 
 	@Override
 	public void checkSecurityAccess(String target) {
