@@ -191,7 +191,7 @@ function reloadCometIframe() {
 /******************************* CONFIG PANEL ******************************/
 
 function lgoInitPanel() {
-	$("lgoText1").update("Albion Comedy Bar<br/>and Restaurant");
+	$("lgoText1").update("Client Name");
     $("lgoText2").update("<b>DMX-WEB</b><br/><br/>" +
       "Release: " + version["release"] + "<br/>" +
       "Build number: " + version["buildNumber"] + "<br/><br/>" +

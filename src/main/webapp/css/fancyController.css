@@ -68,8 +68,8 @@ BODY {
 }
 #lgoClientImage {
   position: absolute; 
-  left: 190px; top: 20px; width: 201px; height: 44px; 
-  background-image: url("../image/albionComedy.png");
+  left: 140px; top: 25px; width: 201px; height: 44px; 
+  background-image: url("../image/clientLogo.png");
   z-index: 10;
 }
 #lgoText1 {
@@ -79,6 +79,8 @@ BODY {
   font-size: 9pt;
   font-style: italic;
   color: white;
+  width: 120px;
+  text-align: right;
 }
 #lgoText2 {
   position: absolute; left:370px; top:20px; height: 50px; 
