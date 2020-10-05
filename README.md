@@ -19,8 +19,8 @@ and wanted to spruce things up a bit with some dynamic lighting, with an eye to 
 Looking back from the vantage-point of 2020 there's a few things that are a bit crap:
 
 * it uses prototype.js as the javascript framework, which was still a thing back then. You probably want to replace that with jQuery.
-* to send lighting data back to the webpage, it uses 'comet', which was a term coined around 2010 for an IFRAME with a src containing a document that never finishes loading(*).
-  That document contains a never-ending series(*) of <script>...</script> tags which change the page state.
+* to send lighting data back to the webpage, it uses 'comet', which was a term coined around 2010 for an IFRAME with a src containing a document that never finishes loading (\*)
+  That document contains a never-ending series(\*) of \<script>...\</script> tags which change the page state.
   These days you'd probably use websockets instead.
 * it was designed to run on a 1024x768 resolution monitor, so the UI isn't even remotely responsive
 * there's only a handful of fixtures defined, and the fixture framework only supports a limited of properties
