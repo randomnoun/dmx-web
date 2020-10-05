@@ -9,7 +9,7 @@ Whilst running, it provides a webpage which can be used to define
 * sound inputs ( audioSources )
 * sound outputs ( audioControllers )
 * a low-level control panel to set fixture values ( colour, strobe, macro, head angle / tilt )
-* a high-level control panel to run user-defined threads which apply changes to those fixures over time (shows)
+* a high-level control panel to run user-defined threads which apply changes to those fixures over time ( shows )
 * a fairly unusable recording facility to create shows by manually setting up a sequence of 'frames' 
 * an import/export capability to save and load your fixtures and shows from one installation to another
 
