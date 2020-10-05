@@ -4,7 +4,7 @@ This project contains a fairly primitive lighting Java webapp.
 Whilst running, it provides a webpage which can be used to define 
 
 * DMX devices ( Enttec USB Pro / ArtNet / OpenDMX over COM / OpenDMX over JNI )
-* a set of fixtures ( lights ), 
+* a set of fixtures ( lights )
 * fixture configurations ( stages ) 
 * sound inputs ( audioSources )
 * sound outputs ( audioControllers )
