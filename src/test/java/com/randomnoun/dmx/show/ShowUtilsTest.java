@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.randomnoun.common.Struct;
-import com.randomnoun.common.jexl.ExpressionUtils;
+import com.randomnoun.common.jexl.ExpressionUtil;
 import com.randomnoun.common.jexl.ast.TopLevelExpression;
 import com.randomnoun.common.jexl.eval.EvalContext;
 import com.randomnoun.common.jexl.eval.EvalException;
@@ -237,7 +237,7 @@ public class ShowUtilsTest extends TestCase {
     	String exprString = null;
     	try {
     		
-    		exprString = ExpressionUtils.expressionToString(expr);
+    		exprString = ExpressionUtil.expressionToString(expr);
     		logger.info("Evaluating '" + exprString + "' with x=" + x + ", y=" + y + ", n=" + n);
 	        Evaluator evaluator = new Evaluator();
 	        EvalContext evalContext = new EvalContext();
