@@ -47,7 +47,7 @@ see<%@ page
     } else if (obj instanceof List) {
       return "<pre>" + Text.escapeHtml(Struct.structuredListToString("object", (List) obj)) + "</pre>";
     } else if (obj instanceof Exception) {
-      return "<pre>" + Text.escapeHtml(ExceptionUtils.getStackTraceWithRevisions((Exception)obj, this.getClass().getClassLoader(), 0, "")) + "</pre>";
+      return "<pre>" + Text.escapeHtml(ExceptionUtil.getStackTraceWithRevisions((Exception)obj, this.getClass().getClassLoader(), 0, "")) + "</pre>";
     } else if ("exception".equals(name)) {
       return "<pre>" + Text.escapeHtml(obj.toString()) + "</pre>";
     };

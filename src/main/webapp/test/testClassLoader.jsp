@@ -8,10 +8,10 @@
 %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt" %>
-<%@ taglib uri="http://java.randomnoun.com/taglib/common" prefix="mm" %>
+<%@ taglib uri="http://java.randomnoun.com/taglib/common-public" prefix="r" %>
 <fmt:setLocale value="${locale}"/>
 <fmt:setBundle basename="resources.i18n.test" var="testBundle" scope="request"/>
-<mm:authCheck/>
+<r:authCheck/>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!-- $Id$ -->
 <head>
@@ -38,7 +38,7 @@
 <body>
 <jsp:include page="../misc/errorHeader.jsp"/>
 <form action="../test/testClassLoader.do">
-Enter class name: <mm:input name="classname" value="${classname}" type="text" size="100" />
+Enter class name: <r:input name="classname" value="${classname}" type="text" size="100" />
 <input type="submit" name="submit" value="Retrieve classloader details" /> 
 </form>
 <h3>Classloader for specified class</h3>

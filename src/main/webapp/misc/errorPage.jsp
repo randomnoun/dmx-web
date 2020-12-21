@@ -4,7 +4,7 @@
   language="java"
   contentType="text/html; charset=ISO-8859-1"
   pageEncoding="ISO-8859-1"
-  import="java.util.*,java.text.*,com.randomnoun.common.ExceptionUtils"
+  import="java.util.*,java.text.*,com.randomnoun.common.ExceptionUtil"
 %>
 <%
 	response.setStatus(500);
@@ -53,8 +53,8 @@
   	if (exception!=null) {
   %>
   <b>Stack trace:</b> <a href="javascript:void();" onclick="x = document.getElementById('stackTrace').style; x.display = (x.display=='block' ? 'none' : 'block');">Click to display</a>
-  <div id="stackTrace" style="display:none"><pre><%=ExceptionUtils.getStackTraceWithRevisions(exception, this.getClass().getClassLoader(),
-    ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun.,org.apache.jsp.")%></pre></div>
+  <div id="stackTrace" style="display:none"><pre><%=ExceptionUtil.getStackTraceWithRevisions(exception, this.getClass().getClassLoader(),
+    ExceptionUtil.HIGHLIGHT_HTML, "com.randomnoun.,org.apache.jsp.")%></pre></div>
   <% } %>
 </td>
 </tr>

@@ -7,7 +7,7 @@
   import="java.util.*,java.text.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*,com.randomnoun.dmx.*,com.randomnoun.dmx.show.Show,com.randomnoun.dmx.fixture.*"
 %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
-<%@ taglib uri="http://java.randomnoun.com/taglib/common" prefix="r" %>
+<%@ taglib uri="http://java.randomnoun.com/taglib/common-public" prefix="r" %>
 <% 
    AppConfig appConfig = AppConfig.getAppConfig();
    Controller controller = (Controller) request.getAttribute("controller");
@@ -109,7 +109,7 @@ function cancelShow(showId) {
       for (int i=0; i<exceptions.size(); i++) {
     	ExceptionContainer.TimestampedException te = exceptions.get(i);
     	Date d = new Date(te.getTimestamp());
-%><li><%= sdf.format(d) %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtils.getStackTrace(te.getException()) %></pre>
+%><li><%= sdf.format(d) %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtil.getStackTrace(te.getException()) %></pre>
 <%
       }
     }  
@@ -123,7 +123,7 @@ function cancelShow(showId) {
       for (int i=0; i<exceptions.size(); i++) {
         ExceptionContainer.TimestampedException te = exceptions.get(i);
         Date d = new Date(te.getTimestamp());
-%><li><%= sdf.format(d) %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtils.getStackTrace(te.getException()) %></pre>
+%><li><%= sdf.format(d) %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtil.getStackTrace(te.getException()) %></pre>
 <%
       }
     }  
@@ -137,7 +137,7 @@ function cancelShow(showId) {
       for (int i=0; i<showExceptions.size(); i++) {
     	AppConfig.TimestampedShowException te = showExceptions.get(i);
         Date d = new Date(te.getTimestamp());
-%><li><%= sdf.format(d) %> <%= te.getShow().getName() %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtils.getStackTrace(te.getException()) %></pre>
+%><li><%= sdf.format(d) %> <%= te.getShow().getName() %> <%= te.getException().getMessage() %> <pre><%= ExceptionUtil.getStackTrace(te.getException()) %></pre>
 <%
       }
     }  

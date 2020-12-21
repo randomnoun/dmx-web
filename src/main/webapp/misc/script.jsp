@@ -9,7 +9,7 @@ response.setDateHeader ("Expires", -1); //prevents caching in the proxy server
   pageEncoding="ISO-8859-1"
   import="java.util.*" 
   errorPage="../misc/errorPage.jsp"
-%><%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %><%@ taglib uri="http://java.randomnoun.com/taglib/common" prefix="r" %>
+%><%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %><%@ taglib uri="http://java.randomnoun.com/taglib/common-public" prefix="r" %>
 <script>
 <c:out value="${script}" escapeXml="false" />
 </script>
