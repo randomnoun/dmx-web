@@ -11,7 +11,7 @@
 	<parent>
 		<artifactId>parent-pom</artifactId>
 		<groupId>com.randomnoun.build</groupId>
-		<version>1.20</version>
+		<version>1.22</version>
 	</parent>
 
   <dependencies>
@@ -23,7 +23,22 @@
     <dependency>
     	<groupId>log4j</groupId>
     	<artifactId>log4j</artifactId>
+		<version>1.2.17</version>
     </dependency>
+    <dependency>
+      <groupId>com.randomnoun.common</groupId>
+      <artifactId>log4j-one</artifactId>
+      <version>0.0.4</version>
+    </dependency>
+       <dependency>
+            <groupId>com.randomnoun.common</groupId>
+            <artifactId>common-public</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+                
+    
     <!--  this needs to be a provided dependancy, otherwise there's problems
           the DLL being loaded by it and expired classloaders in tomcat
     -->
@@ -45,13 +60,11 @@
         <classifier>x86</classifier>
         <scope>compile</scope>
     </dependency>
-           <dependency>
-            <groupId>com.randomnoun.common</groupId>
-            <artifactId>common</artifactId>
-            <version>1.0.18</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency> 
+        
+        
+        
+        
+         
            <dependency>
            	<groupId>javax.servlet</groupId>
            	<artifactId>servlet-api</artifactId>
@@ -59,6 +72,24 @@
            	<type>jar</type>
            	<scope>provided</scope>
            </dependency>
+           <dependency>
+			    <!--  apparently struts2 and struts1 can coexist so will be adding struts2 to other projects until this is phased out -->
+				<groupId>org.apache.struts</groupId>
+				<artifactId>struts-core</artifactId>
+				<version>1.3.10</version>
+			</dependency>
+           			<dependency>
+				<groupId>org.apache.taglibs</groupId>
+				<artifactId>taglibs-standard-spec</artifactId>
+				<version>1.2.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.taglibs</groupId>
+				<artifactId>taglibs-standard-impl</artifactId>
+				<version>1.2.1</version>
+			</dependency>
+           
+           
            <!-- not required (one hell of an SPI) see http://rxtx.qbang.org/wiki/index.php/Using_RXTX 
            <dependency>
            	<groupId>javax.comm</groupId>
@@ -75,6 +106,8 @@
            	<scope>provided</scope>
            	<!-- NB: x64 dlls have the classifier "win-x64" -->
            </dependency>
+           
+           <!--  not needed for JDKs with javax.script 
            <dependency>
            	<groupId>org.apache.bsf</groupId>
            	<artifactId>bsf-api</artifactId>
@@ -82,6 +115,7 @@
            	<type>jar</type>
            	<scope>provided</scope>
            </dependency>
+            -->
            <dependency>
            	<groupId>com.randomnoun.beanshell</groupId>
            	<artifactId>bsh</artifactId>
@@ -107,13 +141,6 @@
            	<artifactId>commons-io</artifactId>
            	<type>jar</type>
            	<scope>compile</scope>
-           </dependency>
-           <dependency>
-           	<groupId>org.hsqldb</groupId>
-           	<artifactId>hsqldb</artifactId>
-           	<version>2.0.1-rc3</version>
-           	<type>java-source</type>
-           	<scope>provided</scope>
            </dependency>
            <dependency>
            	<groupId>javax.media</groupId>
