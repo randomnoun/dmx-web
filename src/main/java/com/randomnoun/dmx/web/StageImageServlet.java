@@ -1,12 +1,7 @@
 package com.randomnoun.dmx.web;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.net.URLClassLoader;
-import java.text.ParseException;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
@@ -17,12 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.randomnoun.common.MRUCache;
-import com.randomnoun.common.StreamUtils;
-import com.randomnoun.common.Text;
+import com.randomnoun.common.StreamUtil;
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.dao.FixtureDefAttachmentDAO;
 import com.randomnoun.dmx.dao.StageDAO;
-import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.StageTO;
 
 /**
@@ -92,7 +84,7 @@ public class StageImageServlet extends javax.servlet.http.HttpServlet implements
 				
 				response.setContentType("image/png");
 	    		InputStream is = stageDAO.loadImage(stage);
-	    		StreamUtils.copyStream(is, response.getOutputStream());
+	    		StreamUtil.copyStream(is, response.getOutputStream());
 	    		return;
 			}
 		} catch (Exception e) {

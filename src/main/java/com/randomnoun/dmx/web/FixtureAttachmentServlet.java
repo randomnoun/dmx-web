@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.randomnoun.common.MRUCache;
-import com.randomnoun.common.StreamUtils;
+import com.randomnoun.common.StreamUtil;
 import com.randomnoun.common.Text;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.FixtureDefAttachmentDAO;
@@ -87,7 +87,7 @@ public class FixtureAttachmentServlet extends javax.servlet.http.HttpServlet imp
 	    		try {
 		    		is = fixtureDefAttachmentDAO.getInputStream(fixtureDefAttachment);
 		    		response.setContentLength((int) fixtureDefAttachment.getSize());
-		    		StreamUtils.copyStream(is, response.getOutputStream());
+		    		StreamUtil.copyStream(is, response.getOutputStream());
 		    		is.close();
 	    		} catch (FileNotFoundException fnfe) {
 		    		response.setContentLength(0);

@@ -15,9 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.lf5.util.StreamUtils;
 
 import com.randomnoun.common.MRUCache;
+import com.randomnoun.common.StreamUtil;
 import com.randomnoun.common.Text;
 
 /**
@@ -108,7 +108,7 @@ public class MultiJavascriptServlet extends javax.servlet.http.HttpServlet imple
         		logger.error("Unknown file '" + file + "'");
         		throw new IllegalArgumentException("Unknown file '" + file + "'");
         	}
-        	StreamUtils.copy(is, os);
+        	StreamUtil.copyStream(is, os);
         	is.close();
         }
         os.flush();

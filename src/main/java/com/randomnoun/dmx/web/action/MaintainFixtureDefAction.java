@@ -37,7 +37,7 @@ import bsh.SimpleNode;
 // import bsh.SimpleNode; - package private. bastardos.
 
 import com.randomnoun.common.ErrorList;
-import com.randomnoun.common.StreamUtils;
+import com.randomnoun.common.StreamUtil;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
@@ -271,7 +271,7 @@ public class MaintainFixtureDefAction
     		response.setContentType(fixtureDefAttachment.getContentType());
     		response.setContentLength((int) fixtureDefAttachment.getSize());
     		InputStream is = fixtureDefAttachmentDAO.getInputStream(fixtureDefAttachment);
-    		StreamUtils.copyStream(is, response.getOutputStream());
+    		StreamUtil.copyStream(is, response.getOutputStream());
     		forward = null;
     		
     	} else if (action.equals("deleteFile")) {
@@ -317,7 +317,7 @@ public class MaintainFixtureDefAction
         	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.example.dmx.fixture.script"; }
 	    	InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/defaultFixtureDef.java");
 	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			StreamUtils.copyStream(is, baos);
+			StreamUtil.copyStream(is, baos);
 			return "package " + defaultPackage + ";\n" + new String(baos.toByteArray());
 		} catch (IOException e) {
 			throw new IllegalStateException("IOException in ByteArrayOutputStream", e);
@@ -330,7 +330,7 @@ public class MaintainFixtureDefAction
         	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
 	    	InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/defaultChannelMuxer.java");
 	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			StreamUtils.copyStream(is, baos);
+			StreamUtil.copyStream(is, baos);
 			return "package " + defaultPackage + ";\n" + new String(baos.toByteArray());
 		} catch (IOException e) {
 			throw new IllegalStateException("IOException in ByteArrayOutputStream", e);
@@ -343,7 +343,7 @@ public class MaintainFixtureDefAction
         	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.randomnoun.dmx.fixture.script"; }
     		InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/defaultFixtureController.java");
 	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			StreamUtils.copyStream(is, baos);
+			StreamUtil.copyStream(is, baos);
 			return "package " + defaultPackage + ";\n" + new String(baos.toByteArray());
 		} catch (IOException e) {
 			throw new IllegalStateException("IOException in ByteArrayOutputStream", e);

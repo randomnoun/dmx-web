@@ -217,7 +217,7 @@ public class ShowDAO {
         if (updated!=1) {
             throw new DataIntegrityViolationException("show insert failed (" + updated + " rows updated)");
         }
-        long showId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        long showId = jt.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         show.setId(showId);
         return showId;
     }

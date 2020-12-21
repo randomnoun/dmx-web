@@ -25,10 +25,10 @@ import javax.script.ScriptException;
 
 import bsh.engine.BshScriptEngineFactory;
 
-import com.randomnoun.common.ExceptionUtils;
+import com.randomnoun.common.ExceptionUtil;
 import com.randomnoun.common.PropertyParser;
 import com.randomnoun.common.Text;
-import com.randomnoun.common.webapp.struts.AppConfigBase;
+import com.randomnoun.common.webapp.AppConfigBase;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.ExceptionContainer;
 import com.randomnoun.dmx.ExceptionContainerImpl;
@@ -243,8 +243,8 @@ public class AppConfig extends AppConfigBase {
     	if (initialising) {
     		// get a trace of where this happened
     		Exception e = new RuntimeException("Cannot re-initialise appConfig: already initialising");
-    		System.err.println(ExceptionUtils.getStackTraceWithRevisions(e, AppConfig.class.getClassLoader(), 
-    			ExceptionUtils.HIGHLIGHT_TEXT, "com.randomnoun."));
+    		System.err.println(ExceptionUtil.getStackTraceWithRevisions(e, AppConfig.class.getClassLoader(), 
+    			ExceptionUtil.HIGHLIGHT_TEXT, "com.randomnoun."));
     		return;
     	}
     	

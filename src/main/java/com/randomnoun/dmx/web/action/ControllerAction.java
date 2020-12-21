@@ -1,30 +1,10 @@
 package com.randomnoun.dmx.web.action;
 
-import gnu.io.PortInUseException;
-import gnu.io.RXTXCommDriver;
-import gnu.io.RXTXVersion;
-
 import java.awt.Color;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.TooManyListenersException;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -34,26 +14,18 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.jacob.activeX.ActiveXComponent;
-import com.jacob.com.SafeArray;
-import com.jacob.com.Variant;
-import com.jacobgen.dmx._USBDMXProCom;
-import com.randomnoun.common.ExceptionUtils;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
-import com.randomnoun.common.db.DatabaseTO;
-import com.randomnoun.common.db.DatabaseTO.TableColumnTO;
-import com.randomnoun.common.db.DatabaseTO.TableTO;
 import com.randomnoun.common.security.User;
 import com.randomnoun.dmx.Controller;
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.dmxDevice.usbPro.UsbProWidget;
-import com.randomnoun.dmx.dmxDevice.usbPro.UsbProWidgetTranslator;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.show.Show;
+
+import gnu.io.RXTXCommDriver;
+import gnu.io.RXTXVersion;
 
 /**
  * Manual controller action.

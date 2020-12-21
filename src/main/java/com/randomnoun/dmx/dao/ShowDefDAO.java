@@ -161,7 +161,7 @@ public class ShowDefDAO {
         if (updated!=1) {
             throw new DataIntegrityViolationException("showDef insert failed (" + updated + " rows updated)");
         }
-        long showDefId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        long showDefId = jt.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         showDef.setId(showDefId);
         return showDefId;
     }

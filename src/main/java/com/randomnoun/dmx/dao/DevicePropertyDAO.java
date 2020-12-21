@@ -100,7 +100,7 @@ public class DevicePropertyDAO {
         if (updated!=1) {
             throw new DataIntegrityViolationException("deviceProperty insert failed (" + updated + " rows updated)");
         }
-        long devicePropertyId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        long devicePropertyId = jt.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         deviceProperty.setId(devicePropertyId);
         return devicePropertyId;
     }

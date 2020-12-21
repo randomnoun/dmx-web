@@ -1,24 +1,29 @@
 package com.randomnoun.dmx.web.action;
 
-import java.io.*;
-import java.net.URLEncoder;
-import java.sql.*;
-import java.util.*;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.*;
-import org.springframework.dao.support.DataAccessUtils;
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.springframework.expression.common.ExpressionUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.randomnoun.common.ErrorList;
-import com.randomnoun.common.Text;
 import com.randomnoun.common.Struct;
-import com.randomnoun.common.http.HttpUtil;
-import com.randomnoun.common.jexl.ExpressionUtils;
+import com.randomnoun.common.Text;
+import com.randomnoun.common.jexl.ExpressionUtil;
 import com.randomnoun.common.jexl.ast.TopLevelExpression;
 import com.randomnoun.common.jexl.eval.EvalContext;
 import com.randomnoun.common.jexl.eval.EvalException;
@@ -28,7 +33,6 @@ import com.randomnoun.common.jexl.parser.ExpressionParser;
 import com.randomnoun.common.jexl.parser.ParseException;
 import com.randomnoun.common.jexl.parser.TokenMgrError;
 import com.randomnoun.common.security.User;
-import com.randomnoun.common.spring.StructuredResultReader;
 import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.FixtureDAO;
@@ -633,7 +637,7 @@ public class MaintainFixtureAction
     	String exprString = null;
     	try {
     		
-    		exprString = ExpressionUtils.expressionToString(expr);
+    		exprString = ExpressionUtil.expressionToString(expr);
     		logger.info("Evaluating '" + exprString + "' with x=" + x + ", y=" + y + ", n=" + n);
 	        Evaluator evaluator = new Evaluator();
 	        EvalContext evalContext = new EvalContext();

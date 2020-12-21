@@ -1,9 +1,6 @@
 package com.randomnoun.dmx.web.action;
 
 
-import gnu.io.RXTXCommDriver;
-import gnu.io.RXTXVersion;
-
 import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +19,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -33,8 +29,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
-import com.randomnoun.common.ExceptionUtils;
-import com.randomnoun.common.StreamUtils;
+import com.randomnoun.common.ExceptionUtil;
+import com.randomnoun.common.StreamUtil;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
@@ -49,8 +45,8 @@ import com.randomnoun.dmx.audioSource.AudioSource;
 import com.randomnoun.dmx.channel.ChannelDef;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
-import com.randomnoun.dmx.config.AppConfigException;
 import com.randomnoun.dmx.config.AppConfig.TimestampedShowException;
+import com.randomnoun.dmx.config.AppConfigException;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.fixture.CustomControl;
@@ -73,6 +69,9 @@ import com.randomnoun.dmx.show.editor.Recording;
 import com.randomnoun.dmx.stage.Stage;
 import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowTO;
+
+import gnu.io.RXTXCommDriver;
+import gnu.io.RXTXVersion;
 
 /**
  * Fancy controller action.
@@ -1002,7 +1001,7 @@ public class FancyControllerAction
 	    			// new show
 		    		InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/recordedShowDef.java");
 		    		if (is==null) { throw new IllegalStateException("Could not find resource 'default/recordedShowDef.java'"); }
-		    		String showRecordingTemplate = new String(StreamUtils.getByteArray(is), "UTF-8");
+		    		String showRecordingTemplate = new String(StreamUtil.getByteArray(is), "UTF-8");
 		    		long defaultDelay = 200;
 		    		String script = Text.replaceString(showRecordingTemplate, "{PACKAGENAME_GOES_HERE}", defaultPackage);
 		    		script = Text.replaceString(script, "{USERNAME_GOES_HERE}", request.getRemoteHost());
@@ -1224,8 +1223,8 @@ public class FancyControllerAction
 				m.put("count", te.getCount());
 				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
 				m.put("message", te.getException().getMessage());
-				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
-					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
+				m.put("trace", ExceptionUtil.getStackTraceWithRevisions(te.getException(), 
+					FancyControllerAction.class.getClassLoader(), ExceptionUtil.HIGHLIGHT_HTML, "com.randomnoun"));
 				exceptions.add(m);
 			}
 		}
@@ -1242,8 +1241,8 @@ public class FancyControllerAction
 				if (te.getCount()>1) { m.put("firstTimestamp", te.getFirstTimestamp()); }
 				m.put("showId", te.getShow().getId());
 				m.put("message", te.getException().getMessage());
-				m.put("trace", ExceptionUtils.getStackTraceWithRevisions(te.getException(), 
-    					FancyControllerAction.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
+				m.put("trace", ExceptionUtil.getStackTraceWithRevisions(te.getException(), 
+    					FancyControllerAction.class.getClassLoader(), ExceptionUtil.HIGHLIGHT_HTML, "com.randomnoun"));
 				exceptions.add(m);
 			}
 		}

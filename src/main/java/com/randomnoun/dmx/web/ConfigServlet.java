@@ -43,7 +43,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import com.randomnoun.common.ErrorList;
-import com.randomnoun.common.ExceptionUtils;
+import com.randomnoun.common.ExceptionUtil;
 import com.randomnoun.common.IniFile;
 import com.randomnoun.common.MRUCache;
 import com.randomnoun.common.Registry;
@@ -261,7 +261,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 					} catch (Exception e2) {
 						errors.addError(errorFields,
 							"Database error", errorText +
-							ExceptionUtils.getStackTraceSummary(e2));
+							ExceptionUtil.getStackTraceSummary(e2));
 					}
 					
 					
@@ -328,10 +328,10 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 				// possibly allow this ?
 				Exception e2 = new IllegalStateException("Configuration not required");
 				request.setAttribute("stacktrace", 
-				ExceptionUtils.getStackTraceWithRevisions(e2, 
-				  CustomRequestProcessor.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun."));
+				ExceptionUtil.getStackTraceWithRevisions(e2, 
+				  CustomRequestProcessor.class.getClassLoader(), ExceptionUtil.HIGHLIGHT_HTML, "com.randomnoun."));
 				request.setAttribute("isStrutsRequest", "true"); // used in JSPs to check whether this routine has been invoked
-				request.setAttribute("stacktraceSummary", ExceptionUtils.getStackTraceSummary(e2));
+				request.setAttribute("stacktraceSummary", ExceptionUtil.getStackTraceSummary(e2));
 				jspForward = "misc/error.jsp";
 			} else if (!e.getMessage().equals("No appConfig")) {
 				jspForward = "misc/error.jsp";
@@ -354,7 +354,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 			writer.println("<h1>Configuration error</h1>");
 			writer.println("An error occurred whilst attempting to configure the server: " + e.getMessage());
 			writer.println("<pre>");
-			writer.println(ExceptionUtils.getStackTraceWithRevisions(e, ConfigServlet.class.getClassLoader(), ExceptionUtils.HIGHLIGHT_HTML, "com.randomnoun"));
+			writer.println(ExceptionUtil.getStackTraceWithRevisions(e, ConfigServlet.class.getClassLoader(), ExceptionUtil.HIGHLIGHT_HTML, "com.randomnoun"));
 			writer.println("</pre");
 			writer.flush();
 		}

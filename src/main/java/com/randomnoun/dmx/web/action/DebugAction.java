@@ -1,7 +1,5 @@
 package com.randomnoun.dmx.web.action;
 
-import java.lang.management.ManagementFactory;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,9 +10,15 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.naming.Binding;
+import javax.naming.InitialContext;
+import javax.naming.NamingEnumeration;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
@@ -28,38 +32,17 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
-import com.randomnoun.common.Struct;
 import com.randomnoun.common.ErrorList;
-import com.randomnoun.common.ExceptionUtils;
+import com.randomnoun.common.ExceptionUtil;
+import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.log4j.MemoryAppender;
 import com.randomnoun.common.security.Permission;
 import com.randomnoun.common.security.SecurityContext;
 import com.randomnoun.common.security.User;
-import com.randomnoun.common.timer.Benchmark;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.web.JmxUtils;
 //import com.randomnoun.facebook.dataAccess.WebClientDA;
-
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.IntrospectionException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanParameterInfo;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.naming.Binding;
-import javax.naming.InitialContext;
-import javax.naming.NamingEnumeration;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /** Debugging action that exposes various application internals.
  * 
@@ -142,7 +125,8 @@ public class DebugAction extends Action {
 			request.setAttribute("users", context.getAllUsers()); // @XXX: no longer returns permission data
 			request.setAttribute("roles", context.getAllRoles());
 			request.setAttribute("resources", context.getAllResources());
-        	
+        
+			/*
         } else if (debugTab.equals("benchmark")) {
 			List benchmarks = new ArrayList(appConfig.getBenchmarks());  
         	if (!Text.isBlank(request.getParameter("clearBenchmarks"))) {
@@ -188,6 +172,7 @@ public class DebugAction extends Action {
                 
             }
             request.setAttribute("benchmarks", output);
+            */
             
         } else if (debugTab.equals("logging")) {
 			request.setAttribute("className", "(enter classname here...)");
@@ -275,8 +260,8 @@ public class DebugAction extends Action {
 	
 	                if (event.getThrowableInformation() != null) {
 	                    newEvent.put("stackTrace",
-	                        ExceptionUtils.getStackTraceWithRevisions(event.getThrowableInformation().getThrowable(),
-	                          this.getClass().getClassLoader(), ExceptionUtils.HIGHLIGHT_TEXT, "com.randomnoun."
+	                        ExceptionUtil.getStackTraceWithRevisions(event.getThrowableInformation().getThrowable(),
+	                          this.getClass().getClassLoader(), ExceptionUtil.HIGHLIGHT_TEXT, "com.randomnoun."
 	                        ));
 	                }
 	                newEvents.add(newEvent);

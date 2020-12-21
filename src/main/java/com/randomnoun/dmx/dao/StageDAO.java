@@ -114,7 +114,7 @@ public class StageDAO {
         if (updated!=1) {
             throw new DataIntegrityViolationException("stage insert failed (" + updated + " rows updated)");
         }
-        long stageId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        long stageId = jt.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         stage.setId(stageId);
         return stageId;
     }

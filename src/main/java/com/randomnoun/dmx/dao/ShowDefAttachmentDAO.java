@@ -14,7 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import com.randomnoun.common.StreamUtils;
+import com.randomnoun.common.StreamUtil;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.to.ShowDefAttachmentTO;
 import com.randomnoun.dmx.to.ShowDefTO;
@@ -155,7 +155,7 @@ public class ShowDefAttachmentDAO {
         if (updated!=1) {
             throw new DataIntegrityViolationException("showDefAttachment insert failed (" + updated + " rows updated)");
         }
-        long showDefAttachmentId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        long showDefAttachmentId = jt.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         showDefAttachment.setId(showDefAttachmentId);
         return showDefAttachmentId;
     }
@@ -174,7 +174,7 @@ public class ShowDefAttachmentDAO {
     		newFile.getParentFile().mkdirs();
     	}
     	FileOutputStream fos = new FileOutputStream(newFile);
-    	StreamUtils.copyStream(is, fos);
+    	StreamUtil.copyStream(is, fos);
     	fos.close();
     }
 

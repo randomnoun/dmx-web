@@ -3,7 +3,7 @@ package com.randomnoun.dmx.web;
 import java.util.*;
 import org.apache.log4j.*;
 import com.randomnoun.common.ErrorList;
-import com.randomnoun.common.ExceptionUtils;
+import com.randomnoun.common.ExceptionUtil;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 

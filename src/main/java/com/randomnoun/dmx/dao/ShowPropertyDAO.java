@@ -101,7 +101,7 @@ public class ShowPropertyDAO {
         if (updated!=1) {
             throw new DataIntegrityViolationException("showProperty insert failed (" + updated + " rows updated)");
         }
-        long showPropertyId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        long showPropertyId = jt.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         showProperty.setId(showPropertyId);
         return showPropertyId;
     }

@@ -119,7 +119,7 @@ public class FixtureDefDAO {
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixtureDef insert failed (" + updated + " rows updated)");
         }
-        long fixtureDefId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        long fixtureDefId = jt.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         fixtureDef.setId(fixtureDefId);
         return fixtureDefId;
     }

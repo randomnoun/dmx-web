@@ -145,7 +145,7 @@ public class FixtureDAO {
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixture insert failed (" + updated + " rows updated)");
         }
-        long fixtureId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        long fixtureId = jt.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         fixture.setId(fixtureId);
         return fixtureId;
     }

@@ -10,7 +10,15 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -27,7 +35,10 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
-import org.apache.struts.action.*;
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -37,7 +48,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import com.randomnoun.common.ErrorList;
-import com.randomnoun.common.StreamUtils;
+import com.randomnoun.common.StreamUtil;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
@@ -46,8 +57,8 @@ import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.DeviceDAO;
 import com.randomnoun.dmx.dao.DevicePropertyDAO;
 import com.randomnoun.dmx.dao.FixtureDAO;
-import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.FixtureDefAttachmentDAO;
+import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefAttachmentDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
@@ -581,7 +592,7 @@ public class ImportExportAction
         	
 			InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/exportedPom.xml");
     		if (is==null) { throw new IllegalStateException("Could not find resource 'default/exportedPom.xml'"); }
-    		String pomXml = new String(StreamUtils.getByteArray(is), "UTF-8");
+    		String pomXml = new String(StreamUtil.getByteArray(is), "UTF-8");
     		is.close();
     		pomXml = Text.replaceString(pomXml, "{GROUPID_GOES_HERE}", defaultGroupId);
     		pomXml = Text.replaceString(pomXml, "{SCM_GOES_HERE}", defaultScm);
@@ -656,7 +667,7 @@ src/main/resources/export.xml (date of export, totals etc)
 					zos.putNextEntry(ze);
 					// FileInputStream fis = new FileInputStream(fdi.getFileLocation());
 					is = fixtureDefAttachmentDAO.getInputStream(fda);
-					StreamUtils.copyStream(is, zos);
+					StreamUtil.copyStream(is, zos);
 					is.close();
 					
 					//fixtureDefAttachmentPw.println(Text.indent("    ", fdi.toExportXml()));
@@ -694,7 +705,7 @@ src/main/resources/export.xml (date of export, totals etc)
 					zos.putNextEntry(ze);
 					// FileInputStream fis = new FileInputStream(fdi.getFileLocation());
 					is = showDefAttachmentDAO.getInputStream(sda);
-					StreamUtils.copyStream(is, zos);
+					StreamUtil.copyStream(is, zos);
 					is.close();
 				}
 				
@@ -744,7 +755,7 @@ src/main/resources/export.xml (date of export, totals etc)
 			zos.putNextEntry(ze);
 			InputStream tis = this.getClass().getResourceAsStream("BeanshellTest.java");
 			if (tis!=null) {
-				StreamUtils.copyStream(tis,  zos);
+				StreamUtil.copyStream(tis,  zos);
 				tis.close();
 			}
 			
@@ -753,7 +764,7 @@ src/main/resources/export.xml (date of export, totals etc)
 			response.setContentLength(baos.size());
 			response.setContentType("application/vnd.randomnoun.dmxweb-zip");
 			response.setHeader("Content-Disposition", "attachment; filename=\"export-" + now2 + ".dmxweb-zip\"");
-			StreamUtils.copyStream(new ByteArrayInputStream(baos.toByteArray()), response.getOutputStream());
+			StreamUtil.copyStream(new ByteArrayInputStream(baos.toByteArray()), response.getOutputStream());
 			forward = "null";
 			
 		} else if (action.equals("import") || action.equals("import2")) {
@@ -796,7 +807,7 @@ src/main/resources/export.xml (date of export, totals etc)
 	    			localFilename = sdf.format(new Date()) + "-" + userFilename;
 					f = new File(fileUploadTempPath + File.separator + localFilename);
 					FileOutputStream fos = new FileOutputStream(f);
-					StreamUtils.copyStream(file.getInputStream(), fos);
+					StreamUtil.copyStream(file.getInputStream(), fos);
 					fos.close();
 				} else {
 	    			localFilename = request.getParameter("localFilename");
@@ -812,7 +823,7 @@ src/main/resources/export.xml (date of export, totals etc)
 				ZipEntry ze = zis.getNextEntry();
 				while (ze!=null) {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					StreamUtils.copyStream(zis, baos);
+					StreamUtil.copyStream(zis, baos);
 					zipMap.put(ze.getName(), baos.toByteArray());
 					ze = zis.getNextEntry();
 				}

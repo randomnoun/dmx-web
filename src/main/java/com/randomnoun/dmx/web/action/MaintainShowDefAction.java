@@ -35,7 +35,7 @@ import bsh.Parser;
 import bsh.SimpleNode;
 
 import com.randomnoun.common.ErrorList;
-import com.randomnoun.common.StreamUtils;
+import com.randomnoun.common.StreamUtil;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
@@ -237,7 +237,7 @@ public class MaintainShowDefAction
     		response.setContentType(showDefAttachment.getContentType());
     		response.setContentLength((int) showDefAttachment.getSize());
     		InputStream is = showDefAttachmentDAO.getInputStream(showDefAttachment);
-    		StreamUtils.copyStream(is, response.getOutputStream());
+    		StreamUtil.copyStream(is, response.getOutputStream());
     		forward = null;
     		
     	} else if (action.equals("deleteFile")) {
@@ -289,7 +289,7 @@ public class MaintainShowDefAction
         	if (Text.isBlank(defaultPackage)) { defaultPackage = "com.example.dmx.show.script"; }
 	    	InputStream is = this.getClass().getClassLoader().getResourceAsStream("default/defaultShowDef.java");
 	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			StreamUtils.copyStream(is, baos);
+			StreamUtil.copyStream(is, baos);
 			return "package " + defaultPackage + ";\n" + new String(baos.toByteArray());
 		} catch (IOException e) {
 			throw new IllegalStateException("IOException in ByteArrayOutputStream", e);

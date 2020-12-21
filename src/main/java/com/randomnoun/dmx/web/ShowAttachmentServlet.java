@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.randomnoun.common.MRUCache;
-import com.randomnoun.common.StreamUtils;
+import com.randomnoun.common.StreamUtil;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.ShowDefAttachmentDAO;
 import com.randomnoun.dmx.to.ShowDefAttachmentTO;
@@ -82,7 +82,7 @@ public class ShowAttachmentServlet extends javax.servlet.http.HttpServlet implem
 	    		try {
 		    		is = ShowDefAttachmentDAO.getInputStream(showDefAttachment);
 		    		response.setContentLength((int) showDefAttachment.getSize());
-		    		StreamUtils.copyStream(is, response.getOutputStream());
+		    		StreamUtil.copyStream(is, response.getOutputStream());
 		    		is.close();
 	    		} catch (FileNotFoundException fnfe) {
 		    		response.setContentLength(0);

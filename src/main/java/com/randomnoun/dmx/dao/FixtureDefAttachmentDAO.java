@@ -14,7 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import com.randomnoun.common.StreamUtils;
+import com.randomnoun.common.StreamUtil;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.FixtureDefTO;
@@ -155,7 +155,7 @@ public class FixtureDefAttachmentDAO {
         if (updated!=1) {
             throw new DataIntegrityViolationException("fixtureDefAttachment insert failed (" + updated + " rows updated)");
         }
-        long fixtureDefAttachmentId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        long fixtureDefAttachmentId = jt.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         fixtureDefAttachment.setId(fixtureDefAttachmentId);
         return fixtureDefAttachmentId;
     }
@@ -169,7 +169,7 @@ public class FixtureDefAttachmentDAO {
     		newFile.getParentFile().mkdirs();
     	}
     	FileOutputStream fos = new FileOutputStream(newFile);
-    	StreamUtils.copyStream(is, fos);
+    	StreamUtil.copyStream(is, fos);
     	fos.close();
     }
     

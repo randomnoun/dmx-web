@@ -135,7 +135,7 @@ public class DeviceDAO {
         if (updated!=1) {
             throw new DataIntegrityViolationException("device insert failed (" + updated + " rows updated)");
         }
-        long deviceId = jt.queryForLong("SELECT LAST_INSERT_ID()");
+        long deviceId = jt.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         device.setId(deviceId);
         return deviceId;
     }
