@@ -10,30 +10,17 @@
   <listener>
     <listener-class>com.randomnoun.dmx.config.ServletContextListener</listener-class>
   </listener>
-  <servlet>
-    <servlet-name>action</servlet-name>
-    <servlet-class>com.randomnoun.common.webapp.struts.CustomActionServlet</servlet-class>
-    <init-param>
-      <param-name>config</param-name>
-      <param-value>/WEB-INF/struts-config.xml</param-value>
-    </init-param>
-    <init-param>
-      <param-name>debug</param-name>
-      <param-value>2</param-value>
-    </init-param>
-    <init-param>
-      <param-name>detail</param-name>
-      <param-value>2</param-value>
-    </init-param>
-    <init-param>
-      <param-name>appLogPrefix</param-name>
-      <param-value>dmx-web</param-value>
-    </init-param>
-    <init-param>
-      <param-name>appConfigClass</param-name>
-      <param-value>com.randomnoun.dmx.config.AppConfig</param-value>
-    </init-param>
-  </servlet>  
+  
+    <filter>
+        <filter-name>struts2</filter-name>
+        <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>struts2</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+  
+  
   <servlet>
     <servlet-name>versionServlet</servlet-name>
     <servlet-class>com.randomnoun.common.servlet.VersionServlet</servlet-class>
@@ -63,10 +50,6 @@
     <servlet-class>com.randomnoun.dmx.web.ApiServlet</servlet-class>
   </servlet>
 
-  <servlet-mapping>
-    <servlet-name>action</servlet-name>
-    <url-pattern>*.html</url-pattern>
-  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>fixtureAttachmentServlet</servlet-name>
     <url-pattern>/image/fixture/*</url-pattern>
