@@ -1,113 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-  <groupId>com.randomnoun.dmx</groupId>
-  <artifactId>dmx-web</artifactId>
-  <packaging>war</packaging>
-  <version>0.0.10-SNAPSHOT</version>
-  <name>dmx-web</name>
-  <url>http://maven.apache.org</url>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.randomnoun.dmx</groupId>
+    <artifactId>dmx-web</artifactId>
+    <packaging>war</packaging>
+    <version>0.0.10-SNAPSHOT</version>
+    <name>dmx-web</name>
+    <url>http://maven.apache.org</url>
+    <parent>
+        <artifactId>parent-pom</artifactId>
+        <groupId>com.randomnoun.build</groupId>
+        <version>1.22</version>
+    </parent>
 
-	<parent>
-		<artifactId>parent-pom</artifactId>
-		<groupId>com.randomnoun.build</groupId>
-		<version>1.22</version>
-	</parent>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-    	<groupId>log4j</groupId>
-    	<artifactId>log4j</artifactId>
-		<version>1.2.17</version>
-    </dependency>
-    <dependency>
-      <groupId>com.randomnoun.common</groupId>
-      <artifactId>log4j-one</artifactId>
-      <version>0.0.4</version>
-    </dependency>
-       <dependency>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>com.randomnoun.common</groupId>
+            <artifactId>log4j-one</artifactId>
+            <version>0.0.4</version>
+        </dependency>
+        <dependency>
             <groupId>com.randomnoun.common</groupId>
             <artifactId>common-public</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.6</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-                
-    
-    <!--  this needs to be a provided dependancy, otherwise there's problems
+        <!--  this needs to be a provided dependancy, otherwise there's problems
           the DLL being loaded by it and expired classloaders in tomcat
-    -->
-    <!-- we don't use the jacob COM wrappers any more but keeping these 
-         to allow the stub classes to still compile
-      -->
-    <dependency>
-        <groupId>net.sf.jacob-project</groupId>
-        <artifactId>jacob</artifactId>
-        <version>1.14.3</version>
-        <type>jar</type>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>net.sf.jacob-project</groupId>
-        <artifactId>jacob</artifactId>
-        <version>1.14.3</version>
-        <type>dll</type>
-        <classifier>x86</classifier>
-        <scope>compile</scope>
-    </dependency>
         
-        
-        
-        
-         
-           <dependency>
-           	<groupId>javax.servlet</groupId>
-           	<artifactId>servlet-api</artifactId>
-           	<version>2.5</version>
-           	<type>jar</type>
-           	<scope>provided</scope>
-           </dependency>
-           <dependency>
-			    <!--  apparently struts2 and struts1 can coexist so will be adding struts2 to other projects until this is phased out -->
-				<groupId>org.apache.struts</groupId>
-				<artifactId>struts-core</artifactId>
-				<version>1.3.10</version>
-			</dependency>
-           			<dependency>
-				<groupId>org.apache.taglibs</groupId>
-				<artifactId>taglibs-standard-spec</artifactId>
-				<version>1.2.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.taglibs</groupId>
-				<artifactId>taglibs-standard-impl</artifactId>
-				<version>1.2.1</version>
-			</dependency>
-           
-           
-           <!-- not required (one hell of an SPI) see http://rxtx.qbang.org/wiki/index.php/Using_RXTX 
-           <dependency>
-           	<groupId>javax.comm</groupId>
-           	<artifactId>comm</artifactId>
-           	<version>2.0.3</version>
-           	<scope>compile</scope>
-           </dependency>
-            -->
-           <dependency>
-           	<groupId>org.rxtx</groupId>
-           	<artifactId>rxtx</artifactId>
-           	<version>2.2-20081207</version>
-           	<type>jar</type>
-           	<scope>provided</scope>
-           	<!-- NB: x64 dlls have the classifier "win-x64" -->
-           </dependency>
-           
-           <!--  not needed for JDKs with javax.script 
+          we don't use the jacob COM wrappers any more but keeping these 
+          to allow the stub classes to still compile
+        -->
+        <dependency>
+            <groupId>net.sf.jacob-project</groupId>
+            <artifactId>jacob</artifactId>
+            <version>1.14.3</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jacob-project</groupId>
+            <artifactId>jacob</artifactId>
+            <version>1.14.3</version>
+            <type>dll</type>
+            <classifier>x86</classifier>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <!--  apparently struts2 and struts1 can coexist so will be adding struts2 to other projects until this is phased out -->
+            <groupId>org.apache.struts</groupId>
+            <artifactId>struts-core</artifactId>
+            <version>1.3.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.taglibs</groupId>
+            <artifactId>taglibs-standard-spec</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.taglibs</groupId>
+            <artifactId>taglibs-standard-impl</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.rxtx</groupId>
+            <artifactId>rxtx</artifactId>
+            <version>2.2-20081207</version>
+            <type>jar</type>
+            <scope>provided</scope>
+            <!-- NB: x64 dlls have the classifier "win-x64" -->
+        </dependency>
+        <!--  not needed for JDKs with javax.script 
            <dependency>
            	<groupId>org.apache.bsf</groupId>
            	<artifactId>bsf-api</artifactId>
@@ -116,191 +98,162 @@
            	<scope>provided</scope>
            </dependency>
             -->
-           <dependency>
-           	<groupId>com.randomnoun.beanshell</groupId>
-           	<artifactId>bsh</artifactId>
-           	<version>0.0.3</version>
-           	<type>jar</type>
-           	<scope>compile</scope>
-           </dependency>
-           <dependency>
-           	<groupId>commons-httpclient</groupId>
-           	<artifactId>commons-httpclient</artifactId>
-           	<type>jar</type>
-           	<scope>compile</scope>
-           </dependency>
-           
-           <dependency>
-           	<groupId>commons-fileupload</groupId>
-           	<artifactId>commons-fileupload</artifactId>
-           	<type>jar</type>
-           	<scope>compile</scope>
-           </dependency>
-           <dependency>
-           	<groupId>commons-io</groupId>
-           	<artifactId>commons-io</artifactId>
-           	<type>jar</type>
-           	<scope>compile</scope>
-           </dependency>
-           <dependency>
-           	<groupId>javax.media</groupId>
-           	<artifactId>jmf</artifactId>
-           	<version>2.1.1e</version>
-           </dependency>
-           <dependency>
-           	<groupId>xuggle</groupId>
-           	<artifactId>xuggle-xuggler</artifactId>
-           	<version>5.4</version>
-           </dependency>
-           
-           
-           <!--  stuff that used to be in the jdk -->
-		<dependency>
-		    <groupId>javax.xml.bind</groupId>
-		    <artifactId>jaxb-api</artifactId>
-		    <version>2.2.11</version>
-		</dependency>
-		<dependency>
-		    <groupId>com.sun.xml.bind</groupId>
-		    <artifactId>jaxb-core</artifactId>
-		    <version>2.2.11</version>
-		</dependency>
-		<dependency>
-		    <groupId>com.sun.xml.bind</groupId>
-		    <artifactId>jaxb-impl</artifactId>
-		    <version>2.2.11</version>
-		</dependency>
-		<dependency>
-		    <groupId>javax.activation</groupId>
-		    <artifactId>activation</artifactId>
-		    <version>1.1.1</version>
-		</dependency>
-           
-           
-  </dependencies>
+        <dependency>
+            <groupId>com.randomnoun.beanshell</groupId>
+            <artifactId>bsh</artifactId>
+            <version>0.0.3</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.media</groupId>
+            <artifactId>jmf</artifactId>
+            <version>2.1.1e</version>
+        </dependency>
+        <dependency>
+            <groupId>xuggle</groupId>
+            <artifactId>xuggle-xuggler</artifactId>
+            <version>5.4</version>
+        </dependency>
+        <!--  stuff that used to be in the jdk -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-<scm>
-	<connection>scm:git:ssh://git@gitlab.dev.randomnoun:2222/randomnoun/dmx-web.git</connection>
-	<developerConnection>scm:git:ssh://git@gitlab.dev.randomnoun:2222/randomnoun/dmx-web.git</developerConnection>
-	<url>http://gitlab.dev.randomnoun/randomnoun/dmx-web</url>
-  </scm>
-  
-  <build>
-    <finalName>dmx-web</finalName>
-  <resources>
-        <resource>
-            <filtering>true</filtering>
-            <directory>src/main/resources</directory>
-            <includes>
-                <include>build.properties</include>
-            </includes>
-        </resource>
-        <resource>
-            <filtering>false</filtering>
-            <directory>src/main/resources</directory>
-            <excludes>
-                <exclude>build.properties</exclude>
-            </excludes>
-        </resource>
-        <resource>
-            <filtering>false</filtering>
-            <directory>src/test/com/randomnoun/dmx</directory>
-            <includes>
-                <include>BeanshellTest.java</include>
-            </includes>
-        </resource>
-    </resources>
- <pluginManagement>  
-     <plugins>  
-        <!-- 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-         -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                <!-- these settings don't appear to take effect in the javadoc
-                     transferred as part of javadoc-web
-                  -->
-                    <doctitle>randomnoun DMX API ${project.version}</doctitle>
-                    <version>testVersion</version>
-                    <!--  was ../../src/main/resources/javadoc/stylesheet.css -->
-                    <!--  eurgh 
-                    <stylesheetfile>src/main/resources/javadoc/stylesheet.css</stylesheetfile>
-                    -->
-                    <author>true</author>
-                    <!-- 
-                    <javadocDirectory>src/main/javadoc</javadocDirectory>
-                    <docfilesubirs>true</docfilesubirs>
-                     -->
-                    <groups>
-					  <group>
-					    <title>dmx-web API Packages</title>
-					    <packages>com.randomnoun.dmx.audioController*:com.randomnoun.dmx.audioSource*:com.randomnoun.dmx.channel*:com.randomnoun.dmx.channelMuxer*:com.randomnoun.dmx.fixture:com.randomnoun.dmx.lightSource:com.randomnoun.dmx.show:com.randomnoun.dmx.timeSource</packages>
-					  </group>
-					  <group>
-					    <title>Java Packages</title>
-					    <!--  to include the java.awt.Color class -->
-                        <packages>java.awt</packages>
-                      </group>
-					  <group>
-					    <title>Sample Packages</title>
-					    <packages>com.example*</packages>
-					  </group>
-					  <group>
-					    <title>Internal Packages</title>
-					    <packages>bsh.engine:com.jacobgen.dmx:com.randomnoun.dmx:com.randomnoun.dmx.config:com.randomnoun.dmx.dao:com.randomnoun.dmx.dmxDevice*:com.randomnoun.dmx.event:com.randomnoun.dmx.protocol*:com.randomnoun.dmx.to:com.randomnoun.dmx.web*</packages>
-					  </group>
-					</groups>
-					<tags>
-					  <tag>
-					    <name>TODO</name>
-					    <placement>a</placement>
-					    <head>To Do:</head>
-					  </tag>
-					  <tag>
-					    <!-- suppress jetbrains IDEA warning indicators -->
-					    <name>noinspection</name>
-					    <placement>X</placement>
-					  </tag>
-					</tags>
-                </configuration>
-            </plugin>
-     
-     
-         <plugin>  
-             <groupId>org.apache.maven.plugins</groupId>  
-             <artifactId>maven-compiler-plugin</artifactId>  
-              <configuration>  
-                  <source>1.6</source>  
-                  <target>1.6</target>  
-              </configuration>  
-          </plugin>  
-      </plugins>  
-  </pluginManagement>    
-    
-  </build>
-  
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    </dependencies>
+    <scm>
+        <connection>scm:git:ssh://git@gitlab.dev.randomnoun:2222/randomnoun/dmx-web.git</connection>
+        <developerConnection>scm:git:ssh://git@gitlab.dev.randomnoun:2222/randomnoun/dmx-web.git</developerConnection>
+        <url>http://gitlab.dev.randomnoun/randomnoun/dmx-web</url>
+    </scm>
+    <build>
+        <finalName>dmx-web</finalName>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>build.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <filtering>false</filtering>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>build.properties</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <filtering>false</filtering>
+                <directory>src/test/com/randomnoun/dmx</directory>
+                <includes>
+                    <include>BeanshellTest.java</include>
+                </includes>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <doctitle>randomnoun DMX API ${project.version}</doctitle>
+                        <version>testVersion</version>
+                        <author>true</author>
+                        <groups>
+                            <group>
+                                <title>dmx-web API Packages</title>
+                                <packages>com.randomnoun.dmx.audioController*:com.randomnoun.dmx.audioSource*:com.randomnoun.dmx.channel*:com.randomnoun.dmx.channelMuxer*:com.randomnoun.dmx.fixture:com.randomnoun.dmx.lightSource:com.randomnoun.dmx.show:com.randomnoun.dmx.timeSource</packages>
+                            </group>
+                            <group>
+                                <title>Java Packages</title>
+                                <!--  to include the java.awt.Color class -->
+                                <packages>java.awt</packages>
+                            </group>
+                            <group>
+                                <title>Sample Packages</title>
+                                <packages>com.example*</packages>
+                            </group>
+                            <group>
+                                <title>Internal Packages</title>
+                                <packages>bsh.engine:com.jacobgen.dmx:com.randomnoun.dmx:com.randomnoun.dmx.config:com.randomnoun.dmx.dao:com.randomnoun.dmx.dmxDevice*:com.randomnoun.dmx.event:com.randomnoun.dmx.protocol*:com.randomnoun.dmx.to:com.randomnoun.dmx.web*</packages>
+                            </group>
+                        </groups>
+                        <tags>
+                            <tag>
+                                <name>TODO</name>
+                                <placement>a</placement>
+                                <head>To Do:</head>
+                            </tag>
+                            <tag>
+                                <!-- suppress jetbrains IDEA warning indicators -->
+                                <name>noinspection</name>
+                                <placement>X</placement>
+                            </tag>
+                        </tags>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>11</source>
+                        <target>11</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 </project>
