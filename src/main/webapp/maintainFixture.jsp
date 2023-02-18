@@ -6,7 +6,7 @@
   import="java.util.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*"
 %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
-<%@ taglib uri="http://java.randomnoun.com/taglib/common-public" prefix="r" %>
+<%@ taglib uri="http://java.randomnoun.com/taglib/common" prefix="r" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <% 
     //@TODO the onchange javascript for the empty row for the dmxOffset field isn't set.

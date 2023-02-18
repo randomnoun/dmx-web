@@ -7,7 +7,7 @@
   import="java.util.*,java.text.*,org.springframework.jdbc.core.*,org.springframework.dao.support.DataAccessUtils,com.randomnoun.common.spring.*,com.randomnoun.common.*,com.randomnoun.dmx.config.*,com.randomnoun.dmx.*,com.randomnoun.dmx.show.Show,com.randomnoun.dmx.fixture.*"
 %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
-<%@ taglib uri="http://java.randomnoun.com/taglib/common-public" prefix="r" %>
+<%@ taglib uri="http://java.randomnoun.com/taglib/common" prefix="r" %>
 <% 
    AppConfig appConfig = AppConfig.getAppConfig();
    Controller controller = (Controller) request.getAttribute("controller");
