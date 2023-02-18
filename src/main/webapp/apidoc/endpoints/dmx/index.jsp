@@ -12,7 +12,7 @@
 
     
         <script type="text/javascript" src="../../scripts/html5.js"></script>
-        <script type="text/javascript" src="../../scripts/jquery.js"></script>
+        <script type="text/javascript" src="../../scripts/jquery-3.6.3.js"></script>
         <script type="text/javascript" src="../../scripts/bluebar.js"></script>
         <script type="text/javascript" src="../../scripts/bluebar_desktop.js"></script>
     

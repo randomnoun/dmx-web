@@ -32,7 +32,7 @@
 
     <!-- JavaScript -->
     <script src="mjs?js=prototype" type="text/javascript"></script>
-    <script src="mjs?js=jquery-1.4.4.min,farbtastic"></script> 
+    <script src="mjs?js=jquery-3.6.3.min,farbtastic"></script> 
     <script>jQuery.noConflict();</script> 
     <script src="mjs?js=scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,johnford,browserDetect" type="text/javascript"></script> 
     
