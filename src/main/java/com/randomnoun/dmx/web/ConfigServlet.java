@@ -1,9 +1,5 @@
 package com.randomnoun.dmx.web;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.RXTXCommDriver;
-import gnu.io.RXTXVersion;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,7 +9,6 @@ import java.io.InputStream;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.Driver;
@@ -31,7 +26,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.management.MBeanServer;
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -49,8 +43,10 @@ import com.randomnoun.common.MRUCache;
 import com.randomnoun.common.Registry;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
-import com.randomnoun.common.webapp.struts.CustomRequestProcessor;
 import com.randomnoun.dmx.config.AppConfig;
+
+import gnu.io.CommPortIdentifier;
+import gnu.io.RXTXVersion;
 
 /**
  * Perform application initialisation.
@@ -329,7 +325,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 				Exception e2 = new IllegalStateException("Configuration not required");
 				request.setAttribute("stacktrace", 
 				ExceptionUtil.getStackTraceWithRevisions(e2, 
-				  CustomRequestProcessor.class.getClassLoader(), ExceptionUtil.HIGHLIGHT_HTML, "com.randomnoun."));
+				  ConfigServlet.class.getClassLoader(), ExceptionUtil.HIGHLIGHT_HTML, "com.randomnoun."));
 				request.setAttribute("isStrutsRequest", "true"); // used in JSPs to check whether this routine has been invoked
 				request.setAttribute("stacktraceSummary", ExceptionUtil.getStackTraceSummary(e2));
 				jspForward = "misc/error.jsp";
