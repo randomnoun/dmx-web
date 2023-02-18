@@ -1,6 +1,8 @@
 package com.randomnoun.dmx.web.action;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -15,24 +17,13 @@ import java.util.regex.Pattern;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.upload.FormFile;
-import org.apache.struts.upload.MultipartRequestHandler;
+import org.apache.struts2.dispatcher.multipart.MultiPartRequestWrapper;
+import org.apache.struts2.dispatcher.multipart.StrutsUploadedFile;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import bsh.BSHAmbiguousName;
-import bsh.BSHClassDeclaration;
-import bsh.BSHPackageDeclaration;
-import bsh.Parser;
-import bsh.SimpleNode;
 
 import com.randomnoun.common.ErrorList;
 import com.randomnoun.common.StreamUtil;
@@ -48,11 +39,17 @@ import com.randomnoun.dmx.dao.ShowDefAttachmentDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
 import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.show.editor.RecordedShow;
-import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.ShowDefAttachmentTO;
 import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowTO;
-import com.randomnoun.dmx.web.ExtendedMultiPartRequestHandler;
+import com.randomnoun.dmx.web.struts.ActionBase;
+import com.randomnoun.dmx.web.struts.DmxHttpRequest;
+
+import bsh.BSHAmbiguousName;
+import bsh.BSHClassDeclaration;
+import bsh.BSHPackageDeclaration;
+import bsh.Parser;
+import bsh.SimpleNode;
 
 /**
  * Show definition maintenance action.
@@ -65,8 +62,7 @@ import com.randomnoun.dmx.web.ExtendedMultiPartRequestHandler;
  * @version         $Id$
  * @author          knoxg
  */
-public class MaintainShowDefAction
-    extends Action {
+public class MaintainShowDefAction extends ActionBase {
     /** A revision marker to be used in exception stack traces. */
     public static final String _revision = "$Id$";
 
@@ -78,7 +74,7 @@ public class MaintainShowDefAction
      * class for more details.
      *
      * @param mapping The struts ActionMapping that triggered this Action
-     * @param actionForm An ActionForm (if available) holding user input for this Action
+     * @param form An ActionForm (if available) holding user input for this Action
      * @param request The HttpServletRequest for this action
      * @param response The HttpServletResponse for this action
      *
@@ -86,9 +82,8 @@ public class MaintainShowDefAction
      *
      * @throws Exception If an exception occurred during action processing
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response)
-        throws Exception 
+    public String execute(DmxHttpRequest request, HttpServletResponse response)
+        throws Exception
     {
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
@@ -194,39 +189,54 @@ public class MaintainShowDefAction
     		}
     		
     	} else if (action.equals("getProgress")) {
-    		logger.debug("Getting progress in session '" + request.getSession().getId() + "'"); 
+    		logger.debug("Getting progress in session '" + request.getSession().getId() + "'");
+    		request.setAttribute("json", "{ 'percentDone' : 0 }" );
+    		/*
     		FileProgressTO progressTO = (FileProgressTO) session.getAttribute(ExtendedMultiPartRequestHandler.PROGRESS_SESSION_KEY);
     		if (progressTO==null) {
     			request.setAttribute("json", "{ 'percentDone' : 0 }" );
     		} else {
     			request.setAttribute("json", progressToJson(progressTO));
     		}
+    		*/
     	    forward="json";
     	
     	} else if (action.equals("submitFile")) {
     		String script = "";
+    		/*
     		if (request.getAttribute(MultipartRequestHandler.ATTRIBUTE_MAX_LENGTH_EXCEEDED)!=null) {
     			// errors.addError("Image not uploaded", "Maximum sizelimit exceeded", ErrorList.SEVERITY_OK);
     			script = "parent.edtCompletedUploadError(\"Maximum sizelimit exceeded\");";
     		} else {
-    			String description = ((String[]) actionForm.getMultipartRequestHandler().getAllElements().get("description"))[0];
-	            Map files = actionForm.getMultipartRequestHandler().getFileElements();
-	            FormFile file = (FormFile) files.get("attachment");
-	            if (file.getFileSize()==0) {
-	            	script = "parent.edtCompletedUploadError(\"Zero-byte file submitted\");";
-	            } else {
-		            ShowDefAttachmentTO showDefAttachment = new ShowDefAttachmentTO();
-		            showDefAttachment.setShowDefId(showDefId);
-		            showDefAttachment.setName(file.getFileName());
-		            showDefAttachment.setDescription(description);
-		            showDefAttachment.setSize(file.getFileSize());
-		            showDefAttachment.setContentType(file.getContentType());
-		            showDefAttachmentDAO.createShowDefAttachment(showDefAttachment);
-		            showDefAttachmentDAO.setInputStreamData(showDefAttachment, file.getInputStream());
-		            // errors.addError("Image uploaded", "Documentation file '" + fileName + "' (" + fileSize + " bytes) uploaded OK", ErrorList.SEVERITY_OK);
-		            script = "parent.edtCompletedUploadOK(" + showDefAttachment.getId() + ", \"" + showDefAttachment.getSizeInUnits() + 
-		              "\", \"" + Text.escapeJavascript2(showDefAttachment.getName()) + "\", \"" + Text.escapeJavascript2(showDefAttachment.getDescription()) + "\");";
-	            }
+    		*/
+    		
+			String description = request.getParameter("description");
+			
+			MultiPartRequestWrapper mrw = (MultiPartRequestWrapper) request.getRequest();
+    		if (mrw.getFileNames("attachment") == null) { throw new IllegalStateException("missing 'file' parameter"); }
+    		if (mrw.getFileNames("attachment").length==0) { throw new IllegalStateException("no files included in request"); }
+    		
+			String userFilename = mrw.getFileNames("attachment")[0];
+			logger.info("userFilename='" + userFilename + "'");
+			
+			File f = ((StrutsUploadedFile) mrw.getFiles("attachment")[0]).getContent();
+			
+            if (f.length()==0) {
+            	script = "parent.edtCompletedUploadError(\"Zero-byte file submitted\");";
+            } else {
+            	InputStream is = new FileInputStream(f);
+	            ShowDefAttachmentTO showDefAttachment = new ShowDefAttachmentTO();
+	            showDefAttachment.setShowDefId(showDefId);
+	            showDefAttachment.setName(userFilename); 
+	            showDefAttachment.setDescription(description);
+	            showDefAttachment.setSize(f.length());
+	            showDefAttachment.setContentType("something");
+	            showDefAttachmentDAO.createShowDefAttachment(showDefAttachment);
+	            showDefAttachmentDAO.setInputStreamData(showDefAttachment, is);
+	            // errors.addError("Image uploaded", "Documentation file '" + fileName + "' (" + fileSize + " bytes) uploaded OK", ErrorList.SEVERITY_OK);
+	            script = "parent.edtCompletedUploadOK(" + showDefAttachment.getId() + ", \"" + showDefAttachment.getSizeInUnits() + 
+	              "\", \"" + Text.escapeJavascript2(showDefAttachment.getName()) + "\", \"" + Text.escapeJavascript2(showDefAttachment.getDescription()) + "\");";
+	            
     		}
     		request.setAttribute("script", script);
     		forward = "script";
@@ -279,7 +289,7 @@ public class MaintainShowDefAction
     	}
 
     	request.setAttribute("errors", errors);
-		return mapping.findForward(forward);
+		return forward;
 		
     }
     

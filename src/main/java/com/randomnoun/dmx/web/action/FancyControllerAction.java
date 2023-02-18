@@ -19,15 +19,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
 
 import com.randomnoun.common.ExceptionUtil;
 import com.randomnoun.common.StreamUtil;
@@ -69,6 +64,8 @@ import com.randomnoun.dmx.show.editor.Recording;
 import com.randomnoun.dmx.stage.Stage;
 import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowTO;
+import com.randomnoun.dmx.web.struts.ActionBase;
+import com.randomnoun.dmx.web.struts.DmxHttpRequest;
 
 import gnu.io.RXTXCommDriver;
 import gnu.io.RXTXVersion;
@@ -86,8 +83,7 @@ import gnu.io.RXTXVersion;
  * @version         $Id$
  * @author          knoxg
  */
-public class FancyControllerAction
-    extends Action {
+public class FancyControllerAction extends ActionBase {
     /** A revision marker to be used in exception stack traces. */
     public static final String _revision = "$Id$";
 
@@ -274,7 +270,7 @@ public class FancyControllerAction
      * class for more details.
      *
      * @param mapping The struts ActionMapping that triggered this Action
-     * @param actionForm An ActionForm (if available) holding user input for this Action
+     * @param form An ActionForm (if available) holding user input for this Action
      * @param request The HttpServletRequest for this action
      * @param response The HttpServletResponse for this action
      *
@@ -282,9 +278,8 @@ public class FancyControllerAction
      *
      * @throws Exception If an exception occurred during action processing
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response)
-        throws Exception 
+    public String execute(DmxHttpRequest request, HttpServletResponse response)
+        throws Exception
     {
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
@@ -1165,7 +1160,7 @@ public class FancyControllerAction
     	}
     	
     	request.setAttribute("json", Struct.structuredMapToJson(result));
-		return mapping.findForward(forward);
+		return forward;
 		
     }
     

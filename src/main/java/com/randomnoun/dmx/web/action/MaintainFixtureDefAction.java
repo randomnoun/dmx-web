@@ -2,6 +2,8 @@ package com.randomnoun.dmx.web.action;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -15,26 +17,13 @@ import java.util.regex.Pattern;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.upload.FormFile;
-import org.apache.struts.upload.MultipartRequestHandler;
-import org.springframework.dao.support.DataAccessUtils;
+import org.apache.struts2.dispatcher.multipart.MultiPartRequestWrapper;
+import org.apache.struts2.dispatcher.multipart.StrutsUploadedFile;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import bsh.BSHAmbiguousName;
-import bsh.BSHClassDeclaration;
-import bsh.BSHPackageDeclaration;
-import bsh.Parser;
-import bsh.SimpleNode;
-// import bsh.SimpleNode; - package private. bastardos.
 
 import com.randomnoun.common.ErrorList;
 import com.randomnoun.common.StreamUtil;
@@ -48,17 +37,23 @@ import com.randomnoun.dmx.Universe;
 import com.randomnoun.dmx.channelMuxer.ChannelMuxer;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.FixtureDAO;
-import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.dao.FixtureDefAttachmentDAO;
+import com.randomnoun.dmx.dao.FixtureDefDAO;
 import com.randomnoun.dmx.fixture.Fixture;
 import com.randomnoun.dmx.fixture.FixtureController;
 import com.randomnoun.dmx.fixture.FixtureDef;
-import com.randomnoun.dmx.show.Show;
 import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
 import com.randomnoun.dmx.to.FixtureDefTO;
 import com.randomnoun.dmx.to.FixtureTO;
-import com.randomnoun.dmx.web.ExtendedMultiPartRequestHandler;
-import com.randomnoun.dmx.web.StrutsUploadForm;
+import com.randomnoun.dmx.web.struts.ActionBase;
+import com.randomnoun.dmx.web.struts.DmxHttpRequest;
+
+import bsh.BSHAmbiguousName;
+import bsh.BSHClassDeclaration;
+import bsh.BSHPackageDeclaration;
+import bsh.Parser;
+import bsh.SimpleNode;
+// import bsh.SimpleNode; - package private. bastardos.
 
 /**
  * Fixture definition maintenance action.
@@ -71,8 +66,7 @@ import com.randomnoun.dmx.web.StrutsUploadForm;
  * @version         $Id$
  * @author          knoxg
  */
-public class MaintainFixtureDefAction
-    extends Action {
+public class MaintainFixtureDefAction extends ActionBase {
     /** A revision marker to be used in exception stack traces. */
     public static final String _revision = "$Id$";
 
@@ -84,7 +78,7 @@ public class MaintainFixtureDefAction
      * class for more details.
      *
      * @param mapping The struts ActionMapping that triggered this Action
-     * @param actionForm An ActionForm (if available) holding user input for this Action
+     * @param form An ActionForm (if available) holding user input for this Action
      * @param request The HttpServletRequest for this action
      * @param response The HttpServletResponse for this action
      *
@@ -92,9 +86,8 @@ public class MaintainFixtureDefAction
      *
      * @throws Exception If an exception occurred during action processing
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response)
-        throws Exception 
+    public String execute(DmxHttpRequest request, HttpServletResponse response)
+        throws Exception
     {
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
@@ -228,40 +221,57 @@ public class MaintainFixtureDefAction
     		}
     		
     	} else if (action.equals("getProgress")) {
-    		logger.debug("Getting progress in session '" + request.getSession().getId() + "'"); 
+    		logger.debug("Getting progress in session '" + request.getSession().getId() + "'");
+    		request.setAttribute("json", "{ 'percentDone' : 0 }" );
+    		/*
     		FileProgressTO progressTO = (FileProgressTO) session.getAttribute(ExtendedMultiPartRequestHandler.PROGRESS_SESSION_KEY);
     		if (progressTO==null) {
     			request.setAttribute("json", "{ 'percentDone' : 0 }" );
     		} else {
     			request.setAttribute("json", progressToJson(progressTO));
     		}
+    		*/
     	    forward="json";
     	
     	} else if (action.equals("submitFile")) {
     		String script = "";
-    		if (request.getAttribute(MultipartRequestHandler.ATTRIBUTE_MAX_LENGTH_EXCEEDED)!=null) {
+    		/*
+    		if (true == false) { // was request.getAttribute(MultipartRequestHandler.ATTRIBUTE_MAX_LENGTH_EXCEEDED)!=null
     			// errors.addError("Image not uploaded", "Maximum sizelimit exceeded", ErrorList.SEVERITY_OK);
     			script = "parent.edtCompletedUploadError(\"Maximum sizelimit exceeded\");";
-    		} else {
-    			String description = ((String[]) actionForm.getMultipartRequestHandler().getAllElements().get("description"))[0];
-	            Map files = actionForm.getMultipartRequestHandler().getFileElements();
-	            FormFile file = (FormFile) files.get("attachment");
-	            if (file.getFileSize()==0) {
-	            	script = "parent.edtCompletedUploadError(\"Zero-byte file submitted\");";
-	            } else {
-		            FixtureDefAttachmentTO fixtureDefAttachment = new FixtureDefAttachmentTO();
-		            fixtureDefAttachment.setFixtureDefId(fixtureDefId);
-		            fixtureDefAttachment.setName(file.getFileName());
-		            fixtureDefAttachment.setDescription(description);
-		            fixtureDefAttachment.setSize(file.getFileSize());
-		            fixtureDefAttachment.setContentType(file.getContentType());
-		            fixtureDefAttachmentDAO.createFixtureDefAttachment(fixtureDefAttachment);
-		            fixtureDefAttachmentDAO.setInputStreamData(fixtureDefAttachment, file.getInputStream());
-		            // errors.addError("Image uploaded", "Documentation file '" + fileName + "' (" + fileSize + " bytes) uploaded OK", ErrorList.SEVERITY_OK);
-		            script = "parent.edtCompletedUploadOK(" + fixtureDefAttachment.getId() + ", \"" + fixtureDefAttachment.getSizeInUnits() + 
-		              "\", \"" + Text.escapeJavascript2(fixtureDefAttachment.getName()) + "\", \"" + Text.escapeJavascript2(fixtureDefAttachment.getDescription()) + "\");";
-	            }
-    		}
+    		} else { */
+
+			String description = request.getParameter("description");
+			
+			MultiPartRequestWrapper mrw = (MultiPartRequestWrapper) request.getRequest();
+    		if (mrw.getFileNames("attachment") == null) { throw new IllegalStateException("missing 'file' parameter"); }
+    		if (mrw.getFileNames("attachment").length==0) { throw new IllegalStateException("no files included in request"); }
+
+			String userFilename = mrw.getFileNames("attachment")[0];
+			logger.info("userFilename='" + userFilename + "'");
+			
+			File f = ((StrutsUploadedFile) mrw.getFiles("attachment")[0]).getContent();
+			
+			// String description = ((String[]) actionForm.getMultipartRequestHandler().getAllElements().get("description"))[0];
+            // Map files = actionForm.getMultipartRequestHandler().getFileElements();
+            // FormFile file = (FormFile) files.get("attachment");
+            if (f.length()==0) {
+            	script = "parent.edtCompletedUploadError(\"Zero-byte file submitted\");";
+            } else {
+            	InputStream is = new FileInputStream(f);
+	            FixtureDefAttachmentTO fixtureDefAttachment = new FixtureDefAttachmentTO();
+	            fixtureDefAttachment.setFixtureDefId(fixtureDefId);
+	            fixtureDefAttachment.setName(userFilename); // file.getFileName()
+	            fixtureDefAttachment.setDescription(description);
+	            fixtureDefAttachment.setSize(f.length()); // file.getFileSize()
+	            fixtureDefAttachment.setContentType("something"); // file.getContentType()
+	            fixtureDefAttachmentDAO.createFixtureDefAttachment(fixtureDefAttachment);
+	            fixtureDefAttachmentDAO.setInputStreamData(fixtureDefAttachment, is); // file.getInputStream()
+	            // errors.addError("Image uploaded", "Documentation file '" + fileName + "' (" + fileSize + " bytes) uploaded OK", ErrorList.SEVERITY_OK);
+	            script = "parent.edtCompletedUploadOK(" + fixtureDefAttachment.getId() + ", \"" + fixtureDefAttachment.getSizeInUnits() + 
+	              "\", \"" + Text.escapeJavascript2(fixtureDefAttachment.getName()) + "\", \"" + Text.escapeJavascript2(fixtureDefAttachment.getDescription()) + "\");";
+            }
+    		
     		request.setAttribute("script", script);
     		forward = "script";
     		
@@ -306,7 +316,7 @@ public class MaintainFixtureDefAction
     	if (forward==null) {
     		return null;
     	} else {
-    		return mapping.findForward(forward);
+    		return forward;
     	}
 		
     }

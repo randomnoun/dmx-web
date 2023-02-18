@@ -25,20 +25,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
+import org.apache.struts2.dispatcher.multipart.MultiPartRequestWrapper;
+import org.apache.struts2.dispatcher.multipart.StrutsUploadedFile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -52,7 +47,6 @@ import com.randomnoun.common.StreamUtil;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.security.User;
-import com.randomnoun.common.webapp.struts.FileRequestWrapper;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.DeviceDAO;
 import com.randomnoun.dmx.dao.DevicePropertyDAO;
@@ -74,6 +68,8 @@ import com.randomnoun.dmx.to.ShowDefTO;
 import com.randomnoun.dmx.to.ShowPropertyTO;
 import com.randomnoun.dmx.to.ShowTO;
 import com.randomnoun.dmx.to.StageTO;
+import com.randomnoun.dmx.web.struts.ActionBase;
+import com.randomnoun.dmx.web.struts.DmxHttpRequest;
 
 
 /**
@@ -91,8 +87,7 @@ import com.randomnoun.dmx.to.StageTO;
  * @version         $Id$
  * @author          knoxg
  */
-public class ImportExportAction
-    extends Action {
+public class ImportExportAction extends ActionBase {
     /** A revision marker to be used in exception stack traces. */
     public static final String _revision = "$Id$";
 
@@ -455,7 +450,7 @@ public class ImportExportAction
      * class for more details.
      *
      * @param mapping The struts ActionMapping that triggered this Action
-     * @param actionForm An ActionForm (if available) holding user input for this Action
+     * @param form An ActionForm (if available) holding user input for this Action
      * @param request The HttpServletRequest for this action
      * @param response The HttpServletResponse for this action
      *
@@ -463,19 +458,14 @@ public class ImportExportAction
      *
      * @throws Exception If an exception occurred during action processing
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response)
-        throws Exception 
+    public String execute(DmxHttpRequest request, HttpServletResponse response)
+        throws Exception
     {
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
 		AppConfig appConfig = AppConfig.getAppConfig();
 		String forward = "success";
 		JdbcTemplate jt = appConfig.getJdbcTemplate();
-		
-		if (ServletFileUpload.isMultipartContent(request)) {
-    	    request = new FileRequestWrapper(request); 
-        }
 		
 		String action = request.getParameter("action");
 
@@ -772,13 +762,22 @@ src/main/resources/export.xml (date of export, totals etc)
 			ErrorList errors = new ErrorList();
 			boolean upload = action.equals("import");
 			String userFilename = null;
-			FileItem file = null;
+			// FileItem file = null;
+			MultiPartRequestWrapper mrw = null;
 			if (upload) {
-				file = ((FileRequestWrapper) request).getFile("importFile");
-				userFilename = file.getName();
-				if (userFilename.contains(":")) { userFilename = userFilename.substring(userFilename.indexOf(":")+1); }
-				if (userFilename.contains("/")) { userFilename = userFilename.substring(userFilename.indexOf("/")+1); }
-				if (userFilename.contains("\\")) { userFilename = userFilename.substring(userFilename.indexOf("\\")+1); }
+	    		mrw = (MultiPartRequestWrapper) request.getRequest();
+	    		if (mrw.getFileNames("importFile") == null) { throw new IllegalStateException("missing 'file' parameter"); }
+	    		if (mrw.getFileNames("importFile").length==0) { throw new IllegalStateException("no files included in request"); }
+
+				userFilename = mrw.getFileNames("importFile")[0];
+				logger.info("userFilename='" + userFilename + "'");
+
+				
+				// file = ((FileRequestWrapper) request).getFile("importFile");
+				// userFilename = file.getName();
+				//if (userFilename.contains(":")) { userFilename = userFilename.substring(userFilename.indexOf(":")+1); }
+				//if (userFilename.contains("/")) { userFilename = userFilename.substring(userFilename.indexOf("/")+1); }
+				//if (userFilename.contains("\\")) { userFilename = userFilename.substring(userFilename.indexOf("\\")+1); }
 				if (userFilename.equals("")) {
 					errors.addError("Missing file", "You must enter a file to import");
 				}
@@ -803,12 +802,17 @@ src/main/resources/export.xml (date of export, totals etc)
 				if (upload) {
 					// @XXX sanitise for '../'-style nastiness 
 					logger.info("Received fileUpload (userFilename='" + userFilename + "')");
+					
+					File file = ((StrutsUploadedFile) mrw.getFiles("importFile")[0]).getContent();
+					InputStream is = new FileInputStream(file);
+					
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 	    			localFilename = sdf.format(new Date()) + "-" + userFilename;
 					f = new File(fileUploadTempPath + File.separator + localFilename);
 					FileOutputStream fos = new FileOutputStream(f);
-					StreamUtil.copyStream(file.getInputStream(), fos);
+					StreamUtil.copyStream(is, fos);
 					fos.close();
+					
 				} else {
 	    			localFilename = request.getParameter("localFilename");
 					f = new File(fileUploadTempPath + File.separator + localFilename);
@@ -1175,7 +1179,7 @@ src/main/resources/export.xml (date of export, totals etc)
 		}
 
 		
-        return mapping.findForward(forward);
+        return forward;
     }
     
 }

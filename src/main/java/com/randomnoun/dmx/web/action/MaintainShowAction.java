@@ -1,24 +1,21 @@
 package com.randomnoun.dmx.web.action;
 
-import java.io.*;
-import java.net.URLEncoder;
-import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.*;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.randomnoun.common.ErrorList;
-import com.randomnoun.common.Text;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.security.User;
-import com.randomnoun.common.spring.StructuredListResultSetExtractor;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.dao.ShowDAO;
 import com.randomnoun.dmx.dao.ShowDefDAO;
@@ -26,6 +23,8 @@ import com.randomnoun.dmx.to.ShowTO;
 import com.randomnoun.dmx.web.Table;
 import com.randomnoun.dmx.web.TableEditor;
 import com.randomnoun.dmx.web.TableEditor.TableEditorResult;
+import com.randomnoun.dmx.web.struts.ActionBase;
+import com.randomnoun.dmx.web.struts.DmxHttpRequest;
 
 
 /**
@@ -39,8 +38,7 @@ import com.randomnoun.dmx.web.TableEditor.TableEditorResult;
  * @version         $Id$
  * @author          knoxg
  */
-public class MaintainShowAction
-    extends Action {
+public class MaintainShowAction extends ActionBase {
     /** A revision marker to be used in exception stack traces. */
     public static final String _revision = "$Id$";
 
@@ -227,7 +225,7 @@ public class MaintainShowAction
      * class for more details.
      *
      * @param mapping The struts ActionMapping that triggered this Action
-     * @param actionForm An ActionForm (if available) holding user input for this Action
+     * @param form An ActionForm (if available) holding user input for this Action
      * @param request The HttpServletRequest for this action
      * @param response The HttpServletResponse for this action
      *
@@ -235,9 +233,8 @@ public class MaintainShowAction
      *
      * @throws Exception If an exception occurred during action processing
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response)
-        throws Exception 
+    public String execute(DmxHttpRequest request, HttpServletResponse response)
+        throws Exception
     {
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
@@ -290,7 +287,7 @@ public class MaintainShowAction
 			}
 		}
 		
-        return mapping.findForward(forward);
+        return forward;
     }
     
 }

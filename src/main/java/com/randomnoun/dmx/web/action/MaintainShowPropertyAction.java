@@ -12,10 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.randomnoun.common.ErrorList;
@@ -30,6 +26,8 @@ import com.randomnoun.dmx.to.ShowPropertyTO;
 import com.randomnoun.dmx.web.Table;
 import com.randomnoun.dmx.web.TableEditor;
 import com.randomnoun.dmx.web.TableEditor.TableEditorResult;
+import com.randomnoun.dmx.web.struts.ActionBase;
+import com.randomnoun.dmx.web.struts.DmxHttpRequest;
 
 
 /**
@@ -43,8 +41,7 @@ import com.randomnoun.dmx.web.TableEditor.TableEditorResult;
  * @version         $Id$
  * @author          knoxg
  */
-public class MaintainShowPropertyAction
-    extends Action {
+public class MaintainShowPropertyAction extends ActionBase {
     /** A revision marker to be used in exception stack traces. */
     public static final String _revision = "$Id$";
 
@@ -204,7 +201,7 @@ public class MaintainShowPropertyAction
      * class for more details.
      *
      * @param mapping The struts ActionMapping that triggered this Action
-     * @param actionForm An ActionForm (if available) holding user input for this Action
+     * @param form An ActionForm (if available) holding user input for this Action
      * @param request The HttpServletRequest for this action
      * @param response The HttpServletResponse for this action
      *
@@ -212,9 +209,8 @@ public class MaintainShowPropertyAction
      *
      * @throws Exception If an exception occurred during action processing
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response)
-        throws Exception 
+    public String execute(DmxHttpRequest request, HttpServletResponse response)
+        throws Exception
     {
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
@@ -268,7 +264,7 @@ public class MaintainShowPropertyAction
 			}
 		}
 		
-        return mapping.findForward(forward);
+        return forward;
     }
     
 }

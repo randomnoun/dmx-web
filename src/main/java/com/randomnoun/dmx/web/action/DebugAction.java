@@ -17,7 +17,6 @@ import javax.management.ObjectName;
 import javax.naming.Binding;
 import javax.naming.InitialContext;
 import javax.naming.NamingEnumeration;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Appender;
@@ -27,10 +26,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
 
 import com.randomnoun.common.ErrorList;
 import com.randomnoun.common.ExceptionUtil;
@@ -42,7 +37,9 @@ import com.randomnoun.common.security.SecurityContext;
 import com.randomnoun.common.security.User;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.web.JmxUtils;
+import com.randomnoun.dmx.web.struts.ActionBase;
 //import com.randomnoun.facebook.dataAccess.WebClientDA;
+import com.randomnoun.dmx.web.struts.DmxHttpRequest;
 
 /** Debugging action that exposes various application internals.
  * 
@@ -51,8 +48,7 @@ import com.randomnoun.dmx.web.JmxUtils;
  * @author knoxg
  * @version $Id$
  */
-public class DebugAction extends Action {
-
+public class DebugAction extends ActionBase {
 	/** Logger instance for this class */
 	public static Logger logger = Logger.getLogger(DebugAction.class);
 
@@ -75,11 +71,21 @@ public class DebugAction extends Action {
 	}
 
 		
-    public ActionForward execute(ActionMapping mapping,
-            ActionForm form,
-            HttpServletRequest request,
-            HttpServletResponse response)
-            throws Exception 
+    /**
+     * Perform this struts action. See the javadoc for this
+     * class for more details.
+     *
+     * @param mapping The struts ActionMapping that triggered this Action
+     * @param form An ActionForm (if available) holding user input for this Action
+     * @param request The HttpServletRequest for this action
+     * @param response The HttpServletResponse for this action
+     *
+     * @return An ActionForward representing the result to return to the end-user
+     *
+     * @throws Exception If an exception occurred during action processing
+     */
+    public String execute(DmxHttpRequest request, HttpServletResponse response)
+        throws Exception
     {
         AppConfig appConfig = AppConfig.getAppConfig();
         ErrorList errors = new ErrorList();
@@ -413,7 +419,7 @@ public class DebugAction extends Action {
         }
 
         request.setAttribute("debugTab", debugTab);
-		return mapping.findForward(forward);
+		return forward;
 	
 	}
 
