@@ -77,12 +77,7 @@ public class FileRequestWrapper extends HttpServletRequestWrapper {
 		super(request);
 		
 		AppConfigBase appConfig = getAppConfig(request);
-		// possibly pass in a DefaultFileItemFactory with appConfig settings
-    	//long maxFilesize=20971520; // 20MB
     	long diskThreshold=1048576; // 1MB
-    	//if (appConfig.getProperty("webapp.fileUpload.maxFilesize")!=null) {
-    	//	maxFilesize = convertSizeToBytes(appConfig.getProperty("webapp.fileUpload.maxFilesize"), 20971520);
-    	//}
     	if (appConfig.getProperty("webapp.fileUpload.diskThreshold")!=null) {
     		diskThreshold = convertSizeToBytes(appConfig.getProperty("webapp.fileUpload.maxFilesize"), 1048576);
     	}

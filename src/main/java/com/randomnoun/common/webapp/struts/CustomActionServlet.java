@@ -30,7 +30,6 @@ import org.apache.struts.action.ActionServlet;
  */
 public class CustomActionServlet extends ActionServlet {
 
-
     /** Generated serialVersionUID */
 	private static final long serialVersionUID = 3575519467042021628L;
 
@@ -43,10 +42,9 @@ public class CustomActionServlet extends ActionServlet {
     	String appConfigClass = getServletConfig().getInitParameter("appConfigClass");
     	System.out.println("[" + appLogPrefix + "] CustomActionServlet: Initialising AppConfig");
         try {
-            Class clazz = Class.forName(appConfigClass);
+            Class<?> clazz = Class.forName(appConfigClass);
             Method method = clazz.getMethod("getAppConfig", new Class[] {});
-            Object appConfig;
-        	appConfig = method.invoke(null);
+        	method.invoke(null);
         } catch (Exception e) {
         	System.err.println("[" + appLogPrefix + "] Failed initialisation");
         	e.printStackTrace();
@@ -56,7 +54,6 @@ public class CustomActionServlet extends ActionServlet {
     
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		request.setAttribute("isStrutsRequest", "true");
-		// @TODO catch NoAppConfigExceptions and forward to a reinitialisation page
 		super.doGet(request, response);
     }
 

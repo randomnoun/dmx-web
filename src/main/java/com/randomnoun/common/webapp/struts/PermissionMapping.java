@@ -1,12 +1,5 @@
 package com.randomnoun.common.webapp.struts;
 
-/* (c) 2013 randomnoun. All Rights Reserved. This work is licensed under a
- * BSD Simplified License. (http://www.randomnoun.com/bsd-simplified.html)
- */
-
-
-import org.apache.log4j.Logger;
-
 /**
  * This class allows declarative coarse-grained permissions
  * to be specified in the struts-config.xml file. Fine-grained permission
@@ -19,11 +12,11 @@ import org.apache.log4j.Logger;
 public class PermissionMapping
     extends org.apache.struts.action.ActionMapping
 {
-    /** A revision marker to be used in exception stack traces. */
-    public static final String _revision = "$Id: PermissionMapping.java,v 1.4 2013-09-25 04:42:17 knoxg Exp $";
+    /** Generated serialVersionUID */
+	private static final long serialVersionUID = -6000239275863216776L;
 
-    /** Logger instance for this class */
-    private static Logger logger = Logger.getLogger(PermissionMapping.class.getName());
+	/** A revision marker to be used in exception stack traces. */
+    public static final String _revision = "$Id: PermissionMapping.java,v 1.4 2013-09-25 04:42:17 knoxg Exp $";
 
     /** The permission required to perform this action. */
     private String permission = null;

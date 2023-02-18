@@ -7,16 +7,26 @@ package com.randomnoun.common.webapp.struts;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
-import org.apache.struts.action.*;
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
 import org.apache.struts.config.ForwardConfig;
 import org.apache.struts.config.PlugInConfig;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,7 +39,6 @@ import com.randomnoun.common.security.SecurityContext;
 import com.randomnoun.common.security.User;
 import com.randomnoun.common.timer.Benchmark;
 import com.randomnoun.common.webapp.AppConfigBase;
-import com.randomnoun.common.webapp.struts.PermissionMapping;
 
 /**
  * This class hooks into the struts processing chain before and during
@@ -37,10 +46,6 @@ import com.randomnoun.common.webapp.struts.PermissionMapping;
  *
  * <p>It is responsible for performing coarse-grained authentication checks on all
  * requests, and benchmarking the web application.
- *
- * @TODO could put a lot of the config data we repeatedly get out of the AppConfig
- * into instance variables here
- *
  *
  * @author knoxg
  * @version $Id: CustomRequestProcessor.java,v 1.25 2013-09-25 04:42:17 knoxg Exp $
@@ -109,12 +114,10 @@ public class CustomRequestProcessor
 		}
 		
 		String restrictClientIPs = (String) appConfig.get("auth.restrictClientIPs");
-		//boolean reverseLookup = "true".equals(appConfig.get("auth.reverseLookup")); 
 		String clientIp = request.getRemoteAddr();
-		//String clientHost = reverseLookup ? request.getRemoteHost() : "";
 		if (restrictClientIPs != null) {
 			try {
-				List ipList = Text.parseCsv(restrictClientIPs);
+				List<String> ipList = Text.parseCsv(restrictClientIPs);
 				if (!ipList.contains(clientIp)) {
 					System.out.println("Invalid request IP '" + clientIp + "'");
 					return "Invalid request IP (" + clientIp + ") - please contact system administrator";
@@ -144,37 +147,32 @@ public class CustomRequestProcessor
 			// we don't store resourceCriteria, although we probably could these days
 			
 			// all these booleans return true, incidentally
-			Map<String, Map<String, Boolean>> permissions = new HashMap();
-			Map<String, Boolean> roles = new HashMap();
+			Map<String, Map<String, Boolean>> permissions = new HashMap<>();
+			Map<String, Boolean> roles = new HashMap<>();
 
 			Map<String, Object> userConfig;
 			String userConfigClassname = appConfig.getProperty("auth.userConfig.class");
 			if (userConfigClassname==null) {
-				userConfig = new HashMap();
+				userConfig = new HashMap<>();
 			} else {
 				try {
-					Class clazz = Class.forName(userConfigClassname);
-					Constructor constructor = clazz.getConstructor(User.class);
-					userConfig = (Map) constructor.newInstance(user);
+					Class<Map<String, Object>> clazz = (Class<Map<String, Object>>) Class.forName(userConfigClassname);
+					Constructor<Map<String, Object>> constructor = clazz.getConstructor(User.class);
+					userConfig = (Map<String, Object>) constructor.newInstance(user);
 				} catch (Exception e) {
 					throw new RuntimeException("Could not instantiate userConfig class '" + userConfigClassname + "'", e);
 				}
 			}
 			
-			// XXX: this should be loaded via the SecurityContext class
-			
 			if (!"false".equals(appConfig.getProperty("auth.enableSecurityContext"))) { 
-
 				JdbcTemplate jt = appConfig.getJdbcTemplate();
-				// load user properties from a user table, containing one row per user
-				// e.g. SELECT userId, password, givenname, surname, email FROM users WHERE userId = ?
 				String userSql = appConfig.getProperty("auth.user.sql");
 				if (userSql!=null) {
 					List<Map<String, Object>> details = jt.queryForList( userSql, new Object[] { username } );
 					if (details.size()==0) {
 						return "No user details recorded for user '" + username + "'";
 					} else {
-						userConfig.putAll((Map) details.get(0));
+						userConfig.putAll((Map<String, Object>) details.get(0));
 					}
 				}
 				
@@ -183,9 +181,9 @@ public class CustomRequestProcessor
 				if (userConfigSql!=null) {
 					String keyColumn = appConfig.getProperty("auth.userConfig.key");
 					String valueColumn = appConfig.getProperty("auth.userConfig.value");
-					List details = jt.queryForList(userConfigSql, new Object[] { username } );
+					List<Map<String, Object>> details = jt.queryForList(userConfigSql, new Object[] { username } );
 					for (int i=0; i<details.size(); i++) {
-						Map row = (Map) details.get(i);
+						Map<String, Object> row = details.get(i);
 						String key = (String) row.get(keyColumn);
 						String value = (String) row.get(valueColumn);
 						userConfig.put(key, value);
@@ -364,13 +362,7 @@ public class CustomRequestProcessor
 			}
 	
 	
-			// process unauthenticated users
-			if (user == null) {
-
-				// used to forward to login page here; 
-				// only want to throw to login page if this is a page with a PermissionMapping on it
-			} else {
-	
+			if (user != null) {
 				// set username in MDC
 				logger.debug("logged in as " + user.getUsername());
 				MDC.put("username", user.getUsername());
@@ -379,18 +371,10 @@ public class CustomRequestProcessor
 					benchmark.setBenchId(appConfig.get("benchmark.webapp.idPrefix") + "-" + user.getUsername());
 				}
 				if (user.getLocale()!=null) {
-					// TODO: implement this
-					// logger.warn("Warning: user '" + user.getUsername() + "' has no locale set");
 					response.setLocale(user.getLocale());
 				}
 		
-				//	attempt to get JSTL to use the right locale... (arg!)
-				// ... only the last of these statements is probably required
-				//request.setAttribute(Config.FMT_LOCALE, user.getLocale());
-				//request.setAttribute(Config.FMT_LOCALIZATION_CONTEXT, new LocalizationContext(null, user.getLocale() ));
 				request.setAttribute("locale", user.getLocale());
-		
-				// mark request as authenticated; NB: this is *not* the same as authorised
 				request.setAttribute("authenticated", "true");
 			}
 	        
@@ -414,12 +398,6 @@ public class CustomRequestProcessor
 			dispatcher.forward(request, response);
 		} catch (ServletException se) {
 			logger.error("Servlet exception redirecting to login jsp", se);
-			/*
-			logger.error("-- Servlet exception root cause", se.getRootCause());
-			if (se.getRootCause()!=null && se.getRootCause() instanceof ServletException) {
-				logger.error("-- Servlet exception root cause(x2)", ((ServletException) se.getRootCause()).getRootCause());
-			}
-			*/
 		} catch (IOException ioe) {
 			logger.error("I/O exception redirecting to login jsp", ioe);
 		}
@@ -437,11 +415,7 @@ public class CustomRequestProcessor
 			dispatcher.forward(request, response);
 		} catch (ServletException se) {
 			logger.error("Servlet exception redirecting to error jsp", se);
-			logger.error("-- Exception that triggered initial redirect", e);
-			logger.error("-- Servlet exception root cause", se.getRootCause());
-			if (se.getRootCause()!=null && se.getRootCause() instanceof ServletException) {
-				logger.error("-- Servlet exception root cause(x2)", ((ServletException) se.getRootCause()).getRootCause());
-			}
+			logger.error("Exception that triggered initial redirect", e);
 		} catch (IOException ioe) {
 			logger.error("I/O exception redirecting to error jsp", ioe);
 		}
@@ -469,8 +443,6 @@ public class CustomRequestProcessor
 			PermissionMapping permissionMapping = (PermissionMapping) mapping;
             
 			if (user==null) {
-				
-				// possibly throw exception here instead ? yet another config property
 				logger.debug("user null - redirecting to login page");
 				
 				// used to recreate original login request
@@ -481,11 +453,11 @@ public class CustomRequestProcessor
 				}
 				showLoginPage(request, response, permissionMapping.getLoginPage());
 	
-				// no further processing to be performed by struts
+				// no further processing
 				return false;
 			}
 			
-			// we allow comma-separated permissions in our struts config files now
+			// comma-separated permissions in struts config file
 			if (!Text.isBlank(permissionMapping.getPermission())) {
 				if (permissionMapping.getPermission().indexOf(",")==-1) {
 					// simple case (only one permission)
@@ -498,12 +470,11 @@ public class CustomRequestProcessor
 					boolean preventAction = true;
 					String permission = permissionMapping.getPermission();
 					try {
-						List permissions = Text.parseCsv(permission);
-						for (Iterator i = permissions.iterator(); i.hasNext(); ) {
-							permission = (String) i.next();
-							if (appConfig.hasPermission(user, permission)) {
+						List<String> permissions = Text.parseCsv(permission);
+						for (String p : permissions) {
+							if (appConfig.hasPermission(user, p)) {
 								preventAction = false;
-								break; // don't bother checking other permissions
+								break;
 							}
 						}
 						if (preventAction) {
@@ -540,64 +511,6 @@ public class CustomRequestProcessor
 	protected ActionForward processActionPerform(HttpServletRequest request, HttpServletResponse response, Action action, ActionForm form, ActionMapping mapping)
 		throws IOException, ServletException 
 	{
-		/*
-		// don't bother running the action if we've timed out
-		AppConfig appConfig = AppConfig.getAppConfig();
-		HttpSession session = request.getSession();
-
-		Date date = (Date) session.getAttribute("sessionTimeout");
-		long timeoutInMinutes = 0;
-		// AppConfig appConfig = AppConfig.getAppConfig(user);
-		try { 
-			timeoutInMinutes = Long.parseLong(appConfig.getProperty("webapp.sessionTimeout"));
-		} catch (Exception e) {
-			timeoutInMinutes = 0;
-		}
-		if (timeoutInMinutes != 0) {
-			if (date==null) {
-				// no date, must be first URL. We don't perform checking, just add it to the session
-				request.getSession(true).setAttribute("sessionTimeout", new Date());
-			} else {
-				if (logger.isDebugEnabled()) {
-					logger.debug("---- testing now (" + System.currentTimeMillis() + ") against session time (" + date.getTime() + "); diff=" + 
-					   (System.currentTimeMillis() - date.getTime()) + " against " + 
-					   (timeoutInMinutes * 60 * 1000));
-				}
-    
-				boolean sessionTimeoutUpdate = true;
-				boolean sessionTimeout = true;
-				if (mapping instanceof PermissionMapping) {
-					sessionTimeoutUpdate = ((PermissionMapping) mapping).getSessionTimeoutUpdateBoolean();
-					sessionTimeout = ((PermissionMapping) mapping).getSessionTimeoutBoolean();
-				}
-				if (sessionTimeout) {
-					if (System.currentTimeMillis() - date.getTime() > timeoutInMinutes * 60 * 1000) {
-						// we should probably allow the LoginAction to be called here, even if 
-						// we've expired things.
-						logger.debug("--- expired");
-						if (sessionTimeoutUpdate==false) {
-							// expired, but automatic URL; just return nothing
-						} else {
-							// remove everything from the session, so that we can log back in again
-							request.setAttribute("messageText", 
-							  "The application has been inactive for " + 
-							  timeoutInMinutes + " minutes and you have been automatically logged out. " +
-							  "To continue, please log in to the application again.");
-							showLoginPage(request, response);
-						}
-						// return null;
-						return mapping.findForward("sessionTimeout");
-					}
-				}
-    
-				// update this if it's not an automatically generated URL
-				if (sessionTimeoutUpdate) {
-					logger.debug("Updating sessiontimeout for mapping " + mapping.getName() + ", path=" + mapping.getPath());
-					request.getSession(true).setAttribute("sessionTimeout", new Date());
-				}
-			}
-		}
-		*/
         
 		AppConfigBase appConfig = getAppConfig(request);
 		request.setAttribute("appConfig", appConfig);
@@ -610,32 +523,18 @@ public class CustomRequestProcessor
 		logger.debug("mapping path '" + mapping.getPath() + "' to class '" + action.getClass().getName() + "'");
 		ActionForward result = super.processActionPerform(request, response, action, form, mapping);
 
-		/*
-		   add a count field to every first-level List and Map request attribute
-		   this is actually possible to implement using the following code in the JSP
-		   <c:set var="listCount" value="0" />
-		   <c:forEach var="listItem" items="${aList}" >
-			   <c:set var="listCount" value="${listCount + 1}" />
-		   </c:forEach>
-		   ... but this is, frankly, ridiculous
-		   The following _size field can be removed here and replaced with
-		   JSTL .size() methods if we move to JSTL1.2 (requires JSP1.2, though).
-		 */
-
-		// put attribute names into a separate List so that we don't get
-		// ConcurrentModificationExceptions
-		List names = new ArrayList();
+		// @TODO remove JSTL
+		List<String> names = new ArrayList<>();
 		for (Enumeration e = request.getAttributeNames(); e.hasMoreElements();) {
-			names.add(e.nextElement());
+			names.add((String) e.nextElement());
 		}
 
-		for (Iterator i = names.iterator(); i.hasNext();) {
-			String key = (String) i.next();
+		for (String key : names) {
 			Object value = request.getAttribute(key);
 			if (value instanceof List) {
-				request.setAttribute(key + "_size", new Integer(((List) value).size()));
+				request.setAttribute(key + "_size", Integer.valueOf(((List) value).size()));
 			} else if (value instanceof Map) {
-				request.setAttribute(key + "_size", new Integer(((Map) value).size()));
+				request.setAttribute(key + "_size", Integer.valueOf(((Map) value).size()));
 			}
 		}
 
@@ -664,7 +563,6 @@ public class CustomRequestProcessor
 			benchmark.checkpoint(forward == null ? "(streamed output)" : "forward '" + forward.getPath() + "'");
 		}
 		if (!response.isCommitted()) {
-			// System.out.println("request at this point looks like " + ClassInspector.getClassSignatures(request.getClass()));
 			super.processForwardConfig(request, response, forward);
 		}
 	}
@@ -713,8 +611,6 @@ public class CustomRequestProcessor
 				
 			}
 			if (user != null && "true".equals(appConfig.get("benchmark.webapp.enabled"))) {
-				// appConfig.addLongMetric(AppConfig.METRIC_APP_REQUESTS, 1); // could keep this to capture active requests
-				long start = System.currentTimeMillis();
 				Benchmark benchmark = null;
 				try {
 					ThreadContext.push();
@@ -722,9 +618,7 @@ public class CustomRequestProcessor
 					ThreadContext.put("benchmark", benchmark);
 					String queryString = request.getQueryString();
 					benchmark.checkpoint("ip '" + request.getRemoteAddr() + "' request '" + request.getMethod() + " " + request.getRequestURL() + (queryString==null ? "" : "?" + request.getQueryString()));
-					// "' free=" + Runtime.getRuntime().freeMemory() + ", total=" + Runtime.getRuntime().totalMemory()
 					request.setAttribute("benchmark", benchmark);
-					// appConfig.storeBenchmark(benchmark);
 					super.process(request, response);
 				} finally {
 					try {
@@ -741,8 +635,6 @@ public class CustomRequestProcessor
 						benchmark.cancel();
 					}
 				}
-				// appConfig.addLongMetric(AppConfigBase.METRIC_APP_REQUESTS, 1);
-				// appConfig.addLongMetric(AppConfigBase.METRIC_APP_RESPONSE_TIME, System.currentTimeMillis() - start); 
 			} else {
 				ThreadContext.push();
 				super.process(request, response);
@@ -751,7 +643,6 @@ public class CustomRequestProcessor
 				ThreadContext.pop();
 			}
 		} catch (Throwable t) {
-			// @TODO: forward to error page is borked. I blame tomcat.
 			t.printStackTrace();
 			RequestDispatcher rd = request.getRequestDispatcher("/misc/errorPage.jsp");
 	        request.setAttribute("sentAlarm", "true");
@@ -759,15 +650,9 @@ public class CustomRequestProcessor
 	        request.setAttribute("javax.servlet.error.message", t.getMessage());
 	        request.setAttribute("javax.servlet.error.request_uri", request.getRequestURI());
 	        rd.forward(request, response);
-
-	        // if this isn't caught by the ExceptionHandler, then uncomment the above 
-			// throw new ServletException(t);
-			
-			// 		
 		}
 	}
 
-	// eurgh
 	public String getAppConfigMissingPath() {
 		PlugInConfig configs[] = moduleConfig.findPlugInConfigs();
 		for (int i=0; i<configs.length; i++) {
