@@ -1,0 +1,182 @@
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+    "http://struts.apache.org/dtds/struts-2.5.dtd">
+
+<!-- struts 2 config file -->
+<struts>
+	
+	<!-- these used to be in struts.properties -->
+	
+	<!-- all requests that end in these extensions are mapped to struts Actions -->
+	<constant name="struts.action.extension" value="html" />
+	
+	<!-- comma-separated list of regexes; they match on things like '/app/page-view.html'  -->
+	<constant name="struts.action.excludePattern" value="^/app/excluded/.*" />
+	<constant name="struts.devMode" value="false" />
+
+	<!--  disable some struts2 "features" -->
+	<constant name="struts.enable.DynamicMethodInvocation" value="false" />
+	<constant name="struts.mapper.action.prefix.enable" value="false" />
+	<constant name="struts.mapper.action.prefix.crossNamespaces" value="false" />
+
+	<!-- 
+	# all the multipart parsers bundled with struts 2 save uploads to temporary files
+	# struts.multipart.parser=cos
+	# struts.multipart.parser=pell
+	# struts.multipart.parser=jakarta-stream
+	# struts.multipart.parser=dmx
+	
+	# actually, struts only exposes the MultiPartRequestWrapper, which doesn't give us access to the
+	# MultiPartRequest object (that would allow us to stream the files without hitting the filesystem).
+	
+	# let's just use the jakarta parser
+	 -->
+ 
+	<constant name="struts.multipart.parser" value="jakarta" />
+	<constant name="struts.multipart.saveDir" value="" />
+	<constant name="struts.multipart.maxSize" value="104857600" />
+	
+	<constant name="struts.enable.SlashesInActionNames" value="true" />
+	<constant name="struts.mapper.alwaysSelectFullNamespace" value="false" />
+	
+		
+	<include file="struts-default.xml" />
+	
+	<!--  abstract="true"   -->
+	<package name="default" extends="struts-default" strict-method-invocation="true" >
+        <result-types>
+	         <result-type name="null" class="com.randomnoun.dmx.web.struts.NullResult"/>
+	    </result-types>
+		<interceptors>
+            <!-- calling this exception2 to avoid naming collision with 'exception' in struts-default -->
+            <!-- 
+            <interceptor name="exception2" class="com.jacobistrategies.web.struts.ExceptionInterceptor"/>
+            <interceptor name="benchmark" class="com.jacobistrategies.web.struts.BenchmarkInterceptor"/>
+            
+            <interceptor name="authorise" class="com.jacobistrategies.web.struts.AuthoriseInterceptor"/>
+             -->
+             <interceptor name="authenticate" class="com.randomnoun.dmx.web.struts.AuthenticateInterceptor"/>
+            
+            <interceptor-stack name="dmxStack">
+                <!-- <interceptor-ref name="exception2"/>  -->
+            	<!--  <interceptor-ref name="benchmark"/>  -->
+            	<interceptor-ref name="staticParams" /> <!-- sets the Action's parameters defined in this xml file (e.g. 'permission')  -->
+                <interceptor-ref name="servletConfig"/> <!-- sets request, response etc based on ServletRequestAware etc interfaces -->
+                <interceptor-ref name="authenticate"/>
+                
+                <!--
+                <interceptor-ref name="authorise"/>
+                 -->
+                <interceptor-ref name="actionMappingParams"/>
+            </interceptor-stack>
+
+		</interceptors>
+		<default-interceptor-ref name="dmxStack" />
+		<global-results>
+	    	<result name="appConfigMissingResult">/misc/errorPage.jsp</result> <!--  from BenchmarkInterceptor -->
+	    	<result name="exceptionResult">/misc/errorPage.jsp</result>        <!--  from ExceptionInterceptor -->
+	    	<result name="errorPage">/misc/errorPage.jsp</result>
+	    	
+	    	<result name="login">/app/sign-in.jsp</result>
+	    	<result name="loginPage" type="redirect">/app/sign-in.html</result>
+	    </global-results>
+	    <global-exception-mappings>
+	    	<exception-mapping exception="java.lang.Throwable" result="errorPage"/>
+	    </global-exception-mappings>
+
+
+        <!-- everything's going into default  -->
+        
+        <!-- this action is called from within the UnknownActionHandler -->
+        <action name="404"        class="com.randomnoun.dmx.web.action.DisplayAction"><result name="success">/misc/404.jsp</result></action>
+
+        <!-- Note this action is not a PermissionMapping to allow non-authenticated users to use it -->
+        <action name="manualController"  class="com.randomnoun.dmx.web.action.ManualControllerAction">
+          <result name="success">manualController.jsp</result>
+        </action>
+
+        <action name="controller" class="com.randomnoun.dmx.web.action.ControllerAction">
+          <result name="success">/controller.jsp</result>
+        </action>
+
+        <action name="fancyController" class="com.randomnoun.dmx.web.action.FancyControllerAction" >
+          <result name="success">/fancyController.jsp</result>
+          <result name="json">/misc/json.jsp</result>
+          <!--  <result name="null" className="com.randomnoun.common.webapp.struts.NullForward" name=""/>  -->
+        </action>
+
+
+        <action name="index" class="com.randomnoun.dmx.web.action.FancyControllerAction">
+          <result name="success">/fancyController.jsp</result>
+          <result name="json">/misc/json.jsp</result>
+        </action>
+
+
+
+        <action name="debug" class="com.randomnoun.dmx.web.action.DebugAction" >
+          <result name="success">/debug.jsp</result>
+          <result name="xml">/misc/xml.jsp</result>
+        </action>
+
+
+
+        <action name="maintainDevice" class="com.randomnoun.dmx.web.action.MaintainDeviceAction" >
+          <result name="success">/maintainDevice.jsp</result>
+          <result name="deviceProperties">/maintainDeviceProperty.html</result>
+        </action>
+        
+        <action name="maintainDeviceProperty" class="com.randomnoun.dmx.web.action.MaintainDevicePropertyAction" >
+          <result name="success">/maintainDeviceProperty.jsp</result>
+        </action>
+        
+        <!-- has fileUploads -->
+        <action name="maintainFixtureDef" class="com.randomnoun.dmx.web.action.MaintainFixtureDefAction">
+          <result name="success">/maintainFixtureDef.jsp</result>
+          <result name="json">/misc/json.jsp</result>
+          <result name="script">/misc/script.jsp</result>
+        </action>
+
+        <action name="maintainFixture" class="com.randomnoun.dmx.web.action.MaintainFixtureAction" >
+          <result name="success">/maintainFixture.jsp</result>
+          <result name="cnfPanel">/index.html?panel=cnfPanel</result>
+          <!--  <result name="null" className="com.randomnoun.common.webapp.struts.NullForward" name=""/>  -->
+        </action>
+        <!-- since firebug can't handle an iframe with the same name as the main page -->
+        <action name="maintainFixture2" class="com.randomnoun.dmx.web.action.MaintainFixtureAction" >
+          <result name="success">/maintainFixture.jsp</result>
+        </action>
+
+       <!--  has upload -->
+       <action name="maintainShowDef" class="com.randomnoun.dmx.web.action.MaintainShowDefAction" >
+          <result name="success">/maintainShowDef.jsp</result>
+          <result name="json">/misc/json.jsp</result>
+          <result name="script">/misc/script.jsp</result>
+        </action>
+
+      <action name="maintainShow" class="com.randomnoun.dmx.web.action.MaintainShowAction" >
+          <result name="success">/maintainShow.jsp</result>
+          <result name="showProperties">/maintainShowProperty.html</result>
+          <result name="cnfPanel">/index.html?panel=cnfPanel</result>
+        </action>
+
+      <action name="maintainShowProperty" class="com.randomnoun.dmx.web.action.MaintainShowPropertyAction" >
+          <result name="success">/maintainShowProperty.jsp</result>
+          <result name="maintainShow">/maintainShow.html</result>
+        </action>
+
+        <action name="maintainStage" class="com.randomnoun.dmx.web.action.MaintainStageAction">
+          <result name="success">/maintainStage.jsp</result>
+        </action>
+
+        <action name="importExport" class="com.randomnoun.dmx.web.action.ImportExportAction" >
+          <result name="success">/importExport.jsp</result>
+        </action>
+
+	    
+	</package>
+
+    <bean type="com.opensymphony.xwork2.UnknownHandler" name="handler" class="com.randomnoun.dmx.web.struts.UnknownActionHandler"/>
+    
+
+
+</struts> 
