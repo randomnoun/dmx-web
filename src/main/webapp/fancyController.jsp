@@ -31,12 +31,12 @@
     <link rel="stylesheet" href="css/fancyController.css" type="text/css" />
 
     <!-- JavaScript -->
-    <script src="mjs?js=prototype" type="text/javascript"></script>
+    <!--  <script src="mjs?js=prototype" type="text/javascript"></script>  -->
     <script src="mjs?js=jquery-3.6.3.min,farbtastic"></script> 
-    <script>jQuery.noConflict();</script> 
-    <script src="mjs?js=scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,johnford,browserDetect" type="text/javascript"></script> 
+    <script>jQuery.noConflict(); $ = jQuery;</script>
+     
+    <!--  <script src="mjs?js=scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,johnford,browserDetect" type="text/javascript"></script>  --> 
     
-    <%-- <script src="mjs?js=prototype,slider" type="text/javascript"></script>  --%>
 <script>
 <r:setJavascriptVar name="stage" value="${stage}" />
 <r:setJavascriptVar name="shows" value="${shows}" />
