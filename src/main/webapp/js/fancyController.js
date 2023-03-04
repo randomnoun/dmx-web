@@ -60,7 +60,7 @@ function sendRequest(url, completedFunction) {
         dataType: 'json'
     }).done(function (data) {
         setRhsMessageHTML(data.message);
-        completedFunction(data);
+        if (completedFunction) { completedFunction(data); }
     });
     /*
     new Ajax.Request(url, {
@@ -373,7 +373,7 @@ function shwUpdatePanel(json) {
             var overlayEl = $(el.children()[0]);
             var shwTimeEls = $('.shwTime', overlayEl);
             if (shwTimeEls.length == 0) {
-                var shwTimeEl = $('div',
+                var shwTimeEl = $('<div>',
                    { 'class' : 'shwTime', 
                      'value' : newShows[i]['time'], 
                      'setAt' : now 
@@ -385,7 +385,7 @@ function shwUpdatePanel(json) {
             if (newShows[i]['label']) {
                 var shwLabelEls = $('.shwLabel', overlayEl);
                 if (shwLabelEls.length == 0) {
-                    var shwLabelEl = $('div',
+                    var shwLabelEl = $('<div>',
                         { 'class' : 'shwLabel' }).html(newShows[i]['label']);
                     overlayEl.prepend(shwLabelEl);
                 } else {
@@ -395,7 +395,7 @@ function shwUpdatePanel(json) {
             if (newShows[i]['length'] != MAX_LENGTH) {
                 var shwLenEls = $('.shwLenOuter', overlayEl);
                 if (shwLenEls.length == 0) {
-                    var shwLenEl = $('div',
+                    var shwLenEl = $('<div>',
                         { 'class' : 'shwLenOuter' }).html(
                         '<div class="shwLenInner" style="width:' + Math.min((newShows[i]['time'] * 40 / newShows[i]['length']), 40) + 'px;"></div>');
                     overlayEl.prepend(shwLenEl);
@@ -514,6 +514,62 @@ function fixInitPanel() {
     $("#fixCustom").on('click', fixCustomClick); noSelect($("#fixCustom"));
     $("#fixBlackout").on('click', fixBlackout); noSelect($("#fixBlackout"));
     $("#fixAim").on('click', fixAimClick);
+
+    fixDimSlider = $('#fixDim').slider( {
+        orientation: "vertical",
+        min: 0, max: 255,
+        slide: function(e, ui) { fixDimChange(ui.value); }
+        // change: function(e, ui) { fixDimChange(v); }
+    }); 
+
+    fixStrobeSlider = $('#fixStrobe').slider( {
+        orientation: "vertical",
+        min: 0, max: 255,
+        slide: function(e, ui) { fixStrobeChange(ui.value); }
+        // change: function(e, ui) { fixDimChange(v); }
+    }); 
+    fixAimDraggable = $("#fixAimHandle").draggable({
+        // constraint code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
+        // handle: $('#fixAimHandle'),
+        containment: $('#fixAim'), // ah hang on, this isn't it is it.
+        drag: function(e, ui) {
+            var handleEl = $('#fixAimHandle');
+            var containerEl = $('#fixAim');
+            //handleDimensions=Element.getDimensions(draggable.element);
+            //parentDimensions=Element.getDimensions(draggable.element.parentNode);
+            handlePos=handleEl.position(); // Position.positionedOffset(draggable.element);
+            fixAimDrag((handlePos.left + handleEl.width()/2)/(containerEl.width()),
+                       (handlePos.top + handleEl.height()/2)/(containerEl.height()));
+        }
+        /*
+        snap: function(x,y,draggable) {
+            function constrain(n, lower, upper) {
+                if (n>upper) { return upper; }
+                else if (n<lower) { return lower; }
+                else return n;
+            }
+            handleDimensions=Element.getDimensions(draggable.element);
+            parentDimensions=Element.getDimensions(draggable.element.parentNode);
+            return[constrain(x, - handleDimensions.width/2, parentDimensions.width - handleDimensions.width/2),
+                   constrain(y, - handleDimensions.height/2, parentDimensions.height - handleDimensions.height/2)];
+        },
+        
+        onDrag: function(draggable, event) {
+            handleDimensions=Element.getDimensions(draggable.element);
+            parentDimensions=Element.getDimensions(draggable.element.parentNode);
+            handlePos=Position.positionedOffset(draggable.element);
+            fixAimDrag((handlePos[0]+handleDimensions.width/2)/(parentDimensions.width),
+                       (handlePos[1]+handleDimensions.height/2)/(parentDimensions.height));
+        },
+        
+        revert: false
+        */
+    });
+    
+    // eurgh
+    //$('fixDimScrollArea').on('DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // mozilla
+    //$('fixDimScrollArea').on('mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
+
     
     // @TODO jquery this
     /*
@@ -707,10 +763,10 @@ function fixUpdateControls(fixtureId) {
     var aimActualEl=$("#fixAimActual");
     // var aimHandleDimensions=Element.getDimensions(aimHandleEl);
     // var aimParentDimensions=Element.getDimensions(aimHandleEl.parentNode);
-    aimHandleEl[0].style.left = (v["p"] * aimParentEl.width() / fd["panRange"] - aimHandleEl.width() / 2) + "px";
-    aimHandleEl[0].style.top = (v["t"] * aimParentEl.height() / fd["tiltRange"] - aimHandleEl.height() / 2) + "px";
-    aimActualEl[0].style.left = (v["ap"] * aimParentEl.width() / fd["panRange"] - aimHandleEl.width() / 2) + "px";
-    aimActualEl[0].style.top = (v["at"] * aimParentEl.height() / fd["tiltRange"] - aimHandleEl.height() / 2) + "px";
+    aimHandleEl[0].style.left = (v["p"] * aimParentEl.width() / fd["panRange"]) + "px"; //  - aimHandleEl.width() / 2)
+    aimHandleEl[0].style.top = (v["t"] * aimParentEl.height() / fd["tiltRange"]) + "px"; //  - aimHandleEl.height() / 2
+    aimActualEl[0].style.left = (v["ap"] * aimParentEl.width() / fd["panRange"]) + "px"; //  - aimHandleEl.width() / 2
+    aimActualEl[0].style.top = (v["at"] * aimParentEl.height() / fd["tiltRange"]) + "px"; //  - aimHandleEl.height() / 2
     
     var ccs = fd["customControls"];
     var ccEl;
@@ -1045,25 +1101,25 @@ function ajaxLimitter(_minRequestInterval, _finalRequestInterval) {
         var lastValueSetTime =- 1;
         var newValueTimeoutId = -1;        
         
-        function sendRequest(url) { // could pass in value here to prevent duplicate requests going through
+        function _sendRequest(url) { // could pass in value here to prevent duplicate requests going through
             var now=new Date().getTime();
-            if (now-lastValueSetTime>minRequestInterval) {
+            if (now - lastValueSetTime > minRequestInterval) {
                 lastValueSetTime=now;
-                if (newValueTimeoutId!=-1) { window.clearTimeout(newValueTimeoutId); }
+                if (newValueTimeoutId != -1) { window.clearTimeout(newValueTimeoutId); }
                 newValueTimeoutId=-1;
                 sendRequest(url);
             } else {
                 if (newValueTimeoutId==-1) {
-                    newValueTimeoutId=window.setTimeout(curry(sendRequest, url), finalRequestInterval);
+                    newValueTimeoutId=window.setTimeout(curry(_sendRequest, url), finalRequestInterval);
                 } else {
                     window.clearTimeout(newValueTimeoutId);
-                    newValueTimeoutId=window.setTimeout(curry(sendRequest, url), finalRequestInterval);
+                    newValueTimeoutId=window.setTimeout(curry(_sendRequest, url), finalRequestInterval);
                 }
             }
         }
         
         return {
-            sendRequest: sendRequest
+            sendRequest: _sendRequest
         }
     }(_minRequestInterval, _finalRequestInterval);
     
@@ -1073,7 +1129,7 @@ function ajaxLimitter(_minRequestInterval, _finalRequestInterval) {
 var fixDimLimitter = ajaxLimitter(100, 200);
 function fixDimChange(v) {
 	if (fixUIUpdateOnly) { return; }
-    v=Math.floor(255*(1-v));
+    v = Math.floor(255 - v);
     var fixItemIds=fixGetItemIds();
     if (fixItemIds!="") {
         fixDimLimitter.sendRequest( 
@@ -1086,7 +1142,7 @@ function fixDimChange(v) {
 var fixStrobeLimitter = ajaxLimitter(100, 200);
 function fixStrobeChange(v) {
 	if (fixUIUpdateOnly) { return; }
-    v=Math.floor(255*(1-v));
+    v=Math.floor(255 - v);
     var fixItemIds=fixGetItemIds();
     if (fixItemIds!="") {
         fixDimLimitter.sendRequest( 
@@ -1249,6 +1305,12 @@ function dmxInitPanel() {
     	  dmxBoxEl.addClass("dmxValueWithFixture");
     	}  
     }
+    dmxSlider = $('#dmxSlider').slider( {
+        orientation: "vertical",
+        min: 0, max: 255,
+        slide: function(e, ui) { dmxSliderChange(ui.value); }
+    });
+    
     /* @TODO jQuery
     dmxSlider = new Control.Slider("dmxSliderHandle", "dmxSlider", {
         axis: "vertical",
@@ -1270,7 +1332,7 @@ function dmxInitPanel() {
 var dmxSliderLimitter = ajaxLimitter(100, 200);
 function dmxSliderChange(v) {
 	if (dmxUIUpdateOnly) { return; }
-    v=Math.floor(255*(1-v));
+    v = Math.floor(255 - v);
     dmxSliderLimitter.sendRequest( 
        'fancyController.html?action=setDmxValue&channel=' + dmxHighlightedChannel + '&value=' + v);
 }
@@ -1380,7 +1442,7 @@ function dmxKeypress(event) {
     	//if (dmxImmediate) {
     		sendRequest("fancyController.html?action=setDmxValue&channel=" + dmxSelectedChannel + "&value=" + v);
     		dmxUIUpdateOnly=true;
-    		dmxSlider.setValue(1-v/255);
+    		dmxSlider.slider('value', (1-v/255) * 100);
     		dmxUIUpdateOnly=false;
     	//}
     	$(document).off('keypress', dmxKeypress);
@@ -1424,8 +1486,8 @@ function dmxCancelValueUpdate() {
 // @converted
 function dmxValueOnMouseOver(event) {
 	var dmxValueEl, el, ch, f, off, dc, j, cds, cd = null, dmxSliderEl;
-	if (dmxSlider.dragging) { return; }
-    dmxValueEl = event.element();
+	// if (dmxSlider.dragging) { return; }
+    dmxValueEl = event.delegateTarget;
     ch=$(dmxValueEl).attr("dmxChannel");
     while (!ch && dmxValueEl!=null) {dmxValueEl=dmxValueEl.parentNode; ch=$(dmxValueEl).attr("dmxChannel"); }
     f=dmxToFixture[ch]; 
@@ -1478,13 +1540,13 @@ function dmxValueOnMouseOver(event) {
     	}
     }
 	dmxSliderEl=$("#dmxSliderScrollArea");
-	dmxSliderEl.style.visibility="visible";
+	dmxSliderEl[0].style.visibility="visible";
 	// var pos=Position.positionedOffset(dmxValueEl);
-	var pos = dmxValueEl.position();
-	dmxSliderEl.style.left = (pos.left - 3) + "px";
-	dmxSliderEl.style.top = (pos.top - 3) + "px";
+	var pos = $(dmxValueEl).position();
+	dmxSliderEl[0].style.left = (pos.left - 3) + "px";
+	dmxSliderEl[0].style.top = (pos.top - 3) + "px";
 	dmxUIUpdateOnly=true;
-	dmxSlider.setValue(1-dmxValues[dmxHighlightedChannel-1]/255);
+	dmxSlider.slider('value', 255 - dmxValues[dmxHighlightedChannel-1]);
 	dmxUIUpdateOnly=false;
     dmxSelectedFixture=f;
     $(document).on('keypress', dmxSliderKeypress);
@@ -1511,34 +1573,35 @@ function dmxValueOnMouseOut(event) {
 // @converted
 function dmxUpdatePanel(json) {
 	dmxSetUniverse(json.currentUniverse, json.currentBank);
-    var dmxValuesNew = json.dmxValues.split(",");
-    for (var i=1; i<=255; i++) {
-        var el = $("#dmxValue\\[" + i + "\\]");
-        if (dmxValues[i-1]!=dmxValuesNew[i-1]) {
-        	dmxValues[i-1]=dmxValuesNew[i-1];
-        	if (i!=dmxSelectedChannel) {
-	        	el[0].innerHTML=dmxValues[i-1];
-	        	el.addClass("dmxModified");
-	        	dmxModified[i-1] = true;
-        	}
-        } else if (dmxModified[i-1]) {
-        	dmxModified[i-1] = false;
-        	el.removeClass("dmxModified");
+	if (json.dmxValues) {
+        var dmxValuesNew = json.dmxValues.split(",");
+        for (var i=1; i<=255; i++) {
+            var el = $("#dmxValue\\[" + i + "\\]");
+            if (dmxValues[i-1]!=dmxValuesNew[i-1]) {
+            	dmxValues[i-1]=dmxValuesNew[i-1];
+            	if (i!=dmxSelectedChannel) {
+    	        	el[0].innerHTML=dmxValues[i-1];
+    	        	el.addClass("dmxModified");
+    	        	dmxModified[i-1] = true;
+            	}
+            } else if (dmxModified[i-1]) {
+            	dmxModified[i-1] = false;
+            	el.removeClass("dmxModified");
+            }
         }
+        if (dmxSelectedFixture==null) {
+            $("#dmxTimeSource").html("<div class=\"dmxTime\">" + json.now + "</div>");
+        }
+        if (dmxHighlightedChannel && 
+        	($("#dmxSliderScrollArea")[0].style.visibility=="visible") /* && (!dmxSlider.dragging) */) {
+    	    dmxUIUpdateOnly=true;
+    	    // @TODO jQuery
+    		// dmxSlider.setValue(1-dmxValues[dmxHighlightedChannel-1]/255);
+    		dmxUIUpdateOnly=false;
+        }
+        if (json.logCount!==undefined) { logUpdateNotification(json.logCount); }
+        if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
     }
-    if (dmxSelectedFixture==null) {
-        $("#dmxTimeSource").html("<div class=\"dmxTime\">" + json.now + "</div>");
-    }
-    if (dmxHighlightedChannel && 
-    	($("#dmxSliderScrollArea").style.visibility=="visible") &&
-    	(!dmxSlider.dragging)) {
-	    dmxUIUpdateOnly=true;
-	    // @TODO jQuery
-		// dmxSlider.setValue(1-dmxValues[dmxHighlightedChannel-1]/255);
-		dmxUIUpdateOnly=false;
-    }
-    if (json.logCount!==undefined) { logUpdateNotification(json.logCount); }
-    if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
 }
 
 // @converted
@@ -1550,12 +1613,12 @@ function dmxSetUniverse(newDmxCurrentUniverse, newDmxCurrentBank) {
 		// update universeContainer
 		dmxCurrentUniverse=newDmxCurrentUniverse;
 		dmxCurrentBank=newDmxCurrentBank;
-		$("dmxCurrentUniverse").update(dmxCurrentUniverse+1);
-		$("dmxCurrentBank").update(dmxCurrentBank+1);
+		$("#dmxCurrentUniverse").html(dmxCurrentUniverse+1);
+		$("#dmxCurrentBank").html(dmxCurrentBank+1);
 
 		// @TODO update all the dmx controls to reflect current universe/bank
 		for (var i=1; i<=256; i++) { 
-			var dmxEl = $("#dmxBox[" + i + "]");
+			var dmxEl = $("#dmxBox\\[" + i + "\\]");
 			dmxEl.html(
 	          "<div class=\"dmxOffset\">" + (i+dmxCurrentBank*256) + "</div>" +
 	          "<div id=\"dmxValue[" + i + "]\">" + dmxValues[i+dmxCurrentBank*256-1] + "</div>"
@@ -1566,8 +1629,8 @@ function dmxSetUniverse(newDmxCurrentUniverse, newDmxCurrentBank) {
 	    	if (f.universeIdx==0) {
 	    	  var dmxFixtureIconEl=$("<div>", {"class" : "dmxFixtureIcon" }).html(
 	    		"<img src=\"" + fixtureDefs[f.type]["img16"] + "\">");
-	    	  $("#dmxBox[" + f["dmxOffset"] + "]").append( dmxFixtureIconEl );
-	    	  $("#dmxBox[" + f["dmxOffset"] + "]").addClass('dmxValueWithFixture');
+	    	  $("#dmxBox\\[" + f["dmxOffset"] + "\\]").append( dmxFixtureIconEl );
+	    	  $("#dmxBox\\[" + f["dmxOffset"] + "\\]").addClass('dmxValueWithFixture');
 	    	}  
 	    }
 	}
@@ -1575,12 +1638,12 @@ function dmxSetUniverse(newDmxCurrentUniverse, newDmxCurrentBank) {
 
 // @converted
 function dmxPrevBank() {
-	sendRequest('fancyController.html?action=prevBank', dmxUpdatePanel);
+	sendRequest('fancyController.html?action=prevBank', dmxUpdatePanel); // 
 }
 
 // @converted
 function dmxNextBank() {
-	sendRequest('fancyController.html?action=nextBank', dmxUpdatePanel);
+	sendRequest('fancyController.html?action=nextBank', dmxUpdatePanel); // 
 }
 
 

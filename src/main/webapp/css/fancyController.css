@@ -254,26 +254,36 @@ BODY {
 }   
 
 
-#fixDim {
+#fixDimScrollArea {
   position: absolute; top: 20px; left: 0px; width: 90px; height: 160px;
   background-image: url("../image/dimBack.png");
 }
+#fixDim {
+  position: absolute; top: 15px; bottom: 15px; left: 0px; right: 0px;
+}
 #fixDimHandle {
-  /*background-color: blue; */ width: 90px; height: 30px; cursor: move;
+  margin-bottom: -15px;
+  position: absolute; width: 90px; height: 30px; 
   background-image: url("../image/dimHandleBlack.png");
+  cursor: move; 
 }
 #fixDimLabel {
   position: absolute; top: 185px; left: 0px; width: 90px; height: 20px;
   text-align: center; font-family: Lucida Console; font-size: 8pt; color: black;
 }
 
-#fixStrobe {
+#fixStrobeScrollArea {
   position: absolute; top: 20px; left: 110px; width: 90px; height: 160px;
   background-image: url("../image/strobeBack.png");
 }
+#fixStrobe {
+  position: absolute; top: 15px; bottom: 15px; left: 0px; right: 0px;
+}
 #fixStrobeHandle {
-  /*background-color: blue; */ width: 90px; height: 30px; cursor: move;
+  margin-bottom: -15px;
+  position: absolute; width: 90px; height: 30px; 
   background-image: url("../image/dimHandleBlack.png");
+  cursor: move;
 }
 #fixStrobeLabel {
   position: absolute; top: 185px; left: 110px; width: 90px; height: 20px;
@@ -286,8 +296,17 @@ BODY {
 #fixColor {
   display: none;
 }
-#fixAim {
+.fixControl {
+  text-align: center; color: #000044; font-size: 18pt;
+  background-color: #AAAAFF;
+  cursor: pointer; 
+}
+#fixAimDragArea {
   position: absolute; top: 20px; left: 440px; width: 160px; height: 160px; cursor: crosshair;
+}
+#fixAim {
+  position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; /* right: -10px; bottom: -10px; */  
+  
 }
 .fixAimVGrid1 { position: absolute; top: 0px; height:160px; width:0px; border-right: 1px dotted #7777FF; } 
 .fixAimVGrid2 { position: absolute; top: 0px; height:160px; width:0px; border-right: 1px solid #7777FF; }
@@ -297,12 +316,16 @@ BODY {
   width: 20px; height: 20px;
   background-image: url("../image/aimHandleBlack.png");
   z-index: 10;
+  margin-left: -10px; margin-top: -10px;
+  position: absolute;
 }
 #fixAimActual {
   width: 20px; height: 20px;
   /*background-color: blue; */
   background-image: url("../image/aimHandleActual.png");
   z-index: 5;
+  margin-left: -10px; margin-top: -10px;
+  position: absolute;
 }
 #fixAimLabel {
   position: absolute; top: 185px; left: 440px; width: 160px; height: 20px;
@@ -315,11 +338,7 @@ BODY {
 #fixAimRight { top:5px; left:540px; height: 15px; width:60px; text-align: right; }
 #fixAimTop { top:20px; left:605px; height: 30px; width:20px; vertical-align: top; }
 #fixAimBottom { top:150px; left:605px; height: 30px; width:20px; vertical-align: bottom; }
-.fixControl {
-  text-align: center; color: #000044; font-size: 18pt;
-  background-color: #AAAAFF;
-  cursor: pointer; 
-}
+
 
 
 .fixSelect {
@@ -481,17 +500,19 @@ BODY {
   position: absolute; top: 40px; height: 20px; width: 100%; 
   color: white; background-color: #000044;
 }
-#dmxSliderScrollArea { position: absolute;
+#dmxSliderScrollArea { 
+  position: absolute;
   width: 54px; height: 190px; 
   background-image: url("../image/dmxSliderBack.png");
 }
 #dmxSlider {
-  left: 7px; top: 29px;
-  position: absolute; width: 40px; height: 160px;
+  left: 7px; top: 44px; /* 29 + 15 */ 
+  position: absolute; width: 40px; height: 145px; /* 160-15 */
 }
 #dmxSliderHandle {
-  width: 40px; height: 30px; cursor: move;
+  position: absolute; width: 40px; height: 30px; cursor: move;
   background-image: url("../image/customSliderHandle.png");
+  margin-bottom: -15px;
 }
 .dmxTime {
   width: 400px;	
