@@ -32,7 +32,7 @@
 
     <!-- JavaScript -->
     <!--  <script src="mjs?js=prototype" type="text/javascript"></script>  -->
-    <script src="mjs?js=jquery-3.6.3.min,farbtastic"></script> 
+    <script src="mjs?js=jquery-3.6.3.min,jquery-ui-1.13.2.min,farbtastic"></script> 
     <script>jQuery.noConflict(); $ = jQuery;</script>
      
     <!--  <script src="mjs?js=scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,johnford,browserDetect" type="text/javascript"></script>  --> 
@@ -123,17 +123,17 @@ var dmxTimeSourceText = "-";
   <div id="fixBlackout" class="fixControl">Blackout</div>
   <div id="fixStandardControls">
   <div id="fixDimScrollArea">
-  <div id="fixDim"><div id="fixDimHandle"></div></div>
+  <div id="fixDim"><div id="fixDimHandle" class="ui-slider-handle"></div></div>
   </div>
   <div id="fixDimLabel">Dimmer</div>
   <div id="fixStrobeScrollArea">
-  <div id="fixStrobe"><div id="fixStrobeHandle"></div></div>
+  <div id="fixStrobe"><div id="fixStrobeHandle" class="ui-slider-handle"></div></div>
   </div>
   <div id="fixStrobeLabel">Strobe</div>
   <!--  <div id="fixColor" class="fixControl">Colour</div> -->
   <input type="text" id="fixColor" name="fixColor" value="#123456" />
   <div id="fixColorPicker"></div>
-  <div id="fixAim" class="fixControl"><div id="fixAimHandle"></div><div id="fixAimActual"></div></div>
+  <div id="fixAimDragArea" class="fixControl"><div id="fixAim"><div id="fixAimHandle"></div><div id="fixAimActual"></div></div></div>
   <div id="fixAimLabel">Pan/Tilt control</div>
   <div id="fixAimLeft">&#8592;</div>
   <div id="fixAimRight">&#8594;</div>
@@ -165,7 +165,7 @@ var dmxTimeSourceText = "-";
   <div id="dmxValues">
   </div>
   <div id="dmxSliderScrollArea">
-  <div id="dmxSlider"><div id="dmxSliderHandle"></div></div>
+  <div id="dmxSlider"><div id="dmxSliderHandle" class="ui-slider-handle"></div></div>
   </div>
   <!-- 
   <div id="dmxHighlight" style="display:none;"></div>
