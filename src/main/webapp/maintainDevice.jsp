@@ -150,6 +150,7 @@ function edtSubmitClick() {
 function edtEditProperties(deviceId) { 
     isSubmitting=true; 
     checkModify('mainForm',tblObj);
+    document.forms[0].action="maintainDeviceProperty.html"
     document.forms[0].elements["action"].value="editProperties";
     document.forms[0].elements["deviceId"].value=deviceId;
     document.forms[0].submit();

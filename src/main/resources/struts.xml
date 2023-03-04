@@ -118,7 +118,6 @@
 
         <action name="maintainDevice" class="com.randomnoun.dmx.web.action.MaintainDeviceAction" >
           <result name="success">/maintainDevice.jsp</result>
-          <result name="deviceProperties">/maintainDeviceProperty.html</result>
         </action>
         
         <action name="maintainDeviceProperty" class="com.randomnoun.dmx.web.action.MaintainDevicePropertyAction" >
