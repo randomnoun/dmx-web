@@ -45,7 +45,7 @@
 	<!--  abstract="true"   -->
 	<package name="default" extends="struts-default" strict-method-invocation="true" >
         <result-types>
-	         <result-type name="null" class="com.randomnoun.dmx.web.struts.NullResult"/>
+	         <result-type name="null" class="com.randomnoun.dmx.web.struts.NullResult" ></result-type>
 	    </result-types>
 		<interceptors>
             <!-- calling this exception2 to avoid naming collision with 'exception' in struts-default -->
@@ -102,16 +102,12 @@
         <action name="fancyController" class="com.randomnoun.dmx.web.action.FancyControllerAction" >
           <result name="success">/fancyController.jsp</result>
           <result name="json">/misc/json.jsp</result>
-          <!--  <result name="null" className="com.randomnoun.common.webapp.struts.NullForward" name=""/>  -->
+          <result name="null" type="null"></result>
         </action>
-
 
         <action name="index" class="com.randomnoun.dmx.web.action.FancyControllerAction">
           <result name="success">/fancyController.jsp</result>
-          <result name="json">/misc/json.jsp</result>
         </action>
-
-
 
         <action name="debug" class="com.randomnoun.dmx.web.action.DebugAction" >
           <result name="success">/debug.jsp</result>
