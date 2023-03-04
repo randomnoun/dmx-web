@@ -528,10 +528,11 @@ function fixInitPanel() {
         slide: function(e, ui) { fixStrobeChange(ui.value); }
         // change: function(e, ui) { fixDimChange(v); }
     }); 
+    var fixAimPos = $('#fixAim').offset();
     fixAimDraggable = $("#fixAimHandle").draggable({
         // constraint code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
         // handle: $('#fixAimHandle'),
-        containment: $('#fixAim'), // ah hang on, this isn't it is it.
+        containment: [ fixAimPos.left, fixAimPos.top, fixAimPos.left + 160, fixAimPos.top + 160 ], // $('#fixAim'), // ah hang on, this isn't it is it.
         drag: function(e, ui) {
             var handleEl = $('#fixAimHandle');
             var containerEl = $('#fixAim');
