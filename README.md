@@ -22,9 +22,9 @@ and wanted to spruce things up a bit with some dynamic lighting, with an eye to 
 
 Looking back from the vantage-point of 2020 there's a few things that are a bit awful:
 
-* <strike>[DONE] it uses prototype.js as the javascript framework, which was still a thing back then. 
+* [DONE] <strike>it uses prototype.js as the javascript framework, which was still a thing back then. 
   If you're thinking of doing any further development on this, then you probably want to replace that with jQuery.</strike>
-* <strike>[DONE] it uses struts 1as the MVC framework, which was still a thing back then.
+* [DONE] <strike>it uses struts 1as the MVC framework, which was still a thing back then.
   If you're thinking of doing any further development on this, then you probably want to replace that with struts 2.</strike>
 * to send lighting data back to the webpage, it uses 'comet', which was a term coined around 2010 
   for an IFRAME with a src containing a document that never finishes loading (\*) .
