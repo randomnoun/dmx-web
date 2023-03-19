@@ -1759,8 +1759,8 @@ function cnfInitPanel() {
     if ($("#cnfSimple").length > 0) {
     	$("#cnfSimple").on('click', cnfSimpleClick);
     }
-    $("cnfImportExport").on('click', cnfImportExportClick);
-    $("cnfVideo").on('click', cnfVideoClick);
+    $("#cnfImportExport").on('click', cnfImportExportClick);
+    $("#cnfVideo").on('click', cnfVideoClick);
     
     if (isRecording) {
     	$("#cnfRecordText").html("Stop recording");
