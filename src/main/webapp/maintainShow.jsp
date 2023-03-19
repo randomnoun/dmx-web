@@ -29,7 +29,8 @@
     
     <link href="css/table-edit.css" media=all" rel="stylesheet" type="text/css" />
 
-    <script src="mjs?js=prototype" type="text/javascript"></script>
+    <%-- <script src="mjs?js=prototype" type="text/javascript"></script>  --%>
+    <script src="mjs?js=jquery-3.6.3.min"></script>
     <script language="javascript" src="js/table-edit.js"></script>
 
 <style>
@@ -123,10 +124,10 @@ var tblObj = new rnTable(
 
 
 function edtInitPanel() {
-    var edtSubmitEl = $("edtSubmit");
-    Event.observe(edtSubmitEl, 'click', edtSubmitClick);
-    Event.observe($("lhsCancel"), 'click', lhsCancelClick);
-    Event.observe($("lhsOK"), 'click', lhsOKClick);
+    var edtSubmitEl = $("#edtSubmit");
+    edtSubmitEl.on('click', edtSubmitClick);
+    $("#lhsCancel").on('click', lhsCancelClick);
+    $("#lhsOK").on('click', lhsOKClick);
 }
 
 function edtSubmitClick() { 
@@ -137,7 +138,9 @@ function edtSubmitClick() {
 function edtEditProperties(showId) { 
     isSubmitting=true; 
     checkModify('mainForm',tblObj);
+    document.forms[0].action="maintainShowProperty.html"
     document.forms[0].elements["action"].value="editProperties";
+    // document.forms[0].elements["action"].value="editProperties";
     document.forms[0].elements["showId"].value=showId;
     document.forms[0].submit();
 }

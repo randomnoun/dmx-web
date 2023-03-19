@@ -30,7 +30,8 @@
     
     <link href="css/table-edit.css" media=all" rel="stylesheet" type="text/css" />
 
-    <script src="mjs?js=prototype" type="text/javascript"></script>
+    <%-- <script src="mjs?js=prototype" type="text/javascript"></script>  --%> 
+    <script src="mjs?js=jquery-3.6.3.min"></script>
     <script language="javascript" src="js/table-edit.js"></script>
 
 <style>
@@ -172,7 +173,8 @@ function rfInputChange(e) {
 	formEl.submit();
 }
 function rfInputChangeCalc(e) {
-	var rfDmxAllocation = Form.getInputs('rfForm','radio','rfDmxAllocation').find(function(radio) { return radio.checked; }).value;
+	// var rfDmxAllocation = Form.getInputs('rfForm','radio','rfDmxAllocation').find(function(radio) { return radio.checked; }).value;
+	var rfDmxAllocation = $('input[name="rfDmxAllocation"]:checked', $('#rfForm')).val();
     if (rfDmxAllocation=="loop") {
 		rfDmxLoopChange(e);
     } else if (rfDmxAllocation=="grid") {
@@ -182,46 +184,48 @@ function rfInputChangeCalc(e) {
     }
 }
 function rfDmxAllocationChange(e) {
-	var formEl = $("rfForm");
-	var rfDmxAllocation = Form.getInputs('rfForm','radio','rfDmxAllocation').find(function(radio) { return radio.checked; }).value;
+	var formEl = $("#rfForm");
+	// var rfDmxAllocation = Form.getInputs('rfForm','radio','rfDmxAllocation').find(function(radio) { return radio.checked; }).value;
+	var rfDmxAllocation = $('input[name="rfDmxAllocation"]:checked').val();
 	//alert("I detect a disturbance in the form " + rfDmxAllocation);
-	$("rfDmxAllocationLoop").style.display = (rfDmxAllocation=="loop" ? "table-row" : "none");
-	$("rfDmxAllocationGrid").style.display = (rfDmxAllocation=="grid" ? "table-row" : "none");
-	$("rfDmxAllocationCsv").style.display = (rfDmxAllocation=="csv" ? "table-row" : "none");
-	$$('.rfDmxCalcRow').each(function(el){el.style.display = (rfDmxAllocation=="calculated" ? "table-row" : "none"); });
+	$("#rfDmxAllocationLoop")[0].style.display = (rfDmxAllocation=="loop" ? "table-row" : "none");
+	$("#rfDmxAllocationGrid")[0].style.display = (rfDmxAllocation=="grid" ? "table-row" : "none");
+	$("#rfDmxAllocationCsv")[0].style.display = (rfDmxAllocation=="csv" ? "table-row" : "none");
+	$('.rfDmxCalcRow').each(function(i, el){el.style.display = (rfDmxAllocation=="calculated" ? "table-row" : "none"); });
 
 	// if we calculated locations, then we lose the previously set allocation 
 	if (rfDmxAllocation=="calculated") {
-		$("rfCsv").setAttribute("disabled", "true");
-		formEl.removeAttribute("enctype");
+		$("#rfCsv").attr("disabled", "true");
+		formEl.removeAttr("enctype");
 		//Form.getInputs('rfForm','radio','rfDmxLoop').each(function(radio) { radio.checked=false; });
 		//Form.getInputs('rfForm','radio','rfDmxGrid').each(function(radio) { radio.checked=false; });
 	} else if (rfDmxAllocation=="loop") {
-		$("rfCsv").setAttribute("disabled", "true");
-		formEl.removeAttribute("enctype");
+		$("#rfCsv").attr("disabled", "true");
+		formEl.removeAttr("enctype");
 		rfDmxLoopChange();
 	} else if (rfDmxAllocation=="grid") {
-		$("rfCsv").setAttribute("disabled", "true");
-		formEl.removeAttribute("enctype");
+		$("#rfCsv").attr("disabled", "true");
+		formEl.removeAttr("enctype");
 		rfDmxGridChange();
 	} else if (rfDmxAllocation=="csv") {
-		$("rfCsv").removeAttribute("disabled");
-		formEl.setAttribute("enctype", "multipart/form-data");
+		$("#rfCsv").attr("disabled");
+		formEl.attr("enctype", "multipart/form-data");
 	}
 	// $$ this
 	// $("rfDmxAllocationCsv").display = (rfDmxAllocation=="csv" ? "table-row" : "none");
 }
 function rfDmxLoopChange(e) {
-	var formEl = $("rfForm");
-	var rfFixtureDefId = new Number(formEl["rfFixtureDefId"].value).floor();
-	var countX = new Number(formEl["rfCountX"].value).floor();
-	var countY = new Number(formEl["rfCountY"].value).floor();
-	var dmxOffsetGap = new Number(formEl["rfDmxOffsetGap"].value).floor();
+	var formEl = $("#rfForm");
+	var rfFixtureDefId = Math.floor(new Number($('select[name="rfFixtureDefId"]', formEl).val()));
+	var countX = Math.floor(new Number($('input[name="rfCountX"]', formEl).val()));
+	var countY = Math.floor(new Number($('input[name="rfCountY"]', formEl).val()));
+	var dmxOffsetGap = Math.floor(new Number($('input[name="rfDmxOffsetGap"]', formEl).val()));
 	var numChannels = fixtureDefMap[rfFixtureDefId].dmxChannels + dmxOffsetGap;
-	var startUniverse = new Number(formEl["rfDmxUniverseStart"].value).floor();
-	var startOffset = new Number(formEl["rfDmxOffsetStart"].value).floor();
-	var loopTypeEl = Form.getInputs('rfForm','radio','rfDmxLoop').find(function(radio) { return radio.checked; });
-	var loopType = (loopTypeEl==null) ? null : loopTypeEl.value;
+	var startUniverse = Math.floor(new Number($('input[name="rfDmxUniverseStart"]', formEl).val()));
+	var startOffset = Math.floor(new Number($('input[name="rfDmxOffsetStart"]', formEl).val()));
+	// var loopTypeEl = Form.getInputs('rfForm','radio','rfDmxLoop').find(function(radio) { return radio.checked; });
+	var loopType = $('input[name="rfDmxLoop"]:checked', formEl).val();
+	// var loopType = (loopTypeEl==null) ? null : loopTypeEl.value;
 	var offsetFunc = "";
 	if (loopType=="loop-rd") { // alt left-to-right, down
 		offsetFunc = "y * " + countX + " + iif(y % 2 == 0, x, " + countX + " - 1 - x)";
@@ -234,25 +238,26 @@ function rfDmxLoopChange(e) {
 	} else {
 		alert("Unknown loopType '" + loopType + "'");
 	}
-	formEl["rfPanelX"].value="x * 10";
-	formEl["rfPanelY"].value="y * 10";
-	formEl["rfDmxOffsetCalc"].value="fillDmxOffset(" + startUniverse + ", " + startOffset + ", " + numChannels + 
-	  ", " + offsetFunc + " )";
-	formEl["rfDmxUniverseCalc"].value="fillDmxUniverse(" + startUniverse + ", " + startOffset + ", " + numChannels + 
-	  ", " + offsetFunc + " )";
+	$('input[name="rfPanelX"]').val("x * 10");
+	$('input[name="rfPanelY"]').val("y * 10");
+	$('input[name="rfDmxOffsetCalc"]').val("fillDmxOffset(" + startUniverse + ", " + startOffset + ", " + numChannels + 
+	  ", " + offsetFunc + " )");
+	$('input[name="rfDmxUniverseCalc"]').val("fillDmxUniverse(" + startUniverse + ", " + startOffset + ", " + numChannels + 
+	  ", " + offsetFunc + " )");
 	rfInputChange();
 }
 function rfDmxGridChange(e) {
-	var formEl = $("rfForm");
-	var rfFixtureDefId = new Number(formEl["rfFixtureDefId"].value).floor();
-	var countX = new Number(formEl["rfCountX"].value).floor();
-	var countY = new Number(formEl["rfCountY"].value).floor();
-	var dmxOffsetGap = new Number(formEl["rfDmxOffsetGap"].value).floor();
+	var formEl = $("#rfForm");
+	var rfFixtureDefId = Math.floor(new Number($('select[name="rfFixtureDefId"]', formEl).val()));
+	var countX = Math.floor(new Number($('input[name="rfCountX"]', formEl).val()));
+	var countY = Math.floor(new Number($('input[name="rfCountY"]', formEl).val()));
+	var dmxOffsetGap = Math.floor(new Number($('input[name="rfDmxOffsetGap"]', formEl).val()));
 	var numChannels = fixtureDefMap[rfFixtureDefId].dmxChannels + dmxOffsetGap;
-	var startUniverse = new Number(formEl["rfDmxUniverseStart"].value).floor();
-	var startOffset = new Number(formEl["rfDmxOffsetStart"].value).floor();
-	var loopTypeEl = Form.getInputs('rfForm','radio','rfDmxGrid').find(function(radio) { return radio.checked; });
-	var loopType = (loopTypeEl==null) ? null : loopTypeEl.value;
+	var startUniverse = Math.floor(new Number($('input[name="rfDmxUniverseStart"]', formEl).val()));
+	var startOffset = Math.floor(new Number($('input[name="rfDmxOffsetStart"]', formEl).val()));
+	// var loopTypeEl = Form.getInputs('rfForm','radio','rfDmxGrid').find(function(radio) { return radio.checked; });
+	var loopType = $('input[name="rfDmxGrid"]:checked', formEl).val();
+	// var loopType = (loopTypeEl==null) ? null : loopTypeEl.value;
 	var offsetFunc = "";
 	if (loopType=="grid-lr-tb") { // left to right, top to bottom
 		offsetFunc = "y * " + countX + " + x"
@@ -265,17 +270,17 @@ function rfDmxGridChange(e) {
 	} else {
 		alert("Unknown loopType '" + loopType + "'");
 	}
-	formEl["rfPanelX"].value="x * 10";
-	formEl["rfPanelY"].value="y * 10";
-	formEl["rfDmxOffsetCalc"].value="fillDmxOffset(" + startUniverse + ", " + startOffset + ", " + numChannels + 
-	  ", " + offsetFunc + " )";
-	formEl["rfDmxUniverseCalc"].value="fillDmxUniverse(" + startUniverse + ", " + startOffset + ", " + numChannels + 
-	  ", " + offsetFunc + " )";
+	$('input[name="rfPanelX"]').val("x * 10");
+	$('input[name="rfPanelY"]').val("y * 10");
+	$('input[name="rfDmxOffsetCalc"').val("fillDmxOffset(" + startUniverse + ", " + startOffset + ", " + numChannels + 
+	  ", " + offsetFunc + " )");
+    $('input[name="rfDmxUniverseCalc"]').val("fillDmxUniverse(" + startUniverse + ", " + startOffset + ", " + numChannels + 
+	  ", " + offsetFunc + " )");
 	rfInputChange();
 }
 
 function rfUpdatePreview(json) {
-	var previewContainerEl = $("rfPreviewContainer");
+	var previewContainerEl = $("#rfPreviewContainer");
 	var html = "";
 	for (var y=0; y<json.rows.length; y++) {
 		var row=json.rows[y];
@@ -293,21 +298,22 @@ function rfUpdatePreview(json) {
 		}
 		html += "</div>";
 	}
-	previewContainerEl.update(html);
+	previewContainerEl.html(html);
 }
 function edtInitPanel() {
-    Event.observe($("edtSubmit"), 'click', edtSubmitClick);
-    Event.observe($("lhsCancel"), 'click', lhsCancelClick);
-    Event.observe($("lhsRepeat"), 'click', lhsRepeat);
-    Event.observe($("lhsOK"), 'click', lhsOKClick);
-    Event.observe($("lhsClearAll"), 'click', lhsClearAll);
-    Event.observe($("rfOKButton"), 'click', rfOKButtonClick);
-    Event.observe($("rfCancelButton"), 'click', rfCancelButtonClick);
-    Event.observe($("rfFixtureDefId"), 'change', rfInputChangeCalc);
-    $$('.rfInput').each(function(el){Event.observe(el,'change',rfInputChange)});
-    $$('input[name="rfDmxAllocation"]').each(function(el){Event.observe(el,'change',rfDmxAllocationChange)});
-    $$('input[name="rfDmxLoop"]').each(function(el){Event.observe(el,'change',rfDmxLoopChange)});
-    $$('input[name="rfDmxGrid"]').each(function(el){Event.observe(el,'change',rfDmxGridChange)});
+    $("#edtSubmit").on('click', edtSubmitClick);
+    $("#lhsCancel").on('click', lhsCancelClick);
+    $("#lhsRepeat").on('click', lhsRepeat);
+    $("#lhsOK").on('click', lhsOKClick);
+    $("#lhsClearAll").on('click', lhsClearAll);
+    $("#rfOKButton").on('click', rfOKButtonClick);
+    $("#rfCancelButton").on('click', rfCancelButtonClick);
+    $("#rfFixtureDefId").on('change', rfInputChangeCalc);
+    
+    $('.rfInput').each(function(i, el){ $(el).on('change',rfInputChange)});
+    $('input[name="rfDmxAllocation"]').each(function(i, el){ $(el).on('change',rfDmxAllocationChange)});
+    $('input[name="rfDmxLoop"]').each(function(i, el){ $(el).on('change',rfDmxLoopChange)});
+    $('input[name="rfDmxGrid"]').each(function(i, el){ $(el).on('change',rfDmxGridChange)});
     for (var i = 0; i < fixtures_size; i++) {
     	edtUpdateDmxOffset(i);
     }
@@ -317,8 +323,8 @@ function edtInitPanel() {
 function edtUpdateDmxOffset(rowId) {
 	var trEl = document.getElementById("rowid." + rowId);
 	var imgEl = document.getElementById("fixtures[" + rowId + "].htmlImg16");
-    var fixtureId = new Number(document.forms[0].elements["fixtures[" + rowId + "].fixtureDefId"].value).floor();
-    var dmxOffset = new Number(document.forms[0].elements["fixtures[" + rowId + "].dmxOffset"].value).floor();
+    var fixtureId = Math.floor(new Number(document.forms[0].elements["fixtures[" + rowId + "].fixtureDefId"].value));
+    var dmxOffset = Math.floor(new Number(document.forms[0].elements["fixtures[" + rowId + "].dmxOffset"].value));
     var dmxFinish = fixtureDefMap[fixtureId].dmxChannels + dmxOffset - 1;
     var htmlImg16 = fixtureDefMap[fixtureId].htmlImg16;
     trEl.getElementsByTagName("TD")[5].innerHTML = dmxFinish;
@@ -342,7 +348,7 @@ function lhsOKClick() {
 	document.forms[0].submit();
 };
 function lhsRepeat() {
-	$("repeatFixtureDiv").style.display = "block";
+	$("#repeatFixtureDiv")[0].style.display = "block";
 }
 function lhsClearAll() {
 	if (confirm("Are you sure you wish to remove all fixtures on the active stage?")) {
@@ -352,15 +358,15 @@ function lhsClearAll() {
 	}
 }
 function rfOKButtonClick() {
-	var formEl = $("rfForm");
-	$("repeatFixtureDiv").style.display = "none";
+	var formEl = $("#rfForm");
+	$("#repeatFixtureDiv")[0].style.display = "none";
 	formEl.removeAttribute("target");
 	formEl["action"].value="rfRepeatFixtures";
 	formEl.submit();
 	
 }
 function rfCancelButtonClick() {
-	$("repeatFixtureDiv").style.display = "none";
+	$("#repeatFixtureDiv")[0].style.display = "none";
 }
 function initWindow() {
 	initRnTable(tblObj);

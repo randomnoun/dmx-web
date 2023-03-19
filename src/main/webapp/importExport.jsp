@@ -30,7 +30,9 @@
     
     <link href="css/table-edit.css" media=all" rel="stylesheet" type="text/css" />
 
-    <script src="mjs?js=prototype" type="text/javascript"></script>
+    <%-- <script src="mjs?js=prototype" type="text/javascript"></script>  --%>
+    <script src="mjs?js=jquery-3.6.3.min"></script>
+
 
 <style>
 BODY { font-size: 8pt; font-family: Arial; }
@@ -155,15 +157,15 @@ li {
 <r:setJavascriptVar name="localFilename" value="${localFilename}" />
 
 function edtAddTreeNodes(id, containerEl, items) {
-    var ulEl = new Element("ul");
-    containerEl.insert({'bottom' : ulEl});
+    var ulEl = $('<ul>');
+    containerEl.append(ulEl);
     for (var i=0; i<items.length; i++) {
-    	var liEl = new Element("li").update(
+    	var liEl = $('<li>').html(
     		"<input type=\"checkbox\" name=\"" + (items[i].name ? items[i].name : id + "-" + i) + "\" id=\"" + id + "-" + i + "\">" +
             "<label for=\"exportItems-" + i + "\">" +
             (items[i].image ? '<img src="image/' + items[i].image + '" class="edtImage" />' : '' ) + 
             items[i].text + "</label>");
-    	ulEl.insert({'bottom' : liEl});
+    	ulEl.append(liEl);
     	if (items[i].children && items[i].children.length > 0) {
     		edtAddTreeNodes(id + "-" + i, liEl, items[i].children);
     	}
@@ -171,14 +173,14 @@ function edtAddTreeNodes(id, containerEl, items) {
 }
 
 function edtAddImportTreeNodes(id, containerEl, items, depth) {
-    var ulEl = new Element("ul");
-    containerEl.insert({'bottom' : ulEl});
+    var ulEl = $("<ul>");
+    containerEl.append(ulEl);
     for (var i=0; i<items.length; i++) {
     	var header = items[i].header;
     	var overlayError = items[i].showError;
     	var overlayWarn = items[i].canReplace;
     	var name = items[i].name ? items[i].name : id + "-" + i;
-    	var liEl = new Element("li").update(
+    	var liEl = $('<li>').html(
     		"<input type=\"checkbox\" name=\"" + name + "\" id=\"" + id + "-" + i + "\">" +
             "<label for=\"" + name + "\">" +
             "<span class=\"importIcon\">" +
@@ -193,7 +195,7 @@ function edtAddImportTreeNodes(id, containerEl, items, depth) {
               ((items[i].canAddWithRename || items[i].canReplaceWithRename) ? "<input class=\"ir\" style=\"left:" + (220-depth*21) + "px;\" value=\"R\" type=\"radio\" name=\"" + items[i].name + ".replace\">" : "")
             )  */
     	);
-    	ulEl.insert({'bottom' : liEl});
+    	ulEl.append(liEl);
     	if (items[i].children && items[i].children.length > 0) {
     		edtAddImportTreeNodes(id + "-" + i, liEl, items[i].children, depth+1);
     	}
@@ -202,12 +204,12 @@ function edtAddImportTreeNodes(id, containerEl, items, depth) {
 
 
 function edtCheckSiblings(containerEl) {
-	var ulEl = $(containerEl.parentNode);  // li->ul
+	var ulEl = $(containerEl.parent());  // li->ul
 	var ec=0, cc=0; // el count, checked count
-	ulEl.select('input[type="checkbox"]').each(function(el) { 
+	$('input[type="checkbox"]', ulEl).each(function(i, el) { 
 	    ec++; cc+=el.checked?1:0;
 	});
-	var el = $(ulEl.parentNode).select('input[type="checkbox"]')[0]; 
+	var el = $('input[type="checkbox"]', ulEl.parent())[0]; 
 	if (ec==cc) {
 	    el.indeterminate = false;
 	    el.checked = "true";
@@ -218,17 +220,17 @@ function edtCheckSiblings(containerEl) {
 		el.indeterminate = true;
 	    el.checked = "true";
 	}
-	if (ulEl.parentNode.tagName=="LI") {
-		edtCheckSiblings(ulEl.parentNode);
+	if (ulEl.parent()[0].tagName=="LI") {
+		edtCheckSiblings(ulEl.parent());
 	}
 }
 
 function edtCheckboxChange(e) {
-	var tgtEl = e.findElement();
+	var tgtEl = e.delegateTarget; // findElement(); // hrm
     var checked = tgtEl.checked;
     containerEl = $(tgtEl.parentNode); // li
-    containerEl.select('input[type="checkbox"]').each(function(el) {
-      el.writeAttribute("indeterminate", "false");
+    $('input[type="checkbox"]', containerEl).each(function(i, el) {
+      $(el).attr("indeterminate", "false");
       el.checked = checked ? "true" : false;
     });
     edtCheckSiblings(containerEl);
@@ -237,22 +239,22 @@ function edtCheckboxChange(e) {
 function edtInitPanel() {
     //var edtSubmitEl = $("edtSubmit");
     //Event.observe(edtSubmitEl, 'click', edtSubmitClick);
-    Event.observe($("lhsCancel"), 'click', lhsCancelClick);
-    Event.observe($("lhsOK"), 'click', lhsOKClick);
+    $("#lhsCancel").on('click', lhsCancelClick);
+    $("#lhsOK").on('click', lhsOKClick);
     if (exportItems) {
-	    var exportItemsDivEl = $("exportItemsDiv");
+	    var exportItemsDivEl = $("#exportItemsDiv");
 	    edtAddTreeNodes("exportItems", exportItemsDivEl, exportItems);
     }
     if (importItems) {
-	    var importItemsDivEl = $("importItemsDiv");
+	    var importItemsDivEl = $("#importItemsDiv");
 	    edtAddImportTreeNodes("importItems", importItemsDivEl, importItems, 0);
-	    $("importButtonDiv").update(
+	    $("#importButtonDiv").html(
 	    	'<input type="hidden" name="action" value="import2" />' +
 	    	'<input type="hidden" name="localFilename" value="' + localFilename + '" />' +
 		    '<input type="submit" name="import" value="Import" />');
 	}
-    $$('input[type="checkbox"]').each(function(el) {
-    	Event.observe(el, 'change', edtCheckboxChange);
+    $('input[type="checkbox"]').each(function(i, el) {
+    	$(el).on('change', edtCheckboxChange);
     });
 
 }

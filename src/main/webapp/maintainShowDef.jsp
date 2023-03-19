@@ -33,7 +33,8 @@
     <link rel="stylesheet" href="css/tabs.css" type="text/css" />
 
     <!-- JavaScript -->
-    <script src="mjs?js=prototype" type="text/javascript"></script>
+    <%-- <script src="mjs?js=prototype" type="text/javascript"></script>  --%>
+    <script src="mjs?js=jquery-3.6.3.min"></script>
     <script src="js/codemirror/codemirror.js" type="text/javascript"></script>
     
 <style>
@@ -179,7 +180,7 @@ function edtNewShowDef() {
 function edtChangeShowDef() {
 	var showDefIdEl = document.getElementById("showDefId");
 	var showDefId = new Number(showDefIdEl.value).valueOf();
-	$("getShowRecording").style.display = 
+	$("#getShowRecording")[0].style.display = 
 		(recordedShowDefIds.indexOf(showDefId)==-1) ? "none" : "inline";
 }
 
@@ -187,8 +188,9 @@ function edtChangeShowDef() {
 function edtEditorInitialisationCallback(editor) {
 	if (errorLines && errorLines.length > 0) {
 		edtScriptEditor.jumpToLine(errorLines[0]);
-	    var lineNumberContainerDiv = $("showDef.script").nextSibling.childNodes[2];
-	    setTimeout(edtHighlightRow.curry(new Date().getTime(), lineNumberContainerDiv, errorLines), 100);
+		// @XXX not converted
+	    // var lineNumberContainerDiv = $("showDef.script").nextSibling.childNodes[2];
+	    // setTimeout(edtHighlightRow.curry(new Date().getTime(), lineNumberContainerDiv, errorLines), 100);
 	}
 }
 
@@ -219,17 +221,17 @@ function edtInitPanel() {
 	<c:if test="${showDef!=null}" >
 	
 	// top: 38px;
-    var tabContainerEl=$("tabContainer");
-    var offsets = Position.positionedOffset(tabContainerEl);
+    var tabContainerEl=$("#tabContainer");
+    var offsets = tabContainerEl.position();
     for (var i=0; i<edtTabNames.length; i++) {
-        $(edtTabNames[i] + "TabSheet").style.top = (offsets[1] + 22) + "px";
-        $(edtTabNames[i] + "TabSheet").style.height = (572 - offsets[1]) + "px";
+        $('#' + edtTabNames[i] + "TabSheet")[0].style.top = (offsets.top + 22) + "px";
+        $('#' + edtTabNames[i] + "TabSheet")[0].style.height = (572 - offsets.top) + "px";
     }
 	
     edtScriptEditor = CodeMirror.fromTextArea('showDef.script', {
         lineNumbers: true,
         disableSpellcheck: true,
-        height: (522-offsets[1]) + "px", width: "850px",
+        height: (522-offsets.top) + "px", width: "850px",
         width: "850px",
         parserfile: ["tokenizejava.js","parsejava.js"],
         stylesheet: "css/codemirror/javacolors.css",
@@ -238,17 +240,17 @@ function edtInitPanel() {
         tabMode : "shift",
         initCallback : edtEditorInitialisationCallback
     });
-    var edtSubmitEl = $("edtSubmit");
-    edtSubmitEl.update(showDefId==-1 ? 
+    var edtSubmitEl = $("#edtSubmit");
+    edtSubmitEl.html(showDefId==-1 ? 
         "<img class=\"lhsMenuIcon\" width=\"70\" height=\"70\" src=\"image/save.png\" title=\"Create\"/><div class=\"lhsMenuText\">Create</div>" : 
         "<img class=\"lhsMenuIcon\" width=\"70\" height=\"70\" src=\"image/save.png\" title=\"Update\"/><div class=\"lhsMenuText\">Update</div>"
     );		
-    Event.observe(edtSubmitEl, 'click', edtSubmitClick);
+    edtSubmitEl.on('click', edtSubmitClick);
     
-    if ($("attachment")) { $("attachment").value = ""; }
-    if ($("addFile")) { 
-    	$("addFile").disabled = false; 
-        Event.observe($("addFile"), 'click', edtAddFile);
+    if ($("#attachment")) { $("#attachment").val(""); }
+    if ($("#addFile")) { 
+    	$("#addFile")[0].disabled = false; 
+        $("addFile").on('click', edtAddFile);
     }
     
     </c:if>
@@ -256,60 +258,64 @@ function edtInitPanel() {
     edtChangeShowDef();
     </c:if>
     
-    Event.observe($("lhsCancel"), 'click', lhsCancelClick);
-    Event.observe($("lhsOK"), 'click', lhsOKClick);
+    $("#lhsCancel").on('click', lhsCancelClick);
+    $("#lhsOK").on('click', lhsOKClick);
 }
 
 function edtAddFile() {
-	$("uploadForm").target="uploadTarget"
+	$("#uploadForm")[0].target="uploadTarget"
     document.forms[1].submit();
-    $("progressBar").style.display = 'block';
-    $("progressBarText").update("upload in progress: 0%");
-    $("addFile").disabled = true;
+    $("#progressBar")[0].style.display = 'block';
+    $("#progressBarText").html("upload in progress: 0%");
+    $("#addFile")[0].disabled = true;
     window.setTimeout(edtRefreshProgress, 1500);
 }
 
 function edtRefreshProgress() {
+	/* @XXX
 	new Ajax.Request("maintainShowDef.html?action=getProgress", {
         method:'get', // evalJSON:true,
         onSuccess: function(transport) {
             edtUpdateProgress(transport.responseJSON);
         }
     });	
+	*/
 }
 
 function edtUpdateProgress(json) {
-    $("progressBarText").update("upload in progress: " + json.percentDone + "%");
-    $("progressBarBoxContent").style.width = parseInt(json.percentDone * 2) + "px";
+    $("#progressBarText").html("upload in progress: " + json.percentDone + "%");
+    $("#progressBarBoxContent")[0].style.width = parseInt(json.percentDone * 2) + "px";
     window.setTimeout(edtRefreshProgress, 1000);
 } 
 
 //invoked by iframe script
 function edtCompletedUploadError(text) {
     alert(text);
-    $("addFile").disabled = false;
+    $("#addFile")[0].disabled = false;
 }
 
 function edtCompletedUploadOK(id, sizeInUnits, name, description) {
-    var newRowEl = new Element("tr", { "id" : "file[" + id + "]" });
-    newRowEl.appendChild(new Element("td"));
-    newRowEl.appendChild(new Element("td").update(
+    var newRowEl = $("<tr>", { "id" : "file[" + id + "]" });
+    newRowEl.append($("<td>"));
+    newRowEl.append($("<td>").html(
         "<input type=\"button\" name=\"image" + id + "\" value=\"Delete\" onclick=\"edtDeleteFile(" + id + ")\"/> " + 
         "<a href=\"image/show/" + showDefId + "/" + name + "\" target=\"_new\">" + name + "</a> (" + sizeInUnits + ") " + description + "<br/>"));
-    $("lastImageRow").insert({'before': newRowEl});
-    if ($("attachment")) { $("attachment").value = ""; }
-    if ($("description")) { $("description").value = ""; }
-    $("addFile").disabled = false;
+    $("#lastImageRow").insertBefore(newRowEl);
+    if ($("#attachment")) { $("#attachment").val(''); }
+    if ($("#description")) { $("#description").val(''); }
+    $("#addFile")[0].disabled = false;
 }
 
 function edtDeleteFile(showDefAttachmentId) {
 	if (confirm("Are you sure you wish to delete this attachment?")) {
+		/* @XXX
 		new Ajax.Request("maintainShowDef.html?action=deleteFile&showDefId=<c:out value='${showDef.id}'/>&fileId=" + showDefAttachmentId, {
 	        method:'get', // evalJSON:true,
 	        onSuccess: function(transport) {
 	            edtDeleteFileComplete(transport.responseJSON);
 	        }
-	    }); 		
+	    }); 	
+		*/
 	}
 }
 
@@ -317,7 +323,7 @@ function edtDeleteFileComplete(json) {
 	var result = json["result"];
 	if (result=="success") {
 		var fileId = json["fileId"];
-		$("file[" + fileId + "]").remove();
+		$("#file[" + fileId + "]").remove();
 	} else {
 		var message = json["message"];
 		alert(message);
@@ -327,8 +333,8 @@ function edtDeleteFileComplete(json) {
 function edtSetTab(newTab) {
 	<c:if test="${showDef!=null}" >
 	for (var i=0; i<edtTabNames.length; i++) {
-		$(edtTabNames[i] + "TabSheet").style.visibility = (newTab==edtTabNames[i] ? "visible" : "hidden");
-		$(edtTabNames[i] + "Tab").className = (newTab==edtTabNames[i] ? "current" : "");
+		$('#' + edtTabNames[i] + "TabSheet")[0].style.visibility = (newTab==edtTabNames[i] ? "visible" : "hidden");
+		$('#' + edtTabNames[i] + "Tab")[0].className = (newTab==edtTabNames[i] ? "current" : "");
 	}
 	</c:if>
 	return false;
