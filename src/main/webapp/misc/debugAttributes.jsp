@@ -1,4 +1,4 @@
-see<%@ page 
+<%@ page 
   errorPage="/misc/errorPage.jsp"
   language="java"
   contentType="text/html; charset=ISO-8859-1"
@@ -51,8 +51,8 @@ see<%@ page
     } else if ("exception".equals(name)) {
       return "<pre>" + Text.escapeHtml(obj.toString()) + "</pre>";
     };
-    return Text.escapeHtml(Text.getDisplayString(name, obj.toString()));  
-  
+    return Text.escapeHtml(Text.getDisplayString(name, obj.toString()));
+    
   }
   
 %>
@@ -60,7 +60,6 @@ see<%@ page
   // method-scoped variables
   
   AppConfig    appConfig = null;
-  Map          ejbProperties = null;
   Properties   systemProps = null;
   Map          userConfig = null;
   User         user = null;
@@ -69,7 +68,6 @@ see<%@ page
 
   user = (User) session.getAttribute("user");
   appConfig = AppConfig.getAppConfig();
-  ejbProperties = (Map) request.getAttribute("ejbConfigProperties");
 %>
 <style type="text/css">
 <!--
@@ -164,6 +162,7 @@ see<%@ page
 %> 
 </table>
 
+
 <!------ Session Attributes -->
 <table width="100%" border="0">
 <tr><td colspan=2><h2><a name="sessionAttributes">Session Attributes</a></h2></td></tr>
@@ -196,67 +195,6 @@ see<%@ page
 %>
 </table>
 
-<!------ UserConfig Attributes -->
-<table width="100%" border="0">
-<tr><td colspan=2><h2><a name="userConfigAttributes">UserConfig Attributes</a></h2></td></tr>
-<%
-    userConfig = (Map) session.getAttribute("userConfig");
-  i=sortedIterator(userConfig.keySet());
-  while (i.hasNext()) {
-    name = (String) i.next();
-%>
-  <tr>  
-    <td width="30%" valign="top"><span class="key"><%= name %></span></td>
-    <td width="70%"><span class="value"><%= toString( name, userConfig.get(name)) %> 
-    </span></td>
-  </tr>
-<%
-  }
-%>
-</table>
-
-
-<!------ Site Properties  -->
-<table width="100%" border="0">
-<tr><td colspan=2><h2><a name="appConfigAttributes">AppConfig Properties (Customer <%= user.getCustomerId() %>)</a></h2></td></tr>
-<%
-  if (appConfig != null) {
-  i=sortedIterator(appConfig.keySet());
-  while (i.hasNext()) {
-    name = (String) i.next();
-    String appProp = toString(name, appConfig.get(name));
-%>
-  <tr>
-    <td width="30%" valign="top"><span class="key"><%= name %></span></td>
-    <td width="70%"><span class="value"><%= appProp %></span></td>
-  </tr>
-<%  
-  }
-  }
-%>
-</table>
-
-<!------ Site Cached Data -->
-<%--
-<table width="100%" border="0">
-<tr><td colspan=2><h2><a name="siteCachedData">Site cached data (Customer <%= user.getCustomerId() %>)</a></h2></td></tr>
-<%
-  if (appConfig.getCachedDataMap() != null) {
-  i=sortedIterator(appConfig.getCachedDataMap().keySet());
-  while (i.hasNext()) {
-    name = (String) i.next();
-%>
-  <tr>
-    <td width="30%" valign="top"><span class="key"><%= name %></span></td>
-    <td width="70%"><span class="value"><%= toString(name, appConfig.getCachedData(name)) %></span></td>
-  </tr>
-<%
-    }
-  }
-%>
-</table>
---%>
-
 <!------ System Properties  -->
 <table width="100%" border="0">
 <tr><td colspan=2><h2><a name="systemProperties">System Properties</a></h2></td></tr>
@@ -276,3 +214,4 @@ see<%@ page
   }
 %>
 </table>
+

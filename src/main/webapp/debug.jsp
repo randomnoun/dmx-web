@@ -93,179 +93,6 @@
   <jsp:include page="misc/debugAttributes.jsp" />
 </r:tab>
 
-<r:tab id="security" label="Security" href="debug.html?debugTab=security" >
-<c:choose>
-<c:when test="${securityRoles['Security Authoriser'] || securityRoles['Security Administrator'] || securityRoles['Security Officer'] || securityRoles['Developer']}">
-  <form action="debug.html">
-<p>
-</p>
-
-  <input type="hidden" name="debugTab" value="security" />
-  <table border=0>
-
-<tr>
-  <td class="field-label">username</td>
-  <td><input type="text" name="username" class="inputField" value="<c:out value="${username}" />" size="10"/></td>
-</tr>
-<tr>
-  <td class="field-label">password</td>
-  <td><input type="text" name="password" class="inputField" value="<c:out value="${password}" />" size="10"/></td>
-</tr>
-<tr> 
-  <td>
-  <input type="submit" name="authUser" value="Authenticate" class="update-button" 
-    style="width:80px" />
-  </td>
-  <td>
-  <span class="resultSuccessText"><c:out value="${loginResult}"/></span>
-  </td>
-</tr>
-</table>  
-
-<h2>Reset security cache</h2>
-<div class="resultSuccessText"><c:out value="${resetContextResult}"/></div>
-  <input type="submit" name="resetContext" value="Reset Security Context" class="update-button" 
-    style="width:80px" />
-
-<h2>Security context</h2>
-  <table border=0 cellpadding=2 cellspacing=0>
-  <tr><td><span class="key">Roles:</span><td><span class="value"><c:forEach var="role" items="${roles}"><c:out value="${role}"/>, </c:forEach></span></td></tr>
-  <tr><td><span class="key">Activities:</span><td><span class="value"><c:forEach var="activity" items="${activities}"><c:out value="${activity}"/>, </c:forEach></span></td></tr>
-  <tr><td><span class="key">Resources:</span><td><span class="value"><c:forEach var="resource" items="${resources}"><c:out value="${resource}"/>, </c:forEach></span></td></tr>
-  <tr><td><span class="key">Users:</span><td><span class="value"><c:forEach var="user" items="${users}"><c:out value="${user.username}"/>, </c:forEach></span></td></tr>
-  </table>
-
-<h2>Role permission list</h2>
-
-  <table border=0 cellpadding=2 cellspacing=0>
-  <tr>
-    <td><span class="key">Role</span></td>
-    <td><span class="key">Activity</span></td>
-    <td><span class="key">Resource</span></td>
-    <td><span class="key">Criteria</span></td>
-<% 
-  appConfig = AppConfig.getAppConfig();
-  SecurityContext securityContext = appConfig.getSecurityContext();
-   List roles = (List) request.getAttribute("roles");
-   i=(new TreeSet(roles)).iterator();
-   while (i.hasNext()) {
-	 String role = (String) i.next();
-	 List permissions = securityContext.getRolePermissions(role);
-     j = permissions.iterator();
-     while (j.hasNext()) {
-       Permission permission = (Permission) j.next();
-%>
-<tr>
-<td class="value"><%= permission.getRole() %></td>
-<td class="value"><%= permission.getActivity() %></td>
-<td class="value"><%= permission.getResource() %></td>
-<td class="value"><%= permission.getResourceCriteria() %></td>
-</tr>
-<%
-     }
-   }
-%>
-</table>
-
-<h2>Current user role list</h2>
-  <table border=0 cellpadding=2 cellspacing=0>
-  <tr><td class="key">Role</td>
-<% 
-    // roles = user.getRoles();
-    roles = securityContext.getUserRoles(user);
-    i = roles.iterator();
-    while (i.hasNext()) {
-      String role = (String) i.next();
-%>
-<tr><td class="value"><%= role %></td></tr>
-<%
-  }
-%>
-</table>        
-
-
-<h2>Current user permission list</h2>
-(This is in addition to all permissions granted to all roles of the user)
-  <table border=0 cellpadding=2 cellspacing=0>
-  <tr>
-    <td><span class="key">Role</span></td>
-    <td><span class="key">Activity</span></td>
-    <td><span class="key">Resource</span></td>
-    <td><span class="key">Criteria</span></td>
-<% 
-	Permission permission;
-	user = (User) session.getAttribute("user");
-	// List permissions = user.getPermissions();
-	List permissions = securityContext.getUserPermissions(user);
-     j = permissions.iterator();
-     while (j.hasNext()) {
-       permission = (Permission) j.next();
-%>
-<tr>
-<td class="value"><%= permission.getRole() %>
-<td class="value"><%= permission.getActivity() %>
-<td class="value"><%= permission.getResource() %>
-<td class="value"><%= permission.getResourceCriteria() %>
-</tr>
-<%
-     }
-%>
-
-</table>    
-
-
-<h2>All permissions</h2>
-  <table border=0 cellpadding=2 cellspacing=0>
-  <tr>
-    <td><span class="key">Activity</span></td>
-    <td><span class="key">Resource</span></td>
-    <td><span class="key">Localisation</span></td>
-<% 
-	 permissions = (List) request.getAttribute("permissions");
-	 // ResourceBundle securityBundle = appConfig.getBundle("security", user);
-     j = permissions.iterator();
-     String permissionText = "";
-     while (j.hasNext()) {
-       permission = (Permission) j.next();
-       //try {
-       //  permissionText = securityBundle.getString("permission." + permission.getActivity() + "." + permission.getResource() );
-       //} catch (Exception e) {
-         permissionText = "<span style=\"color: red\">(No internationalisation text)</span>";
-       //}
-%>
-<tr>
-
-<td class="value"><%= permission.getActivity() %></td>
-<td class="value"><%= permission.getResource() %></td>
-<td class="value"><%= permissionText %></td>
-</tr>
-<%
-     }
-%>
-
-</table>    
-
-
-</form>
-<h2>JSTL test</h2>
-  <tt>
-    &lt;c:if test="${security.login.appConfig}"&gt;The 'login.appConfig' permission exists for the logged-in user&lt;/c:if&gt;
-  </tt>
-  <br/>
-  <c:if test="${security.login.appConfig}">The 'login.appConfig' permission exists for the logged-in user</c:if>
-
-  <p>
-  <tt>
-    &lt;c:if test="${security.login.appConfigx}"&gt;The 'login.appConfigx' permission exists for the logged-in user&lt;/c:if&gt;
-  </tt>
-  <br/>  
-  <c:if test="${security.login.appConfigx}">The 'login.appConfigx' permission exists for the logged-in user</c:if>
-</c:when>
-<c:otherwise>
-You do not have sufficient permissions to view this tab. 
-</c:otherwise>
-</c:choose>
-  </r:tab>
 
 
   <r:tab id="jmx" label="JMX" href="debug.html?debugTab=jmx" >
@@ -289,6 +116,32 @@ You do not have sufficient permissions to view this tab.
       ulNode.innerHTML = "";
     } else {
     	
+        jQuery.ajax({
+            method: 'GET',
+            url: "debug.html?debugTab=jmx&action=getNodes&path=" + escape(parentId),
+            dataType: 'xml'
+        }).done(function (data) {
+        	var nodesDoc = data; 
+            if (nodesDoc!=null) {
+                var nodes = nodesDoc.documentElement.childNodes;
+                for (var i = 0; i < nodes.length; i++) {
+                  var node = nodes.item(i);
+                  var name = node.getAttribute("name");
+                  newLi = document.createElement("LI");
+                  newLi.innerHTML = "<a href=\"javascript:getNode('" + parentId + ";" + name + "');\">"
+                    + name + "</a><ul id=\"" + parentId + ";" + name + "\"></ul>";
+                  ulNode.appendChild(newLi);
+                }
+              };
+                        // setRhsMessageHTML(data.message);
+            // if (completedFunction) { completedFunction(data); }
+            
+            
+        });
+    	
+    }
+   
+    	/*
       new Ajax.Request("debug.html?debugTab=jmx&action=getNodes&path=" + escape(parentId), {
           method:'get', // evalJSON:true,
           onSuccess: function(transport) {
@@ -308,7 +161,8 @@ You do not have sufficient permissions to view this tab.
             onFailure: function(transport) {
             	$("errorDiv").update(transport.responseText);
             } }); 	
-    }
+    } */
+    
   }
   </script>
   <hr/>
@@ -337,19 +191,35 @@ You do not have sufficient permissions to view this tab.
       // already populated; hide this instead
       ulNode.innerHTML = "";
     } else {
+    	/*
       var nodesDoc = getRemoteXml("debug.html?debugTab=jndi&action=getNodes&path=" + escape(parentId), "errorDiv", "_new");
-      if (nodesDoc!=null) {
-        var nodes = nodesDoc.documentElement.childNodes;
-        for (var i = 0; i < nodes.length; i++) {
-          var node = nodes.item(i);
-          var name = node.getAttribute("name");
-          var className = node.getAttribute("className");
-          newLi = document.createElement("LI");
-          newLi.innerHTML = "<a href=\"javascript:getNode('" + parentId + "/" + name + "');\">"
-            + name + " (" + className + ")</a><ul id=\"" + parentId + "/" + name + "\"></ul>";
-          ulNode.appendChild(newLi);
-        }
-      }
+    	*/
+    	
+        jQuery.ajax({
+            method: 'GET',
+            url: "debug.html?debugTab=jndi&action=getNodes&path=" + escape(parentId),
+            dataType: 'xml'
+        }).done(function (data) {
+        	var nodesDoc = data;
+        	
+      
+        	if (nodesDoc!=null) {
+                var nodes = nodesDoc.documentElement.childNodes;
+                for (var i = 0; i < nodes.length; i++) {
+                  var node = nodes.item(i);
+                  var name = node.getAttribute("name");
+                  var className = node.getAttribute("className");
+                  newLi = document.createElement("LI");
+                  newLi.innerHTML = "<a href=\"javascript:getNode('" + parentId + "/" + name + "');\">"
+                    + name + " (" + className + ")</a><ul id=\"" + parentId + "/" + name + "\"></ul>";
+                  ulNode.appendChild(newLi);
+                }
+              }
+        	
+        });
+    	
+    	
+      
     }
   }
   </script>
@@ -357,26 +227,6 @@ You do not have sufficient permissions to view this tab.
   
   </r:tab>
   
-  <r:tab id="benchmark" label="Performance" href="debug.html?debugTab=benchmark" >
-<form action="debug.html" method="post">
-  <div class="helptext">
-  <input type="hidden" name="debugTab" value="benchmark" />
-  <input type="submit" name="clearBenchmarks" value="Clear benchmarks" />
-  <b>Benchmark listing</b>
-  </div>
-</form>  
-  <table class="helptext" style="vertical-align: top;" >
-  <col width="40" />
-  <col width="200" />
-  <col width="100%" />
-  <col width="40" />
-  <col width="40" />
-  <c:forEach var="benchmark" items="${benchmarks}" varStatus="status">
-    <c:out value="${benchmark}" escapeXml="false" />
-  </c:forEach>
-  </table>
-  
-  </r:tab>
 
   <r:tab id="logging" label="Logging" href="debug.html?debugTab=logging" >
   <jsp:include page="misc/errorHeader.jsp" />
@@ -472,19 +322,6 @@ You do not have sufficient permissions to view this tab.
   </table>
   </r:tab>
 
-  <r:tab id="webClient" label="DMX" href="debug.html?debugTab=dmx" >
-<form action="debug.html" method="post">
-  <div class="helptext">
-  <input type="hidden" name="debugTab" value="dmx" />
-  <b>DMX stuff</b>
-  </div>
-</form>  
-
-
-
-
-  </r:tab>
-
 
   <r:tab id="test" label="Test" href="debug.html?debugTab=test" >
   <h1>Audit</h1>
@@ -507,15 +344,6 @@ You do not have sufficient permissions to view this tab.
   <a href="../misc/sessionDump.do">Session dump</a><br/>
   --%>
   
-<r:startEnvironment mask="*-dev-*">  
-  <br/>
-  <b>Warning!</b> The following tests require local filesystem access, and may modify database tables. <br/>
-  Do *NOT* use on a production system !<br/>
-  <a href="../ServletTestRunner?suite=net.randomnoun.facebook.AllTests&xsl=/multipass/xsl/cactus-report.xml" >Simple JUnit tests</a> (NB: this tests the log4j framework, and in so doing, breaks the EventLog in this webapp)<br/> 
-  <a href="../ServletTestRunner?suite=com.randomnoun.facebook.webapp.AllStrutsTests&xsl=/multipass/xsl/cactus-report.xml" >Struts JUnit tests</a> <br/> 
-  <a href="../ServletTestRunner?suite=com.randomnoun.facebook.webapp.AllHttpUnitTests&xsl=/multipass/xsl/cactus-report.xml" >HttpUnit JUnit tests</a> <br/> 
-  <br/>
-</r:startEnvironment>
   
   </r:tab>
   

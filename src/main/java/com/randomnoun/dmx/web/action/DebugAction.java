@@ -1,8 +1,6 @@
 package com.randomnoun.dmx.web.action;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -32,9 +30,6 @@ import com.randomnoun.common.ExceptionUtil;
 import com.randomnoun.common.Struct;
 import com.randomnoun.common.Text;
 import com.randomnoun.common.log4j.MemoryAppender;
-import com.randomnoun.common.security.Permission;
-import com.randomnoun.common.security.SecurityContext;
-import com.randomnoun.common.security.User;
 import com.randomnoun.dmx.config.AppConfig;
 import com.randomnoun.dmx.web.JmxUtils;
 import com.randomnoun.dmx.web.struts.ActionBase;
@@ -53,24 +48,6 @@ public class DebugAction extends ActionBase {
 	public static Logger logger = Logger.getLogger(DebugAction.class);
 
 	
-	public static class PermissionComparator implements Comparator {
-		/** 
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
-		public int compare(Object o1, Object o2) {
-			Permission p1 = (Permission) o1;
-			Permission p2 = (Permission) o2;
-			int r1 = p1.getResource().compareTo(p2.getResource());
-			if (r1==0) {
-				return p1.getActivity().compareTo(p2.getActivity());
-			} else {
-				return r1;
-			}
-		}
-	
-	}
-
-		
     /**
      * Perform this struts action. See the javadoc for this
      * class for more details.
@@ -84,7 +61,8 @@ public class DebugAction extends ActionBase {
      *
      * @throws Exception If an exception occurred during action processing
      */
-    public String execute(DmxHttpRequest request, HttpServletResponse response)
+    @SuppressWarnings("unchecked")
+	public String execute(DmxHttpRequest request, HttpServletResponse response)
         throws Exception
     {
         AppConfig appConfig = AppConfig.getAppConfig();
@@ -100,85 +78,6 @@ public class DebugAction extends ActionBase {
         
         if (debugTab.equals("attributes")) {
         	// request.setAttribute("appConfigAttributes", appConfig);
-        } else if (debugTab.equals("security")) {
-
-            SecurityContext context = appConfig.getSecurityContext();
-            
-            if (request.getParameter("resetContext")!=null) {
-                appConfig.getSecurityContext().resetSecurityContext();
-                request.setAttribute("resetContextResult", "Security context has been reset. Users may need to logout before any changes take effect");
-            }
-
-			if (request.getParameter("authUser") != null) {
-				String username = request.getParameter("username");
-				String password = request.getParameter("password");
-				User tempUser = new User(); tempUser.setUsername(username);
-				boolean result = appConfig.getSecurityContext().authenticate(tempUser, password);
-				if (result == true) {
-					request.setAttribute("loginResult", "Login successful");
-				} else {
-					request.setAttribute("loginResult", "Login failed");
-				}
-				request.setAttribute("username", username);
-				request.setAttribute("password", password);
-			}
-
-            
-			List permissions = context.getAllPermissions();
-			Collections.sort(permissions, new PermissionComparator());
-			
-			request.setAttribute("permissions", permissions);			
-			request.setAttribute("users", context.getAllUsers()); // @XXX: no longer returns permission data
-			request.setAttribute("roles", context.getAllRoles());
-			request.setAttribute("resources", context.getAllResources());
-        
-			/*
-        } else if (debugTab.equals("benchmark")) {
-			List benchmarks = new ArrayList(appConfig.getBenchmarks());  
-        	if (!Text.isBlank(request.getParameter("clearBenchmarks"))) {
-        		benchmarks.clear();
-        		appConfig.getBenchmarks().clear();
-        	}
-        	
-            Collections.sort(benchmarks, new Benchmark.BenchmarkComparator());
-            
-            List output = new ArrayList(benchmarks.size());
-            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
-
-            for (Iterator i = benchmarks.iterator(); i.hasNext(); ) {
-                Benchmark benchmark = (Benchmark)i.next();
-                String string = "<tr><td colspan=3 valign=top><b>" + benchmark.getId() +
-                    (benchmark.isActive() ? " <span style=\"color:red\">(ACTIVE)</span>"
-                                          : "") + "</b>";
-                long firstDate = benchmark.getCheckpointList().get(0).getDate().getTime();
-                Iterator j = benchmark.getCheckpointList().iterator();
-                Benchmark.Checkpoint checkpoint = (Benchmark.Checkpoint)j.next();
-                long lastDate = checkpoint.getDate().getTime();
-
-                string += "<tr><td valign=top><td class='benchTD' valign=top>" + checkpoint.getId() +
-                  "<td nowrap>" + dateFormat.format(checkpoint.getDate());
-                while (j.hasNext()) {
-                    checkpoint = (Benchmark.Checkpoint)j.next();
-                    long thisDate = checkpoint.getDate().getTime();
-                    if (lastDate != 0) {
-                        string += "<td valign=top>" + (thisDate - lastDate) + "<td valign=top>" +
-                        (thisDate - firstDate);
-                    } else {
-                        string += "<td valign=top><td valign=top> ";
-                    }
-
-                    lastDate = thisDate;
-                    string += "<tr><td valign=top><td class='benchTD' valign=top>" + checkpoint.getId() +
-                      "<td nowrap valign=top>" + dateFormat.format(checkpoint.getDate());
-                }
-
-                // String string = benchmark.getId() + benchmark.getCheckpointList().toString();
-                // logger.debug("adding benchmark: " + string);
-                output.add(string.trim());
-                
-            }
-            request.setAttribute("benchmarks", output);
-            */
             
         } else if (debugTab.equals("logging")) {
 			request.setAttribute("className", "(enter classname here...)");
@@ -201,12 +100,12 @@ public class DebugAction extends ActionBase {
             }
             request.getSession().setAttribute("debug.logging.source", source);
             
-            List appenders = new ArrayList();
-            List loggers = new ArrayList();
-            List levels = new ArrayList();
-            for (Enumeration e = LogManager.getRootLogger().getAllAppenders(); e.hasMoreElements(); ) {
+            List<Map<String, String>> appenders = new ArrayList<>();
+            List<Map<String, String>> loggers = new ArrayList<>();
+            List<String> levels = new ArrayList<>();
+            for (Enumeration<?> e = LogManager.getRootLogger().getAllAppenders(); e.hasMoreElements(); ) {
                 Appender appender = (Appender) e.nextElement();
-                Map appMap = new HashMap();
+                Map<String, String> appMap = new HashMap();
                 appMap.put("name", appender.getName());
                 appMap.put("type", Text.getLastComponent(appender.getClass().getName()));
                 if (appender instanceof AppenderSkeleton) {
@@ -215,16 +114,16 @@ public class DebugAction extends ActionBase {
                 }
                 appenders.add(appMap);
             }
-            for (Enumeration e = LogManager.getCurrentLoggers(); e.hasMoreElements(); ) {
+            for (Enumeration<?> e = LogManager.getCurrentLoggers(); e.hasMoreElements(); ) {
                 Logger tmpLogger = (Logger) e.nextElement();
-                Map loggerMap = new HashMap();
+                Map<String, String> loggerMap = new HashMap<>();
                 loggerMap.put("name", tmpLogger.getName());
                 loggerMap.put("effectiveLevel", tmpLogger.getEffectiveLevel().toString());
                 loggerMap.put("level", tmpLogger.getLevel() == null ? "" : tmpLogger.getLevel().toString());
                 loggerMap.put("additive", String.valueOf(tmpLogger.getAdditivity()));
                 loggerMap.put("parent", tmpLogger.getParent() == null ? "" : tmpLogger.getParent().getName());
                 String appString = "";
-                for (Enumeration e2 = tmpLogger.getAllAppenders(); e2.hasMoreElements(); ) {
+                for (Enumeration<?> e2 = tmpLogger.getAllAppenders(); e2.hasMoreElements(); ) {
                     appString = appString += "," + ((Appender) e2.nextElement()).getName();
                 }
                 loggerMap.put("appenders", appString);
@@ -248,17 +147,17 @@ public class DebugAction extends ActionBase {
             request.setAttribute("source", source);
         
         } else if (debugTab.equals("eventLog")) {
-			List newEvents = new ArrayList();
+			List<Map<String, Object>> newEvents = new ArrayList<>();
 			
             MemoryAppender memoryAppender = (MemoryAppender) Logger.getRootLogger().getAppender("MEMORY");
             if (memoryAppender!=null) {
 				if (!Text.isBlank(request.getParameter("clearEventLog"))) {
 					memoryAppender.clear();
 				}
-	            List loggingEvents = memoryAppender.getLoggingEvents();
-	            for (Iterator i = loggingEvents.iterator(); i.hasNext(); ) {
+	            List<LoggingEvent> loggingEvents = memoryAppender.getLoggingEvents();
+	            for (Iterator<LoggingEvent> i = loggingEvents.iterator(); i.hasNext(); ) {
 	                LoggingEvent event = (LoggingEvent)i.next();
-	                Map newEvent = new HashMap();
+	                Map<String, Object> newEvent = new HashMap<>();
 	                newEvent.put("timestamp", new Date(event.timeStamp));
 	                newEvent.put("username", event.getMDC("username"));
 	                newEvent.put("level", event.getLevel());
@@ -275,16 +174,6 @@ public class DebugAction extends ActionBase {
             }
             request.setAttribute("events", newEvents);
 
-        } else if (debugTab.equals("webClient")) {
-        	/*
-        	// @TODO add filtering to this page
-			List events = WebClientDA.getEvents();
-			for (Iterator i = events.iterator(); i.hasNext(); ) {
-				Map event = (Map) i.next();
-				event.put("requestTime", new Date(((Number) event.get("requestTime")).longValue()));
-			}
-			request.setAttribute("events", events);
-        	*/
         } else if (debugTab.equals("jmx")) {
         	
         	MBeanServer mBeanServer = JmxUtils.getMBeanServer();
@@ -312,7 +201,7 @@ public class DebugAction extends ActionBase {
 						// get a descriptor map
 						objectNames = JmxUtils.describeObjectName(mBeanServer, (ObjectName) object);
 					} else if (object instanceof List) {
-						objectNames = new HashMap();
+						objectNames = new HashMap<>();
 						for (Iterator i = ((List) object).iterator(); i.hasNext(); ) {
 							Object listItem = (Object) i.next();
 							if (listItem instanceof ObjectName) {
@@ -326,7 +215,7 @@ public class DebugAction extends ActionBase {
 					} else {
 						//	terminating node ?
 						System.out.println("-- class " + object.getClass().getName());
-						objectNames = new LinkedHashMap();
+						objectNames = new LinkedHashMap<>();
 						if (object instanceof String) {
 							objectNames.put(object, null);
 						} else if (object instanceof String[]) {
@@ -334,22 +223,6 @@ public class DebugAction extends ActionBase {
 							for (int i = 0; i<strings.length; i++) {
 								objectNames.put(strings[i], null);
 							}
-							// objectNames.put(object, string)
-						/* com.ibm.websphere.management.statistics.Stats
-						} else if (object instanceof Stats) {
-						    Stats stats = (Stats) object;
-						    Statistic[] statistics = stats.getStatistics();
-						    objectNames.put("numStats", new Long(statistics.length));
-						    for (int i = 0; i<statistics.length; i++) {
-								objectNames.put(statistics[i].getName() +
-								  ", description=" + statistics[i].getDescription() + 
-								  ", unit=" + statistics[i].getUnit() +
-								  ", getStartTime=" + statistics[i].getStartTime() +								  
-								  ", lastSampleTime=" + statistics[i].getLastSampleTime(),
-								  null);
-						    }
-							objectNames.put("-- result is of type " + object.getClass().getName(), null);
-						*/
 						} else if (object instanceof Number) {
 						    objectNames.put(object.toString(), null);	
 						} else {
@@ -360,7 +233,7 @@ public class DebugAction extends ActionBase {
 				}
 				
 				String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><nodes>";
-				for (Iterator i = objectNames.keySet().iterator(); i.hasNext(); ) {
+				for (Iterator<String> i = objectNames.keySet().iterator(); i.hasNext(); ) {
 					String key = (String) i.next();
 					xml += "<node name=\"" + key + "\"/>"; 
 				}
@@ -374,13 +247,6 @@ public class DebugAction extends ActionBase {
         	
         } else if (debugTab.equals("jndi")) {
 			// simple JNDI browser
-
-			// to connect to other server:
-			/* Hashtable env = new Hashtable();
-			env.put(Context.INITIAL_CONTEXT_FACTORY,
-				 "com.ibm.websphere.naming.WsnInitialContextFactory");
-			env.put(Context.PROVIDER_URL, "corbaloc:iiop:myhost.mycompany.com:2809"); */
-
 			if ("getNodes".equals(action)) {
 				String path = request.getParameter("path");
 				System.out.println("Viewing JNDI path 1 '" + path + "'");
@@ -393,14 +259,14 @@ public class DebugAction extends ActionBase {
 				System.out.println("Viewing JNDI path 2 '" + path + "'");
 				
 				InitialContext ctx = new InitialContext();
-				Map objectNames = new TreeMap();
-				for (NamingEnumeration e = ctx.listBindings(path); e.hasMore(); ) {
+				Map<String, Object> objectNames = new TreeMap<>();
+				for (NamingEnumeration<Binding> e = ctx.listBindings(path); e.hasMore(); ) {
 					Binding b = (Binding) e.next();
 					objectNames.put(b.getName(), b);
 				}
 				
 				String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><nodes>";
-				for (Iterator i = objectNames.keySet().iterator(); i.hasNext(); ) {
+				for (Iterator<String> i = objectNames.keySet().iterator(); i.hasNext(); ) {
 					String key = (String) i.next();
 					Binding b = (Binding) objectNames.get(key);
 					xml += "<node name=\"" + b.getName() + "\" className=\"" + b.getClassName() + "\"/>"; 
@@ -409,7 +275,7 @@ public class DebugAction extends ActionBase {
 
 				request.setAttribute("xml", xml);
 				System.out.println(xml);
-				forward = "simpleXml";
+				forward = "xml";
 			}
         	
         	
