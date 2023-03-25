@@ -90,11 +90,6 @@
         <!-- this action is called from within the UnknownActionHandler -->
         <action name="404"        class="com.randomnoun.dmx.web.action.DisplayAction"><result name="success">/misc/404.jsp</result></action>
 
-        <!-- Note this action is not a PermissionMapping to allow non-authenticated users to use it -->
-        <action name="manualController"  class="com.randomnoun.dmx.web.action.ManualControllerAction">
-          <result name="success">manualController.jsp</result>
-        </action>
-
         <action name="controller" class="com.randomnoun.dmx.web.action.ControllerAction">
           <result name="success">/controller.jsp</result>
         </action>
