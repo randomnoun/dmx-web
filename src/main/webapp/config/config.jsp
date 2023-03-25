@@ -51,7 +51,10 @@ try {
      
     <link rel="shortcut icon" href="images/favicon.png" />
     
-    <script src="mjs?js=prototype" type="text/javascript"></script>
+    <!--  <script src="mjs?js=prototype" type="text/javascript"></script>  -->
+    <script src="mjs?js=jquery-3.6.3.min,jquery-ui-1.13.2.min,farbtastic"></script> 
+    <script>jQuery.noConflict(); $ = jQuery;</script>
+    
 
 <style>
 BODY { font-size: 8pt; font-family: Arial; }
@@ -146,9 +149,9 @@ LI { font-size: 10pt; line-height: 1.5; }
 <r:setJavascriptVar name="exampleAdminConnectionStrings" value="${objects.exampleAdminConnectionStrings}"/>
 
 function edtInitPanel() {
-    var edtSubmitEl = $("edtSubmit");
-    Event.observe(edtSubmitEl, 'click', edtSubmitClick);
-    Event.observe($("lhsOK"), 'click', lhsOKClick);
+    var edtSubmitEl = $("#edtSubmit");
+    $(edtSubmitEl).on('click', edtSubmitClick);
+    $("#lhsOK").on('click', lhsOKClick);
 }
 
 function edtSubmitClick() { 
@@ -161,27 +164,27 @@ function lhsOKClick() {
 };
 function edtChangeCreateSchema() {
 	var createSchema = document.forms[0].elements['createSchema'][0].checked;
-	$$(".newSchema").each(function(s){s.style.display=createSchema?'table-row':'none';});
+	$(".newSchema").each(function(i,s){s.style.display=createSchema?'table-row':'none';});
 }
 function edtChangeDatabaseConfig() {
 	var databaseConfig = document.forms[0].elements['database_config'][0].checked;
-	$$(".standardDb").each(function(s){s.style.display=databaseConfig?'table-row':'none';});
-	$$(".customDb").each(function(s){s.style.display=databaseConfig?'none':'table-row';});
+	$(".standardDb").each(function(i,s){s.style.display=databaseConfig?'table-row':'none';});
+	$(".customDb").each(function(i,s){s.style.display=databaseConfig?'none':'table-row';});
 }
 function edtChangeDatabaseDriver() {
 	var databaseDriver = document.forms[0].elements['database_driver'].value;
 	var exampleConnectionString = exampleConnectionStrings[databaseDriver];
 	var exampleAdminConnectionString = exampleAdminConnectionStrings[databaseDriver];
 	
-	$("exampleDatabaseUrl").update("<br/>Example " + databaseDriver + " connection string:<br/><br/><tt>" + exampleConnectionString + "</tt>");
-	$("exampleAdminUrl").update("<br/>Example " + databaseDriver + " admin connection string:<br/><br/><tt>" + exampleAdminConnectionString + "</tt>");
+	$("#exampleDatabaseUrl").html("<br/>Example " + databaseDriver + " connection string:<br/><br/><tt>" + exampleConnectionString + "</tt>");
+	$("#exampleAdminUrl").html("<br/>Example " + databaseDriver + " admin connection string:<br/><br/><tt>" + exampleAdminConnectionString + "</tt>");
 }
 function initWindow() {
     edtInitPanel();
     if (pageNumber==1) {
     	document.forms[0].elements['jsCheck'].value="Y";
     	document.forms[0].elements['screenResolution'].value=window.screen.width + "x" + window.screen.height;
-    	document.forms[0].elements['browserResolution'].value=document.viewport.getWidth() + "x" + document.viewport.getHeight();
+    	document.forms[0].elements['browserResolution'].value=window.innerWidth + "x" + window.innerHeight;
     } else if (pageNumber==3) {
         edtChangeCreateSchema();
     	edtChangeDatabaseConfig();
