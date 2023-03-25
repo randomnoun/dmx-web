@@ -47,12 +47,10 @@ function twoDigits(v) {
   return t;
 }
 // @TODO timeout this text or something
-// @converted
 function setRhsMessageHTML(text) {
     $("#rhsMessage").html(text);
 }
 
-// @converted maybe
 function sendRequest(url, completedFunction) {
     jQuery.ajax({
         method: 'GET',
@@ -62,20 +60,8 @@ function sendRequest(url, completedFunction) {
         setRhsMessageHTML(data.message);
         if (completedFunction) { completedFunction(data); }
     });
-    /*
-    new Ajax.Request(url, {
-        method:'get', // evalJSON:true,
-        onSuccess: function(transport) {
-            setRhsMessageHTML(transport.responseJSON.message);
-            completedFunction(transport.responseJSON);
-        },
-        onComplete: function(transport) {
-            //completedFunction(transport.responseJSON);
-        }});
-    */
 }
 
-// @converted maybe
 function sendPostRequest(url,parameters,completedFunction) {
     jQuery.ajax({
         method: 'POST',
@@ -86,37 +72,21 @@ function sendPostRequest(url,parameters,completedFunction) {
         setRhsMessageHTML(data.message);
         completedFunction(data);
     });
-
-    /*
-    new Ajax.Request(url, {
-        method:'post', // evalJSON:true,
-        parameters:parameters,
-        onSuccess: function(transport) {
-            setRhsMessageHTML(transport.responseJSON.message);
-            completedFunction(transport.responseJSON);
-        },
-        onComplete: function(transport) {
-            //completedFunction(transport.responseJSON);
-        }});
-    */
 }
 
 
 /******************************* LHS MENU ******************************/
-// @converted
 function clickFx(el) {
     el.addClass("clickHighlight");
     window.setTimeout(function() { el.removeClass("clickHighlight"); }, 50);
 }
 
-// @converted
 function noSelect(el) {
     // @converted, @TODO use user-select instead
 	$(el).on('selectstart', function() { return false; } ); //ie
 	$(el).on('mousedown', function() { return false; } ); //mozilla
 }
 
-// @converted
 function initLhsMenu() {
     $("#lhsLogo").on('click', lhsLogo); 
     $("#lhsBlackout").on('click', lhsBlackout);
@@ -130,7 +100,6 @@ function initLhsMenu() {
     noSelect($("#lhsLogo"));
 }
 
-// @converted
 function lhsShowPanel(panelName) {
     if (currentPanelName==panelName) { return; }
     
@@ -150,7 +119,6 @@ function lhsShowPanel(panelName) {
     // @TODO update with current state
 }
 
-// @converted
 function lhsSelect(el) {
     $(".lhsMenuItem").each( function(i, s) { $(s).removeClass("lhsSelect"); } );
     if (el!=null) {
@@ -158,13 +126,11 @@ function lhsSelect(el) {
     }
 }
 
-// @converted
 function lhsBlackout() { 
     clickFx($("#lhsBlackout"));
     sendRequest('fancyController.html?action=blackOut');
 }
 
-// @converted it'd be great if copilot or chatcpt could do this, really
 function lhsLogo() { lhsSelect(null); lhsShowPanel("lgoPanel"); }
 function lhsShows() { lhsSelect($("lhsShows")); lhsShowPanel("shwPanel"); startPollRequests(); }
 function lhsFixtures() { lhsSelect($("lhsFixtures"));lhsShowPanel("fixPanel"); startPollRequests(); }
@@ -196,7 +162,6 @@ function startPollRequests() {
     */
 }
 
-// @converted
 function updatePanel(json) {
     var jsonPanel = json.panel;
     var serverTime = json.serverTime;
@@ -217,7 +182,6 @@ function updatePanel(json) {
     }
 }
 
-// @converted
 function updatePanelComet(json) {
 	var jsonPanel = json.panel;
 	var serverTime = json.serverTime;
@@ -232,14 +196,12 @@ function updatePanelComet(json) {
     }
 }
 
-// @converted
 function reloadCometIframe() {
 	$("#cometFrame").attr("src", "fancyController.html?action=iframe&pageId=" + pageId + "&panel=" + currentPanelName);
 }
 
 /******************************* CONFIG PANEL ******************************/
 
-// @converted
 function lgoInitPanel() {
 	$("#lgoText1").html("Client Name");
     $("#lgoText2").html("<b>DMX-WEB</b><br/><br/>" +
@@ -261,7 +223,6 @@ function lgoInitPanel() {
 
 /******************************* SHOW PANEL ******************************/
 
-// @converted
 var shwScrollFx=null;  
 function shwInitPanel() {
     var x, y, displayOffset=0, lastShowGroupId=-1;
@@ -313,7 +274,6 @@ function shwInitPanel() {
     $("#shwPageDown").on('click', shwPageUpClick); noSelect($("#shwPageDown"));
 } 
 
-// @converted
 function shwItemClick(event) {
     var shwItemEl = $(event.delegateTarget);
     if (shwItemEl.hasClass('shwOverlay')) { shwItemEl = shwItemEl.parentNode; }
@@ -326,17 +286,14 @@ function shwItemClick(event) {
     }
 }
 
-// @converted
 function shwCancelClick(event) {
     sendRequest('fancyController.html?action=cancelShow');
 }
 
-// @converted
 function shwCancelGroupClick(showGroupId) {
 	sendRequest('fancyController.html?action=cancelShowGroup&showGroupId=' + showGroupId);
 }
 
-// @converted
 function shwPageDownClick(event) {
 	var el = $("#shwItemContainer");
 	$(el).stop();
@@ -346,9 +303,8 @@ function shwPageDownClick(event) {
 	//else { shwScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, {afterFinish:function(){shwScrollFx=null;}}, 'scrollTop'); }
 }
 
-// @converted
 function shwPageUpClick(event) {
-	var el = $("$shwItemContainer");
+	var el = $("#shwItemContainer");
     $(el).stop();
     $(el).animate( { scrollTop: '+=1000' }, 1000 );
 	//if (shwScrollFx!=null) { shwScrollFx.cancel(); el.scrollTop=el.scrollTop+1000; shwScrollFx=null; }
@@ -359,7 +315,6 @@ function shwPageUpClick(event) {
 
 // this could be cleaned up a bit
 
-// @converted
 function shwUpdatePanel(json) {
     var newShows = json.shows;
     var now = new Date().getTime();
@@ -418,9 +373,9 @@ function shwUpdatePanel(json) {
 
     var bmt = json.audio;
     /*
-    $('shwAudioBassInner').style.width = Math.min(bmt['b']*40,40) + 'px';    
-    $('shwAudioMidInner').style.width = Math.min(bmt['m']*40,40) + 'px';
-    $('shwAudioTrebleInner').style.width = Math.min(bmt['t']*40,40) + 'px';
+    $('#shwAudioBassInner').style.width = Math.min(bmt['b']*40,40) + 'px';    
+    $('#shwAudioMidInner').style.width = Math.min(bmt['m']*40,40) + 'px';
+    $('#shwAudioTrebleInner').style.width = Math.min(bmt['t']*40,40) + 'px';
     */
     $('#shwAudioBassInner')[0].style.width = (bmt['b'] * 40) + 'px';    
     $('#shwAudioMidInner')[0].style.width = (bmt['m'] * 40) + 'px';
@@ -542,29 +497,6 @@ function fixInitPanel() {
             fixAimDrag((handlePos.left + handleEl.width()/2)/(containerEl.width()),
                        (handlePos.top + handleEl.height()/2)/(containerEl.height()));
         }
-        /*
-        snap: function(x,y,draggable) {
-            function constrain(n, lower, upper) {
-                if (n>upper) { return upper; }
-                else if (n<lower) { return lower; }
-                else return n;
-            }
-            handleDimensions=Element.getDimensions(draggable.element);
-            parentDimensions=Element.getDimensions(draggable.element.parentNode);
-            return[constrain(x, - handleDimensions.width/2, parentDimensions.width - handleDimensions.width/2),
-                   constrain(y, - handleDimensions.height/2, parentDimensions.height - handleDimensions.height/2)];
-        },
-        
-        onDrag: function(draggable, event) {
-            handleDimensions=Element.getDimensions(draggable.element);
-            parentDimensions=Element.getDimensions(draggable.element.parentNode);
-            handlePos=Position.positionedOffset(draggable.element);
-            fixAimDrag((handlePos[0]+handleDimensions.width/2)/(parentDimensions.width),
-                       (handlePos[1]+handleDimensions.height/2)/(parentDimensions.height));
-        },
-        
-        revert: false
-        */
     });
     
     // eurgh
@@ -572,53 +504,11 @@ function fixInitPanel() {
     //$('fixDimScrollArea').on('mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
 
     
-    // @TODO jquery this
-    /*
-    fixDimSlider = new Control.Slider("fixDimHandle", "fixDim", {
-        axis: "vertical",
-        onSlide: function(v) { fixDimChange(v); },
-        onChange: function(v) { fixDimChange(v); }
-    }); 
-    Event.observe('fixDimScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // mozilla
-    Event.observe('fixDimScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixDimSlider, 0.1));  // IE/Opera
-    fixStrobeSlider = new Control.Slider("fixStrobeHandle", "fixStrobe", {
-        axis: "vertical",
-        onSlide: function(v) { fixStrobeChange(v); },
-        onChange: function(v) { fixStrobeChange(v); }
-    });
-    fixStrobeSlider.setValue(1);
-    Event.observe('fixStrobeScrollArea', 'DOMMouseScroll', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // mozilla
-    Event.observe('fixStrobeScrollArea', 'mousewheel', fncWheelHandler.bindAsEventListener(fixStrobeSlider, 0.1));  // IE/Opera
-    $("fixAimActual").absolutize();
-    fixAimDraggable = new Draggable("fixAimHandle", {
-        // constraint code modified from http://www.java2s.com/Code/JavaScript/Ajax-Layer/Draganddropsnaptoabox.htm
-        snap: function(x,y,draggable) {
-            function constrain(n, lower, upper) {
-                if (n>upper) { return upper; }
-                else if (n<lower) { return lower; }
-                else return n;
-            }
-            handleDimensions=Element.getDimensions(draggable.element);
-            parentDimensions=Element.getDimensions(draggable.element.parentNode);
-            return[constrain(x, - handleDimensions.width/2, parentDimensions.width - handleDimensions.width/2),
-                   constrain(y, - handleDimensions.height/2, parentDimensions.height - handleDimensions.height/2)];
-        },
-        onDrag: function(draggable, event) {
-            handleDimensions=Element.getDimensions(draggable.element);
-            parentDimensions=Element.getDimensions(draggable.element.parentNode);
-            handlePos=Position.positionedOffset(draggable.element);
-            fixAimDrag((handlePos[0]+handleDimensions.width/2)/(parentDimensions.width),
-                       (handlePos[1]+handleDimensions.height/2)/(parentDimensions.height));
-        },
-        revert: false
-    });
-    */
    
    
     $("#fixPageUp").on('click', fixPageDownClick); noSelect($("#fixPageUp"));
     $("#fixPageDown").on('click', fixPageUpClick); noSelect($("#fixPageDown"));
 
-    //jQuery('#fixColorPicker').farbtastic(/*'#fixColor'*/ fixColorChange);
     fixColorPicker=$.farbtastic($('#fixColorPicker'), fixColorChange);
     if (fixtures.length>0) { fixUpdateControls(0); }
 } 
@@ -628,8 +518,6 @@ function fixPageDownClick(event) {
 	var el = $("#fixItemContainer");
 	$(el).stop();
     $(el).animate( { scrollTop: '-=1000' }, 1000 );
-	// if (fixScrollFx!=null) { fixScrollFx.cancel(); el.scrollTop=el.scrollTop-1000; fixScrollFx=null; }
-	// else { fixScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, {afterFinish:function(){fixScrollFx=null;}}, 'scrollTop'); }
 }
 
 // @converted
@@ -637,8 +525,6 @@ function fixPageUpClick(event) {
 	var el = $("#fixItemContainer");
     $(el).stop();
     $(el).animate( { scrollTop: '+=1000' }, 1000 );
-	//if (fixScrollFx!=null) { fixScrollFx.cancel(); el.scrollTop=el.scrollTop+1000; fixScrollFx=null; }
-	//else { fixScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, {afterFinish:function(){fixScrollFx=null;}}, 'scrollTop'); }
 }
 
 
@@ -659,7 +545,6 @@ function fixAimClick(event) {
     */
 }
 
-// @converted
 function fixToggleEl(_el) {
     var el = $(_el);
 	var selectClass = el.attr("selectClass");
@@ -670,7 +555,6 @@ function fixToggleEl(_el) {
     }
 }
 
-// @converted
 var fixLastFixSelectedEl = null;
 var fixSelectIndividual = false;
 function fixItemClick(event) {
@@ -718,7 +602,6 @@ function fixItemClick(event) {
     if (fixCustomControlsVisible) { fixUpdateCustomControls(); }
 }
 
-// @converted
 function fixLabelAim(panMin, panMax, tiltMin, tiltMax) {
     $("#fixAimLeft").html("&#8592; " + panMin + "&deg;");
     $("#fixAimRight").html(panMax + "&deg; &#8594;");
@@ -800,7 +683,6 @@ function fixUpdateControls(fixtureId) {
     fixUIUpdateOnly=false;
 }
 
-// @converted
 function fixSameValue(values) {
 	var sameValue = values[0];
 	for (var i = 1; i < values.length; i++) {
@@ -813,7 +695,6 @@ function fixSameValue(values) {
 // same as fixUpdateControls, but only update where all fixtures have the same value
 // TODO: set other controls opacity to n% ?
 
-// @converted
 function fixUpdateControlsArray(fixtureIds) {
     var values = new Array();
     var value, valuePan, valueTilt;
@@ -849,8 +730,6 @@ function fixUpdateControlsArray(fixtureIds) {
       var aimParentEl = aimHandleEl.parent();
       
       var aimActualEl = $("#fixAimActual");
-      // var aimHandleDimensions = Element.getDimensions(aimHandleEl);
-      // var aimParentDimensions = Element.getDimensions(aimHandleEl.parentNode);
     
       values=[]; $.each(fixtureIds, function(i, fid) { values.push(fixValues[fid]["p"]); } ); 
       valuePan = fixSameValue(values);
@@ -898,7 +777,6 @@ function fixUpdateControlsArray(fixtureIds) {
     fixUIUpdateOnly=false;
 }
 
-// @converted
 function fixGroupClick(event) {
     var fixGroupEl = $(event.delegateTarget);
     fixSelectIndividual = !fixSelectIndividual;
@@ -914,7 +792,6 @@ function fixGroupClick(event) {
     if (fixCustomControlsVisible) { fixUpdateCustomControls(); }
 }
 
-// @converted
 function fixAllNoneClick(event) {
     var fixAllNoneEl = $(event.delegateTarget);
     var countFixSelected=0;
@@ -934,7 +811,6 @@ function fixAllNoneClick(event) {
 }
 
 // show/hide the custom controls panel
-// @converted
 function fixCustomClick(event) {
 	fixCustomEl = $(event.delegateTarget);
 	fixCustomControlsVisible = !fixCustomControlsVisible;
@@ -950,7 +826,6 @@ function fixCustomClick(event) {
 	}
 }
 
-// @converted
 function fixUpdateCustomControls() {
 	var cc,tmft=false,i,fixtureId=null,fd=null;
     var ccEl=$("#fixCustomControls");
@@ -1062,19 +937,16 @@ function fixUpdateCustomControls() {
     }
 }
 
-// @converted
 function fixGetItems() {
     var fixItems=new Array();
     $.each(fixItemEls, function(i, f){if (f.hasClass(f.attr("selectClass"))){fixItems.push(f.attr("fixtureId"));};});
     return fixItems;
 }
 
-// @converted
 function fixGetItemIds() {
 	return fixGetItems().join(",");
 }
 
-// @converted
 function fixBlackout(event) {
     sendRequest('fancyController.html?action=fixtureBlackout&fixtureIds=' + fixGetItemIds());
 }
@@ -1091,7 +963,6 @@ function fixBlackout(event) {
 //
 // NB: this limitter does not ensure that one request finishes before
 // the next is generated
-// @converted
 function ajaxLimitter(_minRequestInterval, _finalRequestInterval) {
     
     return function(minRequestInterval, finalRequestInterval) {
@@ -1126,7 +997,6 @@ function ajaxLimitter(_minRequestInterval, _finalRequestInterval) {
     
 };
 
-// @converted
 var fixDimLimitter = ajaxLimitter(100, 200);
 function fixDimChange(v) {
 	if (fixUIUpdateOnly) { return; }
@@ -1139,7 +1009,6 @@ function fixDimChange(v) {
     }
 }
 
-// @converted
 var fixStrobeLimitter = ajaxLimitter(100, 200);
 function fixStrobeChange(v) {
 	if (fixUIUpdateOnly) { return; }
@@ -1165,7 +1034,6 @@ function fixColorChange(color) {
     
 }
 
-// @converted
 var fixAimLimitter = ajaxLimitter(100, 200);
 function fixAimDrag(x, y) {
 	if (fixUIUpdateOnly) { return; }
@@ -1178,7 +1046,6 @@ function fixAimDrag(x, y) {
     
 }
 
-// @converted
 function fixCustomToggleClick(controlId) {
 	// should toggle requested value here
 	// controlId should be defined here, but doesn't appear to be...
@@ -1220,7 +1087,6 @@ function fixCustomGridChange(controlId, draggable, event) {
   	}
 }
 
-// @converted
 function fixRecTouch(fixtureIds) {
 	for (var i=0; i<fixtureIds.length; i++) {
 	  var fixItemEl = $("#fixItem[" + fixtureIds[i] + "]").children()[0];
@@ -1231,7 +1097,6 @@ function fixRecTouch(fixtureIds) {
 	}  
 }
 
-// @converted
 function fixUpdatePanel(json) {
     fixValues = json.fixValues;
     for (var i=0; i<fixValues.length; i++) {
@@ -1274,7 +1139,6 @@ var dmxHighlightedChannel=null; // fixture being editted via slider
 var dmxSlider=null;
 var dmxUIUpdateOnly = false;
 
-// @converted
 function dmxInitPanel() {
 	
 	// could either create all universes/banks here and then just display the active one
@@ -1329,7 +1193,6 @@ function dmxInitPanel() {
 
 }
 
-// @converted
 var dmxSliderLimitter = ajaxLimitter(100, 200);
 function dmxSliderChange(v) {
 	if (dmxUIUpdateOnly) { return; }
@@ -1339,7 +1202,6 @@ function dmxSliderChange(v) {
 }
 
 
-// @converted
 function dmxValueClick(event) {
     var dmxValueEl, el, el2, ch, f, off, dc, j;
     dmxValueEl = $(event.delegateTarget);
@@ -1391,13 +1253,11 @@ function dmxValueClick(event) {
 }
 
 // only required for chrome, which doesn't pass backspaces through to dmxKeypress
-// @converted
 function dmxKeydown(event) {
 	if (event.keyCode==8) { dmxKeypress(event); event.stop(); }
 	if (event.keyCode==27) { dmxKeypress(event); event.stop(); }
 }
 
-// @converted
 var dmxTest=0;
 function dmxKeypress(event) {
 	dmxTest++;
@@ -1460,7 +1320,6 @@ function dmxKeypress(event) {
 
 }
 
-// @converted
 function dmxSliderKeypress(event) {
 	dmxTest++;
     switch (event.keyCode) {
@@ -1472,7 +1331,6 @@ function dmxSliderKeypress(event) {
     	  break;
     }
 }
-// @converted
 function dmxCancelValueUpdate() {
 	v = dmxOrigValue;
 	dmxValues[dmxSelectedChannel-1]=v;
@@ -1553,7 +1411,6 @@ function dmxValueOnMouseOver(event) {
     $(document).on('keypress', dmxSliderKeypress);
 }
 
-// @converted
 function dmxValueOnMouseOut(event) {
     var dmxValueEl = $(event.delegateTarget);
     var ch=$(dmxValueEl).attr("dmxChannel");
@@ -1571,7 +1428,6 @@ function dmxValueOnMouseOut(event) {
     }
 }
 
-// @converted
 function dmxUpdatePanel(json) {
 	dmxSetUniverse(json.currentUniverse, json.currentBank);
 	if (json.dmxValues) {
@@ -1605,7 +1461,6 @@ function dmxUpdatePanel(json) {
     }
 }
 
-// @converted
 function dmxSetUniverse(newDmxCurrentUniverse, newDmxCurrentBank) {
 	if (dmxCurrentUniverse!=newDmxCurrentUniverse ||
 		dmxCurrentBank!=newDmxCurrentBank) {
@@ -1637,12 +1492,10 @@ function dmxSetUniverse(newDmxCurrentUniverse, newDmxCurrentBank) {
 	}
 }
 
-// @converted
 function dmxPrevBank() {
 	sendRequest('fancyController.html?action=prevBank', dmxUpdatePanel); // 
 }
 
-// @converted
 function dmxNextBank() {
 	sendRequest('fancyController.html?action=nextBank', dmxUpdatePanel); // 
 }
@@ -1650,7 +1503,6 @@ function dmxNextBank() {
 
 /******************************* LOG PANEL ******************************/
 var logScrollFx;
-// @converted  
 function logInitPanel() {
     $("logPageUp").on('click', logPageDownClick); noSelect($("#logPageUp"));
     $("logPageDown").on('click', logPageUpClick); noSelect($("#logPageDown"));
@@ -1667,7 +1519,6 @@ function logPageDownClick(event) {
 	//else { logScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop-1000, {afterFinish:function(){logScrollFx=null;}}, 'scrollTop'); }
 }
 
-// @converted
 function logPageUpClick(event) {
 	var el = $("logExceptionContainer");
 $(el).stop();
@@ -1677,7 +1528,6 @@ $(el).stop();
 	//else { logScrollFx = new Effect.Tween(el, el.scrollTop, el.scrollTop+1000, {afterFinish:function(){logScrollFx=null;}}, 'scrollTop'); }
 }
 
-// @converted
 function logClearClick(event) {
     sendRequest('fancyController.html?action=clearLogs', logUpdatePanel);
     //reloadCometIframe();
@@ -1685,7 +1535,6 @@ function logClearClick(event) {
 }
 
 
-// @converted
 function logToggle(logId) {
 	var e = logExceptions[logId];
 	var logDetailEl = $("#logDetail\\[" + logId + "\\]");
@@ -1708,7 +1557,6 @@ function logToggle(logId) {
 	}
 }
 
-// @converted
 function logUpdatePanel(json) {
     var el = $("#logExceptionContainer");
     var text;
@@ -1729,7 +1577,6 @@ function logUpdatePanel(json) {
     if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
 }
 
-// @converted
 function logUpdateNotification(logCount) {
 	if (logCount!=lastLogCount) {
 		if (logCount>0) {
@@ -1744,7 +1591,6 @@ function logUpdateNotification(logCount) {
 
 /******************************* CONFIG PANEL ******************************/
 
-// @converted
 function cnfInitPanel() {
 	$("#cnfStage").on('click', cnfStageClick);
 	$("#cnfDevice").on('click', cnfDeviceClick);
@@ -1770,23 +1616,18 @@ function cnfInitPanel() {
     
 }
 
-// @converted
 function cnfStageClick() {
     document.location="maintainStage.html";
 }
-// @converted
 function cnfDeviceClick() {
     document.location="maintainDevice.html?deviceType=D";
 }
-// @converted
 function cnfAudioControllerClick() {
     document.location="maintainDevice.html?deviceType=C";
 }
-// @converted
 function cnfAudioSourceClick() {
     document.location="maintainDevice.html?deviceType=S";
 }
-// @converted
 function cnfRecordClick() {
 	// NB: may be called when cnfPanel not visible
 	isRecording=!isRecording;
@@ -1816,7 +1657,6 @@ function cnfRecordClick() {
 	$("#cnfRecordText").html(isRecording ? "Stop recording" : "Record a show");
 }
 
-// @converted all these
 function cnfFixtureDefClick() {
     document.location="maintainFixtureDef.html";
 }
@@ -1850,7 +1690,6 @@ function cnfVideoClick() {
 //var recCurrentFrame = 0; // 0-based
 //var recTotalFrames = 0;
 
-// @converted
 function recInitPanel() {
 	$("#recContainer")[0].style.visibility = isRecording ? "visible" : "hidden";
 	$("#cnfRecordText").html(isRecording ? "Stop recording" : "Start recording");
@@ -1869,12 +1708,10 @@ function recInitPanel() {
     $("recRecordAnim").on('click', cnfRecordClick);
 }
 
-// @converted
 function recUpdatePanel(json) {
 	
 }
 
-// @converted
 function recSetFrames(newRecActiveFrame, newRecTotalFrames) {
 	recCurrentFrame=newRecActiveFrame;
 	recTotalFrames=newRecTotalFrames;
@@ -1882,14 +1719,12 @@ function recSetFrames(newRecActiveFrame, newRecTotalFrames) {
 	$("#recTotalFrames").html(recTotalFrames);
 }
 
-// @converted
 function recPrevFrame() {
 	sendRequest('fancyController.html?action=prevFrame', recCallback);
 	//recCurrentFrame--;
 	recSetFrames(recCurrentFrame, recTotalFrames);
 }
 
-// @converted
 function recNextFrame() {
 	sendRequest('fancyController.html?action=nextFrame', recCallback);
 	//recCurrentFrame++; 
@@ -1897,26 +1732,22 @@ function recNextFrame() {
 	//recSetFrames(recCurrentFrame, recTotalFrames);
 }
 
-// @converted
 function recAddFrame() {
 	sendRequest('fancyController.html?action=addFrame', recCallback);
 	//alert("recAddFrame");
 }
 
-// @converted
 function recDeleteFrame() {
 	sendRequest('fancyController.html?action=deleteFrame', recCallback);
 	//alert("recDeleteFrame");
 }
 
-// @converted
 function recPlay() {
 	sendRequest('fancyController.html?action=playRecording', recCallback);
 	// alert("recPlay");
 }
 
 // call this recUpdatePanel ?
-// @converted
 function recCallback(json) {
 	if (json.totalFrames) { recSetFrames(json.currentFrame, json.totalFrames); }
 	// set fixture/dmx value highlights for this frame ?
@@ -1941,23 +1772,6 @@ function recCallback(json) {
 }
 
 
-/******************************* LONG POLLING ******************************/
-
-/*
-function initLongPolling() {
-    // this will block until there is UI data to send to the browser
-    longPollRequest=Ajax.Request('fancyController.html?action=longPoll', {
-        method:'get', // evalJSON:true,
-        onSuccess: function(transport) {
-            if (transport.responseJSON.result=="success") {
-                // something
-            }
-        }
-    });
-}
-*/
-
- 
 /******************************* INIT ******************************/
 
 function initWindow() {
@@ -1987,4 +1801,3 @@ function initWindow() {
     }
 
 }
-
