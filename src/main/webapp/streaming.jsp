@@ -22,7 +22,6 @@
     <meta name="robots" content="index,follow" />
     <meta name="publisher" content="randomnoun" />
     <meta name="copyright" content="&copy; Copyright 2010, randomnoun" />
-    <meta name="description" content="Albion comedy DMX web application" />
     <meta name="revisit-after" content="2 days" />
     <meta name="keywords" content="nothing-in-particular" />
     <title><%= appConfig.getProperty("webapp.titlePrefix") %> DMX Video Stream</title>

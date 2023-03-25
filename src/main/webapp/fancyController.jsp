@@ -21,7 +21,6 @@
     <meta name="robots" content="index,follow" />
     <meta name="publisher" content="randomnoun" />
     <meta name="copyright" content="&copy; Copyright 2010, randomnoun" />
-    <meta name="description" content="Albion comedy DMX web application" />
     <meta name="revisit-after" content="2 days" />
     <meta name="keywords" content="nothing-in-particular" />
     <title><%= appConfig.getProperty("webapp.titlePrefix") %> DMX</title>
@@ -31,11 +30,8 @@
     <link rel="stylesheet" href="css/fancyController.css" type="text/css" />
 
     <!-- JavaScript -->
-    <!--  <script src="mjs?js=prototype" type="text/javascript"></script>  -->
     <script src="mjs?js=jquery-3.6.3.min,jquery-ui-1.13.2.min,farbtastic"></script> 
     <script>jQuery.noConflict(); $ = jQuery;</script>
-     
-    <!--  <script src="mjs?js=scriptaculous,builder,effects,dragdrop,controls,slider,sound,rollover,johnford,browserDetect" type="text/javascript"></script>  --> 
     
 <script>
 <r:setJavascriptVar name="stage" value="${stage}" />

@@ -23,7 +23,6 @@
     <meta name="robots" content="index,follow" />
     <meta name="publisher" content="randomnoun" />
     <meta name="copyright" content="&copy; Copyright 2010, randomnoun" />
-    <meta name="description" content="Albion comedy DMX web application" />
     <meta name="revisit-after" content="2 days" />
     <meta name="keywords" content="nothing-in-particular" />
     
@@ -33,7 +32,6 @@
     <link rel="stylesheet" href="css/tabs.css" type="text/css" />
 
     <!-- JavaScript -->
-    <%-- <script src="mjs?js=prototype" type="text/javascript"></script>  --%>
     <script src="mjs?js=jquery-3.6.3.min"></script>
     <script src="js/codemirror/codemirror.js" type="text/javascript"></script>
     

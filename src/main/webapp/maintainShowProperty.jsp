@@ -29,7 +29,6 @@
     
     <link href="css/table-edit.css" media=all" rel="stylesheet" type="text/css" />
 
-    <%-- <script src="mjs?js=prototype" type="text/javascript"></script>  --%>
     <script src="mjs?js=jquery-3.6.3.min"></script>
     <script language="javascript" src="js/table-edit.js"></script>
 
