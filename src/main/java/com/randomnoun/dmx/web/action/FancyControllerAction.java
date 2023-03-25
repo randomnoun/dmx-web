@@ -175,6 +175,7 @@ public class FancyControllerAction extends ActionBase {
     		result.put("dmxValues", dmxValues);
             result.put("currentUniverse", universeIdx);
             result.put("currentBank", bankId);
+            
 			/*
 			int[] d = u.getAllDmxChannelValues();
 			String j = "";
@@ -285,9 +286,12 @@ public class FancyControllerAction extends ActionBase {
 		User user = (User) session.getAttribute("user");
 		
 		int currentBank = 0;
+		int universeIdx = 0;
 		Integer currentBankInt = (Integer) session.getAttribute("currentBank");
-		if (currentBankInt!=null) { currentBank = currentBankInt % 2; }
-		int universeIdx = currentBank / 2;
+		Integer currentUniverseInt = (Integer) session.getAttribute("currentUniverse");
+		if (currentBankInt!=null) { currentBank = currentBankInt; }
+		if (currentUniverseInt!=null) { universeIdx = currentUniverseInt; }
+		// int universeIdx = currentBank / 2;
 		
 		Recording recording = (Recording) session.getAttribute("recording");
 		
@@ -622,7 +626,14 @@ public class FancyControllerAction extends ActionBase {
     			Map resultMap = new HashMap();
     			resultMap.put("panel", panel);
     			resultMap.put("serverTime", System.currentTimeMillis());
-    			setPanelAttributes(resultMap, panel, universeIdx, currentBank, recording);
+
+    			// hrm
+    			currentBankInt = (Integer) session.getAttribute("currentBank");
+    			currentUniverseInt = (Integer) session.getAttribute("currentUniverse");
+    			if (currentBankInt!=null) { currentBank = currentBankInt; }
+    			if (currentUniverseInt!=null) { universeIdx = currentUniverseInt; }
+    			
+    			setPanelAttributes(resultMap, panel, universeIdx, currentBank, recording); 
     			
     			// @TODO make this much more compact (diffs only?)
     			pw.println("<script>top.updatePanelComet(" + Struct.structuredMapToJson(resultMap) + ");</script>\n");
@@ -700,21 +711,25 @@ public class FancyControllerAction extends ActionBase {
     		
     	} else if (action.equals("nextBank")) {
     		currentBank++;
-    		if (currentBank==2) { universeIdx=(universeIdx+1) % controller.getUniverses().size(); }
+    		if (currentBank==2) { currentBank = 0; universeIdx=(universeIdx+1) % controller.getUniverses().size(); }
     		result.put("message", "Switching to bank " + (currentBank+1) + " on universe " + (universeIdx + 1));
     		result.put("currentUniverse", new Long(universeIdx));
-    		result.put("currentBank", new Long(currentBank));    		
+    		result.put("currentBank", new Long(currentBank));
+            session.setAttribute("currentUniverse", universeIdx);
+            session.setAttribute("currentBank", currentBank);
 
     	} else if (action.equals("prevBank")) {
     		currentBank--;
     		if (currentBank==-1) { 
-    			currentBank=1; 
-    			universeIdx=universeIdx-1; 
-    			if (universeIdx==-1) { universeIdx = controller.getUniverses().size()-1; } 
+    			currentBank = 1; 
+    			universeIdx = universeIdx - 1; 
+    			if (universeIdx==-1) { universeIdx = controller.getUniverses().size() - 1; } 
     		}
     		result.put("message", "Switching to bank " + (currentBank+1) + " on universe " + (universeIdx + 1));
     		result.put("currentUniverse", new Long(universeIdx));
     		result.put("currentBank", new Long(currentBank));    		
+            session.setAttribute("currentUniverse", universeIdx);
+            session.setAttribute("currentBank", currentBank);
 
     	} else if (action.equals("blackOut")) {
     		if (fixtureId == -1) {

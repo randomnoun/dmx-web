@@ -320,6 +320,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 					throw new IllegalArgumentException("Invalid pageNumber parameter '" + pageNumber + "'");
 				}
 				
+				/*
 			} else if (e==null) {
 				// possibly allow this ?
 				Exception e2 = new IllegalStateException("Configuration not required");
@@ -328,9 +329,11 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 				  ConfigServlet.class.getClassLoader(), ExceptionUtil.HIGHLIGHT_HTML, "com.randomnoun."));
 				request.setAttribute("isStrutsRequest", "true"); // used in JSPs to check whether this routine has been invoked
 				request.setAttribute("stacktraceSummary", ExceptionUtil.getStackTraceSummary(e2));
-				jspForward = "misc/error.jsp";
+				jspForward = "misc/errorPage.jsp";
 			} else if (!e.getMessage().equals("No appConfig")) {
-				jspForward = "misc/error.jsp";
+				jspForward = "misc/errorPage.jsp";
+				*/
+				
 			} else {
 				Map<String, Object> objects = getDefaultObjects();
 				Map<String, String> form = (Map<String, String>) getDefaultStrings(objects);
@@ -482,7 +485,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         } catch (IllegalStateException ise) {
         	winAmpLocation = ""; // you don't get a registry on unix. Except for the wine one. Which I'm ignoring for the time being.
         }
-        if (winAmpLocation!=null) {
+        if (!Text.isBlank(winAmpLocation)) {
 	        if (winAmpLocation.startsWith("\"")) {
 	        	winAmpLocation = winAmpLocation.substring(1, winAmpLocation.length()-2);
 	        }
@@ -491,9 +494,13 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         	winAmpLocation = "";
         }
         
-        
-        String dmxWebLocation = Registry.getSystemValue("SOFTWARE\\Randomnoun\\DMX-web", "InstallDir");
-        if (dmxWebLocation!=null) {
+        String dmxWebLocation;
+        try {
+        	dmxWebLocation = Registry.getSystemValue("SOFTWARE\\Randomnoun\\DMX-web", "InstallDir");
+        } catch (IllegalStateException ise) {
+        	dmxWebLocation = ""; 
+        }
+        if (!Text.isBlank(dmxWebLocation)) {
 	        if (dmxWebLocation.startsWith("\"")) {
 	        	dmxWebLocation = dmxWebLocation.substring(1, dmxWebLocation.length()-2);
 	        }
@@ -586,8 +593,13 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
         }
         
         // check for any registered MySQL 5.1 installs
-        String mysqlLocation = Registry.getSystemValue("SOFTWARE\\MySQL AB\\MySQL Server 5.1", "Location");
-        if (mysqlLocation!=null) {
+        String mysqlLocation;
+        try {
+        	mysqlLocation = Registry.getSystemValue("SOFTWARE\\MySQL AB\\MySQL Server 5.1", "Location");
+        } catch (IllegalStateException e) {
+        	mysqlLocation = "";
+        }
+        if (!Text.isBlank(mysqlLocation)) {
 	        if (mysqlLocation.startsWith("\"")) {
 	        	mysqlLocation = mysqlLocation.substring(1, mysqlLocation.length()-2);
 	        }
