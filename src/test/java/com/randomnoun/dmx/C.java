@@ -15,7 +15,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 import javax.imageio.ImageIO;
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;

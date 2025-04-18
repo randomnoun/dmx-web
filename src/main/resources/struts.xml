@@ -164,8 +164,8 @@
 
 	    
 	</package>
-
-    <bean type="com.opensymphony.xwork2.UnknownHandler" name="handler" class="com.randomnoun.dmx.web.struts.UnknownActionHandler"/>
+    
+    <bean type="org.apache.struts2.UnknownHandler" name="handler" class="com.randomnoun.dmx.web.struts.UnknownActionHandler"/>
     
 
 

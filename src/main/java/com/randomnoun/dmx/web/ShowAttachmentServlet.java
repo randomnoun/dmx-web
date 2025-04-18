@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
@@ -29,7 +29,7 @@ import com.randomnoun.dmx.to.ShowDefAttachmentTO;
  * where nnn is the showDefId and filename is the attached file to that
  * show definition.
  */
-public class ShowAttachmentServlet extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
+public class ShowAttachmentServlet extends jakarta.servlet.http.HttpServlet implements jakarta.servlet.Servlet {
 
      /** Cache of images */
      public static Map cache = new MRUCache(100, 0, null);
@@ -51,7 +51,7 @@ public class ShowAttachmentServlet extends javax.servlet.http.HttpServlet implem
 	
 	/** Post method; just defers to get
 	 * 
-	 * @see javax.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see jakarta.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
@@ -59,7 +59,7 @@ public class ShowAttachmentServlet extends javax.servlet.http.HttpServlet implem
     
 	/** Lets get this turkey stand on the road
 	 * 
-	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see jakarta.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	@SuppressWarnings("unchecked")
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 

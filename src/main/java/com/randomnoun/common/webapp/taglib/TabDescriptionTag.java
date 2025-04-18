@@ -6,8 +6,8 @@ package com.randomnoun.common.webapp.taglib;
 
 import java.io.*;
 
-import javax.servlet.jsp.*;
-import javax.servlet.jsp.tagext.*;
+import jakarta.servlet.jsp.*;
+import jakarta.servlet.jsp.tagext.*;
 
 /**
  * Custom JSP tag which is used to create a group of tabs.
@@ -66,7 +66,7 @@ public class TabDescriptionTag
      *   otherwise BodyTag.SKIP_BODY.
      */
     public int doStartTag()
-        throws javax.servlet.jsp.JspException
+        throws jakarta.servlet.jsp.JspException
     {
 		tabBuffer = new ByteArrayOutputStream();
 		tabPrintWriter = new PrintWriter(tabBuffer);
@@ -90,11 +90,11 @@ public class TabDescriptionTag
      *
      * @return This method always returns BodyTag.SKIP_BODY.
      *
-     * @throws javax.servlet.jsp.JspException if an I/O exception occurred writing to the
+     * @throws jakarta.servlet.jsp.JspException if an I/O exception occurred writing to the
      *   tabPrintWriter.
      */
     public int doAfterBody()
-        throws javax.servlet.jsp.JspException
+        throws jakarta.servlet.jsp.JspException
     {
 		try {
 			getBodyContent().writeOut(tabPrintWriter);

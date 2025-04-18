@@ -1,26 +1,26 @@
 package com.randomnoun.dmx.web.struts;
 
 import org.apache.log4j.Logger;
+import org.apache.struts2.ActionContext;
+import org.apache.struts2.StrutsException;
+import org.apache.struts2.UnknownHandler;
+import org.apache.struts2.config.ConfigurationManager;
+import org.apache.struts2.config.RuntimeConfiguration;
+import org.apache.struts2.config.entities.ActionConfig;
 import org.apache.struts2.dispatcher.Dispatcher;
-
-import com.opensymphony.xwork2.ActionContext;
-import com.opensymphony.xwork2.Result;
-import com.opensymphony.xwork2.XWorkException;
-import com.opensymphony.xwork2.config.ConfigurationManager;
-import com.opensymphony.xwork2.config.RuntimeConfiguration;
-import com.opensymphony.xwork2.config.entities.ActionConfig;
+import org.apache.struts2.result.Result;
 
 /** Struts could have chosen to return 404s in response to unknown URLs, like every other 
  * framework on the planet, but no, they had to go and create UnknownHandlers instead.
  * 
  * @author knoxg
  */
-public class UnknownActionHandler implements com.opensymphony.xwork2.UnknownHandler {
+public class UnknownActionHandler implements UnknownHandler {
 
 	Logger logger = Logger.getLogger(UnknownActionHandler.class);
 	
 	@Override
-	public ActionConfig handleUnknownAction(String namespace, String actionName) throws XWorkException {
+	public ActionConfig handleUnknownAction(String namespace, String actionName) throws StrutsException {
 		// modified from http://www.jcgonzalez.com/struts2-create-custom-not-found-page-404
 		// (downloaded by knoxg on 2017-02-09)
 		logger.warn("UnknownActionHandler.handleUnknownAction() called; namespace='" + namespace + "', actionName='" + actionName + "'");
@@ -36,7 +36,7 @@ public class UnknownActionHandler implements com.opensymphony.xwork2.UnknownHand
 
 	@Override
 	public Result handleUnknownResult(ActionContext actionContext, String actionName, ActionConfig actionConfig,
-			String resultCode) throws XWorkException {
+			String resultCode) throws StrutsException {
 		logger.warn("UnknownActionHandler.handleUnknownResult() called; actionContext='" + actionContext + "', " +
 			"actionName='" + actionName + "', actionConfig='" + actionConfig + "', resultCode='" + resultCode + "'");
 		return null;
@@ -47,5 +47,7 @@ public class UnknownActionHandler implements com.opensymphony.xwork2.UnknownHand
 		logger.warn("UnknownActionHandler.handleUnknownActionMethod() called; action='" + action + "', methodName='" + methodName + "'");
 		return null;
 	}
+
+	
 
 }

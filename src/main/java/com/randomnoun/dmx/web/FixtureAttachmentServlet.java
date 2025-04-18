@@ -10,10 +10,10 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
@@ -34,7 +34,7 @@ import com.randomnoun.dmx.to.FixtureDefAttachmentTO;
  * where nnn is the fixtureDefId and filename is the attached file to that
  * fixture definition.
  */
-public class FixtureAttachmentServlet extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
+public class FixtureAttachmentServlet extends jakarta.servlet.http.HttpServlet implements jakarta.servlet.Servlet {
 
      /** Cache of images */
      public static Map cache = new MRUCache(100, 0, null);
@@ -56,7 +56,7 @@ public class FixtureAttachmentServlet extends javax.servlet.http.HttpServlet imp
 	
 	/** Post method; just defers to get
 	 * 
-	 * @see javax.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see jakarta.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
@@ -64,7 +64,7 @@ public class FixtureAttachmentServlet extends javax.servlet.http.HttpServlet imp
     
 	/** Process a HTTP request
 	 * 
-	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see jakarta.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	@SuppressWarnings("unchecked")
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 

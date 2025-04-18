@@ -5,9 +5,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.log4j.Logger;
@@ -62,12 +63,29 @@ public class DmxHttpRequest extends SafeHttpRequest {
 	public Long getUserSessionId() { return (Long) this.getAttribute("userSessionId"); }
 	*/
 	
+
 	@Override
 	public ServletInputStream getInputStream() throws IOException {
 		final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(getWrappedRequestBody());
 		return new ServletInputStream() {
 			public int read() throws IOException {
 				return byteArrayInputStream.read();
+			}
+
+			@Override
+			public boolean isFinished() {
+				return byteArrayInputStream.available() > 0;
+			}
+
+			@Override
+			public boolean isReady() {
+				return true;
+			}
+
+			@Override
+			public void setReadListener(ReadListener readListener) {
+				throw new UnsupportedOperationException("not implemented");
+				
 			}
 		};
 	}

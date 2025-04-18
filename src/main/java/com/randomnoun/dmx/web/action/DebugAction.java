@@ -15,7 +15,7 @@ import javax.management.ObjectName;
 import javax.naming.Binding;
 import javax.naming.InitialContext;
 import javax.naming.NamingEnumeration;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;

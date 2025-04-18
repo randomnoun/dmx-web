@@ -16,7 +16,7 @@ package com.randomnoun.common.webapp.upload;
  *   email : plosson@users.sourceforge.net
  */
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * This object is responsible for updating a ProgressTO object

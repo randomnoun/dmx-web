@@ -11,7 +11,7 @@
     <parent>
         <artifactId>parent-pom</artifactId>
         <groupId>com.randomnoun.build</groupId>
-        <version>1.22</version>
+        <version>1.25</version>
     </parent>
 
 
@@ -21,20 +21,28 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        
+        
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.randomnoun.common</groupId>
+            <artifactId>log4j-one-bridge</artifactId>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.randomnoun.common</groupId>
             <artifactId>log4j-one</artifactId>
-            <version>0.0.4</version>
+            <version>1.0.0</version>
         </dependency>
+
         <dependency>
             <groupId>com.randomnoun.common</groupId>
             <artifactId>common-public</artifactId>
-            <version>1.0.6</version>
+            <version>1.0.29</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
@@ -59,29 +67,48 @@
             <classifier>x86</classifier>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <type>jar</type>
+        
+         <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version><!-- tomcat 10.1 = servlet 6.0 -->
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <version>3.1.0</version><!-- tomcat 10.1 = jsp 3.1 -->
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+            <version>5.0.0</version><!-- tomcat 10.1 = el 5.0-->
+            <scope>provided</scope>
+        </dependency>
+        
+        
+        <dependency>
             <groupId>org.apache.struts</groupId>
             <artifactId>struts2-core</artifactId>
-            <version>2.5.17</version>
+            <version>7.0.3</version>
         </dependency>
 
+        
         <dependency>
-            <groupId>org.apache.taglibs</groupId>
-            <artifactId>taglibs-standard-spec</artifactId>
-            <version>1.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.taglibs</groupId>
-            <artifactId>taglibs-standard-impl</artifactId>
-            <version>1.2.1</version>
-        </dependency>
+		    <groupId>jakarta.servlet.jsp.jstl</groupId>
+		    <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+		    <version>3.0.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.glassfish.web</groupId>
+		    <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+		    <version>3.0.1</version>
+		</dependency>
+
+        
+
+
         <dependency>
             <groupId>org.rxtx</groupId>
             <artifactId>rxtx</artifactId>
@@ -135,6 +162,19 @@
             <version>5.4</version>
         </dependency>
         <!--  stuff that used to be in the jdk -->
+        
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.0</version><!-- was 3.0.1 , latest is 4.0.2 -->
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        
+        <!--
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
@@ -160,6 +200,7 @@
             <artifactId>jsp-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        -->
 
 
     </dependencies>
@@ -195,6 +236,10 @@
         </resources>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.2.2</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
@@ -247,8 +292,8 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <configuration>
-                        <source>11</source>
-                        <target>11</target>
+                        <source>21</source>
+                        <target>21</target>
                     </configuration>
                 </plugin>
             </plugins>

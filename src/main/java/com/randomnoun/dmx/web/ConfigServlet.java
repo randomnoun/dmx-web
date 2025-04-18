@@ -27,12 +27,12 @@ import java.util.regex.Pattern;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
@@ -54,7 +54,7 @@ import gnu.io.RXTXVersion;
  * Parameters:
  * 
  */
-public class ConfigServlet extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
+public class ConfigServlet extends jakarta.servlet.http.HttpServlet implements jakarta.servlet.Servlet {
 
     /** Cache of images */
     public static Map cache = new MRUCache(100, 0, null);
@@ -110,7 +110,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
 	
 	/** Post method; just defers to get
 	 * 
-	 * @see javax.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see jakarta.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
@@ -118,7 +118,7 @@ public class ConfigServlet extends javax.servlet.http.HttpServlet implements jav
     
 	/** Lets get this turkey stand on the road
 	 * 
-	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see jakarta.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	@SuppressWarnings("unchecked")
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 

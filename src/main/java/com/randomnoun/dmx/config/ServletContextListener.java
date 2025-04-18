@@ -3,7 +3,7 @@ package com.randomnoun.dmx.config;
 import java.net.URLClassLoader;
 import java.security.Policy;
 
-import javax.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextEvent;
 
 
 /**
@@ -11,14 +11,14 @@ import javax.servlet.ServletContextEvent;
  * @version $Id$
  */
 public class ServletContextListener
-	implements javax.servlet.ServletContextListener {
+	implements jakarta.servlet.ServletContextListener {
     /** A revision marker to be used in exception stack traces. */
     public static final String _revision = "$Id$";
 
     Policy oldPolicy;
     
 	/**
-	 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
+	 * @see jakarta.servlet.ServletContextListener#contextInitialized(jakarta.servlet.ServletContextEvent)
 	 */
 	public void contextInitialized(ServletContextEvent event) {
 		System.out.println("dmx-web servletContext initialised");
@@ -29,7 +29,7 @@ public class ServletContextListener
 	}
 
 	/** 
-	 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
+	 * @see jakarta.servlet.ServletContextListener#contextDestroyed(jakarta.servlet.ServletContextEvent)
 	 */
 	public void contextDestroyed(ServletContextEvent event) {
 		System.out.println("dmx-web servletContext destroy start");

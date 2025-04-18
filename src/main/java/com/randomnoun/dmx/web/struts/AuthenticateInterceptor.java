@@ -1,25 +1,15 @@
 package com.randomnoun.dmx.web.struts;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
+import org.apache.struts2.ActionInvocation;
 import org.apache.struts2.ServletActionContext;
+import org.apache.struts2.interceptor.AbstractInterceptor;
 
-import com.opensymphony.xwork2.Action;
-import com.opensymphony.xwork2.ActionInvocation;
-import com.opensymphony.xwork2.interceptor.AbstractInterceptor;
-import com.randomnoun.common.Text;
-import com.randomnoun.common.security.SecurityContext;
-import com.randomnoun.common.timer.Benchmark;
 import com.randomnoun.dmx.config.AppConfig;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /** The authentication interceptor
  * 

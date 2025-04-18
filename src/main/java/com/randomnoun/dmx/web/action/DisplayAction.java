@@ -1,6 +1,6 @@
 package com.randomnoun.dmx.web.action;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 

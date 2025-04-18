@@ -1,6 +1,6 @@
 package com.randomnoun.dmx.web;
 
-import javax.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextEvent;
 
 import org.apache.log4j.Logger;
 
@@ -11,11 +11,11 @@ import com.randomnoun.dmx.config.AppConfig;
  * @author knoxg
  */
 public class ServletContextListener
-	implements javax.servlet.ServletContextListener 
+	implements jakarta.servlet.ServletContextListener 
 {
 
 	/**
-	 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
+	 * @see jakarta.servlet.ServletContextListener#contextInitialized(jakarta.servlet.ServletContextEvent)
 	 */
 	public void contextInitialized(ServletContextEvent event) {
 		System.out.println("dmx-web contextInitialized start");
@@ -43,7 +43,7 @@ public class ServletContextListener
 	}
 
 	/** 
-	 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
+	 * @see jakarta.servlet.ServletContextListener#contextDestroyed(jakarta.servlet.ServletContextEvent)
 	 */
 	public void contextDestroyed(ServletContextEvent event) {
 	

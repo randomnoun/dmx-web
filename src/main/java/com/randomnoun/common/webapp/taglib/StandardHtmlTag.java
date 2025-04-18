@@ -5,8 +5,8 @@ package com.randomnoun.common.webapp.taglib;
  */
 
 import java.util.*;
-import javax.servlet.jsp.*;
-import javax.servlet.jsp.tagext.*;
+import jakarta.servlet.jsp.*;
+import jakarta.servlet.jsp.tagext.*;
 
 /**
  * This is an abstract taglib, which can be used to propagate standard HTML attributes

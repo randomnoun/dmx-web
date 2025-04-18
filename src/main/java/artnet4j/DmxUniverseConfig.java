@@ -21,8 +21,8 @@ package artnet4j;
 
 import java.net.InetAddress;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public class DmxUniverseConfig {
 

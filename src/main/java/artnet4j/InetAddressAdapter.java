@@ -21,7 +21,7 @@ package artnet4j;
 
 import java.net.InetAddress;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class InetAddressAdapter extends XmlAdapter<String, InetAddress> {
 

@@ -23,10 +23,10 @@
   }
   */
 
-  Throwable exception = (Throwable) request.getAttribute("javax.servlet.error.exception");
-  String message = (String) request.getAttribute("javax.servlet.error.message");
+  Throwable exception = (Throwable) request.getAttribute("jakarta.servlet.error.exception");
+  String message = (String) request.getAttribute("jakarta.servlet.error.message");
   if (exception==null) {
-    exception = (Throwable) request.getAttribute("javax.servlet.jsp.jspException");
+    exception = (Throwable) request.getAttribute("jakarta.servlet.jsp.jspException");
     if (exception!=null) {
       message = exception.getMessage();
     }
@@ -45,7 +45,7 @@
   <br/><br/>
   <b>Message:</b> <%=message%>
   <br/><br/>
-  <b>Request URI:</b> <%=request.getAttribute("javax.servlet.error.request_uri")%> 
+  <b>Request URI:</b> <%=request.getAttribute("jakarta.servlet.error.request_uri")%> 
   <br/><b>Request Time:</b> <%=timeString%>
   <%-- should only display this in development mode, otherwise log or email it --%>
   <br/><br/>

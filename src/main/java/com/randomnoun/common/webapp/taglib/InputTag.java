@@ -5,7 +5,7 @@ package com.randomnoun.common.webapp.taglib;
  */
 
 import java.io.*;
-import javax.servlet.jsp.*;
+import jakarta.servlet.jsp.*;
 
 import org.apache.log4j.Logger;
 

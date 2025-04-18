@@ -5,9 +5,9 @@ package com.randomnoun.common.webapp.taglib;
  */
 import java.io.IOException;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyTagSupport;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.BodyTagSupport;
 
 import com.randomnoun.common.ErrorList;
 
@@ -49,7 +49,7 @@ public class OnErrorTag
     public String getText() { return text; }
 
     public int doStartTag()
-        throws javax.servlet.jsp.JspException {
+        throws jakarta.servlet.jsp.JspException {
         ErrorList errorList;
         boolean hasError = false;
 
@@ -107,7 +107,7 @@ public class OnErrorTag
     }
 
     public int doEndTag()
-        throws javax.servlet.jsp.JspException {
+        throws jakarta.servlet.jsp.JspException {
         id = null;
         text = null;
 

@@ -2,7 +2,7 @@ package com.randomnoun.dmx.web.struts;
 
 import org.apache.struts2.result.StrutsResultSupport;
 
-import com.opensymphony.xwork2.ActionInvocation;
+import org.apache.struts2.ActionInvocation;
 
 public class NullResult extends StrutsResultSupport {
 

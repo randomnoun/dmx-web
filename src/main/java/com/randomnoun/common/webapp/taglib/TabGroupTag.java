@@ -6,8 +6,8 @@ package com.randomnoun.common.webapp.taglib;
 
 import java.io.*;
 import java.util.*;
-import javax.servlet.jsp.*;
-import javax.servlet.jsp.tagext.*;
+import jakarta.servlet.jsp.*;
+import jakarta.servlet.jsp.tagext.*;
 
 import org.apache.log4j.Logger;
 
@@ -245,7 +245,7 @@ public class TabGroupTag
      *   tag can be post-processed in the doEndTag() method.
      */
     public int doStartTag()
-        throws javax.servlet.jsp.JspException 
+        throws jakarta.servlet.jsp.JspException 
     {
     	try {
 	
@@ -274,7 +274,7 @@ public class TabGroupTag
      * outputStream. This is invoked just prior to generating the HTML for the currently
      * selected tab.
      *
-     * @throws javax.servlet.jsp.JspException An I/O exception occurred whilst
+     * @throws jakarta.servlet.jsp.JspException An I/O exception occurred whilst
      *   writing to pageContext.getOut().
      */
     public void constructContainerStart()
@@ -379,7 +379,7 @@ public class TabGroupTag
      * Closes off the tabsheet DIV. This is invoked just after generating the HTML for the
      * currently selected tab.
      *
-     * @throws javax.servlet.jsp.JspException An I/O exception occurred whilst
+     * @throws jakarta.servlet.jsp.JspException An I/O exception occurred whilst
      *   writing to pageContext.getOut().
      */
     public void constructContainerEnd()
@@ -400,11 +400,11 @@ public class TabGroupTag
      *
      * @return This method always returns BodyTag.EVAL_PAGE
      *
-     * @throws javax.servlet.jsp.JspException An I/O exception occurred whilst
+     * @throws jakarta.servlet.jsp.JspException An I/O exception occurred whilst
      *   writing to pageContext.getOut().
      */
     public int doEndTag()
-        throws javax.servlet.jsp.JspException {
+        throws jakarta.servlet.jsp.JspException {
         try {
         	constructContainerStart();
 			

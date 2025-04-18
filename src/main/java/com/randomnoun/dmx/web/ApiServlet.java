@@ -2,10 +2,10 @@ package com.randomnoun.dmx.web;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
@@ -30,7 +30,7 @@ import com.randomnoun.dmx.show.Show;
  * @version         $Id$
  * @author          knoxg
  */
-public class ApiServlet extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
+public class ApiServlet extends jakarta.servlet.http.HttpServlet implements jakarta.servlet.Servlet {
     
     /** A revision marker to be used in exception stack traces. */
     public static final String _revision = "$Id$";
